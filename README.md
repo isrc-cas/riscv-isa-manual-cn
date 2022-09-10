@@ -1,25 +1,22 @@
-# RISC-V ISA Manual CN
+# RISC-V 指令集手册中文版 RISC-V ISA Manual CN 
 
 #### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+本项目是对RISC-V International （RVI）已批准指令集手册的中文翻译。由中科院软件所负责长期维护。
 
-#### 软件架构
-软件架构说明
+#### 版本说明
+官方英文版本可以在https://riscv.org/technical/specifications/ 获取，英文最新版本可在https://github.com/riscv/riscv-isa-manual/releases/latest 获取。
 
 
-#### 安装教程
+#### 许可说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+与官方英文版本一样，本作品采用 Creative Commons Attribution 4.0 International License（知识共享署名4.0国际许可协议）。具体请参见LICENSE文件。
 
-#### 使用说明
+#### 内容说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  卷I：用户级 ISA
+2.  卷II：特权架构
+3.  其他一些最近刚刚批准的扩展指令集
+
 
 #### 参与贡献
 
@@ -29,11 +26,9 @@ Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN�
 4.  新建 Pull Request
 
 
-#### 特技
+#### 已有贡献者名单（如有遗漏，发消息给 @武延军 ）
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+0.  Andrew Waterman，Krste Asanovic 等RISC-V创始人员 
+1.  武延军，中科院软件所研究员，对初始翻译进行校对，负并责跟踪官方英文版本，持续更新本项目
+2.  刘畅，中国科学院大学 2017 级博士生，完成了手册第I卷用户级非特权指令集的第一次初始翻译
+3.  高世豪，中国科学院大学 2023 级博士生，负责本项目的持续维护，正在翻译第II卷特权架构
