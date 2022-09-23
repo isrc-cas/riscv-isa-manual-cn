@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2022)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: riscv-spec.aux
+The style file: plain.bst
+Database file #1: riscv-spec.bib
+Warning--to sort, need author or key in riscv-elf-psabi
+Warning--to sort, need author or key in riscv-asm-manual
+You've used 16 entries,
+            2118 wiz_defined-function locations,
+            590 strings with 7047 characters,
+and the built_in function-call counts, 5761 in all, are:
+= -- 538
+> -- 337
+< -- 6
++ -- 138
+- -- 118
+* -- 414
+:= -- 936
+add.period$ -- 44
+call.type$ -- 16
+change.case$ -- 109
+chr.to.int$ -- 0
+cite$ -- 18
+duplicate$ -- 215
+empty$ -- 430
+format.name$ -- 118
+if$ -- 1213
+int.to.chr$ -- 0
+int.to.str$ -- 16
+missing$ -- 10
+newline$ -- 79
+num.names$ -- 26
+pop$ -- 139
+preamble$ -- 1
+purify$ -- 92
+quote$ -- 0
+skip$ -- 153
+stack$ -- 0
+substring$ -- 244
+swap$ -- 52
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 64
+warning$ -- 2
+while$ -- 41
+width$ -- 18
+write$ -- 168
+(There were 2 warnings)

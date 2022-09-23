@@ -1,0 +1,105 @@
+%=======================================================================
+% riscv-spec.tex
+%-----------------------------------------------------------------------
+
+
+\documentclass[twoside,11pt]{book}
+
+% Fix copy/pasting of ligatures in Acrobat
+% \input{glyphtounicode.tex}
+% \pdfgentounicode=1 %
+
+\input{preamble}
+
+\newcommand{\specrev}{\mbox{20191214-{\em draft}}}
+\newcommand{\specmonthyear}{\mbox{December 2019}}
+
+
+\begin{document}
+
+\title{\vspace{-0.7in}\Large {\bf RISC-V指令集手册} \\
+  \large {\bf 卷I： 非特权指令集架构} \\
+  文档版本 \specrev
+  \vspace{-0.1in}}
+
+\author{编者：安德鲁·沃特曼$^{1}$, 克尔斯泰·阿桑诺维奇$^{1,2}$ \\
+  $^{1}$SiFive股份有限公司， \\
+  $^{2}$加州伯克利分校，电子工程部，计算机科学与技术系\\
+  {\tt waterman@eecs.berkeley.edu, krste@berkeley.edu} \\
+  \today
+}
+\date{} 
+\maketitle
+
+
+\setlength{\parindent}{2em}
+
+本规范的所有版本的贡献者如下，以字母顺序排列（请联系编者以提出更改建议）：
+阿文，克尔斯泰·阿桑诺维奇，里马斯·阿维齐尼斯，雅各布·巴赫迈耶，克里斯托弗·F·巴顿，艾伦·J·鲍姆，亚历克斯·布拉德伯里，斯科特·比默，普雷斯顿·布里格斯，克里斯托弗·塞利奥，张传华，大卫·奇斯纳尔，保罗·克莱顿，帕默·达贝尔特，肯·多克瑟，罗杰·埃斯帕萨，格雷格·福斯特，谢克德·弗勒，斯特凡·弗洛伊德伯格，马克·高希尔，安迪·格鲁，简·格雷，迈克尔·汉伯格，约翰·豪瑟，戴维·霍纳，布鲁斯·霍尔特，比尔·赫夫曼，亚历山大·琼诺，奥洛夫·约翰森，本·凯勒，大卫·克鲁克迈尔，李云燮，保罗·洛文斯坦，丹尼尔·卢斯蒂格，雅廷·曼尔卡，卢克·马兰杰，玛格丽特·马托诺西，约瑟夫·迈尔斯，维贾亚南德·纳加拉扬，里希尔·尼希尔，乔纳斯·奥伯豪斯，斯特凡·奥雷尔，欧伯特，约翰·奥斯特豪特，大卫·帕特森，克里斯托弗·普尔特，何塞·雷诺，乔希·谢德，科林·施密特，彼得·苏厄尔，萨米特·萨卡尔，迈克尔·泰勒，韦斯利·特普斯特拉，马特·托马斯，汤米·索恩，卡罗琳·特里普，雷·范德瓦尔克，穆拉里达兰·维贾亚拉加万，梅根·瓦克斯，安德鲁·沃特曼，罗伯特·沃森，德里克·威廉姆斯，安德鲁·赖特，雷诺·赞迪克，和张思卓。
+
+
+本文档在知识共享署名4.0国际许可证(Creative Commons Attribution 4.0 International License)下发布。
+
+
+本文档是《RISC-V指令集手册，卷I：用户级指令集架构 2.1版本》的衍生版本，
+该手册在\copyright 2010--2017 安德鲁·沃特曼，李云燮，大卫·帕特森，克尔斯泰·阿桑诺维奇，知识共享署名4.0国际许可证下发布。 
+
+% Please cite as: ``The RISC-V Instruction Set
+% Manual, Volume I: User-Level ISA, Document Version \specrev'', Editors
+% Andrew Waterman and Krste Asanovi\'{c}, RISC-V International, \specmonthyear.
+
+引用请使用：“The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document Version \specrev”，
+编者：安德鲁·沃特曼、克尔斯泰·阿桑诺维奇，RISC-V国际，2019年12月。
+
+
+\markboth{卷I：RISC-V 非特权指令集架构 V\specrev} % V\sperev 中 这个V是什么意思？
+{卷I：RISC-V 非特权指令集架构 V\specrev}
+\thispagestyle{empty}
+
+\frontmatter
+
+\input{preface}
+
+{\hypersetup{linktoc=all,hidelinks}
+\tableofcontents
+}
+
+\mainmatter
+
+\input{intro}
+\input{rv32}
+% \input{zifencei}
+% \input{zihintntl}
+% \input{zihintpause}
+% \input{rv32e}
+% \input{rv64}
+% \input{rv128}
+% \input{m}
+% \input{a}
+% \input{csr}
+% \input{counters}
+% \input{f}
+% \input{d}
+% \input{q}
+% \input{zfh}
+% \input{rvwmo}
+% \input{c}
+% \input{b}
+% \input{j}
+% \input{p}
+% \input{v}
+% \input{zam}
+% \input{zfinx}
+% \input{ztso}
+% \input{gmaps}
+% \input{extensions}
+% \input{naming}
+% \input{history}
+
+\appendix
+% \input{memory}
+
+\bibliographystyle{plain}
+\bibliography{riscv-spec}
+
+\end{document}

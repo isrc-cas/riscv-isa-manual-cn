@@ -1,0 +1,97 @@
+\begin{thebibliography}{10}
+
+\bibitem{riscv-asm-manual}
+{RISC-V Assembly Programmer's Manual}.
+\newblock \url{https://github.com/riscv/riscv-asm-manual}.
+
+\bibitem{riscv-elf-psabi}
+{RISC-V ELF psABI Specification}.
+\newblock \url{https://github.com/riscv/riscv-elf-psabi-doc/}.
+
+\bibitem{heil-tr1996}
+Timothy~H. Heil and James~E. Smith.
+\newblock Selective dual path execution.
+\newblock Technical report, University of Wisconsin - Madison, November 1996.
+
+\bibitem{ieee754-2008}
+{ANSI/IEEE Std 754-2008}, {IEEE} standard for floating-point arithmetic, 2008.
+
+\bibitem{Katevenis:1983}
+Manolis~G.H. Katevenis, Robert~W. Sherburne, Jr., David~A. Patterson, and
+  Carlo~H. S{\'e}quin.
+\newblock The {RISC II} micro-architecture.
+\newblock In {\em Proceedings VLSI 83 Conference}, August 1983.
+
+\bibitem{Kim-micro2005}
+Hyesoon Kim, Onur Mutlu, Jared Stark, and Yale~N. Patt.
+\newblock Wish branches: Combining conditional branching and predication for
+  adaptive predicated execution.
+\newblock In {\em Proceedings of the 38th annual IEEE/ACM International
+  Symposium on Microarchitecture}, MICRO 38, pages 43--54, 2005.
+
+\bibitem{Klauser-1998}
+A.~Klauser, T.~Austin, D.~Grunwald, and B.~Calder.
+\newblock Dynamic hammock predication for non-predicated instruction set
+  architectures.
+\newblock In {\em Proceedings of the 1998 International Conference on Parallel
+  Architectures and Compilation Techniques}, PACT '98, Washington, DC, USA,
+  1998.
+
+\bibitem{spur-jsscc1989}
+David~D. Lee, Shing~I. Kong, Mark~D. Hill, George~S. Taylor, David~A. Hodges,
+  Randy~H. Katz, and David~A. Patterson.
+\newblock A {VLSI} chip set for a multiprocessor workstation--{Part I}: An
+  {RISC} microprocessor with coprocessor interface and support for symbolic
+  processing.
+\newblock {\em IEEE JSSC}, 24(6):1688--1698, December 1989.
+
+\bibitem{lithe-pan-hotpar09}
+Heidi Pan, Benjamin Hindman, and Krste Asanovi\'c.
+\newblock {Lithe}: Enabling efficient composition of parallel libraries.
+\newblock In {\em Proceedings of the 1st USENIX Workshop on Hot Topics in
+  Parallelism (HotPar~'09)}, Berkeley, CA, March 2009.
+
+\bibitem{lithe-pan-pldi10}
+Heidi Pan, Benjamin Hindman, and Krste Asanovi\'c.
+\newblock Composing parallel software efficiently with {Lithe}.
+\newblock In {\em 31st Conference on Programming Language Design and
+  Implementation}, Toronto, Canada, June 2010.
+
+\bibitem{riscI-isca1981}
+David~A. Patterson and Carlo~H. S\'{e}quin.
+\newblock {RISC I}: {A} reduced instruction set {VLSI} computer.
+\newblock In {\em ISCA}, pages 443--458, 1981.
+
+\bibitem{ibmpower7}
+Balaram Sinharoy, R.~Kalla, W.~J. Starke, H.~Q. Le, R.~Cargnoni, J.~A.
+  Van~Norstrand, B.~J. Ronchetti, J.~Stuecheli, J.~Leenstra, G.~L. Guthrie,
+  D.~Q. Nguyen, B.~Blaner, C.~F. Marino, E.~Retter, and P.~Williams.
+\newblock {IBM} {POWER7} multicore server processor.
+\newblock {\em IBM Journal of Research and Development}, 55(3):1--1, 2011.
+
+\bibitem{jtseng:sbbci}
+J.~Tseng and K.~Asanovi\'c.
+\newblock Energy-efficient register access.
+\newblock In {\em Proc. of the 13th Symposium on Integrated Circuits and
+  Systems Design}, pages 377--384, Manaus, Brazil, September 2000.
+
+\bibitem{Ungar:1984}
+David Ungar, Ricki Blau, Peter Foley, Dain Samples, and David Patterson.
+\newblock Architecture of {SOAR}: {Smalltalk} on a {RISC}.
+\newblock In {\em ISCA}, pages 188--197, Ann Arbor, MI, 1984.
+
+\bibitem{riscvtr}
+Andrew Waterman, Yunsup Lee, David~A. Patterson, and Krste Asanovi\'{c}.
+\newblock The {RISC-V} instruction set manual, {Volume I}: {Base} user-level
+  {ISA}.
+\newblock Technical Report UCB/EECS-2011-62, EECS Department, University of
+  California, Berkeley, May 2011.
+
+\bibitem{riscvtr2}
+Andrew Waterman, Yunsup Lee, David~A. Patterson, and Krste Asanovi\'{c}.
+\newblock The {RISC-V} instruction set manual, {Volume I}: {Base} user-level
+  {ISA} version 2.0.
+\newblock Technical Report UCB/EECS-2014-54, EECS Department, University of
+  California, Berkeley, May 2014.
+
+\end{thebibliography}
