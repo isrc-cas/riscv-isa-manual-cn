@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  23 SEP 2022 20:10
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  28 SEP 2022 10:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -991,45 +991,48 @@ LaTeX Font Warning: Font shape `TU/SongtiSCLight(0)/m/sc' undefined
 第二章
 [13] [14]
 
-LaTeX Warning: Reference `rv32e' on page 15 undefined on input line 143.
-
-[15]
-
-LaTeX Warning: Reference `csrinsts' on page 16 undefined on input line 237.
-
-[16]
-Overfull \hbox (3.0847pt too wide) in paragraph at lines 366--419
- [] 
- []
+LaTeX Warning: Reference `rv32e' on page 15 undefined on input line 112.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[17] [18]
-Overfull \hbox (10.6104pt too wide) in paragraph at lines 502--502
+
+LaTeX Warning: Reference `csrinsts' on page 15 undefined on input line 191.
+
+[15]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[16]
+Overfull \hbox (3.0847pt too wide) in paragraph at lines 309--362
+ [] 
+ []
+
+[17]
+Overfull \hbox (10.6104pt too wide) in paragraph at lines 445--445
  []|\TU/lmr/m/n/10.95 ANDI/ORI/XORI| 
  []
 
-[19] [20] [21] [22] [23] [24] [25] [26] [27] [28]
-Overfull \hbox (5.41927pt too wide) in paragraph at lines 1173--1206
+[18] [19] [20] [21] [22] [23] [24] [25] [26] [27] [28]
+Overfull \hbox (5.41927pt too wide) in paragraph at lines 1116--1149
  [] 
  []
 
 
-LaTeX Warning: Reference `ch:memorymodel' on page 29 undefined on input line 12
-16.
+LaTeX Warning: Reference `ch:memorymodel' on page 29 undefined on input line 11
+59.
 
 [29]
 
-LaTeX Warning: Reference `csrinsts' on page 30 undefined on input line 1313.
+LaTeX Warning: Reference `csrinsts' on page 30 undefined on input line 1256.
 
 [30]
 
-LaTeX Warning: Reference `compressed' on page 31 undefined on input line 1383.
+LaTeX Warning: Reference `compressed' on page 31 undefined on input line 1326.
 
 [31]
 
-LaTeX Warning: Float too large for page by 103.34389pt on input line 1497.
+LaTeX Warning: Float too large for page by 103.34389pt on input line 1440.
 
 ) (./riscv-spec.bbl [32] [33] [34
 
@@ -1041,13 +1044,13 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `riscv-spec.out' has not changed.
-(rerunfilecheck)             Checksum: A78C945E6D0769E1AD6F11D381602449;3136.
+(rerunfilecheck)             Checksum: 119F02350C2AEB0F196213C04CB31269;2510.
  ) 
 Here is how much of TeX's memory you used:
- 19336 strings out of 476179
- 431230 string characters out of 5809545
+ 19389 strings out of 476179
+ 434952 string characters out of 5809545
  774305 words of memory out of 5000000
- 39740 multiletter control sequences out of 15000+600000
+ 39793 multiletter control sequences out of 15000+600000
  478312 words of font info for 99 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  94i,15n,100p,593b,588s stack positions out of 10000i,1000n,20000p,200000b,200000s

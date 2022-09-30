@@ -1,49 +1,39 @@
-\chapter{RV32I Base Integer Instruction Set, Version 2.1}
+\chapter{RV32I 基础整数指令集，2.1版本}
 \label{rv32}
 
-This chapter describes the RV32I base integer instruction set.
+这章描述了RV32I基础整数指令集。
 
 \begin{commentary}
-RV32I was designed to be sufficient to form a compiler target and to
-support modern operating system environments.  The ISA was also
-designed to reduce the hardware required in a minimal implementation.
-RV32I contains 40 unique instructions, though a simple implementation
-might cover the ECALL/EBREAK instructions with a single SYSTEM
-hardware instruction that always traps and might be able to implement
-the FENCE instruction as a NOP, reducing base instruction count to 38
-total.  RV32I can emulate almost any other ISA extension (except the A
-extension, which requires additional hardware support for atomicity).
+RV32I被设计为足以形成编译器目标和支持现代操作系统环境的。
+该ISA也被设计为在最小的实现中减少对硬件的需求。
+RV32I包含40条各不相同的指令（尽管在简单的实现中，
+可能会用一个总是陷入的系统硬件指令来覆盖ECALL/EBREAK指令，并且可能会把FENCE指令实现为一个NOP，
+从而把基础指令数目减少到总计38条）。
+RV32I可以模拟几乎任何其它的ISA扩展（除了A扩展，因为它需要额外的硬件支持去实现原子性）。
 
-In practice, a hardware implementation including the machine-mode
-privileged architecture will also require the 6 CSR instructions.
+实际上，一个包括了机器模式特权架构的硬件实现还将需要6个CSR指令。
 
-Subsets of the base integer ISA might be useful for pedagogical
-purposes, but the base has been defined such that there should be
-little incentive to subset a real hardware implementation beyond
-omitting support for misaligned memory accesses and treating all
-SYSTEM instructions as a single trap.
+对于教学目的来说，基础整数ISA的子集可能是有用的，
+但是“基础”已经定义了，应当很少有动机对一个真实的硬件实现进行子集化--
+除了忽略对非对齐的内存访问的支持，和把所有的系统指令视为一个单独的陷入。
 \end{commentary}
 
 \begin{commentary}
-The standard RISC-V assembly language syntax is documented in the
-Assembly Programmer's Manual~\cite{riscv-asm-manual}.
+标准RISC-V汇编语言语法的文档在《汇编程序员手册》~\cite{riscv-asm-manual}中。
 \end{commentary}
 
 \begin{commentary}
-Most of the commentary for RV32I also applies to the RV64I base.
+大多数对RV32I的注解也适用于RV64I基础指令集。
 \end{commentary}
 
-\section{Programmers' Model for Base Integer ISA}
+\section{基础整数 ISA 的编程模型}
 
-Figure~\ref{gprs} shows the unprivileged state for the base integer
-ISA.  For RV32I, the 32 {\tt x} registers are each 32 bits wide, i.e.,
-XLEN=32.  Register {\tt x0} is hardwired with all bits equal to 0.
-General purpose registers {\tt x1}--{\tt x31} hold values that various
-instructions interpret as a collection of Boolean values, or as two's
-complement signed binary integers or unsigned binary integers.
+表~\ref{gprs}显示了基础整数ISA的非特权状态。
+对于RV32I，32个{\tt x}寄存器每个都是32位宽，也就是说，XLEN＝32。
+寄存器{\tt x0}的所有位都被硬布线为0。通用目的寄存器{\tt x1}-{\tt x31}持有数值，
+这些值被各种指令解释为布尔值的集合、或者二进制有符号整数或无符号整数的二补码。
 
-There is one additional unprivileged register: the program counter {\tt pc}
-holds the address of the current instruction.
+还有一个额外的非特权寄存器：程序计数器{\tt pc}，保持了当前指令的地址。
 
 \begin{figure}[H]
 {\footnotesize
@@ -90,90 +80,58 @@ holds the address of the current instruction.
 \end{tabular}
 \end{center}
 }
-\caption{RISC-V base unprivileged integer register state.}
+\caption{RISC-V基础非特权整数寄存器状态}
 \label{gprs}
 \end{figure}
 
 \begin{commentary}
-There is no dedicated stack pointer or subroutine return address link
-register in the Base Integer ISA; the instruction encoding allows any
-{\tt x} register to be used for these purposes. However, the standard
-software calling convention uses register {\tt x1} to hold the return
-address for a call, with register {\tt x5} available as an alternate
-link register.
-The standard calling convention uses register {\tt x2} as the stack
-pointer.
+在基础整数ISA中没有专门的栈指针或子程序返回地址链接寄存器；
+指令编码允许任何的{\tt x}寄存器被用于这些目的。然而，标准软件调用约定使用寄存器{\tt x1}来保持一个调用的返回地址，
+以及寄存器{\tt x5}可用作备选的链接寄存器。标准调用约定使用寄存器{\tt x2}作为栈指针。
 
-Hardware might choose to accelerate function calls and returns that
-use {\tt x1} or {\tt x5}. See the descriptions of the JAL and JALR
-instructions.
+硬件可能选择加速函数调用并返回使用{\tt x1}或{\tt x5}。见JAL和JALR指令的描述。
 
-The optional compressed 16-bit instruction format is designed around
-the assumption that {\tt x1} is the return address register and {\tt
- x2} is the stack pointer. Software using other conventions will
-operate correctly but may have greater code size.
+可选的压缩16位指令格式是围绕着{\tt x1}是返回地址寄存器，而{\tt x2}是栈指针的假设设计的。
+使用其它约定（非标准约定）的软件将正确地操作，但是可能会得到更大的代码尺寸。
 \end{commentary}
 
 \begin{commentary}
-The number of available architectural registers can have large impacts
-on code size, performance, and energy consumption.  Although 16
-registers would arguably be sufficient for an integer ISA running
-compiled code, it is impossible to encode a complete ISA with 16
-registers in 16-bit instructions using a 3-address format.  Although a
-2-address format would be possible, it would increase instruction
-count and lower efficiency.  We wanted to avoid intermediate
-instruction sizes (such as Xtensa's 24-bit instructions) to simplify
-base hardware implementations, and once a 32-bit instruction size was
-adopted, it was straightforward to support 32 integer registers.  A
-larger number of integer registers also helps performance on
-high-performance code, where there can be extensive use of loop
-unrolling, software pipelining, and cache tiling.
+可用的架构寄存器数目可以对代码尺寸、性能、和能量消耗有很大的影响。
+尽管16个寄存器对于运行已编译的代码的一个整数ISA来说理应是足够的，
+但是使用3-地址格式在16位指令中编码一个带有16个寄存器的完整ISA还是不可能的。
+尽管2-地址格式将是可能的，但是它将增加指令数量并降低效率。
+我们希望避免中间指令尺寸（例如Xtensa的24位指令），以简化基础硬件实现，并且一旦采用了32位指令尺寸，
+就可以直接支持32个整数寄存器。更大数目的整数寄存器也对高性能代码的性能有帮助，可以促成循环展开（loop unrolling）、
+软件管道（software pipelining）和缓存平铺（cache tiling）的广泛使用。
 
-For these reasons, we chose a conventional size of 32 integer
-registers for RV32I.  Dynamic register usage tends to be
-dominated by a few frequently accessed registers, and regfile
-implementations can be optimized to reduce access energy for the
-frequently accessed registers~\cite{jtseng:sbbci}.  The optional
-compressed 16-bit instruction format mostly only accesses 8 registers
-and hence can provide a dense instruction encoding, while additional
-instruction-set extensions could support a much larger register space
-(either flat or hierarchical) if desired.
+由于这些原因，我们为RV32I选择了一个32个整数寄存器的约定尺寸。
+动态寄存器使用往往由一些频繁被访问的寄存器所控制，而寄存器文件的实现可以被优化，
+以减少对频繁访问寄存器的访问能耗~\cite{jtseng:sbbci}。可选的压缩16位指令格式大多数只访问8个寄存器，
+并因此可以提供一种稠密的指令编码；而额外的指令集扩展，如果愿意，可能支持更大的寄存器空间（或者是扁平的，或者是分层的）。
 
-For resource-constrained embedded applications, we have defined the
-RV32E subset, which only has 16 registers (Chapter~\ref{rv32e}).
+对于资源受限的嵌入式应用，我们已经定义了RV32E子集，它只有16个寄存器（第6章~\ref{rv32e}）。
 \end{commentary}
 
-\section{Base Instruction Formats}
+\section{基础指令格式}
 
-In the base RV32I ISA, there are four core instruction formats
-(R/I/S/U), as shown in Figure~\ref{fig:baseinstformats}.  All are a
-fixed 32 bits in length.
-The base ISA has IALIGN=32, meaning that instructions must be aligned on
-a four-byte boundary in memory.
-An instruction-address-misaligned exception is generated on a taken branch or
-unconditional jump if the target address is not IALIGN-bit aligned.
-This exception is reported on the branch or jump
-instruction, not on the target instruction.  No
-instruction-address-misaligned exception is generated for a
-conditional branch that is not taken.
+在基础RV32I ISA中，有四个核心指令格式（R/I/S/U），如图~\ref{fig:baseinstformats}所示。
+所有这四个格式都是32位固定长度。
+基础ISA有IALIGN＝32意味着指令必须在内存中对齐到四字节的边界。
+如果在执行分支或无条件跳转时，目标地址没有按IALIGN位对齐，将生成一个指令地址未对齐的异常。
+这个异常由分支或跳转指令汇报，而不是目标指令。对于还没有被执行的条件分支，不会生成指令地址未对齐异常。
 
 \begin{commentary}
-The alignment constraint for base ISA instructions is relaxed to a
-two-byte boundary when instruction extensions with 16-bit lengths or
-other odd multiples of 16-bit lengths are added (i.e., IALIGN=16).
+当加入了16位长度的指令扩展或者其它长度为16位奇数倍的扩展（即，IALIGN＝16）时，
+这个对基础ISA指令的对齐约束被放宽到按双字节边界对齐。
 
-Instruction-address-misaligned exceptions are reported on the branch
-or jump that would cause instruction misalignment to help debugging,
-and to simplify hardware design for systems with IALIGN=32, where these
-are the only places where misalignment can occur.
+由分支或跳转汇报的指令地址未对齐异常，将导致指令未对齐，以帮助调试，并简化IALIGN＝32的系统的硬件设计，
+因为这是唯一可能发生未对齐的地方。
 \end{commentary}
 
-The behavior upon decoding a reserved instruction is \unspecified.
+上面解码一个保留指令的行为是“\unspecified”。
 \begin{commentary}
-Some platforms may require that opcodes reserved for standard use raise
-an illegal-instruction exception.
-Other platforms may permit reserved opcode space be used for non-conforming
-extensions.
+一些平台可能需要保留的操作码，为标准使用引发一个非法指令异常。
+其它平台可能允许保留的操作码空间被用于不合规的扩展。
 \end{commentary}
 
 \begin{figure}[h]
@@ -194,7 +152,7 @@ extensions.
 \multicolumn{1}{c|}{funct3} &
 \multicolumn{1}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-R-type \\
+R-类型 \\
 \cline{1-6}
 \\
 \cline{1-6}
@@ -203,7 +161,7 @@ R-type \\
 \multicolumn{1}{c|}{funct3} &
 \multicolumn{1}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-I-type \\
+I-类型 \\
 \cline{1-6}
 \\
 \cline{1-6}
@@ -213,55 +171,40 @@ I-type \\
 \multicolumn{1}{c|}{funct3} &
 \multicolumn{1}{c|}{imm[4:0]} &
 \multicolumn{1}{c|}{opcode} &
-S-type \\
+S-类型 \\
 \cline{1-6}
 \\
 \cline{1-6}
 \multicolumn{4}{|c|}{imm[31:12]} &
 \multicolumn{1}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-U-type \\
+U-类型 \\
 \cline{1-6}
 \end{tabular}
 \end{center}
-\caption{RISC-V base instruction formats.  Each immediate subfield is
-  labeled with the bit position (imm[{\em x}\,]) in the immediate
-  value being produced, rather than the bit position within the
-  instruction's immediate field as is usually done.  }
+\caption{RISC-V 基础指令格式。 每个立即数子域都用正被产生的立即数值中的位位置（imm[{\em x}]）的标签标记，
+而不是像通常做的那样，用指令立即数域中的位位置。}
 \label{fig:baseinstformats}
 \end{figure}
 
-The RISC-V ISA keeps the source ({\em rs1} and {\em rs2}) and
-destination ({\em rd}) registers at the same position in all formats
-to simplify decoding.  Except for the 5-bit immediates used in CSR
-instructions (Chapter~\ref{csrinsts}), immediates are always
-sign-extended, and are generally packed towards the leftmost available
-bits in the instruction and have been allocated to reduce hardware
-complexity.  In particular, the sign bit for all immediates is always
-in bit 31 of the instruction to speed sign-extension circuitry.
+为了简化解码，所有格式中，RISC-V ISA在相同的位置保存源寄存器（{\em rs1}和{\em rs2}）和目的寄存器（{\em rd}）。
+除了CSR指令（第11章~\ref{csrinsts}）中使用的5位立即数，立即数总是符号扩展的，并且通常在指令中被封装在最左端的可用位，
+且被提前分配以减少硬件复杂度。特别地，为了加速符号扩展的电路，所有立即数的符号位总是在指令的位31处。
 
 \begin{commentary}
-Decoding register specifiers is usually on the critical paths in
-implementations, and so the instruction format was chosen to keep all
-register specifiers at the same position in all formats at the expense
-of having to move immediate bits across formats (a property shared
-with RISC-IV aka. SPUR~\cite{spur-jsscc1989}).
+在实现中，解码寄存器标识符通常在关键路径上。因此在选择指令的格式时，选择在所有格式中的相同的位置保存所有的寄存器标识符；
+作为代价，不得不跨格式移动立即数位（一个分享自RISC-IV的属性，又称SPUR~\cite{spur-jsscc1989}）。
 
-In practice, most immediates are either small or require all XLEN
-bits.  We chose an asymmetric immediate split (12 bits in regular
-instructions plus a special load-upper-immediate instruction with 20
-bits) to increase the opcode space available for regular instructions.
+实际上，大多数立即数或者比较小，或者需要所有的XLEN位。
+我们选择了一种不对称的立即数分割方法（常规指令中的12位加上一个特殊的20位的“加载上位立即数（load-upper-immediate）”指令）
+来为常规指令增加可用的编码空间。
 
-Immediates are sign-extended because we did not observe a benefit to
-using zero-extension for some immediates as in the MIPS ISA and wanted
-to keep the ISA as simple as possible.
+立即数是符号扩展的，因为对于某些立即数（像在MIPS ISA中的），我们没有观察到使用零扩展的收益，并且想保持ISA尽可能地简单。
 \end{commentary}
 
-\section{Immediate Encoding Variants}
+\section{立即数编码变量}
 
-There are a further two variants of the instruction formats (B/J)
-based on the handling of immediates, as shown in
-Figure~\ref{fig:baseinstformatsimm}.
+基于对立即数的处理，还有两个指令格式的变体（B/J），如图~\ref{fig:baseinstformatsimm}所示。
 
 \begin{figure}[h]
 \begin{small}
@@ -285,7 +228,7 @@ Figure~\ref{fig:baseinstformatsimm}.
 \multicolumn{1}{c|}{funct3} &
 \multicolumn{2}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-R-type \\
+R-类型 \\
 \cline{1-9}
 \\
 \cline{1-9}
@@ -294,7 +237,7 @@ R-type \\
 \multicolumn{1}{c|}{funct3} &
 \multicolumn{2}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-I-type \\
+I-类型 \\
 \cline{1-9}
 \\
 \cline{1-9}
@@ -304,7 +247,7 @@ I-type \\
 \multicolumn{1}{c|}{funct3} &
 \multicolumn{2}{c|}{imm[4:0]} &
 \multicolumn{1}{c|}{opcode} &
-S-type \\
+S-类型 \\
 \cline{1-9}
 \\
 \cline{1-9}
@@ -316,14 +259,14 @@ S-type \\
 \multicolumn{1}{c|}{imm[4:1]} &
 \multicolumn{1}{c|}{imm[11]} &
 \multicolumn{1}{c|}{opcode} &
-B-type \\
+B-类型 \\
 \cline{1-9}
 \\
 \cline{1-9}
 \multicolumn{6}{|c|}{imm[31:12]} &
 \multicolumn{2}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-U-type \\
+U-类型 \\
 \cline{1-9}
 \\
 \cline{1-9}
@@ -333,32 +276,23 @@ U-type \\
 \multicolumn{2}{c|}{imm[19:12]} &
 \multicolumn{2}{c|}{rd} &
 \multicolumn{1}{c|}{opcode} &
-J-type \\
+J-类型 \\
 \cline{1-9}
 \end{tabular}
 \end{center}
 \end{small}
-\caption{RISC-V base instruction formats showing immediate variants.}
+\caption{显式立即数的RISC-V基础指令格式。}
 \label{fig:baseinstformatsimm}
 \end{figure}
 
-The only difference between the S and B formats is that the 12-bit
-immediate field is used to encode branch offsets in multiples of 2 in
-the B format.  Instead of shifting all bits in the
-instruction-encoded immediate left by one in hardware as is
-conventionally done, the middle bits (imm[10:1]) and sign bit stay in
-fixed positions, while the lowest bit in S format (inst[7]) encodes a
-high-order bit in B format.
+S格式和B格式之间唯一的不同是，在B格式中，12位立即数域被用于以2的倍数对分支的偏移量进行编码。
+将中间位（imm[10:1]）和符号位放置在固定的位置，同时S格式中的最低位（inst[7]）以B格式对高序位进行编码，
+而不是像传统的做法那样，在硬件中把编码指令立即数中的所有位直接左移一位。
 
-Similarly, the only difference between the U and J formats is
-that the 20-bit immediate is shifted left by 12 bits to form U
-immediates and by 1 bit to form J immediates.  The location of
-instruction bits in the U and J format immediates is chosen to
-maximize overlap with the other formats and with each other.
+类似地，U格式和J格式之间唯一的不同是，20位立即数向左移位12位形成U格式立即数，而向左移1位形成J格式立即数。
+选择U格式和J格式立即数中的指令位的位置是为了，与其它格式和彼此之间有最大程度的交叠。
 
-Figure~\ref{fig:immtypes} shows the immediates produced by each of the
-base instruction formats, and is labeled to show which instruction
-bit (inst[{\em y}\,]) produces each bit of the immediate value.
+图~\ref{fig:immtypes}显示了由每个基础指令格式产生的立即数，并用标记显示了立即数值的各个位是由哪个指令位（inst[{\em y}\,]）所产生的。
 
 \begin{figure}[h]
 \begin{center}
@@ -378,7 +312,7 @@ bit (inst[{\em y}\,]) produces each bit of the immediate value.
 \multicolumn{1}{c|}{inst[30:25]} &
 \multicolumn{1}{c|}{inst[24:21]} &
 \multicolumn{1}{c|}{inst[20]} &
-I-immediate \\
+I-立即数 \\
 \cline{1-7}
 \\
 \cline{1-7}
@@ -386,7 +320,7 @@ I-immediate \\
 \multicolumn{1}{c|}{inst[30:25]} &
 \multicolumn{1}{c|}{inst[11:8]} &
 \multicolumn{1}{c|}{inst[7]} &
-S-immediate \\
+S-立即数 \\
 \cline{1-7}
 \\
 \cline{1-7}
@@ -395,7 +329,7 @@ S-immediate \\
 \multicolumn{1}{c|}{inst[30:25]} &
 \multicolumn{1}{c|}{inst[11:8]} &
 \multicolumn{1}{c|}{0} &
-B-immediate \\
+B-立即数 \\
 \cline{1-7}
 \\
 \cline{1-7}
@@ -403,7 +337,7 @@ B-immediate \\
 \multicolumn{1}{c|}{inst[30:20]} &
 \multicolumn{1}{c|}{inst[19:12]} &
 \multicolumn{4}{c|}{--- 0 ---} &
-U-immediate \\
+U-立即数 \\
 \cline{1-7}
 \\
 \cline{1-7}
@@ -413,74 +347,52 @@ U-immediate \\
 \multicolumn{1}{c|}{inst[30:25]} &
 \multicolumn{1}{c|}{inst[24:21]} &
 \multicolumn{1}{c|}{0} &
-J-immediate \\
+J-立即数 \\
 \cline{1-7}
 \end{tabular}
 \end{center}
-\caption{Types of immediate produced by RISC-V instructions.  The fields are labeled with the
-  instruction bits used to construct their value.  Sign extension
-  always uses inst[31].}
+\caption{由RISC-V指令产生的立即数的类型。 用构造了它们值的指令位对域进行了标记。符号扩展总是使用inst[31]。}
 \label{fig:immtypes}
 \end{figure}
 
 \begin{commentary}
-Sign-extension is one of the most critical operations on immediates
-(particularly for XLEN$>$32), and in RISC-V the sign bit for all immediates
-is always held in bit 31 of the instruction to allow sign-extension to
-proceed in parallel with instruction decoding.
+符号扩展是最关键的立即数操作之一（特别是对XLEN$>$32），
+而在RISC-V中，所有立即数的符号位总是保持在指令的位31，以允许符号扩展与指令解码并行处理。
 
-Although more complex implementations might have separate adders for
-branch and jump calculations and so would not benefit from keeping the
-location of immediate bits constant across types of instruction, we
-wanted to reduce the hardware cost of the simplest implementations.
-By rotating bits in the instruction encoding of B and J immediates
-instead of using dynamic hardware muxes to multiply the immediate by
-2, we reduce instruction signal fanout and immediate mux costs by
-around a factor of 2.  The scrambled immediate encoding will add
-negligible time to static or ahead-of-time compilation.  For dynamic
-generation of instructions, there is some small additional
-overhead, but the most common short forward branches have
-straightforward immediate encodings.
+虽然更加复杂的实现可能带有用于分支和跳转计算的独立加法器，
+并且，因为在不同指令类型之间，保持立即数位的位置不变并不能从中获得好处，所以我们希望减少最简单实现的硬件开销。
+通过旋转由B格式和J格式立即数编码的指令中的位，而不是使用动态的硬件多路复用器（MUX），来将立即数扩大2倍，
+我们减少了大约一半的指令符号扇出和立即数多路复用的开销。加扰立即数编码将对静态编译或事前编译添加微不足道的时间。
+为了指令的动态生成，虽然有一些小小的额外的负载，但是最常见的短转向分支却有了直接的立即数编码。
 \end{commentary}
 
-\section{Integer Computational Instructions}
+\section{整数运算指令}
 
-Most integer computational instructions operate on XLEN bits of values
-held in the integer register file.  Integer computational instructions
-are either encoded as register-immediate operations using the I-type
-format or as register-register operations using the R-type format.
-The destination is register {\em rd} for both register-immediate and
-register-register instructions.  No integer computational instructions
-cause arithmetic exceptions.
+大多数整数运算指令操作，保存在整数寄存器文件中的XLEN位的值。
+整数运算指令或者被编码为使用I类型格式的寄存器-立即数操作，或者被编码为使用R类型格式的寄存器-寄存器操作。
+对于寄存器-立即数指令和寄存器-寄存器指令，目的寄存器都是寄存器{\em rd}。整数运算指令不会引发算术异常。
 
 \begin{commentary}
-We did not include special instruction-set support for overflow checks
-on integer arithmetic operations in the base instruction set, as many
-overflow checks can be cheaply implemented using RISC-V branches.
-Overflow checking for unsigned addition requires only a single
-additional branch instruction after the addition:
+我们没有在整数指令集中包括对于在整数算术操作时进行溢出检查的特殊指令集的支持，
+因为许多溢出检查可以使用RISC-V分支低成本地实现。
+对于无符号加法的溢出检查，只需要在加法之后执行一条额外的分支指令：
 \verb! add t0, t1, t2; bltu t0, t1, overflow!.
 
-For signed addition, if one operand's sign is known, overflow checking
-requires only a single branch after the addition:
-\verb! addi t0, t1, +imm; blt t0, t1, overflow!.  This covers the
-common case of addition with an immediate operand.
+对于有符号加法，如果一个操作数的符号是已知的，溢出检查只需要在加法之后执行一条分支：
+\verb! addi t0, t1, +imm; blt t0, t1, overflow!.  
+这覆盖了带有一个立即操作数的加法的通常情况。
 
-For general signed addition, three additional instructions after the
-addition are required, leveraging the observation that the sum should
-be less than one of the operands if and only if the other operand is
-negative.
+对于一般的有符号加法，在加法之后需要三条额外的指令，这利用了该观察：当且仅当某个操作数是负数时，和应当小于另一个操作数。
 \begin{verbatim}
          add t0, t1, t2
          slti t3, t2, 0
          slt t4, t0, t1
          bne t3, t4, overflow
 \end{verbatim}
-In RV64I, checks of 32-bit signed additions can be optimized further by
-comparing the results of ADD and ADDW on the operands.
+在RV64I中，32位有符号加法的检查可以被进一步优化，通过比较在操作数上进行ADD和ADDW的结果实现。
 \end{commentary}
 
-\subsubsection*{Integer Register-Immediate Instructions}
+\subsubsection*{整数寄存器 - 立即数指令}
 \vspace{-0.4in}
 \begin{center}
 \begin{tabular}{M@{}R@{}S@{}R@{}O}
@@ -498,29 +410,20 @@ comparing the results of ADD and ADDW on the operands.
 \multicolumn{1}{c|}{opcode} \\
 \hline
 12 & 5 & 3 & 5 & 7 \\
-I-immediate[11:0] & src & ADDI/SLTI[U]  & dest & OP-IMM \\
-I-immediate[11:0] & src & ANDI/ORI/XORI & dest & OP-IMM \\
+I-立即数[11:0] & src & ADDI/SLTI[U]  & dest & OP-IMM \\
+I-立即数[11:0] & src & ANDI/ORI/XORI & dest & OP-IMM \\
 \end{tabular}
 \end{center}
-ADDI adds the sign-extended 12-bit immediate to register {\em rs1}.
-Arithmetic overflow is ignored and the result is simply the low
-XLEN bits of the result.  ADDI {\em rd, rs1, 0} is used to implement the
-MV {\em rd, rs1} assembler pseudoinstruction.
+ADDI将符号扩展的12位立即数加到寄存器{\em rs1}上。
+简单地将结果的低XLEN位当作结果，而忽略了算数溢出。ADDI {\em rd, rs1, 0} 被用于实现 MV {\em rd, rs1} 汇编器伪指令。
 
-SLTI (set less than immediate) places the value 1 in register {\em rd}
-if register {\em rs1} is less than the sign-extended immediate when
-both are treated as signed numbers, else 0 is written to {\em rd}.
-SLTIU is similar but compares the values as unsigned numbers (i.e.,
-the immediate is first sign-extended to XLEN bits then treated as an
-unsigned number).  Note, SLTIU {\em rd, rs1, 1} sets {\em rd}
-to 1 if {\em rs1} equals zero, otherwise sets {\em rd} to 0 (assembler
-pseudoinstruction SEQZ {\em rd, rs}).
+如果寄存器{\em rs1}小于符号扩展的立即数（当二者都被视为有符号数时），
+SLTI（小于立即数时置1）指令把值1放到寄存器{\em rd}中；否则，该指令把0写入{\em rd}中。
+SLTIU与之相似，但是将两个值作为无符号数比较（也就是说，前者会把立即数按符号扩展到XLEN位，而后者会将其视为无符号数）。
+注意，如果{\em rs1}等于0，那么SLTIU {\em rd, rs1, 1} 会把{\em rd}设置为1，否则会把{\em rd}设置为0（汇编器伪指令SEQZ {\em rd, rs}）。
 
-ANDI, ORI, XORI are logical operations that perform bitwise AND, OR,
-and XOR on register {\em rs1} and the sign-extended 12-bit immediate
-and place the result in {\em rd}.  Note, XORI {\em rd, rs1, -1}
-performs a bitwise logical inversion of register {\em rs1} (assembler
-pseudoinstruction NOT {\em rd, rs}).
+ANDI、ORI、XORI是在寄存器{\em rs1}和符号扩展的12位立即数上执行按位AND、OR和XOR，
+并把结果放入{\em rd}的逻辑操作。注意，XORI {\em rd, rs1, -1} 对寄存器{\em rs1}执行按位逻辑反转（汇编器伪指令 NOT {\em rd, rs}）。
 
 \vspace{-0.2in}
 \begin{center}
@@ -547,14 +450,9 @@ pseudoinstruction NOT {\em rd, rs}).
 \end{tabular}
 \end{center}
 
-Shifts by a constant are encoded as a specialization of the
-I-type format.  The operand to be shifted is in {\em rs1}, and the
-shift amount is encoded in the lower 5 bits of the I-immediate field.
-The right shift type is encoded in bit 30.
-SLLI is a logical left shift (zeros are shifted into the lower bits);
-SRLI is a logical right shift (zeros are shifted into the upper bits);
-and SRAI is an arithmetic right shift (the original sign bit is copied
-into the vacated upper bits).
+按常量移位按照I类型格式专门编码。将被移位的操作数在{\em rs1}中，移位的数目被编码在I立即数域的低5位。
+右移类型被编码在位30。SLLI是逻辑左移（零被移位到低位）；SRLI是逻辑右移（零被移位到高位）；
+而SRAI是算数右移（原来的符号位被复制到空出来的高位）。
 
 \vspace{-0.2in}
 \begin{center}
@@ -574,40 +472,28 @@ U-immediate[31:12] & dest & AUIPC
 \end{tabular}
 \end{center}
 
-LUI (load upper immediate) is used to build 32-bit constants and uses
-the U-type format.  LUI places the 32-bit U-immediate value into
-the destination register {\em rd}, filling in the lowest 12
-bits with zeros.
+LUI（加载高位立即数）被用于构建32位常量，它使用U类型格式。LUI把32位U立即数值放在目的寄存器{\em rd}中，
+同时把最低的12位用零填充。
 
-AUIPC (add upper immediate to {\tt pc}) is used to build {\tt pc}-relative
-addresses and uses the U-type format.  AUIPC forms a 32-bit offset from the
-U-immediate, filling in the lowest 12 bits with zeros, adds this offset
-to the address of the AUIPC instruction, then places the result in register {\em rd}.
+AUIPC（加高位立即数到{\tt pc}）被用于构建{\tt pc}相对地址，它使用U类型格式。
+AUIPC根据U立即数形成32位偏移量（最低12位填零），把这个偏移量加到AUIPC指令的地址，然后把结果放在寄存器{\em rd}中。
 
 \begin{commentary}
-The assembly syntax for {\tt lui} and {\tt auipc} does not represent the lower
-12 bits of the U-immediate, which are always zero.
+{\tt lui}和{\tt auipc}的汇编语法不代表U立即数的低12位，他们总是零。
 
-The AUIPC instruction supports two-instruction sequences to access
-arbitrary offsets from the {\tt pc} for both control-flow transfers and data
-accesses.  The combination of an AUIPC and the 12-bit immediate in a
-JALR can transfer control to any 32-bit {\tt pc}-relative address, while an
-AUIPC plus the 12-bit immediate offset in regular load or store
-instructions can access any 32-bit {\tt pc}-relative data address.
+AUIPC指令支持双指令序列，以便从{\tt pc}访问任意的偏移量，用于控制流传输和数据访问。
+AUIPC与一个JALR中的12位立即数的组合可以把控制传输到任何32位{\tt pc}相对地址，
+而AUIPC加上常规加载或存储指令中的12位立即数偏移量可以访问任何32位{\tt pc}相对数据地址。
 
-The current {\tt pc} can be obtained by setting the U-immediate to 0.
-Although a JAL +4 instruction could also be used to obtain the local
-{\tt pc} (of the instruction following the JAL), it might cause pipeline
-breaks in simpler microarchitectures or pollute branch-target buffer
-structures in more complex microarchitectures.
+通过把U立即数设置为0，可以获得当前{\tt pc}。
+尽管JAL +4指令也可以被用于获得本地{\tt pc}（JAL后续指令的{\tt pc}值），
+但是，在简单的微架构，它可能引起流水线暂停，或者在更加复杂的微架构中，污染分支目标缓冲区结构。
 \end{commentary}
 
-\subsubsection*{Integer Register-Register Operations}
+\subsubsection*{整数寄存器 - 寄存器操作}
 
-RV32I defines several arithmetic R-type operations.  All operations
-read the {\em rs1} and {\em rs2} registers as source operands and
-write the result into register {\em rd}.  The {\em funct7} and {\em
-  funct3} fields select the type of operation.
+RV32I定义了一些R类型算数操作。所有操作都读取{\em rs1}寄存器和{\em rs2}寄存器作为源操作数，并将结果写入寄存器{\em rd}。
+{\em funct7}域和{\em funct3}域选择了操作的类型。
 
 \vspace{-0.2in}
 \begin{center}
@@ -635,21 +521,15 @@ write the result into register {\em rd}.  The {\em funct7} and {\em
 \end{tabular}
 \end{center}
 
-ADD performs the addition of {\em rs1} and {\em rs2}. SUB performs the
-subtraction of {\em rs2} from {\em rs1}.  Overflows are ignored and the low XLEN
-bits of results are written to the destination {\em rd}.
-SLT and SLTU perform signed and unsigned compares
-respectively, writing 1 to {\em rd} if $\mbox{\em rs1} < \mbox{\em
-  rs2}$, 0 otherwise.  Note, SLTU {\em rd}, {\em x0}, {\em rs2} sets
-{\em rd} to 1 if {\em rs2} is not equal to zero, otherwise sets {\em
-  rd} to zero (assembler pseudoinstruction SNEZ {\em rd, rs}).  AND, OR, and
-XOR perform bitwise logical operations.
+ADD执行{\em rs1}和{\em rs2}的相加。SUB执行从{\em rs1}中减去{\em rs2}。
+忽略结果的溢出，并把结果的低XLEN位写入目的寄存器{\em rd}。SLT和SLTU分别执行有符号和无符号的比较，
+如果$\mbox{\em rs1} < \mbox{\em rs2}$，向{\em rd}写入1，否则写入0。
+注意，如果{\em rs2}不等于零，SLTU {\em rd}, {\em x0}, {\em rs2}把{\em rd}设置为1，
+否则把rd设置为0（汇编器伪指令SNEZ {\em rd, rs}）。AND、OR和XOR执行按位逻辑操作。
 
-SLL, SRL, and SRA perform logical left, logical right, and arithmetic
-right shifts on the value in register {\em rs1} by the shift amount
-held in the lower 5 bits of register {\em rs2}.
+SLL、SLR和SRA对寄存器{\em rs1}中的值执行逻辑左移、逻辑右移、和算数右移，移位的数目保持在寄存器{\em rs2}的低5位中。
 
-\subsubsection*{NOP Instruction}
+\subsubsection*{NOP 指令}
 \vspace{-0.4in}
 \begin{center}
 \begin{tabular}{M@{}R@{}S@{}R@{}O}
@@ -671,64 +551,39 @@ held in the lower 5 bits of register {\em rs2}.
 \end{tabular}
 \end{center}
 
-The NOP instruction does not change any architecturally visible state, except for
-advancing the {\tt pc} and incrementing any applicable performance
-counters.  NOP is encoded as ADDI {\em x0, x0, 0}.
+除了提升{\tt pc}和使任何适用的执行计数器递增以外，NOP指令不改变任何架构上的可见状态。NOP被编码为ADDI {\em x0, x0, 0}。
 
 \begin{commentary}
-NOPs can be used to align code segments to microarchitecturally
-significant address boundaries, or to leave space for inline code
-modifications.  Although there are many possible ways to encode a NOP,
-we define a canonical NOP encoding to allow microarchitectural
-optimizations as well as for more readable disassembly output.  The
-other NOP encodings are made available for HINT instructions
-(Section~\ref{sec:rv32i-hints}).
+NOP可以被用于把代码段对齐到微架构上的有效地址边界，或者为内联代码的修改留出空间。
+尽管有许多可能的方法来编码NOP，我们定义了一个规范的NOP编码，来允许微架构优化，
+以及更具可读性的反汇编输出。其它的NOP可用于HINT指令（第2.9节~\ref{sec:rv32i-hints}）。
 
-ADDI was chosen for the NOP encoding as this is most likely to take
-fewest resources to execute across a range of systems (if not
-optimized away in decode).  In particular, the instruction only reads
-one register.  Also, an ADDI functional unit is more likely to be
-available in a superscalar design as adds are the most common
-operation.  In particular, address-generation functional units can
-execute ADDI using the same hardware needed for base+offset address
-calculations, while register-register ADD or logical/shift operations
-require additional hardware.
+选用ADDI进行NOP编码是因为，这是在跨多个系统中最可能的采取最少资源来执行的方法（如果解码中没有优化的话）。
+特别地，指令只会读一个寄存器。并且，ADDI功能单元也更可能用于超标量设计，因为加法是最常见的操作。
+特别地，地址生成功能单元可以使用相同的基址+偏移量地址计算所需的硬件来执行ADDI，
+而寄存器-寄存器ADD或者逻辑/移位操作都需要额外的硬件。
 \end{commentary}
 
-\section{Control Transfer Instructions}
+\section{控制转移指令}
 
-RV32I provides two types of control transfer instructions:
-unconditional jumps and conditional branches.  Control transfer
-instructions in RV32I do {\em not} have architecturally visible delay
-slots.
+RV32I提供两种类型的控制转移指令：无条件跳转和条件分支。RV32I中的控制转移指令{\em 没有}架构上可见的延迟槽。
 
-If an instruction access-fault or instruction page-fault exception occurs
-on the target of a jump or taken branch, the exception is reported on the
-target instruction, not on the jump or branch instruction.
+如果在一次跳转或发生转移的分支上发生了一个指令访问故障异常或指令缺页故障异常，该异常会报告在目标指令上，而不是报告在跳转或分支指令上。
 
-\subsubsection*{Unconditional Jumps}
+\subsubsection*{无条件跳转}
 
-\vspace{-0.1in} The jump and link (JAL) instruction uses the J-type
-format, where the J-immediate encodes a signed offset in multiples of
-2 bytes.  The offset is sign-extended and added to the address of
-the jump instruction
-to form the jump target address.  Jumps can therefore target a
-$\pm$\wunits{1}{MiB} range. JAL stores the address of the instruction
-that follows the JAL ({\tt pc}+4) into register {\em rd}.  The standard
-software calling convention uses {\tt x1} as the return address
-register and {\tt x5} as an alternate link register.
+\vspace{-0.1in} 跳转和链接（JAL）指令使用J类型格式。J类型指令把J立即数以2字节的倍数编码一个有符号的偏移量。
+偏移量是符号扩展的，加到当前跳转指令的地址上以形成跳转目标地址。跳转可以因此到达的目标范围是$\pm$\wunits{1}{MiB}。
+JAL把跟在JAL之后的指令的地址（{\tt pc}+4）存储到寄存器{\em rd}中。
+标准软件调用约定使用{\tt x1}作为返回地址寄存器，使用{\tt x5} 作为备用的链接寄存器。
 
 \begin{commentary}
-The alternate link register supports calling millicode routines (e.g.,
-those to save and restore registers in compressed code) while
-preserving the regular return address register.  The register {\tt x5}
-was chosen as the alternate link register as it maps to a temporary in
-the standard calling convention, and has an encoding that is only one
-bit different than the regular link register.
+备用的链接寄存器支持调用millicode例程（例如，那些在压缩代码中的保存和恢复寄存器的例程），
+同时保留常规的返回地址寄存器。寄存器{\tt x5}被选为备用链接寄存器，因为它映射到了标准调用约定中的一个临时寄存器（函数调用时不保存），
+并且其编码与常规链接寄存器相比只有一位不同。
 \end{commentary}
 
-Plain unconditional jumps (assembler pseudoinstruction J) are encoded as a JAL
-with {\em rd}={\tt x0}.
+普通的无条件跳转（汇编器伪指令J）被编码为{\em rd}={\tt x0}的JAL。
 
 \vspace{-0.2in}
 \begin{center}
@@ -753,13 +608,9 @@ with {\em rd}={\tt x0}.
 \end{tabular}
 \end{center}
 
-The indirect jump instruction JALR (jump and link register) uses the
-I-type encoding.  The target address is obtained by adding the sign-extended
-12-bit I-immediate to the register {\em rs1}, then setting the
-least-significant bit of the result to zero.  The address of
-the instruction following the jump ({\tt pc}+4) is written to register
-{\em rd}.  Register {\tt x0} can be used as the destination if the
-result is not required.
+间接跳转指令JALR（跳转和链接寄存器）使用I类型编码。
+通过把符号扩展的12位I立即数加到寄存器{\em rs1}来获得目标地址，然后把结果的最低有效位设置为零。
+紧接着跳转的指令的地址（{\tt pc}+4）被写入寄存器{\em rd}。如果结果是不需要的，寄存器{\tt x0}可以被用作目的寄存器。
 \vspace{-0.4in}
 \begin{center}
 \begin{tabular}{M@{}R@{}F@{}R@{}O}
@@ -782,54 +633,33 @@ offset[11:0] & base & 0 & dest & JALR \\
 \end{center}
 
 \begin{commentary}
-The unconditional jump instructions all use {\tt pc}-relative addressing to
-help support position-independent code.  The JALR instruction was
-defined to enable a two-instruction sequence to jump anywhere in a
-32-bit absolute address range.  A LUI instruction can first load {\em
-  rs1} with the upper 20 bits of a target address, then JALR can add
-in the lower bits. Similarly, AUIPC then JALR can jump
-anywhere in a 32-bit {\tt pc}-relative address range.
+无条件跳转指令都使用{\tt pc}相对地址来帮助支持位置无关代码。
+JALR指令被定义为能够使用双指令序列跳转到32位绝对地址空间范围内的任何地方。
+LUI指令可以首先把目标地址的高20位加载到{\em rs1}，然后JALR指令可以加上低位。
+类似地，先用AUIPC再用JALR可以跳转到32位{\tt pc}相对地址范围中的任何地方。
 
-Note that the JALR instruction does not treat the 12-bit immediate as
-multiples of 2 bytes, unlike the conditional branch instructions.
-This avoids one more immediate format in hardware.  In
-practice, most uses of JALR will have either a zero immediate or be
-paired with a LUI or AUIPC, so the slight reduction in range is not
-significant.
+注意JALR指令不会像条件分支指令那样，把12位立即数当作2字节的倍数对待。这回避了硬件中的另一种立即数格式。
+实际上，大多数JALR的使用，要么有一个零立即数，要么是与LUI或AUIPC搭配成对，所以有一点范围减少是无关紧要的。
 
-Clearing the least-significant bit when calculating the JALR target
-address both simplifies the hardware slightly and allows the
-low bit of function pointers to be used to store auxiliary
-information.  Although there is potentially a slight loss of error
-checking in this case, in practice jumps to an incorrect instruction
-address will usually quickly raise an exception.
+在计算JALR目标地址时清理最低有效的位，既稍微简化了硬件，又允许函数指针的低位被用于存储辅助信息。
+尽管这种情况中，会有一些潜在的错误检查的轻微丢失，但是实际上，跳转到一个不正确的指令地址通常将很快引发一个异常。
 
-When used with a base {\em rs1}$=${\tt x0}, JALR can be used to implement
-a single instruction subroutine call to the lowest \wunits{2}{KiB} or highest
-\wunits{2}{KiB} address region from anywhere in the address space, which could
-be used to implement fast calls to a small runtime library.  Alternatively,
-an ABI could dedicate a general-purpose register to point to a library
-elsewhere in the address space.
+当以{\em rs1}$=${\tt x0}基础使用时，JALR可以被用于实现地址空间中从任何地方到最低\wunits{2}{KiB}
+或最高\wunits{2}{KiB}地址区域的单一指令子例程调用，这可以被用于实现对小型运行时库的快速调用。
+或者，ABI可以专用于通用目的寄存器，以指向地址空间中任何其它地方的一个库。
 \end{commentary}
 
-The JAL and JALR instructions will generate an
-instruction-address-misaligned exception if the target address is not
-aligned to an IALIGN-bit boundary.
+如果目标地址没有对齐到IALIGN位边界，JAL和JALR指令将产生一个指令地址未对齐异常。
 
 \begin{commentary}
-Instruction-address-misaligned exceptions are not possible on machines
-with IALIGN=16, such as those that support the
-compressed instruction-set extension, C.
+指令地址未对齐异常不可能发生在IALIGN＝16的机器上，例如那些支持压缩指令集扩展（C）的机器。
 \end{commentary}
 
-Return-address prediction stacks are a common feature of
-high-performance instruction-fetch units, but require accurate
-detection of instructions used for procedure calls and returns to be
-effective.  For RISC-V, hints as to the instructions' usage are encoded
-implicitly via the register numbers used.  A JAL instruction should
-push the return address onto a return-address stack (RAS) only when
-{\em rd} is {\tt x1} or {\tt x5}.  JALR instructions should push/pop a
-RAS as shown in the Table~\ref{rashints}.
+返回地址预测栈是高性能取指单元的一个常见特征，但是需要精确地探测用于过程调用和有效返回的指令。
+对于RISC-V，有关指令用途的提示，是通过使用的寄存器号码被隐式地编码的。
+只有当{\em rd} ＝ {\tt x1}/{\tt x5}时，JAL指令才应当把返回地址推入到返回地址栈（RAS）上。
+JALR指令应当压入/弹出一个RAS的所有情形如表~\ref{rashints}所示。
+
 \begin{table}[hbt]
 \centering
 \begin{tabular}{|c|c|c|l|}
@@ -838,40 +668,34 @@ RAS as shown in the Table~\ref{rashints}.
       & \textit{rs1} is \texttt{x1}/\texttt{x5}
             & \textit{rd}$=$\textit{rs1} & RAS action \\
   \hline
-  No  & No  & --  & None \\
-  No  & Yes & --  & Pop \\
-  Yes & No  & --  & Push \\
-  Yes & Yes & No  & Pop, then push \\
-  Yes & Yes & Yes & Push \\
+  否  & 否  & --  & 无 \\
+  否  & 是 & --  & 弹出 \\
+  是 & 否  & --  & 压入 \\
+  是 & 是 & 否  & 弹出，然后压入 \\
+  是 & 是 & 是 & 压入 \\
    \hline
 \end{tabular}
-\caption{Return-address stack prediction hints encoded in the register
-  operands of a JALR instruction.}
+\caption{在JALR指令的寄存器操作数中编码的返回地址栈预测提示。}
 \label{rashints}
 \end{table}
 
 \begin{commentary}
-Some other ISAs added explicit hint bits to their indirect-jump instructions
-to guide return-address stack manipulation.  We use implicit hinting tied to
-register numbers and the calling convention to reduce the encoding space used
-for these hints.
+一些其它的ISA把显式的提示位添加到了它们的间接跳转指令上，来指导返回地址栈的操作。
+我们使用绑定寄存器号码的隐式提示和调用约定，以减少用于这些提示的编码空间。
 
-When two different link registers ({\tt x1} and {\tt x5}) are given as
-{\em rs1} and {\em rd}, then the RAS is both popped and pushed to
-support coroutines.  If {\em rs1} and {\em rd} are the same link
-register (either {\tt x1} or {\tt x5}), the RAS is only pushed to
-enable macro-op fusion of the sequences:\linebreak
-{\tt lui ra, imm20; jalr ra, imm12(ra)} \ and \ 
+当两个不同的链接寄存器（{\tt x1}和{\tt x5}）被给定为{\em rs1}和{\em rd}时，
+接下来RAS会被同时弹出和推入，以支持协程。
+如果{\em rs1}和{\em rd}是相同的链接寄存器（{\tt x1} 或着 {\tt x5}），
+RAS只把允许宏操作融合推入序列：
+\linebreak
+{\tt lui ra, imm20; jalr ra, imm12(ra)} \ 和 \ 
 {\tt auipc ra, imm20; jalr ra, imm12(ra)}
 \end{commentary}
 
-\subsubsection*{Conditional Branches}
+\subsubsection*{条件分支}
 
-All branch instructions use the B-type instruction format.  The
-12-bit B-immediate encodes signed offsets in multiples of 2 bytes.
-The offset is sign-extended and added
-to the address of the branch instruction to give the target address.  The
-conditional branch range is $\pm$\wunits{4}{KiB}.
+所有的分支指令使用B类型指令格式。12位B立即数以2字节的倍数编码符号偏移量。
+偏移量是符号扩展的，加到分支指令的地址上以给出目标地址。条件分支的范围是$\pm$\wunits{4}{KiB}。
 
 \vspace{-0.2in}
 \begin{center}
@@ -902,136 +726,78 @@ conditional branch range is $\pm$\wunits{4}{KiB}.
 \end{tabular}
 \end{center}
 
-Branch instructions compare two registers.  BEQ and BNE take the
-branch if registers {\em rs1} and {\em rs2} are equal or unequal
-respectively.  BLT and BLTU take the branch if {\em rs1} is less than
-{\em rs2}, using signed and unsigned comparison respectively.  BGE and
-BGEU take the branch if {\em rs1} is greater than or equal to {\em rs2},
-using signed and unsigned comparison respectively. Note, BGT, BGTU,
-BLE, and BLEU can be synthesized by reversing the operands to BLT,
-BLTU, BGE, and BGEU, respectively.
+分支指令对两个寄存器进行比较。BEQ和BNE分别在寄存器{\em rs1}和{\em rs2}相等或不等时采取分支。
+BLT和BLTU分别使用有符号和无符号的比较，如果{\em rs1}小于{\em rs2}则采取分支。
+BGE和BGEU分别使用有符号和无符号的比较，如果rs1大于或等于rs2则采取分支。
+注意，BGT、BGTU、BLE和BLEU可以分别通过反转BLT、BLTU、BGE和BGEU的操作数来合成。
 
 \begin{commentary}
-Signed array bounds may be checked with a single BLTU instruction, since
-any negative index will compare greater than any nonnegative bound.
+可以用一条BLTU指令检查有符号的数组边界，因为任意负数索引都将比任意非负数边界要大。
 \end{commentary}
 
-Software should be optimized such that the sequential code path is the
-most common path, with less-frequently taken code paths placed out of
-line.  Software should also assume that backward branches will be
-predicted taken and forward branches as not taken, at least the
-first time they are encountered.  Dynamic predictors should quickly
-learn any predictable branch behavior.
+软件应当被优化为，按顺序的代码路径是占大部分的常见路径，而线路外的代码路径被采取的频率较低。
+软件也应当假定，向后的分支将被预测采取，而向前的分支被预测不采取，至少在它们第一次被遇到时如此。
+动态预测应当快速地学习任何可预测的分支行为。
 
-Unlike some other architectures, the RISC-V jump (JAL with {\em
-  rd}={\tt x0}) instruction should always be used for unconditional
-branches instead of a conditional branch instruction with an
-always-true condition.  RISC-V jumps are also {\tt pc}-relative and support
-a much wider offset range than branches, and will not pollute
-conditional-branch prediction tables.
+不像其它的一些架构，对于无条件分支，应当总是使用跳转指令（{\em rd}={\tt x0}的JAL），
+而不是使用一个条件总是真的条件分支指令。
+RISC-V的跳转也是{\tt pc}相关的，并支持比分支更宽的偏移量范围，而且将不会污染条件分支预测表。
+
+\begin{commentary} 
+条件分支被设计为包含两个寄存器之间的算数比较操作（PA-RISC、Xtensa和MIPS R6中也是这样做的），
+而不是使用条件代码（x86、ARM、SPARC、PowerPC）、或者只用一个寄存器和零比较（Alpha、MIPS）、
+又或是只比较两个寄存器是否相等（MIPS）。
+这个设计的动机是观察到：比较与分支的组合指令适合于常规流水线，避免了额外的条件代码状态或者临时寄存器的使用，
+并减少了静态代码的尺寸和动态指令获取的流量。
+另一点是，与零比较需要非平凡的电路延迟（特别是在高级进程中移动到高级静态逻辑后），
+并因此与算数等级的比较几乎同样代价高昂。融合的比较与分支指令的另一个优势是，
+分支可以在前端指令流中被更早地观察到，并因此能够被更早地预测。
+在基于相同的条件代码可以采取多个分支的情况中，使用条件代码的设计或许有优势，但是我们相信这种情况是相对稀少的。
+
+我们考虑过，但是没有在指令编码中包含静态分支提示。这些虽然可以减少动态预测器的压力，
+但是需要更多指令编码空间和软件画像来达到最佳结果，并且如果产品的运行没有匹配画像运行的话，会导致性能变差。
+
+我们考虑过，但是没有包含条件移动或谓词指令，它们可以有效地替换不可预测的短向前分支。
+条件移动是二者中较简单的，但是难以和条件代码一起使用，因为那会引起异常（内存访问和浮点操作）。
+谓词会给系统添加额外的标志，添加额外的指令来设置和清除标志，以及在每个指令上增加额外的编码负担。
+条件移动和谓词指令都会增加乱序微架构的复杂度，因为如果谓词为假，则需要把目的架构寄存器的原始值复制到重命名后的目的物理寄存器，
+因此会添加隐含的第三个源操作数。此外，静态编译时间决定使用谓词而不是分支，可以导致没有包含在编译器训练集中的输入的性能降低，
+尤其是考虑到不可预测的分支是稀少的，而且随着分支预测技术的改进会而变得更加稀少。
+
+我们注意到，现存的各种微架构技术会把不可预测的短向前分支转化为内部谓词代码，
+以避免分支误预测时冲刷流水线的开销~\cite{heil-tr1996,Klauser-1998,Kim-micro2005}，
+并且已经在商业处理器中被实现~\cite{ibmpower7}。最简单的技术只是通过只冲刷分支阴影中的指令而不是整个获取流水线，
+或者通过使用宽指令获取或空闲指令获取槽从两端获取指令，从而减少了从误预测短向前分支恢复的代价。
+用于乱序核心的更加复杂的技术是在分支阴影中的指令上添加内部谓词，内部谓词的值由分支指令写入，
+这允许分支和随后的指令被推测性地执行，而与其它代码的执行顺序不一致~\cite{ibmpower7}。
+\end{commentary}
+
+如果目标地址没有对齐到IALIGN位边界，并且分支条件评估为真，那么条件分支指令将生成一个指令地址未对齐异常。
+如果分支条件评估为假，那么指令地址未对齐异常将不会产生。
 
 \begin{commentary}
-The conditional branches were designed to include arithmetic
-comparison operations between two registers (as also done in PA-RISC,
-Xtensa, and MIPS R6), rather than use condition codes (x86, ARM, SPARC,
-PowerPC), or to only compare one register against zero (Alpha, MIPS),
-or two registers only for equality (MIPS).  This design was motivated
-by the observation that a combined compare-and-branch instruction fits
-into a regular pipeline, avoids additional condition code state or use
-of a temporary register, and reduces static code size and dynamic
-instruction fetch traffic.  Another point is that comparisons against
-zero require non-trivial circuit delay (especially after the move to
-static logic in advanced processes) and so are almost as expensive as
-arithmetic magnitude compares.  Another advantage of a fused
-compare-and-branch instruction is that branches are observed earlier
-in the front-end instruction stream, and so can be predicted earlier.
-There is perhaps an advantage to a design with condition codes in the
-case where multiple branches can be taken based on the same condition
-codes, but we believe this case to be relatively rare.
-
-We considered but did not include static branch hints in the
-instruction encoding.  These can reduce the pressure on dynamic
-predictors, but require more instruction encoding space and
-software profiling for best results, and can result in poor
-performance if production runs do not match profiling runs.
-
-We considered but did not include conditional moves or predicated
-instructions, which can effectively replace unpredictable short
-forward branches.  Conditional moves are the simpler of the two, but
-are difficult to use with conditional code that might cause exceptions
-(memory accesses and floating-point operations).  Predication adds
-additional flag state to a system, additional instructions to set and
-clear flags, and additional encoding overhead on every instruction.
-Both conditional move and predicated instructions add complexity to
-out-of-order microarchitectures, adding an implicit third source
-operand due to the need to copy the original value of the destination
-architectural register into the renamed destination physical register
-if the predicate is false.  Also, static compile-time decisions to use
-predication instead of branches can result in lower performance on
-inputs not included in the compiler training set, especially given
-that unpredictable branches are rare, and becoming rarer as branch
-prediction techniques improve.
-
-We note that various microarchitectural techniques exist to
-dynamically convert unpredictable short forward branches into
-internally predicated code to avoid the cost of flushing pipelines on
-a branch mispredict~\cite{heil-tr1996,Klauser-1998,Kim-micro2005} and
-have been implemented in commercial processors~\cite{ibmpower7}.
-The simplest techniques just reduce the penalty of recovering from a
-mispredicted short forward branch by only flushing instructions in the
-branch shadow instead of the entire fetch pipeline, or by fetching
-instructions from both sides using wide instruction fetch or idle
-instruction fetch slots.  More complex techniques for out-of-order
-cores add internal predicates on instructions in the branch shadow,
-with the internal predicate value written by the branch instruction,
-allowing the branch and following instructions to be executed
-speculatively and out-of-order with respect to other code~\cite{ibmpower7}.
+指令地址未对齐异常不可能发生在支持16位对齐指令扩展（例如，压缩指令集扩展C）的机器上。
 \end{commentary}
 
-The conditional branch instructions will generate an
-instruction-address-misaligned exception if the target address is not
-aligned to an IALIGN-bit boundary and the branch condition evaluates
-to true.  If the branch condition evaluates to false, the
-instruction-address-misaligned exception will not be raised.
-
-\begin{commentary}
-Instruction-address-misaligned exceptions are not possible on machines
-with IALIGN=16, such as those that support the
-compressed instruction-set extension, C.
-\end{commentary}
-
-\section{Load and Store Instructions}
+\section{加载和存储指令}
 \label{sec:rv32:ldst}
 
-RV32I is a load-store architecture, where only load and store
-instructions access memory and arithmetic instructions only operate on
-CPU registers.  RV32I provides a 32-bit address space that is
-byte-addressed.
-The EEI will define what portions of the address space are legal to access with
-which instructions (e.g., some addresses might be read only, or
-support word access only).  Loads with a destination of {\tt x0} must
-still raise any exceptions and cause any other side effects even
-though the load value is discarded.
+RV32I是一个“加载-存储”架构，那里只有加载和存储指令访问内存，而算数指令只操作CPU寄存器。
+RV32I提供一个32位的地址空间，按字节编址。
+EEI将定义该地址空间的哪一部分是哪个指令可以合法访问的（例如，一些地址可能是只读的，或者只支持按字访问）。
+即使所加载的值被丢弃，以{\tt x0}为目的的加载仍然必须要引发有可能的任何异常，或其它的副作用。
 
-The EEI will define whether the memory system is little-endian or big-endian.
-In RISC-V, endianness is byte-address invariant.
+EEI将定义内存系统是否是小字节序或大字节序的。在RISC-V中，字节序是按字节编址的不变量。
+
 \begin{commentary}
-In a system for which endianness is byte-address invariant, the following
-property holds: if a byte is stored to memory at some address in some
-endianness, then a byte-sized load from that address in any endianness returns
-the stored value.
+在字节序是按字节编址不变量的系统中，有如下的属性：如果一个字节以某些字节序被存储到内存的某些地址，
+那么从那个地址以任何字节序加载一个字节尺寸都将返回被存储的值。
 
-In a little-endian configuration, multibyte stores write the least-significant
-register byte at the lowest memory byte address, followed by the other
-register bytes in ascending order of their significance.
-Loads similarly transfer the contents of the lesser memory byte addresses to
-the less-significant register bytes.
+在一个小字节序的配置中，多字节的存储在最低的内存字节地址处写入最低有效位的寄存器字节，
+然后按它们有效性的升序写入其它的寄存器字节。加载类似，把较小的内存字节地址的内容传输到较低有效性的寄存器字节。
 
-In a big-endian configuration, multibyte stores write the most-significant
-register byte at the lowest memory byte address, followed by the other
-register bytes in descending order of their significance.
-Loads similarly transfer the contents of the greater memory byte addresses to
-the less-significant register bytes.
+在一个大字节序的配置中，多字节的存储在最低的内存字节地址处写入最高有效位的寄存器字节，
+然后按它们有效性的降序写入其它的寄存器字节。加载类似，把较大的内存字节地址的内容传输到较低有效性的寄存器字节。
 \end{commentary}
 
 \vspace{-0.4in}
@@ -1078,94 +844,75 @@ offset[11:5] & src & base & width & offset[4:0] & STORE \\
 \end{tabular}
 \end{center}
 
-Load and store instructions transfer a value between the registers and
-memory.  Loads are encoded in the I-type format and stores are
-S-type.  The effective address is obtained by adding register
-{\em rs1} to the sign-extended 12-bit offset.  Loads copy a value
-from memory to register {\em rd}.  Stores copy the value in register
-{\em rs2} to memory.
+加载和存储指令在寄存器和内存之间传输值。加载指令被编码为I类型格式，存储指令则是S类型。
+通过把寄存器{\em rs1}加到符号扩展的12位偏移量，可以获得有效地址。加载指令从内存复制一个值到寄存器{\em rd}。
+存储指令把寄存器{\em rs2}中的值复制到内存。
 
-The LW instruction loads a 32-bit value from memory into {\em rd}.  LH
-loads a 16-bit value from memory, then sign-extends to 32-bits before
-storing in {\em rd}. LHU loads a 16-bit value from memory but then
-zero extends to 32-bits before storing in {\em rd}.  LB and LBU are
-defined analogously for 8-bit values.  The SW, SH, and SB instructions
-store 32-bit, 16-bit, and 8-bit values from the low bits of register
-{\em rs2} to memory.
+LW指令从内存加载一个32位的值到{\em rd}。LH先从内存加载一个16位的值，然后在存储到{\em rd}中之前，把它符号扩展到32位。
+LHU先从内存加载一个16位的值，然后，在存储到{\em rd}中之前，把它用零扩展到32位。
+LB和LBU被类似地定义于8位的值。SW、SH和SB指令从寄存器{\em rs2}的低位将32位、16位和8位的值存储到内存。
 
-Regardless of EEI, loads and stores whose effective addresses are
-naturally aligned shall not raise an address-misaligned exception.
-Loads and stores whose effective address is not naturally aligned
-to the referenced datatype (i.e., the effective address is
-not divisible by the size of the access in bytes) have behavior
-dependent on the EEI.
+不管EEI如何，有效地址自然对齐的加载和存储不应当引发地址未对齐的异常。有效地址没有自然对齐到引用的数据类型的加载和存储
+（即，有效地址不能被以字节为单位的访问大小整除）其行为依赖于EEI。
 
-An EEI may guarantee that misaligned loads and stores are fully
-supported, and so the software running inside the execution
-environment will never experience a contained or fatal
-address-misaligned trap.  In this case, the misaligned loads and
-stores can be handled in hardware, or via an invisible trap into the
-execution environment implementation, or possibly a combination of
-hardware and invisible trap depending on address.
+EEI可以保障完全支持未对齐的加载和存储，并因此运行在执行环境内部的软件将永不会经历包含的或者致命的地址未对齐陷入。
+在这种情况中，未对齐的加载和存储可以在硬件中被处理，或者通过一个不可见的陷入进入执行环境实现，
+或者根据具体地址，可能是硬件和不可见陷入的组合。
 
-An EEI may not guarantee misaligned loads and stores are handled
-invisibly.  In this case, loads and stores that are not naturally
-aligned may either complete execution successfully or raise an
-exception.  The exception raised can be either an address-misaligned
-exception or an access-fault exception.  For a memory access that would
-otherwise be able to complete except for the misalignment, an
-access-fault exception can be raised instead of an address-misaligned
-exception if the misaligned access should not be emulated, e.g., if
-accesses to the memory region have side effects.  When an EEI does not
-guarantee misaligned loads and stores are handled invisibly, the EEI
-must define if exceptions caused by address misalignment result in a
-contained trap (allowing software running inside the execution
-environment to handle the trap) or a fatal trap (terminating
-execution).
+EEI可以不保证未对齐的加载和存储被不可见地处理掉。
+在这种情况中，没有自然对齐的加载和存储或者可以成功地完成执行，或者可以引发一个异常。
+所引发的异常可以是一个地址未对齐异常，也可以是一个访问故障异常。
+对于除了未对齐外都能够完成的内存访问，如果未对齐的访问不应当被模拟，例如，如果对内存区域的访问有副作用，
+那么可以引发一个访问故障异常而不是一个地址未对齐异常。
+当EEI不保证隐式地处理未对齐的加载和存储时，
+EEI必须定义由地址未对齐引起的异常是否导致被包含的陷入（允许软件运行在执行环境中以处理该陷入）或者致命陷入（终止执行）。
 
 \begin{commentary}
-Misaligned accesses are occasionally required when porting legacy
-code, and help performance on applications when using any form of
-packed-SIMD extension or handling externally packed data structures.
-Our rationale for allowing EEIs to choose to support misaligned
-accesses via the regular load and store instructions is to simplify
-the addition of misaligned hardware support.  One option would have
-been to disallow misaligned accesses in the base ISAs and then provide
-some separate ISA support for misaligned accesses, either special
-instructions to help software handle misaligned accesses or a new
-hardware addressing mode for misaligned accesses.  Special
-instructions are difficult to use, complicate the ISA, and often add
-new processor state (e.g., SPARC VIS align address offset register) or
-complicate access to existing processor state (e.g., MIPS LWL/LWR
-partial register writes).  In addition, for loop-oriented packed-SIMD
-code, the extra overhead when operands are misaligned motivates
-software to provide multiple forms of loop depending on operand
-alignment, which complicates code generation and adds to loop startup
-overhead.  New misaligned hardware addressing modes take considerable
-space in the instruction encoding or require very simplified
-addressing modes (e.g., register indirect only).
+当移植遗留代码时，偶尔需要未对齐的访问；且在使用任何形式的打包SIMD扩展、或者处理外部打包的数据结构时，
+这些未对齐的访问对应用程序的性能会有帮助。对于允许EEI选择通过常规的加载和存储指令来支持未对齐的访问，我们的基本原则是：
+简化添加额外的未对齐硬件支持。
+一个选择是，在基础ISA中将不允许未对齐的访问，然后为未对齐访问提供一些分离的ISA支持：
+或者是一些特殊指令来帮助软件处理未对齐访问，或者是一个用于未对齐访问的新的硬件编址模式。特殊指令是难以使用的、让ISA复杂化的，
+并经常添加新的处理器状态（例如，SPARC VIS对齐地址偏移量寄存器）或是让现有处理器状态的访问复杂化
+（例如，MIPS LWL/LWR部分寄存器写）。
+此外，对于面向循环的打包SIMD代码，当操作数未对齐时的额外负担迫使软件根据操作数的对齐方式提供多种形式的循环，
+这使代码的生成复杂化，并增加了循环启动的负担。新的未对齐硬件编址模式或者会占据相当多的指令编码空间，
+或者需要非常简化的编址模式（例如，只有寄存器间接寻址模式）。
+%  One option would have
+% been to disallow misaligned accesses in the base ISAs and then provide
+% some separate ISA support for misaligned accesses, either special
+% instructions to help software handle misaligned accesses or a new
+% hardware addressing mode for misaligned accesses.  Special
+% instructions are difficult to use, complicate the ISA, and often add
+% new processor state (e.g., SPARC VIS align address offset register) or
+% complicate access to existing processor state (e.g., MIPS LWL/LWR
+% partial register writes).  In addition, for loop-oriented packed-SIMD
+% code, the extra overhead when operands are misaligned motivates
+% software to provide multiple forms of loop depending on operand
+% alignment, which complicates code generation and adds to loop startup
+% overhead.  New misaligned hardware addressing modes take considerable
+% space in the instruction encoding or require very simplified
+% addressing modes (e.g., register indirect only).
 \end{commentary}
 
-Even when misaligned loads and stores complete successfully, these
-accesses might run extremely slowly depending on the implementation
-(e.g., when implemented via an invisible trap).  Furthermore, whereas
-naturally aligned loads and stores are guaranteed to execute
-atomically, misaligned loads and stores might not, and hence
-require additional synchronization to ensure atomicity.
+即使是当未对齐的加载和存储成功完成时，根据实现，这些访问也可能运行得极度缓慢
+（例如，当通过一个不可见的陷入实现时）。此外，尽管自然对齐的加载和存储被保证原子执行，但未对齐的加载和存储却可能不会，
+并因此需要额外的同步来保证原子性。
+% Even when misaligned loads and stores complete successfully, these
+% accesses might run extremely slowly depending on the implementation
+% (e.g., when implemented via an invisible trap).  Furthermore, whereas
+% naturally aligned loads and stores are guaranteed to execute
+% atomically, misaligned loads and stores might not, and hence
+% require additional synchronization to ensure atomicity.
 
 \begin{commentary}
-We do not mandate atomicity for misaligned accesses so execution
-environment implementations can use an invisible machine trap and
-a software handler to handle some or all misaligned accesses.  If
-hardware misaligned support is provided, software can exploit this by
-simply using regular load and store instructions.  Hardware can then
-automatically optimize accesses depending on whether runtime addresses
-are aligned.
+我们没有授权未对齐访问的原子性，所以执行环境实现可以使用一种不可见的机器陷入，和一个软件处理程序来处理部分或所有的未对齐访问。
+如果提供了硬件未对齐支持，软件可以通过简单地使用常规加载和存储指令利用它。然后，硬件可以根据运行时地址是否对齐自动优化访问。
 \end{commentary}
 
 \pagebreak
 
-\section{Memory Ordering Instructions}
+\section{内存排序指令}
 \label{sec:fence}
 
 \vspace{-0.2in}
@@ -1201,123 +948,157 @@ are aligned.
 \multicolumn{1}{c|}{opcode} \\
 \hline
 4 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 5 & 3 & 5 & 7 \\
-FM & \multicolumn{4}{c}{predecessor} & \multicolumn{4}{c}{successor} & 0 & FENCE & 0 & MISC-MEM \\
+FM & \multicolumn{4}{c}{前驱} & \multicolumn{4}{c}{后继} & 0 & FENCE & 0 & MISC-MEM \\
 \end{tabular}
 \end{center}
 
-The FENCE instruction is used to order device I/O and
-memory accesses as viewed by other RISC-V harts and external devices
-or coprocessors.  Any combination of device input (I), device output
-(O), memory reads (R), and memory writes (W) may be ordered with
-respect to any combination of the same.  Informally, no other RISC-V
-hart or external device can observe any operation in the {\em
-  successor} set following a FENCE before any operation in the {\em
-  predecessor} set preceding the FENCE.
-Chapter~\ref{ch:memorymodel} provides a precise description of the
-RISC-V memory consistency model.
+FENCE指令被用于为其它RISC-V硬件线程和外部设备或协处理器所看到的设备I/O和内存访问进行排序。
+设备输入（I）、设备输出（O）、内存读（R）和内存写（W）的任意组合可以与同样这些的任意组合进行排序。
+非正式地，没有其它的RISC-V硬件线程或外部设备可以在FENCE之前的{\em 前驱}集合中的任何操作之前，
+观察到FENCE之后的{\em 后继}集合中的任何操作。第17章~\ref{ch:memorymodel}提供了RISC-V内存一致性模型的一个精确的描述。
+% The FENCE instruction is used to order device I/O and
+% memory accesses as viewed by other RISC-V harts and external devices
+% or coprocessors.  Any combination of device input (I), device output
+% (O), memory reads (R), and memory writes (W) may be ordered with
+% respect to any combination of the same.  Informally, no other RISC-V
+% hart or external device can observe any operation in the {\em
+%   successor} set following a FENCE before any operation in the {\em
+%   predecessor} set preceding the FENCE.
+% Chapter~\ref{ch:memorymodel} provides a precise description of the
+% RISC-V memory consistency model.
 
-The FENCE instruction also orders memory reads and writes made by the
-hart as observed by memory reads and writes made by an external
-device.  However, FENCE does not order observations of events made by
-an external device using any other signaling mechanism.
+FENCE指令也对那些被外部设备发起的内存读写所观察到的、硬件线程发起的内存读和内存写进行排序。
+然而，FENCE不对使用任何其它信号机制的外部设备发起的观察事件排序。
+% The FENCE instruction also orders memory reads and writes made by the
+% hart as observed by memory reads and writes made by an external
+% device.  However, FENCE does not order observations of events made by
+% an external device using any other signaling mechanism.
 
 \begin{commentary}
-A device might observe an access to a memory location via some
-external communication mechanism, e.g., a memory-mapped control
-register that drives an interrupt signal to an interrupt controller.
-This communication is outside the scope of the FENCE ordering
-mechanism and hence the FENCE instruction can provide no guarantee on
-when a change in the interrupt signal is visible to the interrupt
-controller.  Specific devices might provide additional ordering
-guarantees to reduce software overhead but those are outside the scope
-of the RISC-V memory model.
+一个设备可能通过某些外部通信机制（例如，一个为中断控制器驱动中断信号的内存映射控制寄存器）观察到对一个内存位置的访问。
+这个通信是在FENCE排序机制的视野之外的，因此，FENCE指令不能提供保证，中断信号的变化何时能对中断控制器可见。
+特定的设备可以提供额外的排序保证以减小软件负载，但是那些机制属于RISC-V内存模型的范畴之外了。
+% A device might observe an access to a memory location via some
+% external communication mechanism, e.g., a memory-mapped control
+% register that drives an interrupt signal to an interrupt controller.
+% This communication is outside the scope of the FENCE ordering
+% mechanism and hence the FENCE instruction can provide no guarantee on
+% when a change in the interrupt signal is visible to the interrupt
+% controller.  Specific devices might provide additional ordering
+% guarantees to reduce software overhead but those are outside the scope
+% of the RISC-V memory model.
 \end{commentary}
 
-The EEI will define what I/O operations are possible, and in
-particular, which memory addresses when accessed by load and store instructions will be treated and
-ordered as device input and device output operations respectively
-rather than memory reads and writes.  For example, memory-mapped I/O
-devices will typically be accessed with uncached loads and stores that
-are ordered using the I and O bits rather than the R and W bits.
-Instruction-set extensions might also describe new I/O
-instructions that will also be ordered using the I and O bits in a
-FENCE.
+EEI将定义什么I/O操作是可能的，并且特别地，当被加载和存储指令访问时，分别有哪些内存地址
+将被视为设备输入和设备输出操作、而不是内存读取和写入操作，并以此排序。
+例如，内存映射I/O设备通常被未缓存的加载和存储访问，这些访问使用I和O位而不是R和W位进行排序。
+指令集扩展也可以在FENCE中描述同样使用I和O位排序的新的I/O指令。
+% The EEI will define what I/O operations are possible, and in
+% particular, which memory addresses when accessed by load and store instructions will be treated and
+% ordered as device input and device output operations respectively
+% rather than memory reads and writes.  For example, memory-mapped I/O
+% devices will typically be accessed with uncached loads and stores that
+% are ordered using the I and O bits rather than the R and W bits.
+% Instruction-set extensions might also describe new I/O
+% instructions that will also be ordered using the I and O bits in a
+% FENCE.
 
 \begin{table}[htp]
 \begin{small}
 \begin{center}
 \begin{tabular}{|c|c|l|}
 \hline
-{\em fm} field & Mnemonic & Meaning \\
+{\em fm} 域 & 助记符 & 含义 \\
 \hline
-0000 & \em none & Normal Fence \\
+0000 & \em 无 & 一般的屏障 \\
 \hline
-\multirow{2}{*}{1000} & \multirow{2}{*}{TSO} & With FENCE RW,RW: exclude write-to-read ordering \\
-                      &                      & Otherwise: \em Reserved for future use. \\
+\multirow{2}{*}{1000} & \multirow{2}{*}{TSO} & 带有FENCE RW, RW：排除“写到读”的次序 \\
+                      &                      & 其它的：\em 保留供未来使用。 \\
 \hline
-\multicolumn{2}{|c|}{\em other} & \em Reserved for future use. \\
+\multicolumn{2}{|c|}{\em 其他} & \em 保留供未来使用。 \\
 \hline
 \end{tabular}
 \end{center}
 \end{small}
-\caption{Fence mode encoding.}
+\caption{屏障模式编码}
 \label{fm}
 \end{table}
 
-The fence mode field {\em fm} defines the semantics of the FENCE.  A
-FENCE with {\em fm}=0000 orders all memory operations in its
-predecessor set before all memory operations in its successor set. 
+屏障模式域{\em fm}定义了FENCE的语义。一个{\em fm}=0000的FENCE把它的前驱集合中的所有内存操作，
+排在它的后继集合的所有内存操作之前。
+% The fence mode field {\em fm} defines the semantics of the FENCE.  A
+% FENCE with {\em fm}=0000 orders all memory operations in its
+% predecessor set before all memory operations in its successor set. 
 
-The FENCE.TSO instruction is encoded as a FENCE instruction
-with {\em fm}=1000, {\em predecessor}=RW, and {\em successor}=RW.
-FENCE.TSO orders all load
-operations in its predecessor set before all memory operations in its
-successor set, and all store operations in its predecessor set before
-all store operations in its successor set.  This leaves non-AMO store
-operations in the FENCE.TSO's predecessor set unordered with non-AMO
-loads in its successor set.
+FENCE.TSO指令被编码为{\em fm}=1000、{\em 前驱}RW、以及{\em 后继}＝RW的FENCE指令。
+FENCE.TSO把它前驱集合中的所有加载操作排在它后继集合中的所有内存操作之前，
+并把它前驱集合中的所有存储操作排在它后继集合中的所有存储操作之前。
+这使得FENCE.TSO的前驱集合中的非AMO存储操作与它的后继集合中的非AMO加载操作不再有序。
+% The FENCE.TSO instruction is encoded as a FENCE instruction
+% with {\em fm}=1000, {\em predecessor}=RW, and {\em successor}=RW.
+% FENCE.TSO orders all load
+% operations in its predecessor set before all memory operations in its
+% successor set, and all store operations in its predecessor set before
+% all store operations in its successor set.  This leaves non-AMO store
+% operations in the FENCE.TSO's predecessor set unordered with non-AMO
+% loads in its successor set.
 
 \begin{commentary}
-  Because \mbox{FENCE RW,RW} imposes a superset of the orderings that
-  FENCE.TSO imposes, it is correct to ignore the {\em fm} field and
-  implement FENCE.TSO as \mbox{FENCE RW,RW}.
+  因为\mbox{FENCE RW,RW}所施加的排序是FENCE.TSO所施加排序的一个超集，
+  所以忽略{\em fm}域并把FENCE.TSO作为\mbox{FENCE RW,RW}实现是正确的。
+  % Because \mbox{FENCE RW,RW} imposes a superset of the orderings that
+  % FENCE.TSO imposes, it is correct to ignore the {\em fm} field and
+  % implement FENCE.TSO as \mbox{FENCE RW,RW}.
 \end{commentary}
 
-The unused fields in the FENCE instructions---{\em rs1} and {\em rd}---are
-reserved for finer-grain fences in future extensions.  For forward
-compatibility, base implementations shall ignore these fields, and standard
-software shall zero these fields.  Likewise, many {\em fm} and
-predecessor/successor set settings in Table~\ref{fm} are also reserved
-for future use.  Base implementations shall treat all such reserved
-configurations as normal fences with {\em fm}=0000, and standard
-software shall use only non-reserved configurations.
+FENCE指令中的未使用的域——{\em rs1}和{\em rd}——被保留用于未来扩展中的更细粒度的屏障。
+为了向前兼容，基础实现应当忽略这些域，而标准软件应当把这些域置为零。
+同样地，表~\ref{fm}中的许多{\em fm}和前驱/后继集合设置也被保留供将来使用。
+基础实现应当把所有这些保留的配置视为普通的{\em fm}＝0000的屏障，而标准软件应当只使用非保留的配置。
+% The unused fields in the FENCE instructions---{\em rs1} and {\em rd}---are
+% reserved for finer-grain fences in future extensions.  For forward
+% compatibility, base implementations shall ignore these fields, and standard
+% software shall zero these fields.  Likewise, many {\em fm} and
+% predecessor/successor set settings in Table~\ref{fm} are also reserved
+% for future use.  Base implementations shall treat all such reserved
+% configurations as normal fences with {\em fm}=0000, and standard
+% software shall use only non-reserved configurations.
 
 \begin{commentary}
-We chose a relaxed memory model to allow high performance from simple
-machine implementations and from likely future
-coprocessor or accelerator extensions.  We separate out I/O ordering
-from memory R/W ordering to avoid unnecessary serialization within a
-device-driver hart and also to support alternative non-memory paths
-to control added coprocessors or I/O devices.  Simple implementations
-may additionally ignore the {\em predecessor} and {\em successor}
-fields and always execute a conservative fence on all operations.
+我们选择了一个放松的内存模型以允许从简单的机器实现和可能的未来协处理器或加速器扩展获得高性能。
+我们从内存R/W排序中分离了I/O排序以避免在一个设备驱动硬件线程中进行不必要的序列化，
+而且也支持备用的非内存路径来控制添加的协处理器或I/O设备。此外，简单的实现还可以忽略{\em 前驱}和{\em 后继}的域，
+而总是在所有的操作上执行保守的屏障。
+% We chose a relaxed memory model to allow high performance from simple
+% machine implementations and from likely future
+% coprocessor or accelerator extensions.  We separate out I/O ordering
+% from memory R/W ordering to avoid unnecessary serialization within a
+% device-driver hart and also to support alternative non-memory paths
+% to control added coprocessors or I/O devices.  Simple implementations
+% may additionally ignore the {\em predecessor} and {\em successor}
+% fields and always execute a conservative fence on all operations.
 \end{commentary}
 
-\section{Environment Call and Breakpoints}
+\section{环境调用和断点}
 
-SYSTEM instructions are used to access system functionality that might
-require privileged access and are encoded using the I-type instruction
-format.  These can be divided into two main classes: those that
-atomically read-modify-write control and status registers (CSRs), and
-all other potentially privileged instructions. CSR instructions are
-described in Chapter~\ref{csrinsts}, and the base unprivileged instructions
-are described in the following section.
+SYSTEM指令被用于访问那些可能需要访问权限的系统功能，并且使用I类型指令格式进行编码。
+这些指令可以被划分为两个主要的类别：那些原子性的“读-修改-写”控制和状态寄存器（CSR），和所有其它潜在的特权指令。
+CSR指令在第11章~\ref{csrinsts}描述，而基础非特权指令在接下来的小节中描述。
+% SYSTEM instructions are used to access system functionality that might
+% require privileged access and are encoded using the I-type instruction
+% format.  These can be divided into two main classes: those that
+% atomically read-modify-write control and status registers (CSRs), and
+% all other potentially privileged instructions. CSR instructions are
+% described in Chapter~\ref{csrinsts}, and the base unprivileged instructions
+% are described in the following section.
 
 \begin{commentary}
-The SYSTEM instructions are defined to allow simpler implementations
-to always trap to a single software trap handler.  More sophisticated
-implementations might execute more of each system instruction in
-hardware.
+SYSTEM指令被定义为允许更简单的实现总是陷入到一个单独的软件陷入处理程序。
+更复杂的实现可能在硬件中执行更多的各系统指令。
+% The SYSTEM instructions are defined to allow simpler implementations
+% to always trap to a single software trap handler.  More sophisticated
+% implementations might execute more of each system instruction in
+% hardware.
 \end{commentary}
 
 \vspace{-0.2in}
@@ -1342,118 +1123,148 @@ EBREAK  & 0 & PRIV & 0 & SYSTEM \\
 \end{tabular}
 \end{center}
 
-These two instructions cause a precise requested trap to the
-supporting execution environment.
+这两个指令对支持的执行环境引发了一个精确的请求陷入。
+% These two instructions cause a precise requested trap to the
+% supporting execution environment.
 
-The ECALL instruction is used to make a service request to the
-execution environment.  The EEI will define how parameters for the
-service request are passed, but usually these will be in defined
-locations in the integer register file.
+ECALL指令被用于向执行环境发起一个服务请求。EEI将定义服务请求参数传递的方式，
+但是通常这些参数将处于整数寄存器文件中已定义的位置。
+% The ECALL instruction is used to make a service request to the
+% execution environment.  The EEI will define how parameters for the
+% service request are passed, but usually these will be in defined
+% locations in the integer register file.
 
-The EBREAK instruction is used to return control to a debugging
-environment.
+EBREAK指令被用于将控制返回到调试环境。
+% The EBREAK instruction is used to return control to a debugging
+% environment.
 
 \begin{commentary}
-ECALL and EBREAK were previously named SCALL and SBREAK.  The
-instructions have the same functionality and encoding, but were
-renamed to reflect that they can be used more generally than to call a
-supervisor-level operating system or debugger.
+ECALL和EBREAK之前被命名为SCALL和SBREAK。这些指令有相同的功能和编码，但是被重命名了，
+是为了反映它们可以更一般化地使用，而不只是调用一个管理员级别的操作系统或者调试器。
+% ECALL and EBREAK were previously named SCALL and SBREAK.  The
+% instructions have the same functionality and encoding, but were
+% renamed to reflect that they can be used more generally than to call a
+% supervisor-level operating system or debugger.
 \end{commentary}
 
 \begin{commentary}
-  EBREAK was primarily designed to be used by a debugger to cause
-  execution to stop and fall back into the debugger. EBREAK is also
-  used by the standard gcc compiler to mark code paths that should not
-  be executed.
+  EBREAK被主要设计为供调试器使用的，以引发执行停止和返回到调试器中。
+  EBREAK也被标准gcc编译器用来标记可能不会被执行的代码路径。
+  % EBREAK was primarily designed to be used by a debugger to cause
+  % execution to stop and fall back into the debugger. EBREAK is also
+  % used by the standard gcc compiler to mark code paths that should not
+  % be executed.
 
-  Another use of EBREAK is to support ``semihosting'', where the
-  execution environment includes a debugger that can provide services
-  over an alternate system call interface built around the EBREAK
-  instruction.  Because the RISC-V base ISAs do not provide more than
-  one EBREAK instruction, RISC-V semihosting uses a special sequence of
-  instructions to distinguish a semihosting EBREAK from a debugger
-  inserted EBREAK.
+  EBREAK的另一个用处是支持“半宿主”，即，包含调试器的执行环境可以通过围绕EBREAK指令构建一套备用系统调用接口来提供服务。
+  因为RISC-V基础ISA没有提供更多的（多于一个的）EBREAK指令，
+  RISC-V半宿主使用一个特殊的指令序列来将半宿主EBREAK与调试器插入的EBREAK进行区分。
+  % Another use of EBREAK is to support ``semihosting'', where the
+  % execution environment includes a debugger that can provide services
+  % over an alternate system call interface built around the EBREAK
+  % instruction.  Because the RISC-V base ISAs do not provide more than
+  % one EBREAK instruction, RISC-V semihosting uses a special sequence of
+  % instructions to distinguish a semihosting EBREAK from a debugger
+  % inserted EBREAK.
 \begin{verbatim}
-    slli x0, x0, 0x1f   # Entry NOP
-    ebreak              # Break to debugger
-    srai x0, x0, 7      # NOP encoding the semihosting call number 7
+    slli x0, x0, 0x1f   # 入口 NOP
+    ebreak              # 中断到调试器
+    srai x0, x0, 7      # NOP编码编号为7的半宿主调用
 \end{verbatim}
-   Note that these three instructions must be 32-bit-wide instructions,
-   i.e., they mustn't be among the compressed 16-bit instructions
-   described in Chapter~\ref{compressed}.
+  注意这三个指令都必须是32位宽的指令，也就是说，它们必须不能出现在第18章~\ref{compressed}里描述的压缩的16位指令之中。
+  %  Note that these three instructions must be 32-bit-wide instructions,
+  %  i.e., they mustn't be among the compressed 16-bit instructions
+  %  described in Chapter~\ref{compressed}.
+  
+   移位NOP指令仍然被认为可以用作HINT
+  %  The shift NOP instructions are still considered available for use as
+  %  HINTs.
 
-   The shift NOP instructions are still considered available for use as
-   HINTs.
-
-   Semihosting is a form of service call and would be more naturally
-   encoded as an ECALL using an existing ABI, but this would require
-   the debugger to be able to intercept ECALLs, which is a newer
-   addition to the debug standard.  We intend to move over to using
-   ECALLs with a standard ABI, in which case, semihosting can share a
-   service ABI with an existing standard.
-
-   We note that ARM processors have also moved to using SVC instead of
-   BKPT for semihosting calls in newer designs.
+   半宿主是一种服务调用的形式，它将更自然地使用现有ABI被编码为ECALL，但是这将要求调试器有能力拦截ECALL，
+   那是对调试标准的一个较新的补充。我们试图改为使用带有标准ABI的ECALL，这种情况中，半宿主可以与现有标准分享服务ABI。
+  %  Semihosting is a form of service call and would be more naturally
+  %  encoded as an ECALL using an existing ABI, but this would require
+  %  the debugger to be able to intercept ECALLs, which is a newer
+  %  addition to the debug standard.  We intend to move over to using
+  %  ECALLs with a standard ABI, in which case, semihosting can share a
+  %  service ABI with an existing standard.
+  
+   我们注意到，ARM处理器在较新的设计中，对于半宿主调用，也已经转为使用了SVC而不再是BKPT。
+  %  We note that ARM processors have also moved to using SVC instead of
+  %  BKPT for semihosting calls in newer designs.
 \end{commentary}
 
-\section{HINT Instructions}
+\section{“提示”指令}
 \label{sec:rv32i-hints}
 
-RV32I reserves a large encoding space for HINT instructions, which are
-usually used to communicate performance hints to the
-microarchitecture.
-Like the NOP instruction, HINTs do not change any architecturally visible
-state, except for advancing the {\tt pc} and any applicable performance
-counters.
-Implementations are always allowed to ignore the encoded hints.
+RV32I保留了大量的编码空间用于HINT指令，这些通常被用于向微架构交流性能提示。
+像NOP指令，除了提升{\tt pc}和任何适用的性能计数器，HINT不改变任何架构上的可视状态。实现总是被允许忽略已编码的提示。
+% RV32I reserves a large encoding space for HINT instructions, which are
+% usually used to communicate performance hints to the
+% microarchitecture.
+% Like the NOP instruction, HINTs do not change any architecturally visible
+% state, except for advancing the {\tt pc} and any applicable performance
+% counters.
+% Implementations are always allowed to ignore the encoded hints.
 
-Most RV32I HINTs are encoded as integer computational instructions with
-{\em rd}={\tt x0}.
-The other RV32I HINTs are encoded as FENCE instructions with a null
-predecessor or successor set and with {\em fm}=0.
+大多数RV32I HINT被编码为{\em rd}={\tt x0}的整数运算指令。
+其余RV32I HINT被编码为没有前驱集和后继集且{\em fm}＝0的FENCE指令。
+% Most RV32I HINTs are encoded as integer computational instructions with
+% {\em rd}={\tt x0}.
+% The other RV32I HINTs are encoded as FENCE instructions with a null
+% predecessor or successor set and with {\em fm}=0.
 
 \begin{commentary}
-These HINT encodings have been chosen so that simple implementations can ignore
-HINTs altogether, and instead execute a HINT as a regular
-instruction that happens not to mutate the architectural state.  For example, ADD is
-a HINT if the destination register is {\tt x0}; the five-bit {\em rs1} and {\em
-rs2} fields encode arguments to the HINT.  However, a simple implementation can
-simply execute the HINT as an ADD of {\em rs1} and {\em rs2} that writes {\tt
-x0}, which has no architecturally visible effect.
+选择这样的HINT编码是为了简单的实现可以完全忽略HINT，而把HINT作为一个常规的、但是恰好不改变架构状态的指令。
+例如，如果目的寄存器是{\tt x0}，那么ADD就是一个HINT；五位的{\em rs1}和{\em rs2}域编码了HINT的参数。
+然而，简单的实现可以简单地把HINT执行为把{\em rs1}加{\em rs2}写入{\tt x0}的ADD指令，这种没有架构上可见的影响。
+% These HINT encodings have been chosen so that simple implementations can ignore
+% HINTs altogether, and instead execute a HINT as a regular
+% instruction that happens not to mutate the architectural state.  For example, ADD is
+% a HINT if the destination register is {\tt x0}; the five-bit {\em rs1} and {\em
+% rs2} fields encode arguments to the HINT.  However, a simple implementation can
+% simply execute the HINT as an ADD of {\em rs1} and {\em rs2} that writes {\tt
+% x0}, which has no architecturally visible effect.
 
-As another example, a FENCE instruction with a zero {\em pred} field and
-a zero {\em fm} field is a HINT; the {\em succ}, {\em rs1}, and {\em rd}
-fields encode the arguments to the HINT.
-A simple implementation can simply execute the HINT as a FENCE that orders the
-null set of prior memory accesses before whichever subsequent memory accesses
-are encoded in the {\em succ} field.
-Since the intersection of the predecessor and successor sets is null, the
-instruction imposes no memory orderings, and so it has no architecturally
-visible effect.
+作为另一个例子，一个{\em pred}域为零且{\em fm} 域为零的FENCE指令是一个HINT；
+{\em succ}域， {\em rs1}域， and {\em rd}域编码了HINT的参数。
+一个简单的实现可以把HINT作为一个FENCE简单地执行，即，在任何被编码在{\em succ}域中的后续内存访问之前，
+对先前内存访问的空集进行排序。由于前驱集和后继集的交集为空，该指令不会施加内存排序，因此它没有架构可见的影响。
+% As another example, a FENCE instruction with a zero {\em pred} field and
+% a zero {\em fm} field is a HINT; the {\em succ}, {\em rs1}, and {\em rd}
+% fields encode the arguments to the HINT.
+% A simple implementation can simply execute the HINT as a FENCE that orders the
+% null set of prior memory accesses before whichever subsequent memory accesses
+% are encoded in the {\em succ} field.
+% Since the intersection of the predecessor and successor sets is null, the
+% instruction imposes no memory orderings, and so it has no architecturally
+% visible effect.
 \end{commentary}
 
-Table~\ref{tab:rv32i-hints} lists all RV32I HINT code points.  91\% of the HINT
-space is reserved for standard HINTs.  The
-remainder of the HINT space is designated for custom HINTs: no standard HINTs
-will ever be defined in this subspace.
+表~\ref{tab:rv32i-hints}列出了所有的RV32I HINT代码点。91\%的HINT空间被保留用于标准HINT。
+剩余的HINT空间被指定用于自定义的HINT：在这个子空间中，将永远不会定义标准HINT。
+% Table~\ref{tab:rv32i-hints} lists all RV32I HINT code points.  91\% of the HINT
+% space is reserved for standard HINTs.  The
+% remainder of the HINT space is designated for custom HINTs: no standard HINTs
+% will ever be defined in this subspace.
 
 \begin{commentary}
-We anticipate
-standard hints to eventually include memory-system spatial and
-temporal locality hints, branch prediction hints, thread-scheduling
-hints, security tags, and instrumentation flags for
-simulation/emulation.
+我们预计标准的提示最终包含内存系统空间和时间的局部性提示、分支预测提示、线程调度提示、安全性标签、和用于模拟/仿真的仪器标志。
+% We anticipate
+% standard hints to eventually include memory-system spatial and
+% temporal locality hints, branch prediction hints, thread-scheduling
+% hints, security tags, and instrumentation flags for
+% simulation/emulation.
 \end{commentary}
 
 \begin{table}[hbt]
 \centering
 \begin{tabular}{|l|l|c|l|}
   \hline
-  Instruction           & Constraints                                 & Code Points & Purpose \\ \hline \hline
-  LUI                   & {\em rd}={\tt x0}                           & $2^{20}$                    & \multirow{10}{*}{\em Reserved for future standard use} \\ \cline{1-3}
+  指令                   & 约束                                        & 代码点                       & 目的\\ \hline \hline
+  LUI                   & {\em rd}={\tt x0}                           & $2^{20}$                    & \multirow{10}{*}{\em 保留供未来标准使用} \\ \cline{1-3}
   AUIPC                 & {\em rd}={\tt x0}                           & $2^{20}$                    & \\ \cline{1-3}
-  \multirow{2}{*}{ADDI} & {\em rd}={\tt x0}, and either               & \multirow{2}{*}{$2^{17}-1$} & \\
-                        & {\em rs1}$\neq${\tt x0} or {\em imm}$\neq$0 &                             & \\ \cline{1-3}
+  \multirow{2}{*}{ADDI} & {\em rd}={\tt x0}, 并且要么                  & \multirow{2}{*}{$2^{17}-1$} & \\
+                        & {\em rs1}$\neq${\tt x0} 要么 {\em imm}$\neq$0 &                             & \\ \cline{1-3}
   ANDI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
   ORI                   & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
   XORI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
@@ -1465,7 +1276,7 @@ simulation/emulation.
                         &                                             &                             & ({\em rs2}={\tt x3}) NTL.PALL \\
                         &                                             &                             & ({\em rs2}={\tt x4}) NTL.S1 \\
                         &                                             &                             & ({\em rs2}={\tt x5}) NTL.ALL \\ \hline
-  SUB                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \multirow{17}{*}{\em Reserved for future standard use} \\ \cline{1-3}
+  SUB                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \multirow{17}{*}{\em 保留供未来标准使用} \\ \cline{1-3}
   AND                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
   OR                    & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
   XOR                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
@@ -1482,9 +1293,9 @@ simulation/emulation.
                         & {\em pred}=0, {\em succ}$\neq$0             &                             & \\ \cline{1-3}
   \multirow{2}{*}{FENCE}& {\em rd}={\em rs1}={\tt x0}, {\em fm}=0,    & \multirow{2}{*}{15}         & \\
                         & {\em pred}$\neq$W, {\em succ}=0             &                             & \\ \hline
-  \multirow{2}{*}{FENCE}& {\em rd}={\em rs1}={\tt x0}, {\em fm}=0,    & \multirow{2}{*}{1}          & \multirow{2}{*}{PAUSE} \\
+  \multirow{2}{*}{FENCE}& {\em rd}={\em rs1}={\tt x0}, {\em fm}=0,    & \multirow{2}{*}{1}          & \multirow{2}{*}{暂停} \\
                         & {\em pred}=W, {\em succ}=0                  &                             & \\ \hline \hline
-  SLTI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \multirow{7}{*}{\em Designated for custom use} \\ \cline{1-3}
+  SLTI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \multirow{7}{*}{\em 指定供自定义使用} \\ \cline{1-3}
   SLTIU                 & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
   SLLI                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
   SRLI                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
@@ -1492,7 +1303,7 @@ simulation/emulation.
   SLT                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
   SLTU                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \hline
 \end{tabular}
-\caption{RV32I HINT instructions.}
+\caption{RV32I 提示指令。}
 \label{tab:rv32i-hints}
 \end{table}
 
