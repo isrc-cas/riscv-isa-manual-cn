@@ -12,8 +12,8 @@
 \contentsline {section}{\numberline {2.2}基础指令格式}{15}{section.2.2}%
 \contentsline {section}{\numberline {2.3}立即数编码变量}{16}{section.2.3}%
 \contentsline {section}{\numberline {2.4}整数运算指令}{18}{section.2.4}%
-\contentsline {section}{\numberline {2.5}控制转移指令}{22}{section.2.5}%
-\contentsline {section}{\numberline {2.6}Load and Store Instructions}{26}{section.2.6}%
-\contentsline {section}{\numberline {2.7}Memory Ordering Instructions}{29}{section.2.7}%
-\contentsline {section}{\numberline {2.8}Environment Call and Breakpoints}{30}{section.2.8}%
-\contentsline {section}{\numberline {2.9}HINT Instructions}{32}{section.2.9}%
+\contentsline {section}{\numberline {2.5}控制转移指令}{21}{section.2.5}%
+\contentsline {section}{\numberline {2.6}加载和存储指令}{24}{section.2.6}%
+\contentsline {section}{\numberline {2.7}内存排序指令}{27}{section.2.7}%
+\contentsline {section}{\numberline {2.8}环境调用和断点}{28}{section.2.8}%
+\contentsline {section}{\numberline {2.9}“提示”指令}{29}{section.2.9}%

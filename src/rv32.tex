@@ -680,14 +680,15 @@ JALR指令应当压入/弹出一个RAS的所有情形如表~\ref{rashints}所示
 \end{table}
 
 \begin{commentary}
+  
 一些其它的ISA把显式的提示位添加到了它们的间接跳转指令上，来指导返回地址栈的操作。
 我们使用绑定寄存器号码的隐式提示和调用约定，以减少用于这些提示的编码空间。
 
 当两个不同的链接寄存器（{\tt x1}和{\tt x5}）被给定为{\em rs1}和{\em rd}时，
 接下来RAS会被同时弹出和推入，以支持协程。
 如果{\em rs1}和{\em rd}是相同的链接寄存器（{\tt x1} 或着 {\tt x5}），
-RAS只把允许宏操作融合推入序列：
-\linebreak
+RAS只把允许宏操作融合推入序列： \\
+% \linebreak
 {\tt lui ra, imm20; jalr ra, imm12(ra)} \ 和 \ 
 {\tt auipc ra, imm20; jalr ra, imm12(ra)}
 \end{commentary}

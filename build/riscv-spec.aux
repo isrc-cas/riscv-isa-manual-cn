@@ -60,32 +60,32 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces RISC-V 基础指令格式。 每个立即数子域都用正被产生的立即数值中的位位置（imm[{\em  x}]）的标签标记， 而不是像通常做的那样，用指令立即数域中的位位置。}}{16}{figure.2.2}\protected@file@percent }
 \newlabel{fig:baseinstformats}{{2.2}{16}{RISC-V 基础指令格式。 每个立即数子域都用正被产生的立即数值中的位位置（imm[{\em x}]）的标签标记， 而不是像通常做的那样，用指令立即数域中的位位置。}{figure.2.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2.3}立即数编码变量}{16}{section.2.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces RISC-V base instruction formats showing immediate variants.}}{17}{figure.2.3}\protected@file@percent }
-\newlabel{fig:baseinstformatsimm}{{2.3}{17}{RISC-V base instruction formats showing immediate variants}{figure.2.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces Types of immediate produced by RISC-V instructions. The fields are labeled with the instruction bits used to construct their value. Sign extension always uses inst[31].}}{17}{figure.2.4}\protected@file@percent }
-\newlabel{fig:immtypes}{{2.4}{17}{Types of immediate produced by RISC-V instructions. The fields are labeled with the instruction bits used to construct their value. Sign extension always uses inst[31]}{figure.2.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces 显式立即数的RISC-V基础指令格式。}}{17}{figure.2.3}\protected@file@percent }
+\newlabel{fig:baseinstformatsimm}{{2.3}{17}{显式立即数的RISC-V基础指令格式。}{figure.2.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces 由RISC-V指令产生的立即数的类型。 用构造了它们值的指令位对域进行了标记。符号扩展总是使用inst[31]。}}{17}{figure.2.4}\protected@file@percent }
+\newlabel{fig:immtypes}{{2.4}{17}{由RISC-V指令产生的立即数的类型。 用构造了它们值的指令位对域进行了标记。符号扩展总是使用inst[31]。}{figure.2.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2.4}整数运算指令}{18}{section.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2.5}控制转移指令}{22}{section.2.5}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Return-address stack prediction hints encoded in the register operands of a JALR instruction.}}{24}{table.2.1}\protected@file@percent }
-\newlabel{rashints}{{2.1}{24}{Return-address stack prediction hints encoded in the register operands of a JALR instruction}{table.2.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}控制转移指令}{21}{section.2.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces 在JALR指令的寄存器操作数中编码的返回地址栈预测提示。}}{23}{table.2.1}\protected@file@percent }
+\newlabel{rashints}{{2.1}{23}{在JALR指令的寄存器操作数中编码的返回地址栈预测提示。}{table.2.1}{}}
 \citation{heil-tr1996}
 \citation{Klauser-1998}
 \citation{Kim-micro2005}
 \citation{ibmpower7}
 \citation{ibmpower7}
-\@writefile{toc}{\contentsline {section}{\numberline {2.6}Load and Store Instructions}{26}{section.2.6}\protected@file@percent }
-\newlabel{sec:rv32:ldst}{{2.6}{26}{Load and Store Instructions}{section.2.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.7}Memory Ordering Instructions}{29}{section.2.7}\protected@file@percent }
-\newlabel{sec:fence}{{2.7}{29}{Memory Ordering Instructions}{section.2.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2.2}{\ignorespaces Fence mode encoding.}}{30}{table.2.2}\protected@file@percent }
-\newlabel{fm}{{2.2}{30}{Fence mode encoding}{table.2.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.8}Environment Call and Breakpoints}{30}{section.2.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}加载和存储指令}{24}{section.2.6}\protected@file@percent }
+\newlabel{sec:rv32:ldst}{{2.6}{24}{加载和存储指令}{section.2.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}内存排序指令}{27}{section.2.7}\protected@file@percent }
+\newlabel{sec:fence}{{2.7}{27}{内存排序指令}{section.2.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.2}{\ignorespaces 屏障模式编码}}{27}{table.2.2}\protected@file@percent }
+\newlabel{fm}{{2.2}{27}{屏障模式编码}{table.2.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.8}环境调用和断点}{28}{section.2.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.9}“提示”指令}{29}{section.2.9}\protected@file@percent }
+\newlabel{sec:rv32i-hints}{{2.9}{29}{“提示”指令}{section.2.9}{}}
 \bibstyle{plain}
 \bibdata{riscv-spec}
-\@writefile{toc}{\contentsline {section}{\numberline {2.9}HINT Instructions}{32}{section.2.9}\protected@file@percent }
-\newlabel{sec:rv32i-hints}{{2.9}{32}{HINT Instructions}{section.2.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2.3}{\ignorespaces RV32I HINT instructions.}}{33}{table.2.3}\protected@file@percent }
-\newlabel{tab:rv32i-hints}{{2.3}{33}{RV32I HINT instructions}{table.2.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.3}{\ignorespaces RV32I 提示指令。}}{31}{table.2.3}\protected@file@percent }
+\newlabel{tab:rv32i-hints}{{2.3}{31}{RV32I 提示指令。}{table.2.3}{}}
 \bibcite{riscv-asm-manual}{1}
 \bibcite{riscv-elf-psabi}{2}
 \bibcite{heil-tr1996}{3}
@@ -102,4 +102,4 @@
 \bibcite{Ungar:1984}{14}
 \bibcite{riscvtr}{15}
 \bibcite{riscvtr2}{16}
-\gdef \@abspage@last{50}
+\gdef \@abspage@last{48}
