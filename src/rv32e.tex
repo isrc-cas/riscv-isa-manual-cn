@@ -1,0 +1,61 @@
+\chapter{RV32E和RV64E基础整数指令集（1.95版本）}
+\label{rv32e}
+
+这章描述了一个RV32E和RV64E基础整数指令集的建议草案，它们是为嵌入式系统的微控制器设计的。
+RV32E和RV64E分别是RV32I和RV64I的简化版本：
+仅有的改变是把整数寄存器的数目减少到了16个。
+这章仅仅概述了RV32E/RV64E和RV32I/RV64I之间的不同，并因此应当被放在第2章~\ref{rv32}和第7章\ref{rv64}之后阅读。
+% This chapter describes a proposal for the RV32E and RV64E base integer
+% instruction sets, designed for microcontrollers in embedded systems.
+% RV32E and RV64E are reduced versions of RV32I and RV64I, respectively:
+% the only change is to reduce the number of integer registers to 16.
+% This chapter only outlines the differences between RV32E/RV64E and
+% RV32I/RV64I, and so should be read after Chapters~\ref{rv32} and
+% \ref{rv64}.
+
+\begin{commentary}
+RV32E被设计为，为嵌入式微控制器提供一个更小的基础核心。
+RV64E也有兴趣用于大型SoC设计中的微控制器、以及减少高线程（highly thread）64位处理器的上下文状态。
+% RV32E was designed to provide an even smaller base core for embedded
+% microcontrollers.  There is also interest in RV64E for
+% microcontrollers within large SoC designs, and to reduce context state
+% for highly threaded 64-bit processors.
+
+RV32E和RV64E可以与所有当前的标准扩展相组合。
+% RV32E and RV64E can be combined with all current standard extensions.
+\end{commentary}
+
+\section{RV32E和RV64E编程模型}
+
+RV32E和RV64E把整数寄存器的数目减少到16个通用目的寄存器，（{\tt x0}--{\tt x15}），这里{\tt x0}是一个专用的零寄存器。
+% RV32E and RV64E reduce the integer register count to 16
+% general-purpose registers, ({\tt x0}--{\tt x15}), where {\tt x0} is a
+% dedicated zero register.
+
+\begin{commentary}
+我们已经发现，在小型RV32I内核设计中，较高的16个寄存器消费了除内存外的所有内核区域的大约四分之一，
+因此它们的移除节省了大约25\%的内存区域，而内核的电量也相应地减少了。
+% We have found that in the small RV32I core implementations, the upper
+% 16 registers consume around one quarter of the total area of the core
+% excluding memories, thus their removal saves around 25\% core area
+% with a corresponding core power reduction.
+\end{commentary}
+
+\section{RV32E和RV64E指令集编码}
+
+RV32E及RV64E分别使用与RV32I和RV64I相同的指令集编码，但是只提供寄存器{\tt x0} - {\tt x15}。
+所有指定其它寄存器{\tt x16} - {\tt x31}的编码都是保留的
+% RV32E and RV64E use the same instruction-set encoding as RV32I and
+% RV64I respectively, except that only registers {\tt x0}--{\tt x15} are
+% provided.  All encodings specifying the other registers {\tt x16}--{\tt
+%   x31} are reserved.
+
+\begin{commentary}
+本章的前一稿将所有使用{\tt x16} - {\tt x31}寄存器的编码都可用于自定义的。
+这一版本采用了一种更加保守的方法，让这些编码被保留，以便以后可以在自定义空间或新的标准编码之间分配它们。
+% The previous draft of this chapter made all encodings using the {\tt
+%   x16}--{\tt x31} registers available as custom.  This version takes a
+% more conservative approach, making these reserved so that they can be
+% allocated between custom space or new standard encodings at a later
+% date.
+\end{commentary}

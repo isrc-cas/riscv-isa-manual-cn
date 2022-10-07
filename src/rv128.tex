@@ -1,0 +1,98 @@
+\chapter{RV128I基础整数指令集（1.7版本）}
+\label{rv128}
+
+\begin{quote}
+{\em  “在计算机设计中只可能发生一个难以恢复的错误——没有足够的地址位用于内存编址和内存管理。”} -- Bell和Strecker，ISCA-3，1976年。
+% {\em ``There is only one mistake that can be made in computer design that is
+% difficult to recover from---not having enough address bits for memory
+% addressing and memory management.''} Bell and Strecker, ISCA-3, 1976.
+\end{quote}
+
+这章描述了RV128I，一个支持扁平128位地址空间的RISC-V ISA的变体。该变体是对现有的RV32I和RV64I设计的一种直接的外扩。
+% This chapter describes RV128I, a variant of the RISC-V ISA
+% supporting a flat 128-bit address space.  The variant is a
+% straightforward extrapolation of the existing RV32I and RV64I designs.
+
+\begin{commentary}
+扩展整数寄存器宽度的主要原因是为了支持更大的地址空间。
+还不清楚什么时候将会需要大于64位的扁平地址空间。
+在编写本手册时，世界上最快的超级计算机，经Top500基准的衡量，有超过\wunits{1}{PB}的DRAM，
+而且如果所有的DRAM都保留在单一地址空间中，将需要超过50位的地址空间。
+一些仓储级（warehouse-scale）的计算机甚至已经包含了更大数量的DRAM，
+且新型高密度固态非易失性存储器和快速互联技术可能驱使着甚至更大内存空间的需求。
+超规模系统的研究把\wunits{100}{PB}的内存系统作为目标，它占据了57位地址空间。
+根据历史的增长率，很可能在2030年以前就需要超过64位的地址空间了。
+% The primary reason to extend integer register width is to support
+% larger address spaces.  It is not clear when a flat address space larger
+% than 64 bits will be required.  At the time of writing, the fastest
+% supercomputer in the world as measured by the Top500 benchmark had
+% over \wunits{1}{PB} of DRAM, and would require over 50 bits of address
+% space if all the DRAM resided in a single address space.  Some
+% warehouse-scale computers already contain even larger quantities of
+% DRAM, and new dense solid-state non-volatile memories and fast
+% interconnect technologies might drive a demand for even larger memory
+% spaces.  Exascale systems research is targeting \wunits{100}{PB}
+% memory systems, which occupy 57 bits of address space.  At historic
+% rates of growth, it is possible that greater than 64 bits of address
+% space might be required before 2030.
+
+历史表明，无论何时，只要对超过64位地址空间的需要变得明确，架构师们都将重复关于替代扩展地址空间的激烈辩论，
+包括分段、96位地址空间、和软件工作环境，直到最终，扁平128位地址空间被采纳为最简单和最佳的解决方案。
+% History suggests that whenever it becomes clear that more than 64 bits
+% of address space is needed, architects will repeat intensive debates
+% about alternatives to extending the address space, including
+% segmentation, 96-bit address spaces, and software workarounds, until,
+% finally, flat 128-bit address spaces will be adopted as the simplest
+% and best solution.
+
+这时我们还没有冻结RV128规范，因为基于128位地址空间的实际用途，可能还有需要演化该设计。
+% We have not frozen the RV128 spec at this time, as there might be need
+% to evolve the design based on actual usage of 128-bit address spaces.
+\end{commentary}
+
+RV128I以与RV32I上构建RV64I的相同的方法构建于RV64I之上，把整数寄存器扩展到128位（也就是说，XLEN＝128）。
+大多数整数运算指令是没有变化的，因为它们被定义为在XLEN位上操作。
+保留了RV64I在寄存器低位的32位值上操作的“*W”整数指令，但是现在把它们的结果从位31符号扩展到位127了。
+添加了一个新的“*D”整数指令集，它在128位整数寄存器的低位中的64位值上进行操作，并把结果从位63符号扩展到位127。
+“*D”指令消耗了标准32位编码中的两个主要的操作码（OP-IMM-64和OP-64）。
+% RV128I builds upon RV64I in the same way RV64I builds upon RV32I, with
+% integer registers extended to 128 bits (i.e., XLEN=128).  Most integer
+% computational instructions are unchanged as they are defined to
+% operate on XLEN bits.  The RV64I ``*W'' integer instructions that
+% operate on 32-bit values in the low bits of a register are retained
+% but now sign extend their results from bit 31 to bit 127. A new set of
+% ``*D'' integer instructions are added that operate on 64-bit values
+% held in the low bits of the 128-bit integer registers and sign extend
+% their results from bit 63 to bit 127.  The ``*D'' instructions consume
+% two major opcodes (OP-IMM-64 and OP-64) in the standard 32-bit
+% encoding.
+
+\begin{commentary}
+  为了提升对RV64的兼容性，与处理RV32到RV64的做法相反，我们可以改变解码方式，
+  比如把RV64I的ADD重命名为64位的ADDD，并在先前的OP-64主操作码（现在重命名为OP-128主操作码）中添加一个128位的ADDQ。
+  % To improve compatibility with RV64, in a reverse of how RV32 to RV64
+  % was handled, we might change the decoding around to rename RV64I ADD
+  % as a 64-bit ADDD, and add a 128-bit ADDQ in what was previously the
+  % OP-64 major opcode (now renamed the OP-128 major opcode).
+\end{commentary}
+
+按立即数移位（SLLI/SRLI/SRAI）现在使用I立即数的低7位进行编码，
+而可变的移位（SLL/SRL/SRA）使用移位数目源寄存器的低7位进行编码。
+% Shifts by an immediate (SLLI/SRLI/SRAI) are now encoded using the low
+% 7 bits of the I-immediate, and variable shifts (SLL/SRL/SRA) use the
+% low 7 bits of the shift amount source register.
+
+使用现有的LOAD主操作码添加了LDU（双无符号加载）指令，随着新的LQ和SQ指令一起加载和存储四字值。
+SQ被添加到STORE主操作码，同时LQ被添加到MISC-MEM主操作码。
+% A LDU (load double unsigned) instruction is added using the existing
+% LOAD major opcode, along with new LQ and SQ instructions to load and
+% store quadword values.  SQ is added to the STORE major opcode, while
+% LQ is added to the MISC-MEM major opcode.
+
+浮点指令集没有变化，尽管128位Q浮点扩展现在可以支持FMV.X.Q和FMV.Q.X指令，以及来往于T（128位）整数格式的额外的FCVT指令。
+% The floating-point instruction set is unchanged, although the 128-bit
+% Q floating-point extension can now support FMV.X.Q and FMV.Q.X
+% instructions, together with additional FCVT instructions to and from
+% the T (128-bit) integer format.
+
+

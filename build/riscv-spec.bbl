@@ -8,6 +8,14 @@
 {RISC-V ELF psABI Specification}.
 \newblock \url{https://github.com/riscv/riscv-elf-psabi-doc/}.
 
+\bibitem{Gharachorloo90memoryconsistency}
+Kourosh Gharachorloo, Daniel Lenoski, James Laudon, Phillip Gibbons, Anoop
+  Gupta, and John Hennessy.
+\newblock Memory consistency and event ordering in scalable shared-memory
+  multiprocessors.
+\newblock In {\em In Proceedings of the 17th Annual International Symposium on
+  Computer Architecture}, pages 15--26, 1990.
+
 \bibitem{heil-tr1996}
 Timothy~H. Heil and James~E. Smith.
 \newblock Selective dual path execution.
@@ -62,12 +70,27 @@ David~A. Patterson and Carlo~H. S\'{e}quin.
 \newblock {RISC I}: {A} reduced instruction set {VLSI} computer.
 \newblock In {\em ISCA}, pages 443--458, 1981.
 
+\bibitem{Rajwar:2001:SLE}
+Ravi Rajwar and James~R. Goodman.
+\newblock Speculative lock elision: enabling highly concurrent multithreaded
+  execution.
+\newblock In {\em Proceedings of the 34th annual ACM/IEEE International
+  Symposium on Microarchitecture}, MICRO 34, pages 294--305. IEEE Computer
+  Society, 2001.
+
 \bibitem{ibmpower7}
 Balaram Sinharoy, R.~Kalla, W.~J. Starke, H.~Q. Le, R.~Cargnoni, J.~A.
   Van~Norstrand, B.~J. Ronchetti, J.~Stuecheli, J.~Leenstra, G.~L. Guthrie,
   D.~Q. Nguyen, B.~Blaner, C.~F. Marino, E.~Retter, and P.~Williams.
 \newblock {IBM} {POWER7} multicore server processor.
 \newblock {\em IBM Journal of Research and Development}, 55(3):1--1, 2011.
+
+\bibitem{majc}
+Marc Tremblay, Jeffrey Chan, Shailender Chaudhry, Andrew~W. Conigliaro, and
+  Shing~Sheung Tse.
+\newblock The {MAJC} architecture: {A} synthesis of parallelism and
+  scalability.
+\newblock {\em IEEE Micro}, 20(6):12--25, 2000.
 
 \bibitem{jtseng:sbbci}
 J.~Tseng and K.~Asanovi\'c.

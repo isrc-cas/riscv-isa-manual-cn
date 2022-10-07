@@ -3,47 +3,49 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: riscv-spec.aux
 The style file: plain.bst
 Database file #1: riscv-spec.bib
+Warning--string name "november" is undefined
+--line 235 of file riscv-spec.bib
 Warning--to sort, need author or key in riscv-elf-psabi
 Warning--to sort, need author or key in riscv-asm-manual
-You've used 16 entries,
+You've used 19 entries,
             2118 wiz_defined-function locations,
-            590 strings with 7047 characters,
-and the built_in function-call counts, 5761 in all, are:
-= -- 538
-> -- 337
-< -- 6
-+ -- 138
-- -- 118
-* -- 414
-:= -- 936
-add.period$ -- 44
-call.type$ -- 16
-change.case$ -- 109
+            614 strings with 7899 characters,
+and the built_in function-call counts, 7177 in all, are:
+= -- 680
+> -- 411
+< -- 8
++ -- 168
+- -- 144
+* -- 516
+:= -- 1154
+add.period$ -- 54
+call.type$ -- 19
+change.case$ -- 131
 chr.to.int$ -- 0
-cite$ -- 18
-duplicate$ -- 215
-empty$ -- 430
-format.name$ -- 118
-if$ -- 1213
+cite$ -- 21
+duplicate$ -- 270
+empty$ -- 534
+format.name$ -- 144
+if$ -- 1520
 int.to.chr$ -- 0
-int.to.str$ -- 16
-missing$ -- 10
-newline$ -- 79
-num.names$ -- 26
-pop$ -- 139
+int.to.str$ -- 19
+missing$ -- 13
+newline$ -- 94
+num.names$ -- 32
+pop$ -- 162
 preamble$ -- 1
-purify$ -- 92
+purify$ -- 111
 quote$ -- 0
-skip$ -- 153
+skip$ -- 198
 stack$ -- 0
-substring$ -- 244
-swap$ -- 52
-text.length$ -- 6
+substring$ -- 335
+swap$ -- 73
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 64
+type$ -- 76
 warning$ -- 2
-while$ -- 41
-width$ -- 18
-write$ -- 168
-(There were 2 warnings)
+while$ -- 55
+width$ -- 21
+write$ -- 203
+(There were 3 warnings)

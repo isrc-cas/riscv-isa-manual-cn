@@ -1,0 +1,375 @@
+\chapter{RV64I基础整数指令集（2.1版本）}
+\label{rv64}
+
+这章描述了RV64I基础整数指令集，它是在第2章~\ref{rv32}中描述的RV32I变体之上构建的。
+这章只呈现了与RV32I的不同，所以应当与那篇更早的章节结合着阅读。
+% This chapter describes the RV64I base integer instruction set, which
+% builds upon the RV32I variant described in Chapter~\ref{rv32}.  This
+% chapter presents only the differences with RV32I, so should be read in
+% conjunction with the earlier chapter.
+
+\section{寄存器状态}
+
+RV64I把整数寄存器和所支持的用户地址空间拓宽到64位（表~\ref{gprs}中XLEN=64）。
+% RV64I widens the integer registers and supported user address space to
+% 64 bits (XLEN=64 in Figure~\ref{gprs}).
+
+\section{整数运算指令}
+
+大多数整数运算指令在XLEN位的值上操作。在RV64I中提供了额外的指令变体来操作32位的值，通过在操作码上添加“W”后缀来表示。
+这些“*W”指令忽略了它们的输入的高32位，并且总是产生32位有符号的值、把它们符号扩展到64位，也就是说，从位XLEN-1位到位31是相等的。
+% Most integer computational instructions operate on XLEN-bit values.
+% Additional instruction variants are provided to manipulate 32-bit
+% values in RV64I, indicated by a `W' suffix to the opcode.  These
+% ``*W'' instructions ignore the upper 32 bits of their inputs and
+% always produce 32-bit signed values, sign-extending them to 64 bits,
+% i.e. bits XLEN-1 through 31 are equal.
+
+\begin{commentary}
+编译器和调用约定维持了一种不变性，即在64位寄存器中，所有的32位值都以一种符号扩展的格式被保持。
+甚至32位无符号整数也会把位31扩展到位63~32。
+因此，在无符号32位整数和有符号32位整数之间的转换是一个no-op，从一个有符号32位整数转换到一个有符号64位整数也是如此。
+在这种不变性下，现有的64位宽SLTU和无符号分支比较仍然能正确地操作无符号32位整数。
+类似地，现有的在32位符号扩展整数上的64位宽逻辑操作保留了符号扩展属性。加法和移位需要少量的新指令（ADD[I]W/SUBW/SxxW），
+以确保32位值的合理的性能。
+% The compiler and calling convention maintain an invariant that all 32-bit
+% values are held in a sign-extended format in 64-bit registers.  Even 32-bit
+% unsigned integers extend bit 31 into bits 63 through 32.  Consequently,
+% conversion between unsigned and signed 32-bit integers is a no-op,
+% as is conversion from a signed 32-bit integer to a signed 64-bit
+% integer.  Existing 64-bit wide SLTU and unsigned branch compares still operate
+% correctly on unsigned 32-bit integers under this invariant.  Similarly,
+% existing 64-bit wide logical operations on 32-bit sign-extended integers
+% preserve the sign-extension property.  A few new instructions
+% (ADD[I]W/SUBW/SxxW) are required for addition and shifts to ensure reasonable
+% performance for 32-bit values.
+\end{commentary}
+
+\newpage
+\subsubsection*{整数寄存器 - 立即数指令}
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{M@{}R@{}S@{}R@{}O}
+\\
+\instbitrange{31}{20} &
+\instbitrange{19}{15} &
+\instbitrange{14}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{imm[11:0]} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{funct3} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+12 & 5 & 3 & 5 & 7 \\
+I-立即数[11:0] & src & ADDIW  & dest & OP-IMM-32 \\
+\end{tabular}
+\end{center}
+
+ADDIW是一个RV64I指令，它把符号扩展的12位立即数加到寄存器{\em rs1}，并在{\em rd}中产生合适的32位符号扩展的结果。
+运算结果的低32位符号扩展到64位作为结果，而忽略了溢出。
+注意，{\em rd, rs1, 0}把寄存器{\em rs1}的低32位的符号扩展写入寄存器{\em rd}（汇编器伪指令SEXT.W）。
+% ADDIW is an RV64I instruction that adds the sign-extended 12-bit
+% immediate to register {\em rs1} and produces the proper sign-extension
+% of a 32-bit result in {\em rd}.  Overflows are ignored and the result
+% is the low 32 bits of the result sign-extended to 64 bits.  Note,
+% ADDIW {\em rd, rs1, 0} writes the sign-extension of the lower 32 bits
+% of register {\em rs1} into register {\em rd} (assembler pseudoinstruction
+% SEXT.W).
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{R@{}W@{}R@{}R@{}R@{}R@{}O}
+\\
+\instbitrange{31}{26} &
+\multicolumn{1}{c}{\instbit{25}} &
+\instbitrange{24}{20} &
+\instbitrange{19}{15} &
+\instbitrange{14}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{imm[11:6]} &
+\multicolumn{1}{|c|}{imm[5]} &
+\multicolumn{1}{|c|}{imm[4:0]} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{funct3} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+6 & \multicolumn{1}{c}{1} & 5 & 5 & 3 & 5 & 7 \\
+000000 & shamt[5] & shamt[4:0]  & src & SLLI & dest & OP-IMM \\
+000000 & shamt[5] & shamt[4:0]  & src & SRLI & dest & OP-IMM \\
+010000 & shamt[5] & shamt[4:0]  & src & SRAI & dest & OP-IMM \\
+000000 &       0  & shamt[4:0]  & src & SLLIW & dest & OP-IMM-32 \\
+000000 &       0  & shamt[4:0]  & src & SRLIW & dest & OP-IMM-32 \\
+010000 &       0  & shamt[4:0]  & src & SRAIW & dest & OP-IMM-32 \\
+\end{tabular}
+\end{center}
+
+按常量移位被编码为一种专门化的I类型格式，它使用与RV32I相同的指令操作码。
+对于RV64I，被移位的操作数在{\em rs1}中，移位的数目被编码在I立即数域的低6位中。
+右移类型被编码在底第30位上。
+SLLI是逻辑左移（移位后低位补零）；SRLI是逻辑右移（移位后高位补零）；而SRAI是算数右移（原始符号位被复制到空白的高位中）。
+% Shifts by a constant are encoded as a specialization of the I-type
+% format using the same instruction opcode as RV32I.  The operand to be
+% shifted is in {\em rs1}, and the shift amount is encoded in the lower
+% 6 bits of the I-immediate field for RV64I.  The right shift type is
+% encoded in bit 30.  SLLI is a logical left shift (zeros are shifted
+% into the lower bits); SRLI is a logical right shift (zeros are shifted
+% into the upper bits); and SRAI is an arithmetic right shift (the
+% original sign bit is copied into the vacated upper bits).
+
+SLLIW、SRLIW和SRAIW是RV64I中独有的指令，它们的定义类似，但是在32位值上操作，并把它们的32位结果符号扩展到64位。
+带有$imm[5] \neq 0$的SLLIW、SRLIW和SRAIW的编码是保留的。
+% SLLIW, SRLIW, and SRAIW are RV64I-only instructions that are
+% analogously defined but operate on 32-bit values and
+% sign-extend their 32-bit results to 64 bits.
+% SLLIW, SRLIW, and SRAIW encodings with $imm[5] \neq 0$ are reserved.
+
+\begin{commentary}
+  先前，$imm[5] \neq 0$的SLLIW、SRLIW和SRAIW被定义为：引发非法指令异常，而现在它们被标记为保留的。
+  这是一个向后兼容的改变。
+  % Previously, SLLIW, SRLIW, and SRAIW with $imm[5] \neq 0$ were defined to
+  % cause illegal instruction exceptions, whereas now they are marked as
+  % reserved.  This is a backwards-compatible change.
+\end{commentary}
+
+\vspace{-0.2in}
+\begin{center}
+\begin{tabular}{U@{}R@{}O}
+\\
+\instbitrange{31}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{imm[31:12]} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+20 & 5 & 7 \\
+U-立即数[31:12] & dest & LUI \\
+U-立即数[31:12] & dest & AUIPC
+\end{tabular}
+\end{center}
+
+LUI（加载高位立即数）使用与RV32I相同的操作码。
+LUI把32位的U立即数放进寄存器{\em rd}中，并把最低的12位填充为零。该32位结果被符号扩展到64位。
+% LUI (load upper immediate) uses the same opcode as RV32I.  LUI places
+% the 32-bit U-immediate into register {\em rd}, filling in the lowest 12
+% bits with zeros.
+% The 32-bit result is sign-extended to 64 bits.
+
+AUIPC（加高位立即数到{\tt pc}）使用与RV32I相同的操作码。
+AUIPC被用于构建关于{\tt pc}的相对地址，并使用U类型格式。
+AUIPC从U立即数形成32位偏移量，并把最低的12位填充为零，把结果符号扩展到64位，把它加到AUIPC指令的地址，
+然后把结果放进寄存器{\em rd}中。
+% AUIPC (add upper immediate to {\tt pc}) uses the same opcode as RV32I.
+% AUIPC is used to build {\tt
+%   pc}-relative addresses and uses the U-type format.  AUIPC forms a 32-bit
+% offset from the U-immediate, filling in the lowest 12 bits with zeros,
+% sign-extends the result to 64 bits,
+% adds it to the address of the AUIPC instruction,
+% then places the result in register {\em rd}.
+
+\begin{commentary}
+注意，可以通过将LUI与LD配对、将AUIPC与JALR配对等方式形成的偏移量的地址集是[${-}2^{31}{-}2^{11}$, $2^{31}{-}2^{11}{-}1$]。
+% Note that the set of address offsets that can be formed by pairing LUI
+% with LD, AUIPC with JALR, etc.\@ in RV64I is
+% [${-}2^{31}{-}2^{11}$, $2^{31}{-}2^{11}{-}1$].
+\end{commentary}
+
+\subsubsection*{整数寄存器—寄存器操作}
+
+\vspace{-0.2in}
+\begin{center}
+\begin{tabular}{S@{}R@{}R@{}S@{}R@{}O}
+\\
+\instbitrange{31}{25} &
+\instbitrange{24}{20} &
+\instbitrange{19}{15} &
+\instbitrange{14}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct7} &
+\multicolumn{1}{c|}{rs2} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{funct3} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+7 & 5 & 5 & 3 & 5 & 7 \\
+0000000 & src2 & src1 & SLL/SRL     & dest & OP    \\
+0100000 & src2 & src1 & SRA         & dest & OP    \\
+0000000 & src2 & src1 & ADDW        & dest & OP-32    \\
+0000000 & src2 & src1 & SLLW/SRLW   & dest & OP-32    \\
+0100000 & src2 & src1 & SUBW/SRAW   & dest & OP-32    \\
+\end{tabular}
+\end{center}
+
+ADDW和SUBW是RV64I独有的指令，它们的定义类似于ADD和SUB，但是在32位值上操作，并产生有符号的32位结果。
+溢出被忽略，且结果的低32位被符号扩展到64位，并写到目的寄存器。
+% ADDW and SUBW are RV64I-only instructions that are defined analogously
+% to ADD and SUB but operate on 32-bit values and produce signed 32-bit
+% results.  Overflows are ignored, and the low 32-bits of the result is
+% sign-extended to 64-bits and written to the destination register.
+
+SLL、SRL和SRA对寄存器{\em rs1}中的值实施逻辑左移、逻辑右移和算数右移，
+移位的数目保持在寄存器{\em rs2}中。在RV64I中，只有{\em rs2}的低6位被考虑用于移位数目。
+% SLL, SRL, and SRA perform logical left, logical right, and arithmetic
+% right shifts on the value in register {\em rs1} by the shift amount
+% held in register {\em rs2}.  In RV64I, only the low 6 bits of {\em
+%   rs2} are considered for the shift amount.
+
+SLLW、SRW和SRAW是RV64I独有的指令，它们的定义类似，但是在32位值上操作，并把它们的32位结果符号扩展到64位。
+移位数量由{\em rs2[4:0]}给出。
+% SLLW, SRLW, and SRAW are RV64I-only instructions that are analogously
+% defined but operate on 32-bit values and
+% sign-extend their 32-bit results to 64 bits.
+% The shift amount is given by {\em rs2[4:0]}.
+
+\section{加载和存储指令}
+
+RV64I把地址空间扩展到了64位。执行环境将定义地址空间的哪部分对于访问是合法的。
+% RV64I extends the address space to 64 bits.  The execution environment
+% will define what portions of the address space are legal to access.
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{M@{}R@{}S@{}R@{}O}
+\\
+\instbitrange{31}{20} &
+\instbitrange{19}{15} &
+\instbitrange{14}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{imm[11:0]} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{funct3} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+12 & 5 & 3 & 5 & 7 \\
+offset[11:0] & base & width & dest & LOAD \\
+\end{tabular}
+\end{center}
+
+\vspace{-0.2in}
+\begin{center}
+\begin{tabular}{O@{}R@{}R@{}S@{}R@{}O}
+\\
+\instbitrange{31}{25} &
+\instbitrange{24}{20} &
+\instbitrange{19}{15} &
+\instbitrange{14}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{imm[11:5]} &
+\multicolumn{1}{c|}{rs2} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{funct3} &
+\multicolumn{1}{c|}{imm[4:0]} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+7 & 5 & 5 & 3 & 5 & 7 \\
+offset[11:5] & src & base & width & offset[4:0] & STORE \\
+\end{tabular}
+\end{center}
+
+对于RV64I，LD指令从内存加载一个64位的值到寄存器{\em rd}。
+% The LD instruction loads a 64-bit value from memory into register {\em
+%   rd} for RV64I.
+
+对于RV64I，LW指令从内存加载一个32位的值，并把它符号扩展到64位，然后将其存储到寄存器{\em rd}。
+另一方面，RV64I的LWU指令则会对内存中的32位值使用零扩展。
+类似地，LH和LHU被定义用于16位值，以及LB和LBU用于8位值。
+SD、SW、SH和SB指令分别把寄存器{\em rs2}的低64位、32位、16位和8位值存储到内存。
+% The LW instruction loads a 32-bit value from memory and sign-extends
+% this to 64 bits before storing it in register {\em rd} for RV64I.  The
+% LWU instruction, on the other hand, zero-extends the 32-bit value from
+% memory for RV64I.  LH and LHU are defined analogously for 16-bit
+% values, as are LB and LBU for 8-bit values.  The SD, SW, SH, and SB
+% instructions store 64-bit, 32-bit, 16-bit, and 8-bit values from the
+% low bits of register {\em rs2} to memory respectively.
+
+\section{“提示”指令}
+\label{sec:rv64i-hints}
+
+所有在RV32I中作为微架构HINT的指令（见2.9节~\ref{sec:rv32i-hints}）也是RV64I中的HINT。
+RV64I中的额外的运算指令同时扩展了标准HINT和自定义HINT的编码空间。
+% All instructions that are microarchitectural HINTs in RV32I (see
+% Section~\ref{sec:rv32i-hints}) are also HINTs in RV64I.  The
+% additional computational instructions in RV64I expand both the standard and
+% custom HINT encoding spaces.
+
+表~\ref{tab:rv64i-hints}列出了所有的RV64I HINT代码点。91\%的HINT空间被保留用于标准HINT，
+但是目前还没有被定义。其余的HINT空间被指定用于自定义HINT：不会有标准HINT将被定义在这个子空间中。
+% Table~\ref{tab:rv64i-hints} lists all RV64I HINT code points.  91\% of the HINT
+% space is reserved for standard HINTs.  The
+% remainder of the HINT space is designated for custom HINTs: no standard HINTs
+% will ever be defined in this subspace.
+
+\begin{table}[hbt]
+\centering
+\begin{tabular}{|l|l|c|l|}
+  \hline
+  Instruction           & Constraints                                 & Code Points & Purpose \\ \hline \hline
+  LUI                   & {\em rd}={\tt x0}                           & $2^{20}$                    & \multirow{11}{*}{\em 保留供未来标准使用} \\ \cline{1-3}
+  AUIPC                 & {\em rd}={\tt x0}                           & $2^{20}$                    & \\ \cline{1-3}
+  \multirow{2}{*}{ADDI} & {\em rd}={\tt x0}, 要么               & \multirow{2}{*}{$2^{17}-1$} & \\
+                        & {\em rs1}$\neq${\tt x0} 要么 {\em imm}$\neq$0 &                             & \\ \cline{1-3}
+  ANDI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
+  ORI                   & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
+  XORI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
+  ADDIW                 & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
+  ADD                   & {\em rd}={\tt x0}, {\em rs1}$\neq${\tt x0}  & $2^{10}-32$                 & \\ \cline{1-3}
+  \multirow{2}{*}{ADD}  & {\em rd}={\tt x0}, {\em rs1}={\tt x0},      & \multirow{2}{*}{$28$}       & \\
+                        & {\em rs2}$\neq${\tt x2}--{\tt x5}           &                             & \\ \hline
+  \multirow{4}{*}{ADD}  & \multirow{4}{*}{\shortstack[l]{{\em rd}={\tt x0}, {\em rs1}={\tt x0}, \\{\em rs2}={\tt x2}--{\tt x5}}}
+                                                                      & \multirow{4}{*}{$4$}        & ({\em rs2}={\tt x2}) NTL.P1 \\
+                        &                                             &                             & ({\em rs2}={\tt x3}) NTL.PALL \\
+                        &                                             &                             & ({\em rs2}={\tt x4}) NTL.S1 \\
+                        &                                             &                             & ({\em rs2}={\tt x5}) NTL.ALL \\ \hline
+  SUB                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \multirow{22}{*}{\em 保留供未来标准使用} \\ \cline{1-3}
+  AND                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  OR                    & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  XOR                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SLL                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SRL                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SRA                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  ADDW                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SUBW                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SLLW                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SRLW                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SRAW                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  \multirow{3}{*}{FENCE}& {\em rd}={\tt x0}, {\em rs1}$\neq${\tt x0}, & \multirow{3}{*}{$2^{10}-63$}& \\
+                        & {\em fm}=0, and either                      &                             & \\
+                        & {\em pred}=0 or {\em succ}=0                &                             & \\ \cline{1-3}
+  \multirow{3}{*}{FENCE}& {\em rd}$\neq${\tt x0}, {\em rs1}={\tt x0}, & \multirow{3}{*}{$2^{10}-63$}& \\
+                        & {\em fm}=0, and either                      &                             & \\
+                        & {\em pred}=0 or {\em succ}=0                &                             & \\ \cline{1-3}
+  \multirow{2}{*}{FENCE}& {\em rd}={\em rs1}={\tt x0}, {\em fm}=0,    & \multirow{2}{*}{15}         & \\
+                        & {\em pred}=0, {\em succ}$\neq$0             &                             & \\ \cline{1-3}
+  \multirow{2}{*}{FENCE}& {\em rd}={\em rs1}={\tt x0}, {\em fm}=0,    & \multirow{2}{*}{15}         & \\
+                        & {\em pred}$\neq$W, {\em succ}=0             &                             & \\ \hline
+  \multirow{2}{*}{FENCE}& {\em rd}={\em rs1}={\tt x0}, {\em fm}=0,    & \multirow{2}{*}{1}          & \multirow{2}{*}{PAUSE} \\
+                        & {\em pred}=W, {\em succ}=0                  &                             & \\ \hline
+  SLTI                  & {\em rd}={\tt x0}                           & $2^{17}$                    & \multirow{10}{*}{\em 指定供自定义使用} \\ \cline{1-3}
+  SLTIU                 & {\em rd}={\tt x0}                           & $2^{17}$                    & \\ \cline{1-3}
+  SLLI                  & {\em rd}={\tt x0}                           & $2^{11}$                    & \\ \cline{1-3}
+  SRLI                  & {\em rd}={\tt x0}                           & $2^{11}$                    & \\ \cline{1-3}
+  SRAI                  & {\em rd}={\tt x0}                           & $2^{11}$                    & \\ \cline{1-3}
+  SLLIW                 & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SRLIW                 & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SRAIW                 & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SLT                   & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \cline{1-3}
+  SLTU                  & {\em rd}={\tt x0}                           & $2^{10}$                    & \\ \hline
+\end{tabular}
+\caption{RV64I “提示”指令}
+\label{tab:rv64i-hints}
+\end{table}

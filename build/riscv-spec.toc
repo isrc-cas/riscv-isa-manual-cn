@@ -17,3 +17,84 @@
 \contentsline {section}{\numberline {2.7}内存排序指令}{27}{section.2.7}%
 \contentsline {section}{\numberline {2.8}环境调用和断点}{28}{section.2.8}%
 \contentsline {section}{\numberline {2.9}“提示”指令}{29}{section.2.9}%
+\contentsline {chapter}{\numberline {第三章\hspace {.3em}}“Zifencei”指令获取屏障（2.0版本）}{33}{chapter.3}%
+\contentsline {chapter}{\numberline {第四章\hspace {.3em}}“Zihintntl”非时间局部性提示（0.2版本）}{35}{chapter.4}%
+\contentsline {chapter}{\numberline {第五章\hspace {.3em}}“Zihintpause”暂停提示（2.0版本）}{39}{chapter.5}%
+\contentsline {chapter}{\numberline {第六章\hspace {.3em}}RV32E和RV64E基础整数指令集（1.95版本）}{41}{chapter.6}%
+\contentsline {section}{\numberline {6.1}RV32E和RV64E编程模型}{41}{section.6.1}%
+\contentsline {section}{\numberline {6.2}RV32E和RV64E指令集编码}{41}{section.6.2}%
+\contentsline {chapter}{\numberline {第七章\hspace {.3em}}RV64I基础整数指令集（2.1版本）}{43}{chapter.7}%
+\contentsline {section}{\numberline {7.1}寄存器状态}{43}{section.7.1}%
+\contentsline {section}{\numberline {7.2}整数运算指令}{43}{section.7.2}%
+\contentsline {section}{\numberline {7.3}加载和存储指令}{46}{section.7.3}%
+\contentsline {section}{\numberline {7.4}“提示”指令}{46}{section.7.4}%
+\contentsline {chapter}{\numberline {第八章\hspace {.3em}}RV128I基础整数指令集（1.7版本）}{49}{chapter.8}%
+\contentsline {chapter}{\numberline {第九章\hspace {.3em}}用于乘法和除法的“M”标准扩展（2.0版本）}{51}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Multiplication Operations}{51}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Division Operations}{52}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Zmmul Extension, Version 1.0}{53}{section.9.3}%
+\contentsline {chapter}{\numberline {第十章\hspace {.3em}}用于原子指令的“A”标准扩展（2.1版本）}{55}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Specifying Ordering of Atomic Instructions}{55}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Load-Reserved/Store-Conditional Instructions}{56}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Eventual Success of Store-Conditional Instructions}{59}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Atomic Memory Operations}{62}{section.10.4}%
+\contentsline {chapter}{\numberline {第十一章\hspace {.3em}}RVWMO Memory Consistency Model, Version 2.0}{65}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Definition of the RVWMO Memory Model}{66}{section.11.1}%
+\contentsline {paragraph}{加载值公理}{71}{Item.16}%
+\contentsline {paragraph}{原子性公理}{71}{Item.18}%
+\contentsline {paragraph}{Progress Axiom}{71}{Item.18}%
+\contentsline {section}{\numberline {11.2}CSR Dependency Tracking Granularity}{71}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Source and Destination Register Listings}{72}{section.11.3}%
+\contentsline {chapter}{\numberline {附录 A\hspace {.3em}}RVWMO 说明材料（0.1版本）}{81}{appendix.A}%
+\contentsline {section}{\numberline {A.1}为什么用 RVWMO?}{81}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Litmus 测试}{82}{section.A.2}%
+\contentsline {section}{\numberline {A.3}RVWMO规则的解释}{83}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}保留程序次序和全局内存次序}{84}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}\nameref *{rvwmo:ax:load}}{84}{subsection.A.3.2}%
+\contentsline {subsection}{\numberline {A.3.3}\nameref *{rvwmo:ax:atom}}{87}{subsection.A.3.3}%
+\contentsline {subsection}{\numberline {A.3.4}\nameref *{rvwmo:ax:prog}}{88}{subsection.A.3.4}%
+\contentsline {subsection}{\numberline {A.3.5}Overlapping-Address Orderings (Rules\nobreakspace {}\ref {ppo:->st}--\ref {ppo:amoforward})}{89}{subsection.A.3.5}%
+\contentsline {subsection}{\numberline {A.3.6}Fences (Rule\nobreakspace {}\ref {ppo:fence})}{92}{subsection.A.3.6}%
+\contentsline {subsection}{\numberline {A.3.7}Explicit Synchronization (Rules\nobreakspace {}\ref {ppo:acquire}--\ref {ppo:pair})}{93}{subsection.A.3.7}%
+\contentsline {subsection}{\numberline {A.3.8}Syntactic Dependencies (Rules\nobreakspace {}\ref {ppo:addr}--\ref {ppo:ctrl})}{95}{subsection.A.3.8}%
+\contentsline {subsection}{\numberline {A.3.9}Pipeline Dependencies (Rules\nobreakspace {}\ref {ppo:addrdatarfi}--\ref {ppo:addrpo})}{98}{subsection.A.3.9}%
+\contentsline {section}{\numberline {A.4}Beyond Main Memory}{100}{section.A.4}%
+\contentsline {subsection}{\numberline {A.4.1}Coherence and Cacheability}{100}{subsection.A.4.1}%
+\contentsline {subsection}{\numberline {A.4.2}I/O Ordering}{101}{subsection.A.4.2}%
+\contentsline {section}{\numberline {A.5}Code Porting and Mapping Guidelines}{103}{section.A.5}%
+\contentsline {section}{\numberline {A.6}Implementation Guidelines}{109}{section.A.6}%
+\contentsline {subsection}{\numberline {A.6.1}Possible Future Extensions}{112}{subsection.A.6.1}%
+\contentsline {section}{\numberline {A.7}Known Issues}{113}{section.A.7}%
+\contentsline {subsection}{\numberline {A.7.1}Mixed-size RSW}{113}{subsection.A.7.1}%
+\contentsline {chapter}{\numberline {附录 B\hspace {.3em}}Formal Memory Model Specifications, Version 0.1}{115}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Formal Axiomatic Specification in Alloy}{116}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Formal Axiomatic Specification in Herd}{121}{section.B.2}%
+\contentsline {section}{\numberline {B.3}An Operational Memory Model}{125}{section.B.3}%
+\contentsline {paragraph}{Model states}{126}{section.B.3}%
+\contentsline {paragraph}{Model transitions}{126}{section.B.3}%
+\contentsline {subsection}{\numberline {B.3.1}Intra-instruction Pseudocode Execution}{129}{subsection.B.3.1}%
+\contentsline {subsection}{\numberline {B.3.2}Instruction Instance State}{131}{subsection.B.3.2}%
+\contentsline {subsection}{\numberline {B.3.3}Hart State}{133}{subsection.B.3.3}%
+\contentsline {subsection}{\numberline {B.3.4}Shared Memory State}{133}{subsection.B.3.4}%
+\contentsline {subsection}{\numberline {B.3.5}Transitions}{134}{subsection.B.3.5}%
+\contentsline {paragraph}{Fetch instruction}{134}{subsection.B.3.5}%
+\contentsline {paragraph}{Initiate memory load operations}{135}{Item.38}%
+\contentsline {paragraph}{Satisfy memory load operation by forwarding from unpropagated stores}{135}{Item.41}%
+\contentsline {paragraph}{Satisfy memory load operation from memory}{137}{Item.50}%
+\contentsline {paragraph}{Complete load operations}{137}{Item.50}%
+\contentsline {paragraph}{Early {\tt sc} fail}{137}{Item.50}%
+\contentsline {paragraph}{Paired {\tt sc}}{138}{Item.50}%
+\contentsline {paragraph}{Initiate memory store operation footprints}{138}{Item.50}%
+\contentsline {paragraph}{Instantiate memory store operation values}{138}{Item.53}%
+\contentsline {paragraph}{Commit store instruction}{138}{Item.55}%
+\contentsline {paragraph}{Propagate store operation}{139}{Item.65}%
+\contentsline {paragraph}{Commit and propagate store operation of an {\tt sc}}{140}{Item.73}%
+\contentsline {paragraph}{Late {\tt sc} fail}{141}{Item.80}%
+\contentsline {paragraph}{Complete store operations}{141}{Item.82}%
+\contentsline {paragraph}{Satisfy, commit and propagate operations of an AMO}{141}{Item.82}%
+\contentsline {paragraph}{Commit fence}{142}{Item.89}%
+\contentsline {paragraph}{Register read}{143}{Item.94}%
+\contentsline {paragraph}{Register write}{143}{Item.96}%
+\contentsline {paragraph}{Pseudocode internal step}{143}{Item.98}%
+\contentsline {paragraph}{Finish instruction}{143}{Item.98}%
+\contentsline {subsection}{\numberline {B.3.6}Limitations}{144}{subsection.B.3.6}%

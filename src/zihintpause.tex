@@ -1,0 +1,69 @@
+\chapter{“Zihintpause”暂停提示（2.0版本）}
+\label{chap:zihintpause}
+
+PAUSE指令是一个表示当前硬件线程的指令引退率应当暂时减少或暂停的HINT。
+它影响的持续时间必须是有界的，可以是零。没有架构状态被改变。
+% The PAUSE instruction is a HINT that indicates the current hart's rate of
+% instruction retirement should be temporarily reduced or paused.  The duration of its
+% effect must be bounded and may be zero.  No architectural state is changed.
+
+\begin{commentary}
+软件可以在执行自旋等待的代码序列时，使用PAUSE指令来减少能耗。在执行PAUSE时，多线程核心可以暂时地放弃执行资源，让给其它硬件线程。
+建议使PAUSE指令通常性地包含在自旋等待循环的代码序列中。
+% Software can use the PAUSE instruction to reduce energy consumption while
+% executing spin-wait code sequences.  Multithreaded cores might temporarily
+% relinquish execution resources to other harts when PAUSE is executed.
+% It is recommended that a PAUSE instruction generally be included in the code
+% sequence for a spin-wait loop.
+
+未来的扩展可能添加类似于x86 MONITOR/MWAIT指令的原语，这提供了一种更有效的机制来等待对特定内存位置的写入。
+然而，这些指令不会取代PAUSE。当轮询非内存事件时、轮询多重事件时、或者软件不确切地知道它正在轮询什么事件时，PAUSE是更合适的。
+% A future extension might add primitives similar to the x86 MONITOR/MWAIT
+% instructions, which provide a more efficient mechanism to wait on writes to
+% a specific memory location.
+% However, these instructions would not supplant PAUSE.
+% PAUSE is more appropriate when polling for non-memory events, when polling for
+% multiple events, or when software does not know precisely what events it is
+% polling for.
+
+PAUSE指令效果的持续时间，在实现内部和实现之间可以有显著变化。
+在典型的实现中，该持续时间应当远小于执行一次上下文切换的时间，
+可能多于一次片上缓存未命中延迟或一次对主内存无缓存访问的粗略次序。
+% The duration of a PAUSE instruction's effect may vary significantly within and
+% among implementations.
+% In typical implementations this duration should be much less than the time to
+% perform a context switch, probably more on the rough order of an on-chip cache
+% miss latency or a cacheless access to main memory.
+
+一系列PAUSE指令可以被用于创建与PAUSE指令数目粗略成比例的累积延迟。
+然而，在可移植代码的自旋等待循环中，在重新评估循环条件之前应当仅使用一条PAUSE指令，
+否则硬件线程可能在某些实现中拖延比最优更长的时间，从而降低系统的性能。
+% A series of PAUSE instructions can be used to create a cumulative delay loosely
+% proportional to the number of PAUSE instructions.
+% In spin-wait loops in portable code, however, only one PAUSE instruction should
+% be used before re-evaluating loop conditions, else the hart might stall longer
+% than optimal on some implementations, degrading system performance.
+\end{commentary}
+
+PAUSE被编码为{\em pred}=W， {\em succ}=0， {\em fm}=0， {\em rd}={\tt x0}，和 {\em rs1}={\tt x0}。
+% PAUSE is encoded as a FENCE instruction with {\em pred}=W, {\em succ}=0,
+% {\em fm}=0, {\em rd}={\tt x0}, and {\em rs1}={\tt x0}.
+
+\begin{commentary}
+PAUSE被编码为FENCE操作码中的一条提示，因为某些实现有可能故意拖延PAUSE指令，直到完成尚未完成的内存事务。
+然而，由于后继集为空，PAUSE并不强制要求任何特定的内存次序——因此，它确实是一个HINT。
+% PAUSE is encoded as a hint within the FENCE opcode because some
+% implementations are expected to deliberately stall the PAUSE instruction until outstanding
+% memory transactions have completed.
+% Because the successor set is null, however, PAUSE does not {\em mandate} any
+% particular memory ordering---hence, it truly is a HINT.
+
+像其它FENCE指令一样，PAUSE不能被用在LR/SC序列中而不避开向前执行保证。
+% Like other FENCE instructions, PAUSE cannot be used within LR/SC sequences
+% without voiding the forward-progress guarantee.
+
+前驱集W的选择是任意的，因为后继集为空。其它类似于PAUSE的HINT可能与其它前驱集一同编码。
+% The choice of a predecessor set of W is arbitrary, since the successor set is
+% null.
+% Other HINTs similar to PAUSE might be encoded with other predecessor sets.
+\end{commentary}

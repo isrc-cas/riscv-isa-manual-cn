@@ -1,0 +1,144 @@
+\chapter{“Zifencei”指令获取屏障（2.0版本）}
+\label{chap:zifencei}
+
+这章定义了“Zifencei”扩展，它包括了FENCE.I指令，该指令提供了在相同硬件线程上进行的写指令内存与指令获取之间的显式同步。
+目前，这个指令是确保对硬件线程可见的存储也将对它的指令获取可见的唯一标准机制。
+% This chapter defines the ``Zifencei'' extension, which includes the
+% FENCE.I instruction that provides explicit synchronization between
+% writes to instruction memory and instruction fetches on the same hart.
+% Currently, this instruction is the only standard mechanism to ensure
+% that stores visible to a hart will also be visible to its instruction
+% fetches.
+
+\begin{commentary}
+我们考虑过、但是没有包括“存储指令字”指令（像在MAJC中那样~\cite{majc}）。
+JIT编译器可以在单个的FENCE.I之前生成一大段对指令的追踪，
+并且通过把翻译过的指令写到已知的没有保留在I-缓存中的内存区域，分摊任何指令缓存的嗅探/失效负载。
+% We considered but did not include a ``store instruction word''
+% instruction (as in MAJC~\cite{majc}).  JIT compilers may generate a
+% large trace of instructions before a single FENCE.I, and amortize any
+% instruction cache snooping/invalidation overhead by writing translated
+% instructions to memory regions that are known not to reside in the
+% I-cache.
+\end{commentary}
+
+\begin{commentary}
+FENCE.I指令被设计为支持多种实现。简单的实现可以在FENCE.I被执行的时候冲刷本地指令缓存和指令流水线。
+更加复杂的实现可以在每个数据（指令）缓存缺失的时候嗅探（snoop）指令（数据）缓存，
+或者在主指令缓存中的某些行正在被本地存储指令写入时，使用一个包容统一的私有L2缓存使其无效化。
+如果指令和数据缓存以这种方式保持一致性，或者如果内存系统只由未缓存的RAM组成，那么只有获取流水线需要在FENCE.I被冲刷。
+% The FENCE.I instruction was designed to support a wide variety of
+% implementations.  A simple implementation can flush the local
+% instruction cache and the instruction pipeline when the FENCE.I is
+% executed.  A more complex implementation might snoop the instruction
+% (data) cache on every data (instruction) cache miss, or use an
+% inclusive unified private L2 cache to invalidate lines from the
+% primary instruction cache when they are being written by a local store
+% instruction.  If instruction and data caches are kept coherent in this
+% way, or if the memory system consists of only uncached RAMs, then just
+% the fetch pipeline needs to be flushed at a FENCE.I.
+
+FENCE.I指令曾是基础I指令集的前一部分。
+受到两个主要问题的驱使，尽管在编写本手册时它仍然是保持指令获取一致性的仅有的标准方法，它还是被移出了强制性基础指令集。
+% The FENCE.I instruction was previously part of the base I instruction
+% set.  Two main issues are driving moving this out of the mandatory
+% base, although at time of writing it is still the only standard method
+% for maintaining instruction-fetch coherence.
+
+首先，我们已经认识到，在一些系统上，FENCE.I的实现将是昂贵的，在内存模型任务组中正在讨论替代它的机制。
+特别地，对于拥有非一致性指令缓存和非一致性数据缓存、或者指令缓存的重新填充不会嗅探（snoop）一致性数据缓存的设计，
+在遇到一个FENCE.I指令时，这两个缓存都必须完全被冲刷。
+当在一个统一的缓存或较外层内存系统之前有多个级别的I缓存和D缓存时，这个问题将更加严重。
+% First, it has been recognized that on some systems, FENCE.I will be
+% expensive to implement and alternate mechanisms are being discussed in
+% the memory model task group.  In particular, for designs that have an
+% incoherent instruction cache and an incoherent data cache, or where
+% the instruction cache refill does not snoop a coherent data cache,
+% both caches must be completely flushed when a FENCE.I instruction is
+% encountered.  This problem is exacerbated when there are multiple
+% levels of I and D cache in front of a unified cache or outer memory
+% system.
+
+第二，该指令并非足够强力能在一个像Unix那样的操作系统环境中的用户级别可用。
+FENCE.I只同步本地硬件线程，而OS可以在FENCE.I之后把用户硬件线程重新调度到一个不同的物理硬件线程。
+这将需要OS执行一个额外的FENCE.I作为每个上下文迁移的一部分。
+出于这个原因，标准Linux ABI已经从用户级别中移除了FENCE.I，现在是需要一个系统调用来保持指令获取的一致性，
+这允许OS最小化当前系统上需要执行的FENCE.I的数目，并为将来改进的指令获取一致性机制提供向前兼容性。
+% Second, the instruction is not powerful enough to make available at
+% user level in a Unix-like operating system environment.  The FENCE.I
+% only synchronizes the local hart, and the OS can reschedule the user
+% hart to a different physical hart after the FENCE.I.  This would
+% require the OS to execute an additional FENCE.I as part of every
+% context migration.  For this reason, the standard Linux ABI has
+% removed FENCE.I from user-level and now requires a system call to
+% maintain instruction-fetch coherence, which allows the OS to minimize
+% the number of FENCE.I executions required on current systems and
+% provides forward-compatibility with future improved instruction-fetch
+% coherence mechanisms.
+
+正在讨论的未来的指令获取一致性方法包括，提供更加严格的FENCE.I版本，它只把{\em rs1}中指定的地址作为目标，
+并/或者允许软件使用依赖于机器模式缓存维护操作的ABI。
+% Future approaches to instruction-fetch coherence under discussion
+% include providing more restricted versions of FENCE.I that only target
+% a given address specified in {\em rs1}, and/or allowing software to use an
+% ABI that relies on machine-mode cache-maintenance operations.
+\end{commentary}
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{M@{}R@{}S@{}R@{}O}
+\\
+\instbitrange{31}{20} &
+\instbitrange{19}{15} &
+\instbitrange{14}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{0} \\
+\hline
+\multicolumn{1}{|c|}{imm[11:0]} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{funct3} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{opcode} \\
+\hline
+12 & 5 & 3 & 5 & 7 \\
+0 & 0 & FENCE.I & 0 & MISC-MEM \\
+\end{tabular}
+\end{center}
+
+FENCE.I指令被用于同步指令和数据流。
+在硬件线程执行FENCE.I指令以前，RISC-V不保证到指令内存的存储将对RISC-V硬件线程上的指令获取可见。
+FENCE.I指令确保RISC-V硬件线程上后续的指令获取将能看到已经对同一RISC-V硬件线程可见的任何先前的数据存储。
+在一个多处理器系统中，FENCE.I不确保其它RISC-V硬件线程的指令获取也将能看到本地硬件线程的存储。
+为了让对指令内存的存储对于所有的RISC-V硬件线程可见，
+正在写的硬件线程也必须在请求所有的远程RISC-V硬件线程执行FENCE.I之前执行一次数据FENCE。
+% The FENCE.I instruction is used to synchronize the instruction and
+% data streams.  RISC-V does not guarantee that stores to instruction
+% memory will be made visible to instruction fetches on a RISC-V
+% hart until that hart executes a FENCE.I instruction.  A FENCE.I instruction
+% ensures that a subsequent instruction fetch on a RISC-V hart
+% will see any previous data stores already visible to the same RISC-V
+% hart.  FENCE.I does {\em not} ensure that other RISC-V harts'
+% instruction fetches will observe the local hart's stores in a
+% multiprocessor system. To make a store to instruction memory visible
+% to all RISC-V harts, the writing hart also has to execute a data FENCE
+% before requesting that all remote RISC-V harts execute a FENCE.I.
+
+FENCE.I指令中的未使用的域，imm[11:0]、rs1和rd，被保留用于未来扩展中的更细粒度的屏障功能。
+为了向前兼容，基础实现应当忽略这些域，而标准软件应当把这些域置为零。
+The unused fields in the FENCE.I instruction, {\em imm[11:0]}, {\em rs1}, and
+{\em rd}, are reserved for finer-grain fences in future extensions.  For
+forward compatibility, base implementations shall ignore these fields, and
+standard software shall zero these fields.
+
+\begin{commentary}
+因为FENCE.I只使用硬件线程自己的指令获取来给存储排序，
+如果应用程序线程将不会被迁移到不同的硬件线程，那么应用程序代码应当只依赖FENCE.I。
+EEI可以提供有效的多处理器指令流同步机制。
+% Because FENCE.I only orders stores with a hart's own instruction
+% fetches, application code should only rely upon FENCE.I if the
+% application thread will not be migrated to a different hart.  The EEI
+% can provide mechanisms for efficient multiprocessor instruction-stream
+% synchronization.
+\end{commentary}
+
+
