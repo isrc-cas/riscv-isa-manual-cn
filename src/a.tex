@@ -1,57 +1,77 @@
 \chapter{用于原子指令的“A”标准扩展（2.1版本）}
 \label{atomics}
 
-The standard atomic-instruction extension, named ``A'',
-contains instructions that atomically
-read-modify-write memory to support synchronization between multiple
-RISC-V harts running in the same memory space.  The two forms of
-atomic instruction provided are load-reserved/store-conditional
-instructions and atomic fetch-and-op memory instructions.  Both types
-of atomic instruction support various memory consistency orderings
-including unordered, acquire, release, and sequentially consistent
-semantics.  These instructions allow RISC-V to support the RCsc memory
-consistency model~\cite{Gharachorloo90memoryconsistency}.
+命名为“A”的标准原子指令扩展包含了原子性的读-修改-写内存指令，
+以支持运行在相同内存空间中的多个RISC-V硬件线程之间的同步。该扩展提供了两种形式的原子指令，
+即“加载-保留/存储-条件”指令和“原子性获取并操作内存”指令。
+原子指令的这两种形式都支持各种内存一致性次序，包括无序的、获取的、释放的、和顺序的一致性语义。
+这些指令允许RISC-V支持RCsc内存一致性模型~\cite{Gharachorloo90memoryconsistency}。
+% The standard atomic-instruction extension, named ``A'',
+% contains instructions that atomically
+% read-modify-write memory to support synchronization between multiple
+% RISC-V harts running in the same memory space.  The two forms of
+% atomic instruction provided are load-reserved/store-conditional
+% instructions and atomic fetch-and-op memory instructions.  Both types
+% of atomic instruction support various memory consistency orderings
+% including unordered, acquire, release, and sequentially consistent
+% semantics.  These instructions allow RISC-V to support the RCsc memory
+% consistency model~\cite{Gharachorloo90memoryconsistency}.
 
 \begin{commentary}
-After much debate, the language community and architecture community
-appear to have finally settled on release consistency as the standard
-memory consistency model and so the RISC-V atomic support is built
-around this model.
+
+  在大量辩论之后，语言社区和架构社区似乎最终商定了将释放一致性作为标准内存一致性模型，
+  并因此RISC-V原子性支持就是围绕这个模型构建的。
+% After much debate, the language community and architecture community
+% appear to have finally settled on release consistency as the standard
+% memory consistency model and so the RISC-V atomic support is built
+% around this model.
 \end{commentary}
 
-\section{Specifying Ordering of Atomic Instructions}
+\section{指定原子指令的次序}
 
-The base RISC-V ISA has a relaxed memory model, with the FENCE
-instruction used to impose additional ordering constraints.  The
-address space is divided by the execution environment into memory and
-I/O domains, and the FENCE instruction provides options to order
-accesses to one or both of these two address domains.
+基础的RISC-V ISA有一个宽松的内存模型，其中FENCE指令被用于强制执行额外的次序约束。
+地址空间被执行环境划分为内存领域和I/O领域，而FENCE指令提供了选项，以对这两个地址领域中的一个、或两者同时的访问进行排序。
+% The base RISC-V ISA has a relaxed memory model, with the FENCE
+% instruction used to impose additional ordering constraints.  The
+% address space is divided by the execution environment into memory and
+% I/O domains, and the FENCE instruction provides options to order
+% accesses to one or both of these two address domains.
 
-To provide more efficient support for release
-consistency~\cite{Gharachorloo90memoryconsistency}, each atomic
-instruction has two bits, {\em aq} and {\em rl}, used to specify
-additional memory ordering constraints as viewed by other RISC-V
-harts.  The bits order accesses to one of the two address domains,
-memory or I/O, depending on which address domain the atomic
-instruction is accessing.  No ordering constraint is implied to
-accesses to the other domain, and a FENCE instruction should be used
-to order across both domains.
+为了对释放一致性~\cite{Gharachorloo90memoryconsistency}提供更有效的支持，每个原子指令有两个位，{\em aq}和{\em rl}，
+用于指定额外的内存次序约束，正如其它RISC-V硬件线程所看到的那样。位次序访问两个地址领域——内存或I/O——中的哪一个，
+依赖于原子指令正在访问的地址领域。对另一个领域的访问不隐含次序约束，而应当使用FENCE指令跨两个领域排序。
+% To provide more efficient support for release
+% consistency~\cite{Gharachorloo90memoryconsistency}, each atomic
+% instruction has two bits, {\em aq} and {\em rl}, used to specify
+% additional memory ordering constraints as viewed by other RISC-V
+% harts.  The bits order accesses to one of the two address domains,
+% memory or I/O, depending on which address domain the atomic
+% instruction is accessing.  No ordering constraint is implied to
+% accesses to the other domain, and a FENCE instruction should be used
+% to order across both domains.
 
-If both bits are clear, no additional ordering constraints are imposed
-on the atomic memory operation.  If only the {\em aq} bit is set, the
-atomic memory operation is treated as an {\em acquire} access, i.e.,
-no following memory operations on this RISC-V hart can be observed
-to take place before the acquire memory operation.  If only the {\em
-  rl} bit is set, the atomic memory operation is treated as a {\em
-  release} access, i.e., the release memory operation cannot be
-observed to take place before any earlier memory operations on this
-RISC-V hart.  If both the {\em aq} and {\em rl} bits are set, the
-atomic memory operation is {\em sequentially consistent} and cannot be
-observed to happen before any earlier memory operations or after any
-later memory operations in the same RISC-V hart and to the same
-address domain.
+如果两个位都被清除，则在原子内存操作上不会被施加额外的次序约束。如果只设置了{\em aq}位，
+原子内存操作被视为一次{\em 获取}访问，也就是说，在这个RISC-V硬件线程上，在获取内存操作之前不会观测到随后发生的内存操作。
+如果只设置了{\em rl}位，原子内存操作被视为一次释放访问，也就是说，在这个RISC-V硬件线程上，
+在任何更早的内存操作之前不会观测到释放内存操作发生。如果{\em aq}位和{\em rl}位都被设置了，原子内存操作是{\em 顺序一致性的}，
+在同一个RISC-V硬件线程中，对于同一个地址领域，不能在任何更早的内存操作之前、
+或在任何更迟的内存操作之后观测到该原子内存操作发生。
+% If both bits are clear, no additional ordering constraints are imposed
+% on the atomic memory operation.  If only the {\em aq} bit is set, the
+% atomic memory operation is treated as an {\em acquire} access, i.e.,
+% no following memory operations on this RISC-V hart can be observed
+% to take place before the acquire memory operation.  If only the {\em
+%   rl} bit is set, the atomic memory operation is treated as a {\em
+%   release} access, i.e., the release memory operation cannot be
+% observed to take place before any earlier memory operations on this
+% RISC-V hart.  If both the {\em aq} and {\em rl} bits are set, the
+% atomic memory operation is {\em sequentially consistent} and cannot be
+% observed to happen before any earlier memory operations or after any
+% later memory operations in the same RISC-V hart and to the same
+% address domain.
 
-\section{Load-Reserved/Store-Conditional Instructions}
+\section{加载-保留/存储-条件指令}
+% \section{Load-Reserved/Store-Conditional Instructions}
 \label{sec:lrsc}
 
 \vspace{-0.2in}
@@ -82,311 +102,410 @@ SC.W/D & \multicolumn{2}{c}{ordering} & src & addr & width & dest & AMO  \\
 \end{tabular}
 \end{center}
 
-Complex atomic memory operations on a single memory word or doubleword are performed
-with the load-reserved (LR) and store-conditional (SC) instructions.
-LR.W loads a word from the address in {\em rs1}, places the sign-extended
-value in {\em rd}, and registers a {\em reservation set}---a set of bytes
-that subsumes the bytes in the addressed word.
-SC.W conditionally writes a word in {\em rs2} to the address in {\em rs1}: the
-SC.W succeeds only if the reservation is still valid and the reservation set
-contains the bytes being written.
-If the SC.W succeeds, the instruction writes the word in {\em rs2} to memory,
-and it writes zero to {\em rd}.
-If the SC.W fails, the instruction does not write to memory, and it writes
-a nonzero value to {\em rd}.
-Regardless of success or failure, executing an SC.W instruction invalidates
-any reservation held by this hart.
-LR.D and SC.D act analogously on doublewords and are only available on RV64.
-For RV64, LR.W and SC.W sign-extend the value placed in {\em rd}.
+加载-保留（LR）和存储-条件（SC）指令在一个内存字或双字上实施复杂的原子内存操作。
+LR.W从{\em rs1}中的地址处加载一个字，把符号扩展的值放入{\em rd}，并注册一个保留集——归入地址字的字节的一个字节集合。
+SC.W有条件地将{\em rs2}中的字写到{\em rs1}中的地址：当且仅当保留仍然有效且保留集包含正在写的字节时，
+SC.W成功。如果SC.W成功，指令把{\em rs2}中的字写到内存，并把{\em rd}写零。如果SC.W失败，指令不会写内存，
+它向{\em rd}写一个非零值。不管成功还是失败，执行一次SC.W指令都会使这个硬件线程持有的任何保留失效。
+LR.D和SC.D对双字采取类似的行为，并只在RV64上可用。对于RV64，LR.W和SC.W对放入{\em rd}的值进行符号扩展。
+
+% Complex atomic memory operations on a single memory word or doubleword are performed
+% with the load-reserved (LR) and store-conditional (SC) instructions.
+% LR.W loads a word from the address in {\em rs1}, places the sign-extended
+% value in {\em rd}, and registers a {\em reservation set}---a set of bytes
+% that subsumes the bytes in the addressed word.
+% SC.W conditionally writes a word in {\em rs2} to the address in {\em rs1}: the
+% SC.W succeeds only if the reservation is still valid and the reservation set
+% contains the bytes being written.
+% If the SC.W succeeds, the instruction writes the word in {\em rs2} to memory,
+% and it writes zero to {\em rd}.
+% If the SC.W fails, the instruction does not write to memory, and it writes
+% a nonzero value to {\em rd}.
+% Regardless of success or failure, executing an SC.W instruction invalidates
+% any reservation held by this hart.
+% LR.D and SC.D act analogously on doublewords and are only available on RV64.
+% For RV64, LR.W and SC.W sign-extend the value placed in {\em rd}.
 
 \begin{commentary}
-Both compare-and-swap (CAS) and LR/SC can be used to build lock-free
-data structures.  After extensive discussion, we opted for LR/SC for
-several reasons: 1) CAS suffers from the ABA problem, which LR/SC
-avoids because it monitors all writes to the address rather than
-only checking for changes in the data value; 2) CAS would also require
-a new integer instruction format to support three source operands
-(address, compare value, swap value) as well as a different memory
-system message format, which would complicate microarchitectures; 3)
-Furthermore, to avoid the ABA problem, other systems provide a
-double-wide CAS (DW-CAS) to allow a counter to be tested and
-incremented along with a data word. This requires reading five
-registers and writing two in one instruction, and also a new larger
-memory system message type, further complicating implementations; 4)
-LR/SC provides a more efficient implementation of many primitives as
-it only requires one load as opposed to two with CAS (one load before
-the CAS instruction to obtain a value for speculative computation,
-then a second load as part of the CAS instruction to check if value is
-unchanged before updating).
+  “比较并交换”（CAS）和LR/SC都能够被用于构建无锁的数据结构。
+  在紧张的讨论之后，我们选择了LR/SC，是由于几个原因：
+  1）LR/SC因为监视所有的对地址的访问、而不只是检查数值的变化，可以避免CAS存在的ABA问题；
+  2）在已经需要一个不同于内存系统的消息格式的基础上，CAS还将需要一个新的整数指令格式来支持三个源操作数（地址、比较的值、交换的值），这将使微架构复杂化；
+  3）更进一步地，为了避免ABA问题，其它系统提供了一个双宽度CAS（DW-CAS），以允许计数器可以沿着数据字测试和增长。这需要在一条指令中读五个寄存器并写两个寄存器，而且也需要一个新的更大的内存系统消息格式，远比实现要复杂；
+  4）LR/SC为许多原语提供了一个更加有效的实现，因为它只需要加载一次，与之相反的是，CAS需要加载两次（一次在CAS指令之前加载以获得推测计算的值，然后第二次加载作为CAS指令的一部分以检查值是否在更新之前被改变了）。
+% Both compare-and-swap (CAS) and LR/SC can be used to build lock-free
+% data structures.  After extensive discussion, we opted for LR/SC for
+% several reasons: 1) CAS suffers from the ABA problem, which LR/SC
+% avoids because it monitors all writes to the address rather than
+% only checking for changes in the data value; 2) CAS would also require
+% a new integer instruction format to support three source operands
+% (address, compare value, swap value) as well as a different memory
+% system message format, which would complicate microarchitectures; 3)
+% Furthermore, to avoid the ABA problem, other systems provide a
+% double-wide CAS (DW-CAS) to allow a counter to be tested and
+% incremented along with a data word. This requires reading five
+% registers and writing two in one instruction, and also a new larger
+% memory system message type, further complicating implementations; 4)
+% LR/SC provides a more efficient implementation of many primitives as
+% it only requires one load as opposed to two with CAS (one load before
+% the CAS instruction to obtain a value for speculative computation,
+% then a second load as part of the CAS instruction to check if value is
+% unchanged before updating).
 
-The main disadvantage of LR/SC over CAS is livelock, which we avoid,
-under certain circumstances,
-with an architected guarantee of eventual forward progress as
-described below.  Another concern is whether the influence of the
-current x86 architecture, with its DW-CAS, will complicate porting of
-synchronization libraries and other software that assumes DW-CAS is
-the basic machine primitive.  A possible mitigating factor is the
-recent addition of transactional memory instructions to x86, which
-might cause a move away from DW-CAS.
+与CAS相比，LR/SC的主要劣势是活锁，我们在特定环境下通过最终推进的一种结构化的保证来避免它，
+如下文所描述的那样。另一个问题是，当前x86架构和它的DW-CAS的影响是否会将同步库和其它假定DW-CAS是基本机器原语的软件的移植复杂化。
+一个可能的缓解因素是，当前向x86添加的事务内存指令，它可能导致一次从DW-CAS的迁移。
+% The main disadvantage of LR/SC over CAS is livelock, which we avoid,
+% under certain circumstances,
+% with an architected guarantee of eventual forward progress as
+% described below.  Another concern is whether the influence of the
+% current x86 architecture, with its DW-CAS, will complicate porting of
+% synchronization libraries and other software that assumes DW-CAS is
+% the basic machine primitive.  A possible mitigating factor is the
+% recent addition of transactional memory instructions to x86, which
+% might cause a move away from DW-CAS.
 
-More generally, a multi-word atomic primitive is desirable, but there is
-still considerable debate about what form this should take, and
-guaranteeing forward progress adds complexity to a system.
+更一般地，多字原子原语是令人向往的，但是关于这应当采取什么形式仍然有相当大的争议，
+并且保证向前进度会增加系统的复杂性。我们当前的想法是，沿着原始事务内存提案的内容，
+包括一个小型的有限容量的事务内存缓冲，作为一个可选的标准扩展“T”。
+% More generally, a multi-word atomic primitive is desirable, but there is
+% still considerable debate about what form this should take, and
+% guaranteeing forward progress adds complexity to a system.
 \end{commentary}
 
-The failure code with value 1 encodes an unspecified failure.
-Other failure codes are reserved at this time.
-Portable software should only assume the failure code will be non-zero.
+失败代码值1编码了一个未指定的失败。其它的失败代码目前被保留，可移植的软件应当仅仅假定，失败代码将是非零的。
+% The failure code with value 1 encodes an unspecified failure.
+% Other failure codes are reserved at this time.
+% Portable software should only assume the failure code will be non-zero.
 
 \begin{commentary}
-We reserve a failure code of 1 to mean ``unspecified'' so that simple
-implementations may return this value using the existing mux required
-for the SLT/SLTU instructions.  More specific failure codes might be
-defined in future versions or extensions to the ISA.
+  我们保留了一个失败代码1来表示“未指定的”，这样简单的实现可以使用SLT/SLTU指令所需的现有的mux来返回这个值。
+  ISA的未来版本或扩展中可能会定义更具体的失败代码。
+% We reserve a failure code of 1 to mean ``unspecified'' so that simple
+% implementations may return this value using the existing mux required
+% for the SLT/SLTU instructions.  More specific failure codes might be
+% defined in future versions or extensions to the ISA.
 \end{commentary}
 
-For LR and SC, the A extension requires that the address held in {\em
-  rs1} be naturally aligned to the size of the operand (i.e.,
-eight-byte aligned for 64-bit words and four-byte aligned for 32-bit
-words).  If the address is not naturally aligned, an address-misaligned
-exception or an access-fault exception will be generated.  The access-fault
-exception can be generated for a memory access that would otherwise be
-able to complete except for the misalignment, if the misaligned access
-should not be emulated.
+对于LR和SC，A扩展需要{\em rs1}中持有的地址自然对齐到操作数的尺寸（也就是说，64位字对齐到8字节，32位字对齐到4字节）。
+如果地址没有自然对齐，将产生一个地址未对齐异常或者一个访问故障异常。如果未对齐的访问不宜被模拟，
+而除了未对齐之外内存访问都能完成，那么可以为内存访问生成访问故障异常。
+% For LR and SC, the A extension requires that the address held in {\em
+%   rs1} be naturally aligned to the size of the operand (i.e.,
+% eight-byte aligned for 64-bit words and four-byte aligned for 32-bit
+% words).  If the address is not naturally aligned, an address-misaligned
+% exception or an access-fault exception will be generated.  The access-fault
+% exception can be generated for a memory access that would otherwise be
+% able to complete except for the misalignment, if the misaligned access
+% should not be emulated.
 
 \begin{commentary}
-Emulating misaligned LR/SC sequences is impractical in most systems.
+  在大多数系统中，模拟未对齐的LR/SC序列是不实际的。
+% Emulating misaligned LR/SC sequences is impractical in most systems.
 
-Misaligned LR/SC sequences also raise the possibility of accessing multiple
-reservation sets at once, which present definitions do not provide for.
+  未对齐的LR/SC序列也增加了一次访问多个保留集的可能性，这是现有的定义没有提供的。
+% Misaligned LR/SC sequences also raise the possibility of accessing multiple
+% reservation sets at once, which present definitions do not provide for.
 \end{commentary}
 
-An implementation can register an arbitrarily large reservation set on each
-LR, provided the reservation set includes all bytes of the addressed data word
-or doubleword.
-An SC can only pair with the most recent LR in program order.
-An SC may succeed only if no store from another hart
-to the reservation set can be observed to have occurred between the LR
-and the SC, and if there is no other SC between the LR and itself in program
-order.
-An SC may succeed only if no write from a device other than a hart
-to the bytes accessed by the LR instruction can be observed to have occurred
-between the LR and SC.
-Note this LR might have had a different effective address and data size, but
-reserved the SC's address as part of the reservation set.
+实现可以在每个LR上注册一个任意大的保留集，提供包括被编址的数据字或双字的所有字节的保留。
+SC可以只与程序次序中最相近的LR配对。SC可能成功，当前仅当：没有从另一个硬件线程到该保留集的存储能够在LR和SC之间被观察到，
+且以程序次序，在其LR和它自己之间没有其它的SC。SC可能成功，当且仅当：在LR和SC之间不会观察到，
+发生从硬件线程以外的设备到被LR指令所访问的字节的写入。注意这个LR的有效地址和数据尺寸可能已经不同了，
+但是保留了SC的地址，将之作为保留集的一部分。
+% An implementation can register an arbitrarily large reservation set on each
+% LR, provided the reservation set includes all bytes of the addressed data word
+% or doubleword.
+% An SC can only pair with the most recent LR in program order.
+% An SC may succeed only if no store from another hart
+% to the reservation set can be observed to have occurred between the LR
+% and the SC, and if there is no other SC between the LR and itself in program
+% order.
+% An SC may succeed only if no write from a device other than a hart
+% to the bytes accessed by the LR instruction can be observed to have occurred
+% between the LR and SC.
+% Note this LR might have had a different effective address and data size, but
+% reserved the SC's address as part of the reservation set.
 \begin{commentary}
-Following this model, in systems with memory translation, an SC is allowed to
-succeed if the earlier LR reserved the same location using an alias with
-a different virtual address, but is also allowed to fail if the virtual
-address is different.
+  根据这个模型，在带有内存事务的系统中，如果更早的LR使用不同的虚拟地址别名预约了相同的位置，那么允许SC成功；
+  但是如果虚拟地址是不同的，那么也允许失败。
+% Following this model, in systems with memory translation, an SC is allowed to
+% succeed if the earlier LR reserved the same location using an alias with
+% a different virtual address, but is also allowed to fail if the virtual
+% address is different.
 \end{commentary}
 \begin{commentary}
-To accommodate legacy devices and buses, writes from devices other than RISC-V
-harts are only required to invalidate reservations when they overlap the bytes
-accessed by the LR.  These writes are not required to invalidate the
-reservation when they access other bytes in the reservation set.
+  为了顾及遗留的设备和总线，从RISC-V硬件线程以外的设备的写只需要在它们与由LR所访问的字节重叠时，
+  将预约无效化即可。当它们访问保留集中的其它字节时，这些写不需要将预约无效化。
+% To accommodate legacy devices and buses, writes from devices other than RISC-V
+% harts are only required to invalidate reservations when they overlap the bytes
+% accessed by the LR.  These writes are not required to invalidate the
+% reservation when they access other bytes in the reservation set.
 \end{commentary}
 
-The SC must fail if the address is not within the reservation set of the most
-recent LR in program order.
-The SC must fail if a store to the reservation set from another hart can be
-observed to occur between the LR and SC.
-The SC must fail if a write from some other device to the bytes accessed by
-the LR can be observed to occur between the LR and SC.
-(If such a device writes the reservation set but does not write the bytes
-accessed by the LR, the SC may or may not fail.)
-An SC must fail if there is another SC (to any address) between the LR and the
-SC in program order.
-The precise statement of the atomicity requirements for successful LR/SC
-sequences is defined by the Atomicity Axiom in Section~\ref{sec:rvwmo}.
+SC必定失败，如果：以程序次序，地址没有在最近的LR的保留集中。
+SC必定失败，如果：在LR和SC之间可以观察到有从其它硬件线程到保留集的存储发生。
+SC必定失败，如果：在LR和SC之间可以观察到有从其它设备到LR所访问的字节的写发生。
+（如果这个设备写了保留集但是没有写由LR所访问的字节，SC可能失败，也可能不失败。）
+SC必定失败，如果：以程序次序，在LR和SC之间有另一个SC（对任何地址）。
+在14.1节~\ref{sec:rvwmo}中，“原子性公理”定义了对成功的LR/SC序列的原子性需求的精确陈述。
+% The SC must fail if the address is not within the reservation set of the most
+% recent LR in program order.
+% The SC must fail if a store to the reservation set from another hart can be
+% observed to occur between the LR and SC.
+% The SC must fail if a write from some other device to the bytes accessed by
+% the LR can be observed to occur between the LR and SC.
+% (If such a device writes the reservation set but does not write the bytes
+% accessed by the LR, the SC may or may not fail.)
+% An SC must fail if there is another SC (to any address) between the LR and the
+% SC in program order.
+% The precise statement of the atomicity requirements for successful LR/SC
+% sequences is defined by the Atomicity Axiom in Section~\ref{sec:rvwmo}.
 
 \begin{commentary}
-The platform should provide a means to determine the size and shape of the
-reservation set.
-
-A platform specification may constrain the size and shape of the reservation
-set.
+  平台应当提供一种定义保留集的尺寸和形状的方法。
+% The platform should provide a means to determine the size and shape of the
+% reservation set.
+  一个平台的规范可能约束保留指令集的尺寸和形状。
+% A platform specification may constrain the size and shape of the reservation
+% set.
 \end{commentary}
 
 \begin{commentary}
-A store-conditional instruction to a scratch word of memory should be used
-to forcibly invalidate any existing load reservation:
+  对内存的划痕字的存储-条件指令应当被用于使任何现有的加载保留强制失效：
+% A store-conditional instruction to a scratch word of memory should be used
+% to forcibly invalidate any existing load reservation:
 \begin{itemize}
-\item during a preemptive context switch, and
-\item if necessary when changing virtual to physical address mappings,
+\item 在抢占式上下文切换期间，和   during a preemptive context switch, and
+\item 如果有必要，在改变虚拟地址到物理地址映射时，例如，当迁移可能包含一个活动的保留的页时。  if necessary when changing virtual to physical address mappings,
   such as when migrating pages that might contain an active reservation.
 \end{itemize}
 \end{commentary}
 
 \begin{commentary}
-The invalidation of a hart's reservation when it executes an LR or SC
-imply that a hart can only hold one reservation at a time, and that
-an SC can only pair with the most recent LR, and LR with the next
-following SC, in program order.  This is a restriction to the
-Atomicity Axiom in Section~\ref{sec:rvwmo} that ensures software runs
-correctly on expected common implementations that operate in this manner.
+  如果一个LR或SC暗示，硬件线程当时只持有一个保留，并且以程序次序，SC只能与最接近的LR配对，
+  且LR只能与接下来的下一个SC配对，那么当硬件线程执行该LR或SC时，硬件线程的预约被无效化。
+  这是对17.1节~\ref{sec:rvwmo}中原子性公理的一个限制，该公理确保软件正确地运行在以这种方式操作的期望的常见实现上。
+% The invalidation of a hart's reservation when it executes an LR or SC
+% imply that a hart can only hold one reservation at a time, and that
+% an SC can only pair with the most recent LR, and LR with the next
+% following SC, in program order.  This is a restriction to the
+% Atomicity Axiom in Section~\ref{sec:rvwmo} that ensures software runs
+% correctly on expected common implementations that operate in this manner.
 \end{commentary}
 
-An SC instruction can never be observed by another RISC-V hart
-before the LR instruction that established the reservation.
-The LR/SC
-sequence can be given acquire semantics by setting the {\em aq} bit on
-the LR instruction.  The LR/SC sequence can be given release semantics
-by setting the {\em rl} bit on the SC instruction.  Setting the {\em
-  aq} bit on the LR instruction, and setting both the {\em aq} and the {\em
-  rl} bit on the SC instruction makes the LR/SC sequence sequentially
-consistent, meaning that it cannot be reordered with earlier or
-later memory operations from the same hart.
+在建立了保留的LR指令之前，其它RISC-V硬件线程永远不可以观测到SC指令。
+通过设置LR指令的{\em aq}位，可以赋予LR/SC序列获取的语义。通过设置SC指令的{\em rl}位，
+可以赋予LR/SC序列释放的语义。设置LR指令的{\em aq}位，并设置SC指令的{\em aq}位和{\em rl}位，
+使LR/SC序列顺序一致，意味着它不能被相同硬件线程的更早的或更迟的内存操作重新排序。
+% An SC instruction can never be observed by another RISC-V hart
+% before the LR instruction that established the reservation.
+% The LR/SC
+% sequence can be given acquire semantics by setting the {\em aq} bit on
+% the LR instruction.  The LR/SC sequence can be given release semantics
+% by setting the {\em rl} bit on the SC instruction.  Setting the {\em
+%   aq} bit on the LR instruction, and setting both the {\em aq} and the {\em
+%   rl} bit on the SC instruction makes the LR/SC sequence sequentially
+% consistent, meaning that it cannot be reordered with earlier or
+% later memory operations from the same hart.
 
-If neither bit is set on both LR and SC, the LR/SC sequence can be
-observed to occur before or after surrounding memory operations from
-the same RISC-V hart.  This can be appropriate when the LR/SC
-sequence is used to implement a parallel reduction operation.
+如果在LR和SC上都没有设置任何位，可以在来自同一RISC-V硬件线程的周围的内存操作之前或之后观测到LR/SC序列的发生。
+当LR/SC序列被用于实现并行规约操作时，这可以是合适的。
+% If neither bit is set on both LR and SC, the LR/SC sequence can be
+% observed to occur before or after surrounding memory operations from
+% the same RISC-V hart.  This can be appropriate when the LR/SC
+% sequence is used to implement a parallel reduction operation.
 
-Software should not set the {\em rl} bit on an LR instruction unless the {\em
-aq} bit is also set, nor should software set the {\em aq} bit on an SC
-instruction unless the {\em rl} bit is also set.  LR.{\em rl} and SC.{\em aq}
-instructions are not guaranteed to provide any stronger ordering than those
-with both bits clear, but may result in lower performance.
+软件不应当设置LR指令的{\em rl}位，除非也设置了{\em aq}位；软件也不应当设置SC指令的{\em aq}位，
+除非也设置了{\em rl}位。LR.{\em rl}和SC.{\em aq}指令不保证提供任何比那些位都被清除的指令更强的次序，但是可能会导致更低的效率。
+% Software should not set the {\em rl} bit on an LR instruction unless the {\em
+% aq} bit is also set, nor should software set the {\em aq} bit on an SC
+% instruction unless the {\em rl} bit is also set.  LR.{\em rl} and SC.{\em aq}
+% instructions are not guaranteed to provide any stronger ordering than those
+% with both bits clear, but may result in lower performance.
 
 \begin{figure}[h!]
 \begin{center}
 \begin{verbatim}
-        # a0 holds address of memory location
-        # a1 holds expected value
-        # a2 holds desired value
-        # a0 holds return value, 0 if successful, !0 otherwise
+        # a0 持有内存位置的地址  holds address of memory location
+        # a1 持有期望的(expected)值  holds expected value
+        # a2 持有需要的(desired)值  holds desired value
+        # a0 持有返回值，如果成功则为零，否则为非零。  holds return value, 0 if successful, !0 otherwise
     cas:
-        lr.w t0, (a0)        # Load original value.
-        bne t0, a1, fail     # Doesn't match, so fail.
-        sc.w t0, a2, (a0)    # Try to update.
-        bnez t0, cas         # Retry if store-conditional failed.
-        li a0, 0             # Set return to success.
-        jr ra                # Return.
+        lr.w t0, (a0)        # 加载原始值。  Load original value.
+        bne t0, a1, fail     # 不匹配，所以失败。  Doesn't match, so fail.
+        sc.w t0, a2, (a0)    # 尝试更新。  Try to update.
+        bnez t0, cas         # 如果存储条件失败，那么重试  Retry if store-conditional failed.
+        li a0, 0             # 设置返回值为成功。  Set return to success.
+        jr ra                # 返回。 Return.
     fail:
-        li a0, 1             # Set return to failure.
-        jr ra                # Return.
+        li a0, 1             # 设置返回值为失败。  Set return to failure.
+        jr ra                # 返回。  Return.
 \end{verbatim}
 \end{center}
-\caption{Sample code for compare-and-swap function using LR/SC.}
+\caption{使用LR/SC的比较与交换功能的样例代码  Sample code for compare-and-swap function using LR/SC.}
 \label{cas}
 \end{figure}
 
-LR/SC can be used to construct lock-free data structures.  An example
-using LR/SC to implement a compare-and-swap function is shown in
-Figure~\ref{cas}.  If inlined, compare-and-swap functionality need
-only take four instructions.
+LR/SC可以被用于构造无锁的数据结构。图~\ref{cas}显示了一个使用LR/SC来实现比较与交换功能的例子。
+如果被内联，比较与交换功能只需要采用四个指令。
+% LR/SC can be used to construct lock-free data structures.  An example
+% using LR/SC to implement a compare-and-swap function is shown in
+% Figure~\ref{cas}.  If inlined, compare-and-swap functionality need
+% only take four instructions.
 
-\section{Eventual Success of Store-Conditional Instructions}
+\section{存储-条件指令的最终正确完成}
+% \section{Eventual Success of Store-Conditional Instructions}
 \label{sec:lrscseq}
 
-The standard A extension defines {\em constrained LR/SC loops}, which have
-the following properties:
+标准A扩展定义了受约束的{\em LR/SC循环}，它有如下的性质：
+% The standard A extension defines {\em constrained LR/SC loops}, which have
+% the following properties:
 \vspace{-0.2in}
 \begin{itemize}
 \parskip 0pt
 \itemsep 1pt
-\item The loop comprises only an LR/SC sequence and code to retry the sequence
-  in the case of failure, and must comprise at most 16 instructions placed
-  sequentially in memory.
-\item An LR/SC sequence begins with an LR instruction and ends with an SC
-  instruction.  The dynamic code executed between the LR and SC instructions
-  can only contain instructions from the base ``I'' instruction set, excluding
-  loads, stores, backward jumps, taken backward branches, JALR, FENCE,
-  and SYSTEM instructions.
-  If the ``C'' extension is supported, then compressed
-  forms of the aforementioned ``I'' instructions are also permitted.
-\item The code to retry a failing LR/SC sequence can contain backwards jumps
-  and/or branches to repeat the LR/SC sequence, but otherwise has the same
-  constraint as the code between the LR and SC.
-\item The LR and SC addresses must lie within a memory region with the
-  {\em LR/SC eventuality} property.  The execution environment is responsible
-  for communicating which regions have this property.
-\item The SC must be to the same effective address and of the same data size as
-  the latest LR executed by the same hart.
+\item 该循环只包含了一个LR/SC序列，和在失败的情况下进行重新尝试该序列的代码，并且必须包含至多16条在内存中顺序放置的指令。 
+  % The loop comprises only an LR/SC sequence and code to retry the sequence
+  % in the case of failure, and must comprise at most 16 instructions placed
+  % sequentially in memory.
+\item 一个LR/SC序列以一条LR指令开始，以一条SC指令结束。在LR和SC指令之间执行的动态代码只能包含来自基础“I”指令集的指令，
+  不包括加载、存储、向后跳转、执行向后分支、JALR、FENCE和SYSTEM指令。
+  如果支持“C”扩展，那么前面提到的“I”指令的压缩形式也是被允许的。
+
+  % An LR/SC sequence begins with an LR instruction and ends with an SC
+  % instruction.  The dynamic code executed between the LR and SC instructions
+  % can only contain instructions from the base ``I'' instruction set, excluding
+  % loads, stores, backward jumps, taken backward branches, JALR, FENCE,
+  % and SYSTEM instructions.
+  % If the ``C'' extension is supported, then compressed
+  % forms of the aforementioned ``I'' instructions are also permitted.
+\item 重新尝试一次失败的LR/SC序列的代码可以包含向后跳转和/或分支以重复LR/SC序列，
+  但如果不包含，那么与LR和SC之间的代码受到相同的约束。
+  % The code to retry a failing LR/SC sequence can contain backwards jumps
+  % and/or branches to repeat the LR/SC sequence, but otherwise has the same
+  % constraint as the code between the LR and SC.
+\item LR和SC的地址必须列于带有{\em LR/SC最终属性的}内存区域之中。具有这种属性的区域的通信由执行环境负责。
+  % The LR and SC addresses must lie within a memory region with the
+  % {\em LR/SC eventuality} property.  The execution environment is responsible
+  % for communicating which regions have this property.
+\item SC必须与同一硬件线程所执行的最近一次LR具有相同的有效地址和相同的数据尺寸。
+% The SC must be to the same effective address and of the same data size as
+%   the latest LR executed by the same hart.
 \end{itemize}
 
-LR/SC sequences that do not lie within constrained LR/SC loops are {\em
-unconstrained}.  Unconstrained LR/SC sequences might succeed on some attempts
-on some implementations, but might never succeed on other implementations.
+不在受约束的LR/SC循环中的LR/SC序列是{\em 不受约束的}。
+不受约束的LR/SC序列可能在某些实现的某些尝试上成功，但是可能在其它实现上永远不成功。
+
+% LR/SC sequences that do not lie within constrained LR/SC loops are {\em
+% unconstrained}.  Unconstrained LR/SC sequences might succeed on some attempts
+% on some implementations, but might never succeed on other implementations.
 
 \begin{commentary}
-We restricted the length of LR/SC loops to fit within 64 contiguous
-instruction bytes in the base ISA to avoid undue restrictions on instruction
-cache and TLB size and associativity.
-Similarly, we disallowed other loads and stores within the loops to avoid
-restrictions on data-cache associativity in simple implementations that track
-the reservation within a private cache.
-The restrictions on branches and jumps limit the time that
-can be spent in the sequence.  Floating-point operations and integer
-multiply/divide were disallowed to simplify the operating system's emulation
-of these instructions on implementations lacking appropriate hardware support.
+  我们限制了LR/SC循环的长度来适合基础ISA中的64个连续指令字节，以避免对指令缓存、TLB尺寸和关联性的过度限制。
+  类似地，在追踪自由缓存中的预约的简单实现中，我们不允许循环中有其它的加载和存储，以避免限制数据-缓存的关联性。
+  对分支和跳转的约束限制了本可以花费在序列中的时间。在缺少合适的硬件支持的实现上，不允许浮点操作和整数乘法/除法，
+  以简化操作系统对这些指令的模拟。
+% We restricted the length of LR/SC loops to fit within 64 contiguous
+% instruction bytes in the base ISA to avoid undue restrictions on instruction
+% cache and TLB size and associativity.
+% Similarly, we disallowed other loads and stores within the loops to avoid
+% restrictions on data-cache associativity in simple implementations that track
+% the reservation within a private cache.
+% The restrictions on branches and jumps limit the time that
+% can be spent in the sequence.  Floating-point operations and integer
+% multiply/divide were disallowed to simplify the operating system's emulation
+% of these instructions on implementations lacking appropriate hardware support.
 
-Software is not forbidden from using unconstrained LR/SC sequences, but
-portable software must detect the case that the sequence repeatedly fails,
-then fall back to an alternate code sequence that does not rely on an
-unconstrained LR/SC sequence.  Implementations are permitted to
-unconditionally fail any unconstrained LR/SC sequence.
+不禁止软件使用不受约束的LR/SC序列，但是可移植的软件必须检测序列重复失败的情况，
+然后退回到不依赖于不受约束的LR/SC序列的备用代码序列。实现可以无条件地令任何不受约束的LR/SC序列失败。
+% Software is not forbidden from using unconstrained LR/SC sequences, but
+% portable software must detect the case that the sequence repeatedly fails,
+% then fall back to an alternate code sequence that does not rely on an
+% unconstrained LR/SC sequence.  Implementations are permitted to
+% unconditionally fail any unconstrained LR/SC sequence.
 \end{commentary}
 
-If a hart {\em H} enters a constrained LR/SC loop, the execution environment
-must guarantee that one of the following events eventually occurs:
+如果一个硬件线程{\em H}进入了一个受约束的LR/SC循环，执行环境必须保证下列事件之一能最终发生：
+% If a hart {\em H} enters a constrained LR/SC loop, the execution environment
+% must guarantee that one of the following events eventually occurs:
 \vspace{-0.2in}
 \begin{itemize}
 \parskip 0pt
 \itemsep 1pt
-\item {\em H} or some other hart executes a successful SC to the reservation
-  set of the LR instruction in {\em H}'s constrained LR/SC loops.
-\item Some other hart executes an unconditional store or AMO instruction to
-  the reservation set of the LR instruction in {\em H}'s constrained LR/SC
-  loop, or some other device in the system writes to that reservation set.
-\item {\em H} executes a branch or jump that exits the constrained LR/SC loop.
-\item {\em H} traps.
+\item {\em H}或某些其它的硬件线程对{\em H}的受约束的LR/SC循环中的LR指令的保留集执行了一次成功的SC。 
+% {\em H} or some other hart executes a successful SC to the reservation
+%   set of the LR instruction in {\em H}'s constrained LR/SC loops.
+\item 某些其它硬件线程对{\em H}的受约束的LR/SC循环中的LR指令的保留集执行了一次无条件存储或AMO指令，或者系统中的某些其它设备写了该保留集。
+% Some other hart executes an unconditional store or AMO instruction to
+%   the reservation set of the LR instruction in {\em H}'s constrained LR/SC
+%   loop, or some other device in the system writes to that reservation set.
+\item {\em H} 执行了一次分支或跳转而退出了受约束的LR/SC循环。
+  {\em H} executes a branch or jump that exits the constrained LR/SC loop.
+\item {\em H} 陷入。
+  {\em H} traps.
 \end{itemize}
 
 \begin{commentary}
-Note that these definitions permit an implementation to fail an SC instruction
-occasionally for any reason, provided the aforementioned guarantee is not
-violated.
+  注意，只要不违背前面提到的各项保证，这些定义允许实现偶尔以任何原因令SC指令失败。
+% Note that these definitions permit an implementation to fail an SC instruction
+% occasionally for any reason, provided the aforementioned guarantee is not
+% violated.
 \end{commentary}
 
 \begin{commentary}
-As a consequence of the eventuality guarantee, if some harts in an execution
-environment are executing constrained LR/SC loops, and no other harts or
-devices in the execution environment execute an unconditional store or AMO to
-that reservation set, then at least one hart will eventually exit its
-constrained LR/SC loop.
-By contrast, if other harts or devices continue to write to that reservation
-set, it is not guaranteed that any hart will exit its LR/SC loop.
+  作为终结性保证的结果，如果执行环境的某些硬件线程正在执行受约束的LR/SC循环，
+  而没有其它硬件线程或设备在该执行环境中对保留集执行无条件存储或AMO，
+  那么至少一个硬件线程将最终退出它的受约束的LR/SC循环。
+  反之，如果其它硬件线程或设备持续写保留集，不保证任何硬件线程将退出它的LR/SC循环。
+% As a consequence of the eventuality guarantee, if some harts in an execution
+% environment are executing constrained LR/SC loops, and no other harts or
+% devices in the execution environment execute an unconditional store or AMO to
+% that reservation set, then at least one hart will eventually exit its
+% constrained LR/SC loop.
+% By contrast, if other harts or devices continue to write to that reservation
+% set, it is not guaranteed that any hart will exit its LR/SC loop.
 
-Loads and load-reserved instructions do not by themselves impede the progress
-of other harts' LR/SC sequences.
-We note this constraint implies, among other things, that loads and
-load-reserved instructions executed by other harts (possibly within the same
-core) cannot impede LR/SC progress indefinitely.
-For example, cache evictions caused by another hart sharing the cache cannot
-impede LR/SC progress indefinitely.
-Typically, this implies reservations are tracked independently of
-evictions from any shared cache.
-Similarly, cache misses caused by speculative execution within a hart cannot
-impede LR/SC progress indefinitely.
+加载和加载-保留指令本身不会阻碍其它硬件线程的LR/SC序列的进程。
+我们注意到这个约束意味着，除此之外，其它硬件线程执行的加载和加载保留指令（可能在同一个核中）不能无限阻碍LR/SC进程。
+例如，由共享缓存的另一个硬件线程引起的缓存收回不能无限地阻碍LR/SC进程。
+典型地，这意味着对保留的追踪是独立于任何共享缓存的收回的。
+类似地，由硬件线程内的推测性执行引起的缓存缺失不能无限地阻碍LR/SC进程。
+% Loads and load-reserved instructions do not by themselves impede the progress
+% of other harts' LR/SC sequences.
+% We note this constraint implies, among other things, that loads and
+% load-reserved instructions executed by other harts (possibly within the same
+% core) cannot impede LR/SC progress indefinitely.
+% For example, cache evictions caused by another hart sharing the cache cannot
+% impede LR/SC progress indefinitely.
+% Typically, this implies reservations are tracked independently of
+% evictions from any shared cache.
+% Similarly, cache misses caused by speculative execution within a hart cannot
+% impede LR/SC progress indefinitely.
 
-These definitions admit the possibility that SC instructions may spuriously
-fail for implementation reasons, provided progress is eventually made.
+这些定义承认，即使进程最终完成，SC指令也可能由于实现的原因而貌似失败。
+% These definitions admit the possibility that SC instructions may spuriously
+% fail for implementation reasons, provided progress is eventually made.
 \end{commentary}
 
 \begin{commentary}
-One advantage of CAS is that it guarantees that some hart eventually
-makes progress, whereas an LR/SC atomic sequence could livelock
-indefinitely on some systems.  To avoid this concern, we added an
-architectural guarantee of livelock freedom for certain LR/SC sequences.
+  CAS的一个优势是，它保证了某些硬件线程最终完成进程，尽管在某些系统上LR/SC原子性序列可能无限期地活锁。
+  为了避免这个问题，我们为特定的LR/SC序列添加了一个活锁自由的结构性保证。
+% One advantage of CAS is that it guarantees that some hart eventually
+% makes progress, whereas an LR/SC atomic sequence could livelock
+% indefinitely on some systems.  To avoid this concern, we added an
+% architectural guarantee of livelock freedom for certain LR/SC sequences.
 
-Earlier versions of this specification imposed a stronger starvation-freedom
-guarantee.  However, the weaker livelock-freedom guarantee is sufficient to
-implement the C11 and C++11 languages, and is substantially easier to provide
-in some microarchitectural styles.
+这个规范的更早的版本推行了一个更强的饥饿-自由保证。
+然而，较弱的活锁-自由保证对于实现C11和C++11语言已经足够，并且在某些微架构样式中相当更容易被提供。
+% Earlier versions of this specification imposed a stronger starvation-freedom
+% guarantee.  However, the weaker livelock-freedom guarantee is sufficient to
+% implement the C11 and C++11 languages, and is substantially easier to provide
+% in some microarchitectural styles.
 \end{commentary}
 
+
+\section{原子内存操作}
 \section{Atomic Memory Operations}
 \label{sec:amo}
 
@@ -423,102 +542,129 @@ AMOMIN[U].W/D & \multicolumn{2}{c}{ordering} & src & addr & width & dest & AMO  
 \end{tabular}
 \end{center}
 
-\vspace{-0.1in} The atomic memory operation (AMO) instructions perform
-read-modify-write operations for multiprocessor synchronization and
-are encoded with an R-type instruction format.  These AMO instructions
-atomically load a data value from the address in {\em rs1}, place the
-value into register {\em rd}, apply a binary operator to the loaded
-value and the original value in {\em rs2}, then store the result back
-to the original address in {\em rs1}. AMOs can either operate on 64-bit (RV64
-only) or 32-bit words in memory.  For RV64, 32-bit AMOs always
-sign-extend the value placed in {\em rd}, and ignore the upper 32 bits
-of the original value of {\em rs2}.
+\vspace{-0.1in} 原子内存操作（AMO）指令为多处理器同步执行读-修改-写操作，并被编码为R类型指令格式。
+这些AMO指令从{\em rs1}中的地址处原子性地加载一个数据值，把该值放进寄存器{\em rd}中，对被加载的值和{\em rs2}中的原有值使用一个二进制操作符，
+然后把结果存回{\em rs1}中的原始地址。AMO既可以操作在内存中的64位字上（仅限RV64），
+也可以操作在32位字上。对于RV64，32位的AMO总是把放入rd中的值进行符号扩展，并忽略{\em rs2}的原始值的高32位。
+% The atomic memory operation (AMO) instructions perform
+% read-modify-write operations for multiprocessor synchronization and
+% are encoded with an R-type instruction format.  These AMO instructions
+% atomically load a data value from the address in {\em rs1}, place the
+% value into register {\em rd}, apply a binary operator to the loaded
+% value and the original value in {\em rs2}, then store the result back
+% to the original address in {\em rs1}. AMOs can either operate on 64-bit (RV64
+% only) or 32-bit words in memory.  For RV64, 32-bit AMOs always
+% sign-extend the value placed in {\em rd}, and ignore the upper 32 bits
+% of the original value of {\em rs2}.
 
-For AMOs, the A extension requires that the address held in {\em rs1}
-be naturally aligned to the size of the operand (i.e., eight-byte
-aligned for 64-bit words and four-byte aligned for 32-bit words).  If
-the address is not naturally aligned, an address-misaligned exception
-or an access-fault exception will be generated.  The access-fault exception can be
-generated for a memory access that would otherwise be able to complete
-except for the misalignment, if the misaligned access should not be
-emulated.  The ``Zam'' extension, described in Chapter~\ref{sec:zam},
-relaxes this requirement and specifies the semantics of misaligned
-AMOs.
+对于AMO，A扩展需要{\em rs1}中持有的地址被自然地对齐到操作数的尺寸（也就是说，对于64位字是8字节对齐，对于32位字是4字节对齐）。
+如果地址没有自然对齐，将生成一个地址未对齐异常或一个访问故障异常。如果未对齐的访问不宜被模拟，
+而除了未对齐之外的内存访问都能完成，那么可以为内存访问生成访问故障异常。
+第23章~\ref{sec:zam}里描述的“Zam”扩展放松了这个需求并指定了未对齐的AMO的语义。
+% For AMOs, the A extension requires that the address held in {\em rs1}
+% be naturally aligned to the size of the operand (i.e., eight-byte
+% aligned for 64-bit words and four-byte aligned for 32-bit words).  If
+% the address is not naturally aligned, an address-misaligned exception
+% or an access-fault exception will be generated.  The access-fault exception can be
+% generated for a memory access that would otherwise be able to complete
+% except for the misalignment, if the misaligned access should not be
+% emulated.  The ``Zam'' extension, described in Chapter~\ref{sec:zam},
+% relaxes this requirement and specifies the semantics of misaligned
+% AMOs.
 
-The operations supported are swap, integer add, bitwise AND, bitwise
-OR, bitwise XOR, and signed and unsigned integer maximum and minimum.
-Without ordering constraints, these AMOs can be used to implement
-parallel reduction operations, where typically the return value would
-be discarded by writing to {\tt x0}.
-
-\begin{commentary}
-We provided fetch-and-op style atomic primitives as they scale to
-highly parallel systems better than LR/SC or CAS.
-A simple microarchitecture can implement AMOs using the LR/SC primitives,
-provided the implementation can guarantee the AMO eventually completes.
-More complex implementations might also implement AMOs at memory
-controllers, and can optimize away fetching the original value when
-the destination is {\tt x0}.
-
-The set of AMOs was chosen to support the C11/C++11 atomic memory
-operations efficiently, and also to support parallel reductions in
-memory.  Another use of AMOs is to provide atomic updates to
-memory-mapped device registers (e.g., setting, clearing, or toggling
-bits) in the I/O space.
-\end{commentary}
-
-To help implement multiprocessor synchronization, the AMOs optionally
-provide release consistency semantics.  If the {\em aq} bit is set,
-then no later memory operations in this RISC-V hart can be observed
-to take place before the AMO.
-Conversely, if the {\em rl} bit is set, then other
-RISC-V harts will not observe the AMO before memory accesses
-preceding the AMO in this RISC-V hart.  Setting both the {\em aq} and the {\em
-rl} bit on an AMO makes the sequence sequentially consistent, meaning that
-it cannot be reordered with earlier or later memory operations from the same
-hart.
+支持的操作有：交换、整数加法、按位AND、按位OR、按位XOR、有符号/无符号整数的取最大值/取最小值。
+如果没有次序约束，这些AMO可以被用于实现并行规约操作，通常情况下，返回值将通过写到{\tt x0}而被弃置。
+% The operations supported are swap, integer add, bitwise AND, bitwise
+% OR, bitwise XOR, and signed and unsigned integer maximum and minimum.
+% Without ordering constraints, these AMOs can be used to implement
+% parallel reduction operations, where typically the return value would
+% be discarded by writing to {\tt x0}.
 
 \begin{commentary}
-The AMOs were designed to implement the C11 and C++11 memory models
-efficiently.  Although the FENCE R, RW instruction suffices to
-implement the {\em acquire} operation and FENCE RW, W suffices to
-implement {\em release}, both imply additional unnecessary ordering as
-compared to AMOs with the corresponding {\em aq} or {\em rl} bit set.
+  我们提供了“获取并操作”样式的原子性原语，因为它们比LR/SC或CAS更适合高度并行化的系统。
+  一个简单的微架构可以使用LR/SC原语实现AMO，如果实现提供AMO最终完成的保证。
+  更复杂的实现也可以在内存控制器出实现AMO，并且能够当目的寄存器是{\tt x0}时，对获取原始值进行优化。
+% We provided fetch-and-op style atomic primitives as they scale to
+% highly parallel systems better than LR/SC or CAS.
+% A simple microarchitecture can implement AMOs using the LR/SC primitives,
+% provided the implementation can guarantee the AMO eventually completes.
+% More complex implementations might also implement AMOs at memory
+% controllers, and can optimize away fetching the original value when
+% the destination is {\tt x0}.
+
+选择AMO的集合以有效地支持C11/C++11原子性内存操作，也为了支持内存中的并行规约。
+AMO的另一个使用是提供对I/O空间中的内存映射设备寄存器的原子性更新（例如，设置位、清除位、或者切换位）。
+% The set of AMOs was chosen to support the C11/C++11 atomic memory
+% operations efficiently, and also to support parallel reductions in
+% memory.  Another use of AMOs is to provide atomic updates to
+% memory-mapped device registers (e.g., setting, clearing, or toggling
+% bits) in the I/O space.
 \end{commentary}
 
-An example code sequence for a critical section guarded by a
-test-and-test-and-set spinlock is shown in Figure~\ref{critical}.  Note the
-first AMO is marked {\em aq} to order the lock acquisition before the
-critical section, and the second AMO is marked {\em rl} to order
-the critical section before the lock relinquishment.
+为了帮助实现多处理器同步，AMO有选择地提供了释放一致性语义。
+如果设置了{\em aq}位，那么这个RISC-V硬件线程中，不会观测到有比AMO更迟的内存操作在AMO之前发生。
+相对地，如果设置了{\em rl}位，那么其它RISC-V硬件线程将不会在这个RISC-V硬件线程中比AMO更早的内存访问之前观测到AMO。
+在一个AMO上同时设置{\em aq}q和{\em rl}位会使序列具有顺序一致性，意味着它不能与来自相同硬件线程的更早的或更迟的内存操作被重新排序。
+% To help implement multiprocessor synchronization, the AMOs optionally
+% provide release consistency semantics.  If the {\em aq} bit is set,
+% then no later memory operations in this RISC-V hart can be observed
+% to take place before the AMO.
+% Conversely, if the {\em rl} bit is set, then other
+% RISC-V harts will not observe the AMO before memory accesses
+% preceding the AMO in this RISC-V hart.  Setting both the {\em aq} and the {\em
+% rl} bit on an AMO makes the sequence sequentially consistent, meaning that
+% it cannot be reordered with earlier or later memory operations from the same
+% hart.
+
+\begin{commentary}
+
+  AMO为高效地实现C11和C++11内存模型而设计。尽管FENCE R, RW指令足以实现获取操作，以及FENCE RW, W足以实现释放操作，
+  但与设置对应的{\em aq}或{\em rl}位的AMO相比，它们都意味着额外的不必要的排序。
+% The AMOs were designed to implement the C11 and C++11 memory models
+% efficiently.  Although the FENCE R, RW instruction suffices to
+% implement the {\em acquire} operation and FENCE RW, W suffices to
+% implement {\em release}, both imply additional unnecessary ordering as
+% compared to AMOs with the corresponding {\em aq} or {\em rl} bit set.
+\end{commentary}
+
+图~\ref{critical}中显示了一个通过“测试与测试与设置”自旋锁来保护关键节的示例代码序列。
+注意第一个AMO被标记了{\em aq}，是为了将锁的获得排在关键节之前，而第二个AMO被标记了{\em rl}，是为了将关键节排在锁的释放之前。
+% An example code sequence for a critical section guarded by a
+% test-and-test-and-set spinlock is shown in Figure~\ref{critical}.  Note the
+% first AMO is marked {\em aq} to order the lock acquisition before the
+% critical section, and the second AMO is marked {\em rl} to order
+% the critical section before the lock relinquishment.
 
 \begin{figure}[h!]
 \begin{center}
 \begin{verbatim}
-        li           t0, 1        # Initialize swap value.
+        li           t0, 1        # 初始化交换的值。 Initialize swap value.
     again:
-        lw           t1, (a0)     # Check if lock is held.
-        bnez         t1, again    # Retry if held.
-        amoswap.w.aq t1, t0, (a0) # Attempt to acquire lock.
-        bnez         t1, again    # Retry if held.
+        lw           t1, (a0)     # 检查锁是否被占用。 Check if lock is held.
+        bnez         t1, again    # 如果锁被占用则重试。 Retry if held.
+        amoswap.w.aq t1, t0, (a0) # 尝试获取锁。 Attempt to acquire lock.
+        bnez         t1, again    # 如果锁被占用则重试。 Retry if held.
         # ...
-        # Critical section.
+        # 关键小节 Critical section.
         # ...
-        amoswap.w.rl x0, x0, (a0) # Release lock by storing 0.
+        amoswap.w.rl x0, x0, (a0) # 通过存储0来释放锁。 Release lock by storing 0.
 \end{verbatim}
 \end{center}
-\caption{Sample code for mutual exclusion.  {\tt a0} contains the address of the lock.}
+\caption{互斥的样例代码。{\tt a0}包含了锁的地址。 Sample code for mutual exclusion.  {\tt a0} contains the address of the lock.}
 \label{critical}
 \end{figure}
 
 \begin{commentary}
-We recommend the use of the AMO Swap idiom shown above for both lock
-acquire and release to simplify the implementation of speculative lock
-elision~\cite{Rajwar:2001:SLE}.
+  我们推荐为锁的获取和释放使用上面显示的AMO交换用语，以简化推测锁省略~\cite{Rajwar:2001:SLE}的实现。
+% We recommend the use of the AMO Swap idiom shown above for both lock
+% acquire and release to simplify the implementation of speculative lock
+% elision~\cite{Rajwar:2001:SLE}.
 \end{commentary}
 
-The instructions in the ``A'' extension can also be used to provide
-sequentially consistent loads and stores.  A sequentially consistent load can
-be implemented as an LR with both {\em aq} and {\em rl} set. A sequentially
-consistent store can be implemented as an AMOSWAP that writes the old value to
-x0 and has both {\em aq} and {\em rl} set.
+“A”扩展中的指令也可以被用于提供顺序一致性的加载和存储。顺序一致性加载可以用一个设置了{\em aq}和 {\em rl}的LR实现。
+顺序一致性存储可以用一个AMOSWAP实现，它把旧的值写到x0，并设置{\em aq}和 {\em rl}。
+% The instructions in the ``A'' extension can also be used to provide
+% sequentially consistent loads and stores.  A sequentially consistent load can
+% be implemented as an LR with both {\em aq} and {\em rl} set. A sequentially
+% consistent store can be implemented as an AMOSWAP that writes the old value to
+% x0 and has both {\em aq} and {\em rl} set.

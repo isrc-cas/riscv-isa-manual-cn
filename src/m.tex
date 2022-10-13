@@ -1,18 +1,21 @@
 \chapter{用于乘法和除法的“M”标准扩展（2.0版本）}
 
-This chapter describes the standard integer multiplication and
-division instruction extension, which is named ``M'' and contains
-instructions that multiply or divide values held in two integer
-registers.
+这章描述了标准整数乘法和除法指令扩展，命名为“M”，包含了将两个整数寄存器中持有的值相乘或相除的指令.
+% This chapter describes the standard integer multiplication and
+% division instruction extension, which is named ``M'' and contains
+% instructions that multiply or divide values held in two integer
+% registers.
 
 \begin{commentary}
-We separate integer multiply and divide out from the base to simplify
-low-end implementations, or for applications where integer multiply
-and divide operations are either infrequent or better handled in
-attached accelerators.
+
+  我们将整数乘法和除法从基础中分离出来，以简化低端的实现，或者用于那些整数乘法和除法操作并不频繁的、或在相接的加速器中能更好地处理的应用。
+% We separate integer multiply and divide out from the base to simplify
+% low-end implementations, or for applications where integer multiply
+% and divide operations are either infrequent or better handled in
+% attached accelerators.
 \end{commentary}
 
-\section{Multiplication Operations}
+\section{乘法操作}
 \label{multiplication-operations}
 
 \vspace{-0.2in}
@@ -34,40 +37,51 @@ attached accelerators.
 \multicolumn{1}{c|}{opcode} \\
 \hline
 7 & 5 & 5 & 3 & 5 & 7 \\
-MULDIV & multiplier & multiplicand & MUL/MULH[[S]U] & dest & OP    \\
-MULDIV & multiplier & multiplicand & MULW           & dest & OP-32 \\
+MULDIV & 乘数 & 被乘数 & MUL/MULH[[S]U] & dest & OP    \\
+MULDIV & 乘数 & 被乘数 & MULW           & dest & OP-32 \\
 \end{tabular}
 \end{center}
 
-MUL performs an XLEN-bit$\times$XLEN-bit multiplication
-of {\em rs1} by {\em rs2} and places the
-lower XLEN bits in the destination register.  MULH, MULHU, and MULHSU
-perform the same multiplication but return the upper XLEN bits of the
-full 2$\times$XLEN-bit product, for signed$\times$signed,
-unsigned$\times$unsigned, and \wunits{signed}{\em rs1}$\times$\wunits{unsigned}{\em rs2} multiplication,
-respectively.  If both the high and low bits of the same product are
-required, then the recommended code sequence is: MULH[[S]U] {\em rdh,
-  rs1, rs2}; MUL {\em rdl, rs1, rs2} (source register specifiers must
-be in same order and {\em rdh} cannot be the same as {\em rs1} or {\em
-  rs2}).  Microarchitectures can then fuse these into a single
-multiply operation instead of performing two separate multiplies.
+MUL在{\em rs1}和{\em rs2}上执行XLEN位$\times$XLEN位乘法，
+并将低XLEN位放入目的寄存器。MULH、MULHU和MULHSU分别针对有符号数$\times$有符号数、无符号数$\times$无符号数、
+有符号rs1$\times$无符号rs2执行相同的乘法，但是返回2$\times$XLEN位结果的高XLEN位。
+如果同一个乘积的高位和低位都需要，那么推荐的代码序列是：MULH[[S]U] {\em rdh,rs1, rs2}; MUL {\em rdl, rs1, rs2}
+（源寄存器标识符必须次序相同，且{\em rdh}不能与{\em rs1}或{\em rs2}相同）。然后微架构可以把这些代码融合进单独的一次乘法操作，而不是两次分离的乘法。
+
+% MUL performs an XLEN-bit$\times$XLEN-bit multiplication
+% of {\em rs1} by {\em rs2} and places the
+% lower XLEN bits in the destination register.  MULH, MULHU, and MULHSU
+% perform the same multiplication but return the upper XLEN bits of the
+% full 2$\times$XLEN-bit product, for signed$\times$signed,
+% unsigned$\times$unsigned, and \wunits{signed}{\em rs1}$\times$\wunits{unsigned}{\em rs2} multiplication,
+% respectively.  If both the high and low bits of the same product are
+% required, then the recommended code sequence is: MULH[[S]U] {\em rdh,
+%   rs1, rs2}; MUL {\em rdl, rs1, rs2} (source register specifiers must
+% be in same order and {\em rdh} cannot be the same as {\em rs1} or {\em
+%   rs2}).  Microarchitectures can then fuse these into a single
+% multiply operation instead of performing two separate multiplies.
 
 \begin{commentary}
-MULHSU is used in multi-word signed multiplication to multiply the
-most-significant word of the multiplicand (which contains the sign bit)
-with the less-significant words of the multiplier (which are unsigned).
+  MULHSU被用在多字有符号乘法中，将被乘数（包含符号位）的最高位有效字与乘数（无符号的）较低位有效字相乘。
+% MULHSU is used in multi-word signed multiplication to multiply the
+% most-significant word of the multiplicand (which contains the sign bit)
+% with the less-significant words of the multiplier (which are unsigned).
 \end{commentary}
 
-MULW is an RV64 instruction that multiplies the lower 32 bits of the source
-registers, placing the sign-extension of the lower 32 bits of the result
-into the destination register.
+MULW是一个RV64指令，它将源寄存器的低32位相乘，把符号扩展的低32位结果放入目的寄存器。
+% MULW is an RV64 instruction that multiplies the lower 32 bits of the source
+% registers, placing the sign-extension of the lower 32 bits of the result
+% into the destination register.
 
 \begin{commentary}
-In RV64, MUL can be used to obtain the upper 32 bits of the 64-bit product,
-but signed arguments must be proper 32-bit signed values, whereas unsigned
-arguments must have their upper 32 bits clear.  If the
-arguments are not known to be sign- or zero-extended, an alternative is to
-shift both arguments left by 32 bits, then use MULH[[S]U].
+  在RV64中，MUL可以被用于获得64位乘积的高32位，但是有符号参数必须是合适的32位有符号值，
+  反之无符号参数必须清除它们的高32位。如果参数不知道是符号扩展还是零扩展的，一个备选方案是把两个参数都向左移位32位，
+  然后使用MULH[[S]U]。
+% In RV64, MUL can be used to obtain the upper 32 bits of the 64-bit product,
+% but signed arguments must be proper 32-bit signed values, whereas unsigned
+% arguments must have their upper 32 bits clear.  If the
+% arguments are not known to be sign- or zero-extended, an alternative is to
+% shift both arguments left by 32 bits, then use MULH[[S]U].
 \end{commentary}
 
 \section{Division Operations}
@@ -91,97 +105,126 @@ shift both arguments left by 32 bits, then use MULH[[S]U].
 \multicolumn{1}{c|}{opcode} \\
 \hline
 7 & 5 & 5 & 3 & 5 & 7 \\
-MULDIV & divisor & dividend & DIV[U]/REM[U]   & dest & OP    \\
-MULDIV & divisor & dividend & DIV[U]W/REM[U]W & dest & OP-32 \\
+MULDIV & 除数 & 被除数 & DIV[U]/REM[U]   & dest & OP    \\
+MULDIV & 除数 & 被除数 & DIV[U]W/REM[U]W & dest & OP-32 \\
 \end{tabular}
 \end{center}
 
-DIV and DIVU perform an XLEN bits by XLEN bits signed and unsigned integer
-division of {\em rs1} by {\em rs2}, rounding towards zero.
-REM and REMU provide the remainder of the corresponding division operation.
-For REM, the sign of the result equals the sign of the dividend.
+DIV和DIVU在{\em rs1}和{\em rs2}上执行XLEN位与XLEN位的有符号和无符号整数除法，结果向零取整。
+REM和REMU提供了对应的除法操作的余数。对于REM，结果的符号等于被除数的符号。
+% DIV and DIVU perform an XLEN bits by XLEN bits signed and unsigned integer
+% division of {\em rs1} by {\em rs2}, rounding towards zero.
+% REM and REMU provide the remainder of the corresponding division operation.
+% For REM, the sign of the result equals the sign of the dividend.
 
 \begin{commentary}
-For both signed and unsigned division, it holds that
-\mbox{$\textrm{dividend} = \textrm{divisor} \times \textrm{quotient} + \textrm{remainder}$}.
+  对于有符号除法和无符号除法，都有
+  \mbox{$\textrm{被除数} = \textrm{除数} \times \textrm{商} + \textrm{余数}$}
+% For both signed and unsigned division, it holds that
+% \mbox{$\textrm{dividend} = \textrm{divisor} \times \textrm{quotient} + \textrm{remainder}$}.
 \end{commentary}
 
-If both the quotient and remainder
-are required from the same division, the recommended code sequence is:
-DIV[U] {\em rdq, rs1, rs2}; REM[U] {\em rdr, rs1, rs2} ({\em rdq}
-cannot be the same as {\em rs1} or {\em rs2}).  Microarchitectures can
-then fuse these into a single divide operation instead of performing
-two separate divides.
+如果同一个除法的商和余数都需要，推荐的代码序列是：DIV[U] {\em rdq, rs1, rs2}; REM[U] {\em rdr, rs1, rs2} 
+（{\em rdq}不能与{\em rs1}或{\em rs2}相同）。然后微架构可以把这些代码融合为单独的一次除法操作，而不是执行两次分离的除法。
+% If both the quotient and remainder
+% are required from the same division, the recommended code sequence is:
+% DIV[U] {\em rdq, rs1, rs2}; REM[U] {\em rdr, rs1, rs2} ({\em rdq}
+% cannot be the same as {\em rs1} or {\em rs2}).  Microarchitectures can
+% then fuse these into a single divide operation instead of performing
+% two separate divides.
 
-DIVW and DIVUW are RV64 instructions that divide the
-lower 32 bits of {\em rs1} by the lower 32 bits of {\em rs2}, treating
-them as signed and unsigned integers respectively, placing the 32-bit
-quotient in {\em rd}, sign-extended to 64 bits.  REMW and REMUW
-are RV64 instructions that provide the corresponding
-signed and unsigned remainder operations respectively. Both REMW and
-REMUW always sign-extend the 32-bit result to 64 bits, including on a
-divide by zero.
+DIVW和DIVUW是RV64的指令，它们将{\em rs1}的低32位与{\em rs2}的低32位分别视为有符号整数和无符号整数并相除，
+把32位商放入{\em rd}，并符号扩展到64位。REMW和REMUW是RV64的指令，它们分别提供对应的有符号余数和无符号余数操作。
+REMW和REMUW都总是把32位结果符号扩展到64位，包括除数为零时。
+% DIVW and DIVUW are RV64 instructions that divide the
+% lower 32 bits of {\em rs1} by the lower 32 bits of {\em rs2}, treating
+% them as signed and unsigned integers respectively, placing the 32-bit
+% quotient in {\em rd}, sign-extended to 64 bits.  REMW and REMUW
+% are RV64 instructions that provide the corresponding
+% signed and unsigned remainder operations respectively. Both REMW and
+% REMUW always sign-extend the 32-bit result to 64 bits, including on a
+% divide by zero.
 
-The semantics for division by zero and division overflow are summarized in
-Table~\ref{tab:divby0}.  The quotient of division by zero has all bits set, and
-the remainder of division by zero equals the dividend.  Signed division overflow
-occurs only when the most-negative integer is divided by $-1$.  The quotient of
-a signed division with overflow is equal to the dividend, and the remainder is
-zero. Unsigned division overflow cannot occur.
+表~\ref{tab:divby0}中总结了除数为零和除法溢出的语义。如果除数为零，商的所有位都被设置为1，余数等于被除数。
+有符号的除法溢出只发生在最大负数被$-1$除的时候。溢出的有符号除法的商等于被除数，而余数为零。无符号除法不可能发生溢出。
+% The semantics for division by zero and division overflow are summarized in
+% Table~\ref{tab:divby0}.  The quotient of division by zero has all bits set, and
+% the remainder of division by zero equals the dividend.  Signed division overflow
+% occurs only when the most-negative integer is divided by $-1$.  The quotient of
+% a signed division with overflow is equal to the dividend, and the remainder is
+% zero. Unsigned division overflow cannot occur.
 
 \begin{table}[h]
 \center
 \begin{tabular}{|l|c|c||c|c|c|c|}
 \hline
-Condition              & Dividend   & Divisor & DIVU[W]   & REMU[W] & DIV[W]     & REM[W] \\ \hline
+Condition              & 被除数   & 除数 & DIVU[W]   & REMU[W] & DIV[W]     & REM[W] \\ \hline
 Division by zero       & $x$        & 0       & $2^{L}-1$ & $x$     & $-1$       & $x$    \\
 Overflow (signed only) & $-2^{L-1}$ & $-1$    & --        & --      & $-2^{L-1}$ & 0      \\
 \hline
 \end{tabular}
-\caption{Semantics for division by zero and division overflow.
-L is the width of the operation in bits: XLEN for DIV[U] and REM[U], or
-32 for DIV[U]W and REM[U]W.}
+\caption{除数为零和除法溢出的语义。L是操作数的位宽度：或者是XLEN（对于DIV[U]和REM[U]），或者是32（对于DIV[U]W和REM[U]W）
+% Semantics for division by zero and division overflow.
+% L is the width of the operation in bits: XLEN for DIV[U] and REM[U], or
+% 32 for DIV[U]W and REM[U]W.
+}
 \label{tab:divby0}
 \end{table}
 
 \begin{commentary}
-We considered raising exceptions on integer divide by zero, with these
-exceptions causing a trap in most execution environments.  However,
-this would be the only arithmetic trap in the standard ISA
-(floating-point exceptions set flags and write default values, but do
-not cause traps) and would require language implementors to interact
-with the execution environment's trap handlers for this case.
-Further, where language standards mandate that a divide-by-zero
-exception must cause an immediate control flow change, only a single
-branch instruction needs to be added to each divide operation, and
-this branch instruction can be inserted after the divide and should
-normally be very predictably not taken, adding little runtime
-overhead.
 
-The value of all bits set is returned for both unsigned and signed
-divide by zero to simplify the divider circuitry.  The value of all 1s
-is both the natural value to return for unsigned divide, representing
-the largest unsigned number, and also the natural result for simple
-unsigned divider implementations.  Signed division is often
-implemented using an unsigned division circuit and specifying the same
-overflow result simplifies the hardware.
+  我们考虑过在整数被零除的时候产生异常，这些异常在大多数执行环境中会引发一个陷入。
+  然而，这将是标准ISA中仅有的算数陷入（浮点异常会设置标志和写默认值，但是不会引起陷入），
+  而对于这种情况，将需要语言解释器来与执行环境的陷入处理程序进行交互。此外，如果语言标准强制要求除数为零的异常必须引起控制流的立即改变，
+  那么只需要为每个除法操作添加一条分支指令，而这个分支指令可以在除法之后被插入，并且通常应当非常大概率地被预测为不执行，
+  几乎不增加运行时的负载。
+% We considered raising exceptions on integer divide by zero, with these
+% exceptions causing a trap in most execution environments.  However,
+% this would be the only arithmetic trap in the standard ISA
+% (floating-point exceptions set flags and write default values, but do
+% not cause traps) and would require language implementors to interact
+% with the execution environment's trap handlers for this case.
+% Further, where language standards mandate that a divide-by-zero
+% exception must cause an immediate control flow change, only a single
+% branch instruction needs to be added to each divide operation, and
+% this branch instruction can be inserted after the divide and should
+% normally be very predictably not taken, adding little runtime
+% overhead.
+
+为了简化除法器电路，除数为零时，无论无符号还是有符号除法都返回所有位被设置为1的值。
+全1值既是无符号除法返回的自然值，代表了最大的无符号数，也是简单无符号除法器实现的自然结果。
+有符号除法经常使用无符号除法电路实现，并指定了相同的溢出结果来简化硬件。
+
+% The value of all bits set is returned for both unsigned and signed
+% divide by zero to simplify the divider circuitry.  The value of all 1s
+% is both the natural value to return for unsigned divide, representing
+% the largest unsigned number, and also the natural result for simple
+% unsigned divider implementations.  Signed division is often
+% implemented using an unsigned division circuit and specifying the same
+% overflow result simplifies the hardware.
 \end{commentary}
 
-\section{Zmmul Extension, Version 1.0}
+\section{Zmmul扩展（1.0版本）}
 
-The Zmmul extension implements the multiplication subset of the M extension.
-It adds all of the instructions defined in Section~\ref{multiplication-operations},
-namely: MUL, MULH, MULHU, MULHSU, and (for RV64 only) MULW.
-The encodings are identical to those of the corresponding M-extension instructions.
+Zmmul扩展实现了M扩展的乘法子集。它添加了定义在第9.1节~\ref{multiplication-operations}中的所有指令，
+即：MUL、MULH、MULHU、MULHSU、和（仅用于RV64的）MULW。这些编码与那些对应的M扩展的指令是相同的。
+% The Zmmul extension implements the multiplication subset of the M extension.
+% It adds all of the instructions defined in Section~\ref{multiplication-operations},
+% namely: MUL, MULH, MULHU, MULHSU, and (for RV64 only) MULW.
+% The encodings are identical to those of the corresponding M-extension instructions.
 
 \begin{commentary}
-The Zmmul extension enables low-cost implementations that require
-multiplication operations but not division.
-For many microcontroller applications, division operations are too
-infrequent to justify the cost of divider hardware.
-By contrast, multiplication operations are more frequent, making the cost of
-multiplier hardware more justifiable.
-Simple FPGA soft cores particularly benefit from eliminating division but
-retaining multiplication, since many FPGAs provide hardwired multipliers
-but require dividers be implemented in soft logic.
+
+  Zmmul扩展支持那些需要乘法操作但不需要除法操作的低成本实现。对于许多微控制器应用，除法操作太不频繁，
+  导致除法器硬件的开销无法证明是正当的。相比之下，乘法操作更加频繁，使得乘法器硬件的开销更加正当。
+  消除除法但保留乘法，令简单的FPGA软核特别获益，因为许多FPGA提供硬布线的乘法器，但是需要在软逻辑中实现除法器。
+% The Zmmul extension enables low-cost implementations that require
+% multiplication operations but not division.
+% For many microcontroller applications, division operations are too
+% infrequent to justify the cost of divider hardware.
+% By contrast, multiplication operations are more frequent, making the cost of
+% multiplier hardware more justifiable.
+% Simple FPGA soft cores particularly benefit from eliminating division but
+% retaining multiplication, since many FPGAs provide hardwired multipliers
+% but require dividers be implemented in soft logic.
 \end{commentary}

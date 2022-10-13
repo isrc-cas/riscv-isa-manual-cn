@@ -1,96 +1,142 @@
-\chapter{Hypervisor Extension, Version 1.0}
+\chapter{超级监管器拓展，1.0版}
+% \chapter{Hypervisor Extension, Version 1.0}
 \label{hypervisor}
 
+这章描述了RISC-V超级监管级拓展。为了支持运行在type-1或type-2超级监管器之上的宾客（guest）操作系统的efficient hosting，
+超级监管器虚拟化了监管级架构。
 This chapter describes the RISC-V hypervisor extension, which virtualizes the
 supervisor-level architecture to support the efficient hosting of guest
 operating systems atop a type-1 or type-2 hypervisor.
-The hypervisor extension changes supervisor mode into
-{\em hypervisor-extended supervisor mode} (HS-mode, or {\em hypervisor
-mode} for short), where a hypervisor or a hosting-capable operating system
-runs.  The hypervisor extension also adds another stage of address translation,
-from {\em guest physical addresses} to supervisor physical addresses,
-to virtualize the
-memory and memory-mapped I/O subsystems for a guest operating system.  HS-mode
+超级监管级拓展把监管模式修改成了{\em 超级监管器拓展的监管模式（hypervisor-extended supervisor mode）}（HS-模式, 或简称 {\em 监管级
+模式}）。一个超级监管器或一个兼容宿主机的操作系统运行在这个HS-模式上。
+% The hypervisor extension changes supervisor mode into
+% {\em hypervisor-extended supervisor mode} (HS-mode, or {\em hypervisor
+% mode} for short), where a hypervisor or a hosting-capable operating system
+% runs.  
+超级监管级拓展也添加了从{\em 宾客物理地址（guest physical addresses）}到监管级物理地址的翻译阶段。其为宾客操作系统
+虚拟化内存和内存映射输入输出子系统。
+% The hypervisor extension also adds another stage of address translation,
+% from {\em guest physical addresses} to supervisor physical addresses,
+% to virtualize the
+% memory and memory-mapped I/O subsystems for a guest operating system.  
+HS-模式的行为很像S-模式，但是多了额外的指令和在虚拟S-模式（VS-mode）上，控制地址翻译新阶段和支持host一个宾客OS的控制状态寄存器。
+HS-mode
 acts the same as S-mode, but with additional instructions and CSRs that control
 the new stage of address translation and support hosting a guest OS in virtual
 S-mode (VS-mode).
-Regular S-mode operating systems can execute without modification either in
-HS-mode or as VS-mode guests.
 
-In HS-mode, an OS or hypervisor interacts with the machine through the same
-SBI as an OS normally does from S-mode.  An HS-mode hypervisor is expected to
-implement the SBI for its VS-mode guest.
+常规的S-模式操作系统能够在HS-模式或在VS-模式下作为宾客操作系统不加修改的运行。
+% Regular S-mode operating systems can execute without modification either in
+% HS-mode or as VS-mode guests.
 
-The hypervisor extension depends on an ``I'' base integer ISA with
-32 {\tt x} registers (RV32I or RV64I), not RV32E, which has only
-16 {\tt x} registers.
-CSR {\tt mtval} must not be read-only zero, and
-standard page-based address translation must be supported, either
-Sv32 for RV32, or a minimum of Sv39 for RV64.
+在HS-模式中，一个操作系统或一个超级监管器可以通过相同的SBI（监管器二进制接口）与机器交互，就像一个操作系统直接在S-模式与机器交互一样。
+一个HS-模式的超级监管器应该为它的VS-模式的宾客操作系统实现SBI。
+% In HS-mode, an OS or hypervisor interacts with the machine through the same
+% SBI as an OS normally does from S-mode.  An HS-mode hypervisor is expected to
+% implement the SBI for its VS-mode guest.
 
-The hypervisor extension is enabled by setting bit 7 in the {\tt misa} CSR,
-which corresponds to the letter H.
-RISC-V harts that implement the hypervisor extension are encouraged
-not to hardwire {\tt misa}[7], so that the extension may be disabled.
+超级监管器拓展依赖于基于“I”的带有32{\tt x}寄存器的基础整数ISA（RV32I或RV64I），而不是RV32E，因为它只有16{\tt x}寄存器。
+% The hypervisor extension depends on an ``I'' base integer ISA with
+% 32 {\tt x} registers (RV32I or RV64I), not RV32E, which has only
+% 16 {\tt x} registers.
+CSR的{\tt mtval}寄存器不可以是只读的零，并且标准的基于页面的地址翻译（RV32的Sv32或RV64的Sv39的精简版）必须被支持，
+% CSR {\tt mtval} must not be read-only zero, and
+% standard page-based address translation must be supported, either
+% Sv32 for RV32, or a minimum of Sv39 for RV64.
+
+通过为CSR的{\tt misa}寄存器的第7位（关联字母H）设置为1来开启超级监管级拓展。
+% The hypervisor extension is enabled by setting bit 7 in the {\tt misa} CSR,
+% which corresponds to the letter H.
+
+实现超级管理器拓展的RISC—V硬件线程不提倡硬布线{\tt misa}[7]，如若不然，这个拓展可能被关闭。
+% RISC-V harts that implement the hypervisor extension are encouraged
+% not to hardwire {\tt misa}[7], so that the extension may be disabled.
 
 \begin{commentary}
+
+这个基线特权架构被设计用来简化经典的虚拟技术的使用，一个宾客操作系统在用户级别运行在其上，因为很少的特权指令可以被很容易的检测到和陷入。
 The baseline privileged architecture is designed to simplify the use of classic
 virtualization techniques, where a guest OS is run at user-level, as
 the few privileged instructions can be easily detected and trapped.
-The hypervisor extension improves virtualization performance by
-reducing the frequency of these traps.
 
+这个超级监管器通过减少这种陷入的频率提升了虚拟化的性能。
+% The hypervisor extension improves virtualization performance by
+% reducing the frequency of these traps.
+
+在没有实现超级管理器拓展的平台上，通过在S-模式运行超级监管器和为了超级监管器CSR访问而陷入到M-模式和为了维持阴影页表（shadow page table）而陷入到M-模式，
+超级监管器已经被设计去高效地模拟.
 The hypervisor extension has been designed to be efficiently
 emulable on platforms that do not implement the extension, by running
 the hypervisor in S-mode and trapping into M-mode for hypervisor CSR accesses
-and to maintain shadow page tables.  The majority of CSR accesses for
-type-2 hypervisors are valid S-mode accesses so need not be trapped.
-Hypervisors can support nested virtualization analogously.
+and to maintain shadow page tables.  
+
+大部分type-2类型的超级监管器CSR访问是有效的S-模式访问，所以不需要被陷入。
+超级监管器可以类似地支持嵌套虚拟化。
+% The majority of CSR accesses for
+% type-2 hypervisors are valid S-mode accesses so need not be trapped.
+% Hypervisors can support nested virtualization analogously.
 \end{commentary}
 
-\section{Privilege Modes}
+\section{特权模式}
+% \section{Privilege Modes}
 
-The current {\em virtualization mode}, denoted V, indicates whether the hart
-is currently executing in a guest.
-When V=1, the hart is either in virtual S-mode (VS-mode), or in virtual U-mode
-(VU-mode) atop a guest OS running in VS-mode.
-When V=0, the hart is either in M-mode, in HS-mode, or in U-mode atop an OS
-running in HS-mode.
-The virtualization mode also indicates whether two-stage address translation
-is active (V=1) or inactive (V=0).  Table~\ref{tab:HPrivModes} lists the
-possible privilege modes of a RISC-V hart with the hypervisor extension.
+当前的{\em 虚拟模式}（由字母V表示）指示硬件线程当前是否运行在一个宾客中。
+% The current {\em virtualization mode}, denoted V, indicates whether the hart
+% is currently executing in a guest.
+
+当 V=1 时，运行在VS-模式的一个宾客操作系统之上的这个硬件线程，或者是处于虚拟S-模式（VS-模式），或者是处于虚拟U-模式（VU-模式）。
+% When V=1, the hart is either in virtual S-mode (VS-mode), or in virtual U-mode
+% (VU-mode) atop a guest OS running in VS-mode.
+
+当 V=0 时，运行在HS-模式的一个操作系统之上的硬件线程，或者是处于M-模式，处于HS-模式，或者是处于U-模式。
+% When V=0, the hart is either in M-mode, in HS-mode, or in U-mode atop an OS
+% running in HS-mode.
+
+虚拟模式也指示是否两个阶段地址翻译是激活（V=1）的还是非激活的（V=0）。表~\ref{tab:HPrivModes}列出了
+带有超级监管器拓展的一个RISC-V硬件线程的可能的特权模式。
+% The virtualization mode also indicates whether two-stage address translation
+% is active (V=1) or inactive (V=0).  Table~\ref{tab:HPrivModes} lists the
+% possible privilege modes of a RISC-V hart with the hypervisor extension.
 
 \begin{table*}[h!]
 \begin{center}
 \begin{tabular}{|c|c||l|l|l|}
   \hline
-   Virtualization & Nominal   & \multirow{2}{*}{Abbreviation} & \multirow{2}{*}{Name} & Two-Stage \\
-   Mode (V)       & Privilege &                               &                       & Translation \\ \hline
-   0              & U         & U-mode  & User mode & Off \\
-   0              & S         & HS-mode & Hypervisor-extended supervisor mode & Off \\
-   0              & M         & M-mode  & Machine mode & Off \\
+   虚拟           & 名义上的   & \multirow{2}{*}{简称} & \multirow{2}{*}{名字} & 双阶段（Two-Stage） \\
+   模式 (V)       & 特权 &                               &                       & 翻译 \\ \hline
+   0              & U         & U-模式  & 用户模式 & 关闭 \\
+   0              & S         & HS-模式 & 超级监管器拓展的监管级模式 & 关闭 \\
+   0              & M         & M-模式  & 机器模式 & 关闭 \\
   \hline
-   1              & U         & VU-mode & Virtual user mode & On \\
-   1              & S         & VS-mode & Virtual supervisor mode & On \\
+   1              & U         & VU-模式 & 虚拟的用户模式 & 开启 \\
+   1              & S         & VS-模式 & 虚拟的监管级模式 & 开启 \\
   \hline
  \end{tabular}
 \end{center}
-\caption{Privilege modes with the hypervisor extension.}
+\caption{带有超级监管级拓展的特权模式。 Privilege modes with the hypervisor extension.}
 \label{tab:HPrivModes}
 \end{table*}
 
-For privilege modes U and VU, the \textit{nominal privilege mode} is~U,
-and for privilege modes HS and VS, the nominal privilege mode is~S.
+对于特权模式U和VU来说，\textit{名义上的特权模式} 是U模式。
+对于特权模式HS和VS来说，名义上的特权模式是S模式。
+% For privilege modes U and VU, the \textit{nominal privilege mode} is~U,
+% and for privilege modes HS and VS, the nominal privilege mode is~S.
 
-HS-mode is more privileged
-than VS-mode, and VS-mode is more privileged than VU-mode.
-VS-mode interrupts are globally disabled when executing in U-mode.
+HS-模式比VS-模式有更高的权限，VS-模式比VU-模式有更高的权限。
+当执行在U-模式下，VS-模式的中断是被全局关闭的。
+% HS-mode is more privileged
+% than VS-mode, and VS-mode is more privileged than VU-mode.
+% VS-mode interrupts are globally disabled when executing in U-mode.
 
 \begin{commentary}
-This description does not consider the possibility of U-mode or VU-mode interrupts and will be revised if an extension for user-level interrupts is adopted.
+
+这个描述没有考虑到U-模式或VU-模式的中断的可能性。并且如果一个用户级别的中断拓展被采用的话，上述描述也将被更正。
+% This description does not consider the possibility of U-mode or VU-mode interrupts and will be revised if an extension for user-level interrupts is adopted.
 \end{commentary}
 
-\section{Hypervisor and Virtual Supervisor CSRs}
+
+\section{超级监管器和虚拟监管器的控制状态寄存器}
+% \section{Hypervisor and Virtual Supervisor CSRs}
 
 An OS or hypervisor running in HS-mode uses the supervisor CSRs to interact with the exception,
 interrupt, and address-translation subsystems.
