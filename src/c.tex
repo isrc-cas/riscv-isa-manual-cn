@@ -1,0 +1,1523 @@
+\chapter{用于压缩指令的“C”标准扩展（2.0版本）}
+% \chapter{``C'' Standard Extension for Compressed Instructions, Version
+% 2.0}
+\label{compressed}
+
+这章描述了RISC-V标准压缩指令集扩展，命名为“C”，它通过为常见的操作添加短16位指令编码，减少了静态和动态的代码尺寸。
+C扩展可以被添加到任何基础ISA（RV32、RV64、RV128），而我们使用通用术语“RVC”来涵盖所有这些加入了C扩展的ISA。
+通常，程序中的50\%~60\%的RISC-V指令可以被RVC指令替代，从而减少了25\%~30\%的代码尺寸。
+% This chapter describes the RISC-V
+% standard compressed instruction-set extension, named ``C'', which
+% reduces static and dynamic code size by adding short 16-bit
+% instruction encodings for common operations.  The C extension can be
+% added to any of the base ISAs (RV32, RV64, RV128), and we use the
+% generic term ``RVC'' to cover any of these.  Typically, 50\%--60\% of
+% the RISC-V instructions in a program can be replaced with RVC
+% instructions, resulting in a 25\%--30\% code-size reduction.
+
+\section{概览}
+% \section{Overview}
+
+RVC使用了一个简单的压缩策略，它提供常见32位RISC-V指令的较短的16位版本，当：
+% RVC uses a simple compression scheme that offers shorter 16-bit
+% versions of common 32-bit RISC-V instructions when:
+\begin{tightlist}
+	\item 立即数或地址偏移量较小，或者  % the immediate or address offset is small, or
+	\item 其中一个寄存器是零寄存器（x0）、ABI链接寄存器（x1），或者ABI栈指针（x2），或者
+      % one of the registers is the zero register ({\tt x0}), the
+      % ABI link register ({\tt x1}), or the ABI stack pointer ({\tt
+      % x2}), or
+	\item 目的寄存器和第一个源寄存器完全相同，或者 
+      % the destination register and the first source register are
+      % identical, or   
+	\item 使用的寄存器是8个最流行的寄存器。%  the registers used are the 8 most popular ones. 
+\end{tightlist}
+
+C扩展与所有其它的标准指令扩展相兼容。C扩展允许16位指令与32位指令自由混合，其中32位指令现在可以从任何16位边界开始，
+也就是说，IALIGN＝16。除了C扩展外，没有指令可以引发指令地址未对齐异常。
+% The C extension is compatible with all other standard instruction
+% extensions.  The C extension allows 16-bit instructions to be freely
+% intermixed with 32-bit instructions, with the latter now able to start
+% on any 16-bit boundary, i.e., IALIGN=16.  With the addition of the C
+% extension, no instructions can raise instruction-address-misaligned
+% exceptions.
+
+\begin{commentary}
+在原始的32位指令上移除32位对齐限制，可以显著提高代码密度。
+% Removing the 32-bit alignment constraint on the original 32-bit
+% instructions allows significantly greater code density.
+\end{commentary}
+
+压缩的指令编码大多在RV32C、RV64C和RV128C之间通用，但是如表~\ref{rvcopcodemap}中显示的那样，
+根据基础ISA，也有少量操作码被用于不同的目的。
+例如，较宽的地址空间RV64C和RV128C变体需要额外的操作码来压缩64位整数值的加载和存储，
+而RV32C使用相同的操作码来加载和存储单精度浮点值。
+类似地，RV128C需要额外的操作码来捕获128位整数值的加载和存储，
+然而这些相同的操作码在RV32C和RV64C中被用于双精度浮点值的加载和存储。
+如果C扩展被实现了，不论相关的标准浮点扩展（F和/或D）是否也被实现，都必须提供合适的压缩的浮点加载和存储指令。
+此外，RV32C包括了一个压缩的跳转和链接指令，以压缩较短范围的子例程调用，而在RV64C和RV128C中，相同的操作码被用于压缩ADDIW。
+% The compressed instruction encodings are mostly common across RV32C,
+% RV64C, and RV128C, but as shown in Table~\ref{rvcopcodemap}, a few
+% opcodes are used for different purposes depending on base ISA.
+% For example, the wider address-space RV64C and RV128C variants require
+% additional opcodes to compress loads and stores of 64-bit integer
+% values, while RV32C uses the same opcodes to compress loads and stores
+% of single-precision floating-point values.  Similarly, RV128C requires
+% additional opcodes to capture loads and stores of 128-bit integer
+% values, while these same opcodes are used for loads and stores of
+% double-precision floating-point values in RV32C and RV64C.  If the C
+% extension is implemented, the appropriate compressed floating-point
+% load and store instructions must be provided whenever the relevant
+% standard floating-point extension (F and/or D) is also implemented.
+% In addition, RV32C includes a compressed jump and link instruction to
+% compress short-range subroutine calls, where the same opcode is used
+% to compress ADDIW for RV64C and RV128C.
+
+\begin{commentary}
+双精度加载和存储是静态和动态指令的一个重要部分，因此有必要将其包含在RV32C和RV64C的编码中。
+% Double-precision loads and stores are a significant fraction of static
+% and dynamic instructions, hence the motivation to include them in the
+% RV32C and RV64C encoding.
+
+尽管对于当前支持ABI的编译的基准，单精度加载和存储不是静态或动态压缩的一个重要来源，
+但是对于只提供硬件单精度浮点单元、并且有只支持单精度浮点数的ABI的微控制器来说，
+在衡量基准中，单精度加载和存储的使用至少与双精度加载和存储频率相同。因此，在RV32C中，有必要为这些操作提供压缩的支持。
+% Although single-precision loads and stores are not a significant
+% source of static or dynamic compression for benchmarks compiled for
+% the currently supported ABIs, for microcontrollers that only provide
+% hardware single-precision floating-point units and have an ABI that
+% only supports single-precision floating-point numbers, the
+% single-precision loads and stores will be used at least as frequently
+% as double-precision loads and stores in the measured benchmarks.
+% Hence, the motivation to provide compressed support for these in
+% RV32C.
+
+对于微控制器，较短范围的子例程调用更可能出现在小型二进制代码中，因此有必要在RV32C中包括这些。
+% Short-range subroutine calls are more likely in small binaries for
+% microcontrollers, hence the motivation to include these in RV32C.
+
+尽管在不同基础ISA下，为了不同的目的重用操作码，会增加文档的复杂性，
+然而即使是对于支持多个基础ISA的设计，对其实现的复杂性的影响也很小。
+压缩的浮点加载和存储变体使用与较宽的整数加载和存储相同的指令格式，带有相同的寄存器修饰符。
+% Although reusing opcodes for different purposes for different base
+% ISAs adds some complexity to documentation, the impact on
+% implementation complexity is small even for designs that support
+% multiple base ISAs.  The compressed floating-point load
+% and store variants use the same instruction format with the same
+% register specifiers as the wider integer loads and stores.
+\end{commentary}
+
+RVC的设计有一个约束，每个RVC指令扩展到某个基础ISA（RV32I/E、RV64I或RV128I）
+或者现有的F和D标准扩展中的一个单独的32位指令。采用这个约束有两个主要的好处：
+% RVC was designed under the constraint that each RVC instruction
+% expands into a single 32-bit instruction in either the base ISA
+% (RV32I/E, RV64I, or RV128I) or the F and D standard extensions where
+% present.  Adopting this constraint has two main benefits:
+
+\begin{tightlist}
+\item 硬件设计可以在解码期间简单地扩展RVC指令，简化了验证并最小化了对现存微架构的修改。
+% Hardware designs can simply expand RVC instructions during
+%   decode, simplifying verification and minimizing modifications to
+%   existing microarchitectures.
+\item 编译器可以感知不到RVC扩展，而把代码压缩留给汇编器和链接器，即使一个能感知到压缩的编译器通常将能够产生更好的结果。
+% Compilers can be unaware of the RVC extension and leave code
+%   compression to the assembler and linker, although a
+%   compression-aware compiler will generally be able to produce better
+%   results.
+\end{tightlist}
+
+\begin{commentary}
+我们感觉，在C和基础IFD指令之间的简单一对一映射的所减少的多重复杂度远远超出了稍微更密集的编码的潜在收益，
+这种编码或者添加了额外的只能在C扩展中支持的指令，或者允许在一个C指令中进行多重IFD指令的编码。
+% We felt the multiple complexity reductions of a simple one-one mapping
+% between C and base IFD instructions far outweighed the potential gains
+% of a slightly denser encoding that added additional instructions only
+% supported in the C extension, or that allowed encoding of multiple IFD
+% instructions in one C instruction.
+\end{commentary}
+
+注意，C扩展并没有被设计为一个独立的ISA，意味着它必须随着一个基础ISA使用，这一点很重要。
+% It is important to note that the C extension is not designed to be a
+% stand-alone ISA, and is meant to be used alongside a base ISA.
+
+\begin{commentary}
+可变长度的指令集长期被用来改进代码密度。例如，IBM Stretch~\cite{stretch}，开发于1950年代晚期，
+有一个带有32位和64位指令的ISA，那里某些32位指令是完整的64位指令的压缩版本。
+Stretch也采用了限制寄存器集的概念，这些寄存器在某些较短的指令格式中是可编址的，
+而短分支指令只能引用一个索引寄存器。稍后的IBM 360架构~\cite{ibm360}支持了一个简单的可变长度指令编码，包括16位、32位或48位指令格式。
+% Variable-length instruction sets have long been used to improve code
+% density.  For example, the IBM Stretch~\cite{stretch}, developed in
+% the late 1950s, had an ISA with 32-bit and 64-bit instructions, where
+% some of the 32-bit instructions were compressed versions of the full
+% 64-bit instructions.  Stretch also employed the concept of limiting
+% the set of registers that were addressable in some of the shorter
+% instruction formats, with short branch instructions that could only
+% refer to one of the index registers.  The later IBM 360
+% architecture~\cite{ibm360} supported a simple variable-length
+% instruction encoding with 16-bit, 32-bit, or 48-bit instruction
+% formats.
+
+在1963年，CDC介绍了Cray设计的CDC 6600~\cite{cdc6600}，一个RISC架构的前身，
+它引入了带有两种长度（15位和30位）指令的富寄存器的加载-存储架构。
+稍后的Cray-1设计使用了非常相似的指令格式，带有16位和32位指令长度。
+% In 1963, CDC introduced the Cray-designed CDC 6600~\cite{cdc6600}, a
+% precursor to RISC architectures, that introduced a register-rich
+% load-store architecture with instructions of two lengths, 15-bits and
+% 30-bits.  The later Cray-1 design used a very similar instruction
+% format, with 16-bit and 32-bit instruction lengths.
+
+在1980年代的最初的RISC ISA，都将性能放在第一位，代码尺寸放在第二位，这对于工作站环境是合理的，
+但是对于嵌入式环境则不然。因此，ARM和MIPS随后都推出了提供更小代码尺寸的ISA版本，
+通过提供备选的16位宽指令集来代替标准的32位宽指令。压缩的RISC ISA相对于它们的起点，减少了大约25~30\%的代码尺寸，
+生成的代码显著\emph{小于}80x86。这个结果让一些人感到惊讶，因为他们的直觉是，
+可变长度的CISC ISA应当比只提供了16位和32位格式的RISC ISA更小。
+% The initial RISC ISAs from the 1980s all picked performance over code
+% size, which was reasonable for a workstation environment, but not for
+% embedded systems. Hence, both ARM and MIPS subsequently made versions
+% of the ISAs that offered smaller code size by offering an alternative
+% 16-bit wide instruction set instead of the standard 32-bit wide
+% instructions.  The compressed RISC ISAs reduced code size relative to
+% their starting points by about 25--30\%, yielding code that was
+% significantly \emph{smaller} than 80x86.  This result surprised some,
+% as their intuition was that the variable-length CISC ISA should be
+% smaller than RISC ISAs that offered only 16-bit and 32-bit formats.
+
+由于原始的RISC ISA没有留出足够的操作码空间来自由地包括这些计划之外的压缩指令，
+它们转而作为完整的新的ISA进行开发。这意味着编译器需要不同的代码生成器用于独立的压缩ISA。
+第一代压缩RISC ISA扩展（例如，ARM Thumb和MIPS16）只使用了固定的16位指令尺寸，这很好地减少了静态代码尺寸，
+但是引起了动态指令数目的增长，这导致了与原始的定宽32位指令尺寸相比更低的性能。
+这引起了第二代压缩RISC ISA设计的发展，使用混合的16位和32位指令长度（例如，ARM Thumb2、microMIPS、PowerPC VLE），
+因此性能与纯32位指令相似，但是显著节省了代码尺寸。不幸的是，这些不同代际的压缩ISA是互相不兼容的，
+也与原始的未压缩的ISA不兼容，导致了文档、实现和软件工具支持中的明显的复杂性。
+% Since the original RISC ISAs did not leave sufficient opcode space
+% free to include these unplanned compressed instructions, they were
+% instead developed as complete new ISAs.  This meant compilers needed
+% different code generators for the separate compressed ISAs.  The first
+% compressed RISC ISA extensions (e.g., ARM Thumb and MIPS16) used only
+% a fixed 16-bit instruction size, which gave good reductions in static
+% code size but caused an increase in dynamic instruction count, which
+% led to lower performance compared to the original fixed-width 32-bit
+% instruction size.  This led to the development of a second generation
+% of compressed RISC ISA designs with mixed 16-bit and 32-bit
+% instruction lengths (e.g., ARM Thumb2, microMIPS, PowerPC VLE), so
+% that performance was similar to pure 32-bit instructions but with
+% significant code size savings.  Unfortunately, these different
+% generations of compressed ISAs are incompatible with each other and
+% with the original uncompressed ISA, leading to significant complexity
+% in documentation, implementations, and software tools support.
+
+在常见的使用64位的ISA中，只有PowerPC和microMIPS目前支持压缩指令格式。
+奇怪的是，大多数流行的64位移动平台（ARM v8）的64位ISA并没有包括压缩指令格式，
+而静态代码尺寸和动态指令获取带宽对它们来说是很重要的指标。尽管静态代码尺寸在较大系统中不是主要关心的问题，
+但是指令获取带宽可能成为运行商业工作负载的服务器（它们经常含有大量的指令工作集）中的主要瓶颈。
+% Of the commonly used 64-bit ISAs, only PowerPC and microMIPS currently
+% supports a compressed instruction format.  It is surprising that the
+% most popular 64-bit ISA for mobile platforms (ARM v8) does not include
+% a compressed instruction format given that static code size and
+% dynamic instruction fetch bandwidth are important metrics.  Although
+% static code size is not a major concern in larger systems, instruction
+% fetch bandwidth can be a major bottleneck in servers running
+% commercial workloads, which often have a large instruction working
+% set.
+
+得益于25年的事后观察，RISC-V从一开始就被设计为支持压缩指令的，为RVC留出了足够的操作码空间，
+来（与许多其它的扩展一起）作为一个简单的扩展被添加到基础ISA之上。
+RVC的哲学是为嵌入式应用减少代码尺寸，并为所有应用提升性能和能源效率以减少指令缓存的缺失。
+Waterman显示RVC获取的指令位减少了25\%~30\%，这减少了20\%~25\%的指令缓存缺失，
+或者说，与将指令缓存尺寸翻倍的性能影响大致相同~\cite{waterman-ms}。
+% Benefiting from 25 years of hindsight, RISC-V was designed to support
+% compressed instructions from the outset, leaving enough opcode
+% space for RVC to be added as a simple extension on top of the base ISA
+% (along with many other extensions).  The philosophy of RVC is to
+% reduce code size for embedded applications \emph{and} to improve
+% performance and energy-efficiency for all applications due to fewer
+% misses in the instruction cache. Waterman shows that RVC fetches
+% 25\%-30\% fewer instruction bits, which reduces instruction cache
+% misses by 20\%-25\%, or roughly the same performance impact as
+% doubling the instruction cache size~\cite{waterman-ms}.
+\end{commentary}
+
+\section{压缩指令格式}
+% \section{Compressed Instruction Formats}
+
+表~\ref{rvc-formats}显示了九个压缩指令格式。CR、CI和CSS可以任意使用32个RVI寄存器，
+但是CIW、CL、CS、CA和CB被限制为只能使用其中的8个。表~\ref{registers}列出了这些常用的寄存器，它们对应于寄存器{\tt x8}到{\tt x15}。
+注意，使用栈指针作为基地址寄存器的加载和存储指令有各自独立的版本，因为保存到栈和从栈中恢复是如此普遍，
+以至于它们要使用CI和CSS格式，以允许访问所有的32个数据寄存器。对于ADDI4SPN指令，CIW支持一个8位的立即数。
+% Table~\ref{rvc-formats} shows the nine compressed instruction
+% formats. CR, CI, and CSS can use any of the 32 RVI registers, but CIW,
+% CL, CS, CA, and CB are limited to just 8 of them. Table~\ref{registers}
+% lists these popular registers, which correspond to registers {\tt x8}
+% to {\tt x15}.  Note that there is a
+% separate version of load and store instructions that use the stack
+% pointer as the base address register, since saving to and restoring
+% from the stack are so prevalent, and that they use the CI and CSS
+% formats to allow access to all 32 data registers. CIW supplies an
+% 8-bit immediate for the ADDI4SPN instruction.
+
+\begin{commentary}
+RISC-V ABI被更改为把频繁使用的寄存器映射到寄存器{\tt x8}－{\tt x15}。
+这简化了解压缩的解码器，因为它有一组连续的自然对齐的寄存器号，并且也与RV32E基础ISA兼容，后者只有16个整数寄存器。
+% The RISC-V ABI was changed to make the frequently used registers map
+% to registers {\tt x8}--{\tt x15}.  This simplifies the decompression
+% decoder by having a contiguous naturally aligned set of register
+% numbers, and is also compatible with the RV32E base ISA,
+% which only has 16 integer registers.
+\end{commentary}
+
+基于压缩寄存器的浮点加载和存储也分别使用CL和CS格式，带有八个映射到{\tt f8}到{\tt f15}的寄存器。
+% Compressed register-based floating-point loads and stores also use the
+% CL and CS formats respectively, with the eight registers mapping to
+% {\tt f8} to {\tt f15}.
+
+\begin{commentary}
+标准RISC-V调用约定把最频繁使用的浮点寄存器映射到寄存器{\tt f8}到{\tt f15}，这将允许使用与整数寄存器号相同的寄存器进行解压缩解码。
+% The standard RISC-V calling convention maps the most frequently used
+% floating-point registers to registers {\tt f8} to {\tt f15}, which
+% allows the same register decompression decoding as for integer
+% register numbers.
+\end{commentary}
+
+在所有的指令中，格式都被设计为，将两个寄存器源修饰符位保持在相同位置，而目的寄存器域可以移动。
+当存在完整的5位目的寄存器修饰符时，它位于与32位RISC-V编码中的相同位置。
+如果立即数是被符号扩展的，符号扩展总是从位12开始。正如在基础规范中的那样，立即数域已经被加扰，以减少必需的立即数mux的数目。
+% The formats were designed to keep bits for the two register source
+% specifiers in the same place in all instructions, while the
+% destination register field can move.  When the full 5-bit destination
+% register specifier is present, it is in the same place as in the
+% 32-bit RISC-V encoding.  Where immediates are
+% sign-extended, the sign-extension is always from bit 12.  Immediate
+% fields have been scrambled, as in the base specification, to reduce
+% the number of immediate muxes required.
+
+\begin{commentary}
+在指令格式中，立即数域是加扰的，而不是按顺序的，这样在每个指令中，可以使尽可能多的位位于相同位置，因此简化了实现。
+% The immediate fields are scrambled in the instruction formats instead
+% of in sequential order so that as many bits as possible are in the
+% same position in every instruction, thereby simplifying
+% implementations.
+\end{commentary}
+
+对于许多RVC指令，值为零的立即数是不允许的，且{\tt x0}并非是一个有效的5位寄存器修饰符。
+这些限制为其它的需要更少的操作数位的指令释放了编码空间。
+% For many RVC instructions, zero-valued immediates are disallowed and
+% {\tt x0} is not a valid 5-bit register specifier.  These restrictions
+% free up encoding space for other instructions requiring fewer operand
+% bits.
+
+\newcommand{\rdprime}{rd\,$'$}
+\newcommand{\rsoneprime}{rs1\,$'$}
+\newcommand{\rstwoprime}{rs2\,$'$}
+
+\begin{table}[h]
+{
+\begin{small}
+\begin{center}
+\begin{tabular}{c c p{0in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}p{0.05in}}
+& & & & & & & & & \\
+格式  &  含义                  &
+\instbit{15} &
+\instbit{14} &
+\instbit{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbit{11} &
+\instbit{10} &
+\instbit{9} &
+\instbit{8} &
+\instbit{7} &
+\instbit{6} &
+\multicolumn{1}{r}{\instbit{5}} &
+\instbit{4} &
+\instbit{3} &
+\instbit{2} &
+\instbit{1} &
+\instbit{0} \\
+\cline{3-18}
+
+CR & 寄存器 &
+\multicolumn{4}{|c|}{funct4} &
+\multicolumn{5}{c|}{rd/rs1} &
+\multicolumn{5}{c|}{rs2} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CI & 立即数 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{5}{c|}{rd/rs1} &
+\multicolumn{5}{c|}{imm} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CSS & 栈相关存储 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{6}{c|}{imm} &
+\multicolumn{5}{c|}{rs2} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CIW & 宽立即数 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{8}{c|}{imm} &
+\multicolumn{3}{c|}{\rdprime} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CL & 加载 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{3}{c|}{imm} &
+\multicolumn{3}{c|}{\rsoneprime} &
+\multicolumn{2}{c|}{imm} &
+\multicolumn{3}{c|}{\rdprime} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CS & 存储 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{3}{c|}{imm} &
+\multicolumn{3}{c|}{\rsoneprime} &
+\multicolumn{2}{c|}{imm} &
+\multicolumn{3}{c|}{\rstwoprime} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CA & 算术 &
+\multicolumn{6}{|c|}{funct6} &
+\multicolumn{3}{c|}{\rdprime/\rsoneprime} &
+\multicolumn{2}{c|}{funct2} &
+\multicolumn{3}{c|}{\rstwoprime} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CB & 分支/算术 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{3}{c|}{offset} &
+\multicolumn{3}{c|}{\rdprime/\rsoneprime} &
+\multicolumn{5}{c|}{offset} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+CJ & 跳转 &
+\multicolumn{3}{|c|}{funct3} &
+\multicolumn{11}{c|}{jump target} &
+\multicolumn{2}{c|}{op} \\
+\cline{3-18}
+
+\end{tabular}
+\end{center}
+\end{small}
+}
+\caption{压缩的16位RVC指令格式。}
+\label{rvc-formats}
+\end{table}
+
+
+\begin{table}[H]
+{
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|c|c|c|}
+\cline{2-9}
+RVC寄存器编号 & 000 & 001 & 010 & 011 & 100 & 101 & 110 & 111
+\\ \cline{2-9}
+整数寄存器编号 & {\tt x8} & {\tt x9} & {\tt x10} & {\tt x11} & {\tt x12} & {\tt x13} & {\tt x14}  & {\tt x15} \\ \cline{2-9}
+整数寄存器ABI名    & {\tt s0}  &  {\tt s1} &  {\tt a0} &  {\tt a1} &  {\tt a2} &  {\tt a3} & {\tt a4}  & {\tt a5} \\ \cline{2-9}
+浮点寄存器编号 & {\tt f8} & {\tt f9} & {\tt f10} & {\tt f11} & {\tt f12} & {\tt f13} & {\tt f14}  & {\tt f15} \\ \cline{2-9}
+浮点寄存器ABI名    & {\tt fs0}  &  {\tt fs1} &  {\tt fa0} &  {\tt fa1} &  {\tt fa2} &  {\tt fa3} & {\tt fa4}  & {\tt fa5} \\ \cline{2-9}
+\end{tabular}
+\end{center}
+}
+\caption{通过CIW、CL、CS、CA和CB格式的3位的{\em \rsoneprime}、{\em \rstwoprime}和{\em \rdprime}域指定的寄存器。
+% Registers specified by the three-bit {\em \rsoneprime}, {\em \rstwoprime}, and {\em \rdprime} fields of the CIW, CL, CS, CA, and CB formats.
+}
+\label{registers}
+\end{table}
+
+\section{加载和存储指令}
+% \section{Load and Store Instructions}
+
+为了增加16位指令的访问范围，数据转移指令使用零扩展的立即数，它按照数据的字节尺寸进行缩放：字$\times$4，双字$\times$8，四字$\times$16。
+% To increase the reach of 16-bit instructions, data-transfer
+% instructions use zero-extended immediates that are scaled by the size
+% of the data in bytes: $\times$4 for words, $\times$8 for double words,
+% and $\times$16 for quad words.
+
+RVC提供了加载和存储的两个变体。一个使用ABI栈指针{\tt x2}作为基础地址，而可以把任意数据寄存器作为目标。
+另一个可以引用8个基础地址寄存器中的一个和8个数据寄存器中的一个。
+% RVC provides two variants of loads and stores.  One uses the ABI stack
+% pointer, {\tt x2}, as the base address and can target any data register.  The
+% other can reference one of 8 base address registers and one of 8 data
+% registers.
+
+\subsection*{基于栈指针的加载和存储}
+% \subsection*{Stack-Pointer-Based Loads and Stores}
+
+\begin{center}
+\begin{tabular}{S@{}W@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 5 & 5 & 2 \\
+C.LWSP & offset[5] & dest$\neq$0 & offset[4:2$\vert$7:6] & C2 \\
+C.LDSP & offset[5] & dest$\neq$0 & offset[4:3$\vert$8:6] & C2 \\
+C.LQSP & offset[5] & dest$\neq$0 & offset[4$\vert$9:6] & C2 \\
+C.FLWSP& offset[5] & dest        & offset[4:2$\vert$7:6] & C2 \\
+C.FLDSP& offset[5] & dest        & offset[4:3$\vert$8:6] & C2 \\
+\end{tabular}
+\end{center}
+这些指令使用CI格式。
+% These instructions use the CI format.
+
+C.LWSP从内存把一个32位的值加载到寄存器{\em rd}中。它通过将{\em 零}扩展的偏移量扩大4倍，加到栈指针{\tt x2}上，
+来计算出有效地址。它扩展到{\tt lw rd, offset(x2)}。C.LWSP只有在$\textit{rd}{\neq}\texttt{x0}$时有效；$\textit{rd}{=}\texttt{x0}$的代码点被保留。
+% C.LWSP loads a 32-bit value from memory into register {\em rd}.  It computes
+% an effective address by adding the {\em zero}-extended offset, scaled by 4, to
+% the stack pointer, {\tt x2}.  It expands to {\tt lw rd, offset(x2)}.
+% C.LWSP is only valid when $\textit{rd}{\neq}\texttt{x0}$;
+% the code points with $\textit{rd}{=}\texttt{x0}$ are reserved.
+
+C.LDSP是一个RV64C/RV128C独有的指令，它从内存加载一个64位的值到寄存器{\em rd}中。它通过将零扩展的偏移量扩大8倍，
+加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt ld rd, offset(x2)}。C.LDSP只有在$\textit{rd}{\neq}\texttt{x0}$时有效；$\textit{rd}{=}\texttt{x0}$的代码点被保留。
+% C.LDSP is an RV64C/RV128C-only instruction that loads a 64-bit value from memory into
+% register {\em rd}.  It computes its effective address by adding the
+% zero-extended offset, scaled by 8, to the stack pointer, {\tt x2}.
+% It expands to {\tt ld rd, offset(x2)}.
+% C.LDSP is only valid when $\textit{rd}{\neq}\texttt{x0}$;
+% the code points with $\textit{rd}{=}\texttt{x0}$ are reserved.
+
+C.LQSP是一个RV128C独有的指令，它从内存加载一个128位的值到寄存器{\em rd}中。
+它通过将零扩展的偏移量扩大16倍，加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt lq rd, offset(x2)}。
+C.LQSP只在$\textit{rd}{\neq}\texttt{x0}$时有效；$\textit{rd}{=}\texttt{x0}$的代码点被保留。
+% C.LQSP is an RV128C-only instruction that loads a 128-bit value from memory
+% into register {\em rd}.  It computes its effective address by adding the
+% zero-extended offset, scaled by 16, to the stack pointer, {\tt x2}.
+% It expands to {\tt lq rd, offset(x2)}.
+% C.LQSP is only valid when $\textit{rd}{\neq}\texttt{x0}$;
+% the code points with $\textit{rd}{=}\texttt{x0}$ are reserved.
+
+C.FLWSP是一个RV32FC独有的指令，它从内存加载一个单精度浮点值到浮点寄存器{\em rd}中。
+它通过将{\em 零}扩展的偏移量扩大4倍，加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt flw rd, offset(x2)}。
+% C.FLWSP is an RV32FC-only instruction that loads a single-precision
+% floating-point value from memory into floating-point register {\em rd}. It
+% computes its effective address by adding the {\em zero}-extended offset,
+% scaled by 4, to the stack pointer, {\tt x2}.  It expands to {\tt flw rd,
+% offset(x2)}.
+
+C.FLDSP是一个RV32DC/RV64DC独有的指令，它从内存加载一个双精度浮点值到浮点寄存器{\em rd}中。
+它通过将{\em 零}扩展的偏移量扩大8倍，加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt fld rd, offset(x2)}。
+% C.FLDSP is an RV32DC/RV64DC-only instruction that loads a double-precision
+% floating-point value from memory into floating-point register {\em rd}. It
+% computes its effective address by adding the {\em zero}-extended offset,
+% scaled by 8, to the stack pointer, {\tt x2}.  It expands to {\tt fld rd,
+% offset(x2)}.
+
+\begin{center}
+\begin{tabular}{S@{}M@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\instbitrange{12}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{rs2} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 6 & 5 & 2 \\
+C.SWSP & offset[5:2$\vert$7:6] & src & C2 \\
+C.SDSP & offset[5:3$\vert$8:6] & src & C2 \\
+C.SQSP & offset[5:4$\vert$9:6] & src & C2 \\
+C.FSWSP& offset[5:2$\vert$7:6] & src & C2 \\
+C.FSDSP& offset[5:3$\vert$8:6] & src & C2 \\
+\end{tabular}
+\end{center}
+
+这些指令使用CSS格式。
+% These instructions use the CSS format.
+
+C.SWSP把一个32位的值存储到寄存器{\em rs2}中。它通过将{\em 零}扩展的偏移量扩大4倍，加到栈指针{\tt x2}上，
+来计算出有效地址。它扩展到{\tt sw rs2, offset(x2)}。
+% C.SWSP stores a 32-bit value in register {\em rs2} to memory.  It computes
+% an effective address by adding the {\em zero}-extended offset, scaled by 4, to
+% the stack pointer, {\tt x2}.
+% It expands to {\tt sw rs2, offset(x2)}.
+
+C.SDSP是一个RV64C/RV128独有的指令，它把寄存器{\em rs2}中的一个64位的值存储到内存。它通过将{\em 零}扩展的偏移量扩大8倍，
+加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt sd rs2, offset(x2)}。
+% C.SDSP is an RV64C/RV128C-only instruction that stores a 64-bit value in register
+% {\em rs2} to memory.  It computes an effective address by adding the {\em
+% zero}-extended offset, scaled by 8, to the stack pointer, {\tt x2}.
+% It expands to {\tt sd rs2, offset(x2)}.
+
+C.SQSP是一个RV128C独有的指令，它把寄存器{\em rs2}中的一个128位的值存储到内存。它通过将{\em 零}扩展的偏移量扩大16倍，
+加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt sq rs2, offset(x2)}。
+% C.SQSP is an RV128C-only instruction that stores a 128-bit value in register
+% {\em rs2} to memory.  It computes an effective address by adding the {\em
+% zero}-extended offset, scaled by 16, to the stack pointer, {\tt x2}.
+% It expands to {\tt sq rs2, offset(x2)}.
+
+C.FSWSP是一个RV32FC独有的指令，它把浮点寄存器{\em rs2}中的一个单精度浮点值存储到内存。
+它通过将{\em 零}扩展的扩大4倍，加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt fsw rs2, offset(x2)}。
+% C.FSWSP is an RV32FC-only instruction that stores a single-precision
+% floating-point value in floating-point register {\em rs2} to memory.  It
+% computes an effective address by adding the {\em zero}-extended offset, scaled
+% by 4, to the stack pointer, {\tt x2}.  It expands to {\tt fsw rs2,
+% offset(x2)}.
+
+C.FSDSP是一个RV32DC/RV64DC独有的指令，它把浮点寄存器{\em rs2}中的一个双精度浮点数存储到内存。
+它通过将{\em 零}扩展的偏移量扩大8倍，加到栈指针{\tt x2}上，来计算出有效地址。它扩展到{\tt fsd rs2, offset(x2)}。
+% C.FSDSP is an RV32DC/RV64DC-only instruction that stores a double-precision
+% floating-point value in floating-point register {\em rs2} to memory.  It
+% computes an effective address by adding the {\em zero}-extended offset, scaled
+% by 8, to the stack pointer, {\tt x2}.  It expands to {\tt fsd rs2,
+% offset(x2)}.
+
+\begin{commentary}
+在函数的入口/出口处的寄存器保存/恢复代码代表了静态代码尺寸的一大部分。
+在RVC中，基于栈指针的压缩的加载和存储可以有效地减少两倍的保存/恢复静态代码尺寸，同时通过减少动态指令带宽来提升性能。
+% Register save/restore code at function entry/exit represents a
+% significant portion of static code size.  The stack-pointer-based
+% compressed loads and stores in RVC are effective at reducing the
+% save/restore static code size by a factor of 2 while improving
+% performance by reducing dynamic instruction bandwidth.
+
+为了进一步减少保存/恢复代码尺寸，在其它ISA中使用的一个常见的机制是多重加载和多重存储指令。
+我们考虑过为RISC-V采用这些指令，但是注意到这些指令的如下缺点：
+% A common mechanism used in other ISAs to further reduce
+% save/restore code size is load-multiple and store-multiple
+% instructions.  We considered adopting these for RISC-V but noted the
+% following drawbacks to these instructions:
+\begin{itemize}
+\item 这些指令让处理器的实现复杂化。 %  These instructions complicate processor implementations.
+\item 对于虚拟内存系统，有些数据访问可能驻留在物理内存中，而有些不能，需要为部分执行的指令使用一种新的重启机制。 
+      % For virtual memory systems, some data accesses could be
+      % resident in physical memory and some could not, which requires a
+      % new restart mechanism for partially executed instructions.
+\item 不像其余的RVC指令，没有等价于多重加载和多重存储的IFD。 
+      % Unlike the rest of the RVC instructions, there is no IFD
+      % equivalent to Load Multiple and Store Multiple.
+\item 不像其余的RVC指令，编译器将不得不注意这些指令，来生成指令和按次序分配寄存器，
+      以最大化它们被保存和存储的机会——因为它们要按顺序次序被保存和存储。
+      % Unlike the rest of the RVC instructions, the compiler would
+      % have to be aware of these instructions to both generate the
+      % instructions and to allocate registers in an order to maximize
+      % the chances of the them being saved and stored, since they would
+      % be saved and restored in sequential order.
+\item 简单微架构的实现将限制如何围绕加载多重和存储多重指令调度其它指令，导致潜在的性能损失。
+      % Simple microarchitectural implementations will constrain how
+      % other instructions can be scheduled around the load and store
+      % multiple instructions, leading to a potential performance loss.
+\item 期望的顺序寄存器分配可能与为CIW、CL、CS、CA和CB格式选择的特征寄存器冲突。
+      The desire for sequential register allocation might conflict with
+      the featured registers selected for the CIW, CL, CS, CA, and CB formats.
+\end{itemize}
+此外，在软件中，通过~\cite{waterman-phd}的5.6节中描述的一种技术，使用子例程调用公共的序言和结语代码，替换序言和结语代码，可以实现大多数收益。
+% Furthermore, much of the gains can be realized in software by replacing
+% prologue and epilogue code with subroutine calls to common
+% prologue and epilogue code, a technique described in
+% Section 5.6 of~\cite{waterman-phd}.
+
+虽然合理的架构可能得出不同的结论，我们决定忽略加载多重和存储多重，代之使用纯软件的方法，
+调用保持/恢复millicode例程以获得最大程度的代码尺寸减少。
+% While reasonable architects might come to different conclusions, we
+% decided to omit load and store multiple and instead use the
+% software-only approach of calling save/restore millicode routines to
+% attain the greatest code size reduction.
+\end{commentary}
+
+\subsection*{基于寄存器的加载和存储}
+% \subsection*{Register-Based Loads and Stores}
+
+\begin{center}
+\begin{tabular}{S@{}S@{}S@{}Y@{}S@{}Y}
+\\
+\instbitrange{15}{13} &
+\instbitrange{12}{10} &
+\instbitrange{9}{7} &
+\instbitrange{6}{5} &
+\instbitrange{4}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{\rsoneprime} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{\rdprime} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 3 & 3 & 2 & 3 & 2 \\
+C.LW & offset[5:3] & base & offset[2$\vert$6] & dest & C0 \\
+C.LD & offset[5:3] & base & offset[7:6] & dest & C0 \\
+C.LQ & offset[5$\vert$4$\vert$8] & base & offset[7:6] & dest & C0 \\
+C.FLW& offset[5:3] & base & offset[2$\vert$6] & dest & C0 \\
+C.FLD& offset[5:3] & base & offset[7:6] & dest & C0 \\
+\end{tabular}
+\end{center}
+
+这些指令使用CL格式。
+% These instructions use the CL format.
+
+C.LW从内存加载一个32位的值到寄存器{\em \rdprime}中。它通过将{\em 零}扩展的偏移量扩大4倍，加到寄存器{\em \rsoneprime}中的基地址上，
+来计算出有效地址。它扩展到{\tt lw \rdprime, offset(\rsoneprime)}。
+% C.LW loads a 32-bit value from memory into register {\em \rdprime}.  It computes
+% an effective address by adding the {\em zero}-extended offset, scaled by 4, to
+% the base address in register {\em \rsoneprime}.
+% It expands to {\tt lw \rdprime, offset(\rsoneprime)}.
+
+C.LD是一个RV64C/RV128C独有的指令，它从内存加载一个64位的值到寄存器{\em \rdprime}中。它通过将{\em 零}扩展的偏移量扩大8倍，
+加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt ld \rdprime, offset(\rsoneprime)}。
+% C.LD is an RV64C/RV128C-only instruction that loads a 64-bit value from memory into
+% register {\em \rdprime}.  It computes an effective address by adding the {\em
+% zero}-extended offset, scaled by 8, to the base address in register {\em
+% \rsoneprime}.
+% It expands to {\tt ld \rdprime, offset(\rsoneprime)}.
+
+C.LQ是一个RV128C独有的指令，它从内存加载一个128位的值到寄存器{\em \rdprime}中。它通过将{\em 零}扩展的偏移量扩大16倍，
+加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt lq \rdprime, offset(\rsoneprime)}。
+% C.LQ is an RV128C-only instruction that loads a 128-bit value from memory into
+% register {\em \rdprime}.  It computes an effective address by adding the {\em
+% zero}-extended offset, scaled by 16, to the base address in register {\em
+% \rsoneprime}.
+% It expands to {\tt lq \rdprime, offset(\rsoneprime)}.
+
+C.FLW是一个RV32FC独有的指令，它从内存加载一个单精度浮点值到浮点寄存器{\em \rdprime}中。
+它通过将{\em 零}扩展的偏移量扩大4倍，加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt flw
+\rdprime, offset(\rsoneprime)}。
+% C.FLW is an RV32FC-only instruction that loads a single-precision
+% floating-point value from memory into floating-point register {\em \rdprime}.  It
+% computes an effective address by adding the {\em zero}-extended offset, scaled
+% by 4, to the base address in register {\em \rsoneprime}.  It expands to {\tt flw
+% \rdprime, offset(\rsoneprime)}.
+
+C.FLD是一个RV32DC/RV64DC独有的指令，它从内存加载一个双精度浮点值到浮点寄存器{\em \rdprime}中。
+它通过将{\em 零}扩展的偏移量扩大8倍，加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt fld
+\rdprime, offset(\rsoneprime)}。
+% C.FLD is an RV32DC/RV64DC-only instruction that loads a double-precision
+% floating-point value from memory into floating-point register {\em \rdprime}.  It
+% computes an effective address by adding the {\em zero}-extended offset, scaled
+% by 8, to the base address in register {\em \rsoneprime}.  It expands to {\tt fld
+% \rdprime, offset(\rsoneprime)}.
+
+\begin{center}
+\begin{tabular}{S@{}S@{}S@{}Y@{}S@{}Y}
+\\
+\instbitrange{15}{13} &
+\instbitrange{12}{10} &
+\instbitrange{9}{7} &
+\instbitrange{6}{5} &
+\instbitrange{4}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{\rsoneprime} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{\rstwoprime} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 3 & 3 & 2 & 3 & 2 \\
+C.SW & offset[5:3] & base & offset[2$\vert$6] & src & C0 \\
+C.SD & offset[5:3] & base & offset[7:6] & src & C0 \\
+C.SQ & offset[5$\vert$4$\vert$8] & base & offset[7:6] & src & C0 \\
+C.FSW& offset[5:3] & base & offset[2$\vert$6] & src & C0 \\
+C.FSD& offset[5:3] & base & offset[7:6] & src & C0 \\
+\end{tabular}
+\end{center}
+这些指令使用CS格式。
+% These instructions use the CS format.
+
+C.SW把寄存器{\em \rstwoprime}中的一个32位的值存储到内存。它通过将{\em 零}扩展的偏移量扩大4倍，加到寄存器{\em \rsoneprime}中的基地址上，
+来计算出有效地址。它扩展到{\tt sw \rstwoprime, offset(\rsoneprime)}。
+% C.SW stores a 32-bit value in register {\em \rstwoprime} to memory.  It computes an
+% effective address by adding the {\em zero}-extended offset, scaled by 4, to
+% the base address in register {\em \rsoneprime}.
+% It expands to {\tt sw \rstwoprime, offset(\rsoneprime)}.
+
+C.SD是一个RV64C/RV128C独有的指令，它把寄存器{\em \rstwoprime}中的一个64位的值存储到内存。
+它通过将{\em 零}扩展的偏移量扩大8倍，加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt sd \rstwoprime, offset(\rsoneprime)}。
+% C.SD is an RV64C/RV128C-only instruction that stores a 64-bit value in
+% register {\em \rstwoprime} to memory.  It computes an effective address by adding
+% the {\em zero}-extended offset, scaled by 8, to the base address in register
+% {\em \rsoneprime}.
+% It expands to {\tt sd \rstwoprime, offset(\rsoneprime)}.
+
+C.SQ是一个RV128C独有的指令，它把寄存器{\em \rstwoprime}中的一个128位的值存储到内存。它通过将{\em 零}扩展的偏移量扩大16倍，
+加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt sq \rstwoprime, offset(\rsoneprime)}。
+% C.SQ is an RV128C-only instruction that stores a 128-bit value in register
+% {\em \rstwoprime} to memory.  It computes an effective address by adding the {\em
+% zero}-extended offset, scaled by 16, to the base address in register {\em
+% \rsoneprime}.
+% It expands to {\tt sq \rstwoprime, offset(\rsoneprime)}.
+
+C.FSW是一个RV32FC独有的指令，它把浮点寄存器{\em \rstwoprime}中的一个单精度浮点值存储到内存。
+它通过将{\em 零}扩展的偏移量扩大4倍，加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt fsw
+\rstwoprime, offset(\rsoneprime)}。
+% C.FSW is an RV32FC-only instruction that stores a single-precision
+% floating-point value in floating-point register {\em \rstwoprime} to memory.  It
+% computes an effective address by adding the {\em zero}-extended offset, scaled
+% by 4, to the base address in register {\em \rsoneprime}.  It expands to {\tt fsw
+% \rstwoprime, offset(\rsoneprime)}.
+
+C.FSD是一个RV32DC/RV64DC独有的指令，它把浮点寄存器{\em \rstwoprime}中的一个双精度浮点值存储到内存。
+它通过将{\em 零}扩展的偏移量扩大8倍，加到寄存器{\em \rsoneprime}中的基地址上，来计算出有效地址。它扩展到{\tt fsd
+\rstwoprime, offset(\rsoneprime)}。
+% C.FSD is an RV32DC/RV64DC-only instruction that stores a double-precision
+% floating-point value in floating-point register {\em \rstwoprime} to memory.  It
+% computes an effective address by adding the {\em zero}-extended offset, scaled
+% by 8, to the base address in register {\em \rsoneprime}.  It expands to {\tt fsd
+% \rstwoprime, offset(\rsoneprime)}.
+
+\section{控制转移指令}
+% \section{Control Transfer Instructions}
+
+RVC提供了无条件跳转指令和条件分支指令。因为带有基础RVI指令，所有的RVC控制转移指令的偏移量都是2字节的倍数。
+% RVC provides unconditional jump instructions and conditional branch
+% instructions. As with base RVI instructions, the offsets of all RVC
+% control transfer instructions are in multiples of 2 bytes.
+
+\begin{center}
+\begin{tabular}{S@{}L@{}Y}
+\\
+\instbitrange{15}{13} &
+\instbitrange{12}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 11 & 2 \\
+C.J & offset[11$\vert$4$\vert$9:8$\vert$10$\vert$6$\vert$7$\vert$3:1$\vert$5] & C1 \\
+C.JAL & offset[11$\vert$4$\vert$9:8$\vert$10$\vert$6$\vert$7$\vert$3:1$\vert$5] & C1 \\
+\end{tabular}
+\end{center}
+这些指令使用CJ格式。
+% These instructions use the CJ format.
+
+C.J实施无条件控制转移。偏移量被符号扩展，并被加到{\tt pc}以形成跳转的目标地址。C.J因此可以有$\pm$\wunits{2}{KiB}的目标范围。C.J扩展到{\tt jal x0, offset}。
+% C.J performs an unconditional control transfer.  The offset is sign-extended and
+% added to the {\tt pc} to form the jump target address.  C.J can therefore target
+% a $\pm$\wunits{2}{KiB} range.  C.J expands to {\tt jal x0, offset}.
+
+C.JAL是一个RV32C独有的指令，它实施与C.J相同的操作，但是额外地把跳转（{\tt pc}＋2）之后的指令的地址写到链接寄存器{\tt x1}。C.JAL扩展到{\tt jal x1, offset}。
+% C.JAL is an RV32C-only instruction that performs the same operation as C.J,
+% but additionally writes the address of the instruction following the jump
+% ({\tt pc}+2) to the link register, {\tt x1}.  C.JAL expands to {\tt jal x1,
+% offset}.
+
+\begin{center}
+\begin{tabular}{E@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct4} &
+\multicolumn{1}{c|}{rs1} &
+\multicolumn{1}{c|}{rs2} &
+\multicolumn{1}{c|}{op} \\
+\hline
+4 & 5 & 5 & 2 \\
+C.JR & src$\neq$0 & 0 & C2 \\
+C.JALR & src$\neq$0 & 0 & C2 \\
+\end{tabular}
+\end{center}
+这些指令使用CR格式。
+% These instructions use the CR format.
+
+C.JR（跳转寄存器）实施到寄存器{\em rs1}中的地址的无条件控制转移。C.JR扩展到{\tt jalr x0, 0(rs1)}。C.JR只有在$\textit{rs1}{\neq}\texttt{x0}$时有效；$\textit{rs1}{=}\texttt{x0}$的代码点被保留。
+% C.JR (jump register) performs an unconditional control transfer to
+% the address in register {\em rs1}.  C.JR expands to {\tt jalr x0, 0(rs1)}.
+% C.JR is only valid when $\textit{rs1}{\neq}\texttt{x0}$; the code point
+% with $\textit{rs1}{=}\texttt{x0}$ is reserved.
+
+C.JALR（跳转和链接寄存器）实施与C.JR相同的操作，但是额外把跳转（{\tt pc}＋2）之后的指令的地址写到链接寄存器{\tt x1}。
+C.JALR扩展到{\tt jalr x1, 0(rs1)}。C.JALR只有在$\textit{rs1}{\neq}\texttt{x0}$时有效；$\textit{rs1}{=}\texttt{x0}$的代码点对应于C.EBREAK指令。
+% C.JALR (jump and link register) performs the same operation as C.JR,
+% but additionally writes the address of the instruction following the
+% jump ({\tt pc}+2) to the link register, {\tt x1}.  C.JALR expands to
+% {\tt jalr x1, 0(rs1)}.
+% C.JALR is only valid when $\textit{rs1}{\neq}\texttt{x0}$; the code point
+% with $\textit{rs1}{=}\texttt{x0}$ corresponds to the C.EBREAK instruction.
+
+\begin{commentary}
+严格地讲，C.JALR并不确切地扩展到某个基础RVI指令，因为加到{\tt pc}形成链接地址的值是2，而不像基础ISA中那样是4，
+但是同时支持2字节和4字节的偏移量对于基础微架构只是一个非常微小的改变。
+% Strictly speaking, C.JALR does not expand exactly to a base RVI
+% instruction as the value added to the {\tt pc} to form the link address is 2
+% rather than 4 as in the base ISA, but supporting both offsets of 2 and
+% 4 bytes is only a very minor change to the base microarchitecture.
+\end{commentary}
+
+\begin{center}
+\begin{tabular}{S@{}S@{}S@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\instbitrange{12}{10} &
+\instbitrange{9}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{\rsoneprime} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 3 & 3 & 5 & 2 \\
+C.BEQZ & offset[8$\vert$4:3] & src & offset[7:6$\vert$2:1$\vert$5] & C1 \\
+C.BNEZ & offset[8$\vert$4:3] & src & offset[7:6$\vert$2:1$\vert$5] & C1 \\
+\end{tabular}
+\end{center}
+这些指令使用CB格式。
+% These instructions use the CB format.
+
+C.BEQZ实施条件控制转移。偏移量被符号扩展，并被加到{\tt pc}以形成分支目标地址。它因此可以有$\pm$\wunits{256}{B}的目标范围。
+如果寄存器{\em \rsoneprime}中的值是零，C.BEQZ采取其分支。它扩展到{\tt beq \rsoneprime, x0, offset}。
+% C.BEQZ performs conditional control transfers.  The offset is sign-extended
+% and added to the {\tt pc} to form the branch target address.  It can
+% therefore target a $\pm$\wunits{256}{B} range.  C.BEQZ takes the branch if the
+% value in register {\em \rsoneprime} is zero.  It expands to {\tt beq \rsoneprime, x0,
+% offset}.
+
+C.BNEZ的定义类似，但是它采取其分支，是在{\em \rsoneprime}包含一个非零的值时。它扩展到{\tt bne \rsoneprime, x0, offset}。
+% C.BNEZ is defined analogously, but it takes the branch if {\em \rsoneprime} contains
+% a nonzero value.  It expands to {\tt bne \rsoneprime, x0, offset}.
+
+\section{整数运算指令}
+% \section{Integer Computational Instructions}
+
+RVC提供了用于整数运算和常量生成的一些指令。
+% RVC provides several instructions for integer arithmetic and constant generation.
+
+\subsection*{整数常量-生成指令}
+% \subsection*{Integer Constant-Generation Instructions}
+
+这两个常量生成指令都使用CI指令格式，并且能够把任何整数寄存器作为目标。
+% The two constant-generation instructions both use the CI instruction
+% format and can target any integer register.
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{S@{}W@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm[5]} &
+\multicolumn{1}{c|}{rd} &
+\multicolumn{1}{c|}{imm[4:0]} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 5 & 5 & 2 \\
+C.LI     & imm[5] & dest$\neq$0 & imm[4:0] & C1 \\
+C.LUI    & nzimm[17] & $\textrm{dest}{\neq}{\left\{0,2\right\}}$ & nzimm[16:12] & C1 \\
+\end{tabular}
+\end{center}
+C.LI把符号扩展的6位立即数{\em imm}加载进寄存器{\em rd}中。C.LI扩展到{\tt addi rd, x0, imm}。
+C.LI只有当{\em rd}$\neq${\tt x0}时有效；带有{\em rd}={\tt x0}的代码点编码了HINT。
+% C.LI loads the sign-extended 6-bit immediate, {\em imm}, into
+% register {\em rd}.
+% C.LI expands into {\tt addi rd, x0, imm}.
+% C.LI is only valid when {\em rd}$\neq${\tt x0};
+% the code points with {\em rd}={\tt x0} encode HINTs.
+
+C.LUI把非零的6位立即数域加载到目的寄存器的位17 - 12，清除底部的12位，并把位17符号扩展到目的寄存器的所有更高位。
+C.LUI扩展到{\tt lui rd, nzimm}。C.LUI只有当$\textit{rd}{\neq}{\left\{\texttt{x0},\texttt{x2}\right\}}$，并且当立即数不等于零时有效。
+{\em nzimm}=0的代码点被保留；余下的{\em rd}={\tt x0}的代码点是HINT；余下的{\em rd}={\tt x2}的代码点对应于C.ADDI16SP指令。
+% C.LUI loads the non-zero 6-bit immediate field into bits 17--12 of the
+% destination register, clears the bottom 12 bits, and sign-extends bit
+% 17 into all higher bits of the destination.
+% C.LUI expands into {\tt lui rd, nzimm}.
+% C.LUI is only valid when
+% $\textit{rd}{\neq}{\left\{\texttt{x0},\texttt{x2}\right\}}$,
+% and when the immediate is not equal to zero.
+% The code points with {\em nzimm}=0 are reserved; the remaining code points
+% with {\em rd}={\tt x0} are HINTs; and the remaining code points with
+% {\em rd}={\tt x2} correspond to the C.ADDI16SP instruction.
+
+\subsection*{整数寄存器-立即数操作}
+% \subsection*{Integer Register-Immediate Operations}
+
+这些整数寄存器-立即数操作以CI格式编码，并实施在整数寄存器和6位立即数上的操作。
+% These integer register-immediate operations are encoded in the CI
+% format and perform operations on an integer register and
+% a 6-bit immediate.
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{S@{}W@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm[5]} &
+\multicolumn{1}{c|}{rd/rs1} &
+\multicolumn{1}{c|}{imm[4:0]} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 5 & 5 & 2 \\
+C.ADDI     & nzimm[5] & dest$\neq$0 & nzimm[4:0] & C1 \\
+C.ADDIW    & imm[5]   & dest$\neq$0 & imm[4:0] & C1 \\
+C.ADDI16SP & nzimm[9] & 2 & nzimm[4$\vert$6$\vert$8:7$\vert$5] & C1 \\
+\end{tabular}
+\end{center}
+
+C.ADDI把非零的符号扩展的6位立即数加到寄存器{\em rd}中的值，然后把结果写到{\em rd}。
+C.ADDI扩展到{\tt addi rd, rd, nzimm}。C.ADDI只有当{\tt addi rd, rd, nzimm}$\neq${\tt x0}且{\em nzimm}$\neq$0时有效。
+{\em rd}={\tt x0}的代码点编码了C.NOP指令；余下的{\em nzimm}=0的代码点编码了HINT。
+% C.ADDI adds the non-zero sign-extended 6-bit immediate to the value in
+% register {\em rd} then writes the result to {\em rd}.  C.ADDI expands
+% into {\tt addi rd, rd, nzimm}.
+% C.ADDI is only valid when {\em rd}$\neq${\tt x0} and {\em nzimm}$\neq$0.
+% The code points with {\em rd}={\tt x0} encode the C.NOP instruction;
+% the remaining code points with {\em nzimm}=0 encode HINTs.
+
+C.ADDIW是一个RV64C/RV128C独有的指令，它执行相同的计算，但是产生一个32位的结果，然后把结果符号扩展到64位。
+C.ADDIW扩展到{\tt addiw rd, rd, imm}。对于C.ADDIW，立即数可以是零，这对应于{\tt
+sext.w rd}。
+C.ADDIW只有在{\em rd}$\neq${\tt x0}时有效；{\em rd}={\tt x0}的代码点被保留。
+% C.ADDIW is an RV64C/RV128C-only instruction that performs the same
+% computation but produces a 32-bit result, then sign-extends result to
+% 64 bits.  C.ADDIW expands into {\tt addiw rd, rd, imm}.  The
+% immediate can be zero for C.ADDIW, where this corresponds to {\tt
+% sext.w rd}.  C.ADDIW is only valid when {\em rd}$\neq${\tt x0};
+% the code points with {\em rd}={\tt x0} are reserved.
+
+C.ADDI16SP与C.LUI共享操作码，但是有一个目的域{\tt x2}。C.ADDI16SP把非零的符号扩展的6位立即数加到栈指针中的值（{\tt sp}={\tt x2}），
+那里立即数被缩放来代表范围(－512, 496)中的16的倍数。C.ADDI16SP被用于调整过程序言和结语中的栈指针。
+它扩展到{\tt addi x2, x2, nzimm}。C.ADDI16SP只有当{\em nzimm}$\neq$0时有效；{\em nzimm}=0的代码点被保留。
+% C.ADDI16SP shares the opcode with C.LUI, but has a destination field
+% of {\tt x2}. C.ADDI16SP adds the non-zero sign-extended 6-bit immediate to
+% the value in the stack pointer ({\tt sp}={\tt x2}), where the
+% immediate is scaled to represent multiples of 16 in the range
+% (-512,496). C.ADDI16SP is used to adjust the stack pointer in procedure
+% prologues and epilogues.  It expands into {\tt addi x2, x2, nzimm}.
+% C.ADDI16SP is only valid when {\em nzimm}$\neq$0;
+% the code point with {\em nzimm}=0 is reserved.
+
+\begin{commentary}
+在标准的RISC-V调用约定中，栈指针{\tt sp}总是16位对齐的。
+% In the standard RISC-V calling convention, the stack pointer {\tt sp}
+% is always 16-byte aligned.
+\end{commentary}
+
+\begin{center}
+\begin{tabular}{@{}S@{}K@{}S@{}Y}
+\\
+\instbitrange{15}{13} &
+\instbitrange{12}{5} &
+\instbitrange{4}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm} &
+\multicolumn{1}{c|}{\rdprime} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 8 & 3 & 2 \\
+C.ADDI4SPN & nzuimm[5:4$\vert$9:6$\vert$2$\vert$3] & dest & C0 \\
+\end{tabular}
+\end{center}
+
+C.ADDI4SPN是一个CIW格式的指令，它把一个{\em 零}扩展的非零立即数，扩大4倍，加到栈指针{\tt x2}上，并把结果写到{\tt \rdprime}。
+这个指令被用于生成指向栈分配变量的指针，且扩展到{\tt addi \rdprime, x2, nzuimm}。C.ADDI4SPN只在{\em nzuimm}$\neq$0时生效；{\em nzuimm}=0的代码点被保留。
+% C.ADDI4SPN is a CIW-format instruction that adds a {\em zero}-extended
+% non-zero immediate, scaled by 4, to the stack pointer, {\tt x2}, and
+% writes the result to {\tt \rdprime}.  This instruction is used
+% to generate pointers to stack-allocated variables, and expands to
+% {\tt addi \rdprime, x2, nzuimm}.
+% C.ADDI4SPN is only valid when {\em nzuimm}$\neq$0;
+% the code points with {\em nzuimm}=0 are reserved.
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{S@{}W@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{shamt[5]} &
+\multicolumn{1}{c|}{rd/rs1} &
+\multicolumn{1}{c|}{shamt[4:0]} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 5 & 5 & 2 \\
+C.SLLI  & shamt[5] & dest$\neq$0 & shamt[4:0] & C2 \\
+\end{tabular}
+\end{center}
+
+SLLI是一个CI格式的指令，它对寄存器{\em rd}中的值执行逻辑左移，然后把结果写到{\em rd}。
+移位的数目被编码在{\em shamt}域之中。对于RV128C，移位数目零被用于编码64的移位。
+C.SLLI扩展到{\tt slli rd, rd, shamt}；但{\tt shamt=0}的RV128C除外，它扩展到{\tt slli rd, rd, 64}。
+C.SLLI is a CI-format instruction that performs a logical left shift
+of the value in register {\em rd} then writes the result to {\em rd}.
+The shift amount is encoded in the {\em shamt} field.
+For RV128C, a shift amount of zero is used to encode a shift of 64.
+C.SLLI expands into {\tt slli rd, rd, shamt}, except for
+RV128C with {\tt shamt=0}, which expands to {\tt slli rd, rd, 64}.
+
+对于RV32C，{\em shamt[5]}必须是零；{\em shamt[5]}=1的代码点被指定用于自定义扩展。
+对于RV32C和RV64C，移位的数目必须是非零的；{\em shamt}=0的代码点是HINT。
+对于所有的基础ISA，除了RV32C中那些{\em shamt[5]}=1的之外，{\em rd}={\tt x0}的代码点都是HINT。
+% For RV32C, {\em shamt[5]} must be zero; the code points with {\em shamt[5]}=1
+% are designated for custom extensions.  For RV32C and RV64C, the shift
+% amount must be non-zero; the code points with {\em shamt}=0 are HINTs.  For
+% all base ISAs, the code points with {\em rd}={\tt x0} are HINTs, except those
+% with {\em shamt[5]}=1 in RV32C.
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{S@{}W@{}Y@{}S@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{10} &
+\instbitrange{9}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{shamt[5]} &
+\multicolumn{1}{|c|}{funct2} &
+\multicolumn{1}{c|}{\rdprime/\rsoneprime} &
+\multicolumn{1}{c|}{shamt[4:0]} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 2 & 3 & 5 & 2 \\
+C.SRLI  & shamt[5] & C.SRLI & dest & shamt[4:0] & C1 \\
+C.SRAI  & shamt[5] & C.SRAI & dest & shamt[4:0] & C1 \\
+\end{tabular}
+\end{center}
+
+C.SRLI是一个CB格式的指令，它对寄存器{\em \rdprime}中的值实施逻辑右移，然后把结果写到{\em \rdprime}。
+移位的数目被编码在{\em shamt}域之中。对于RV128C，移位数目零被用于编码64的移位。
+甚至，对于RV128C，移位数目被符号扩展，并因此合法的移位数目是1 - 13，64，和96 - 127。
+C.SRLI扩展到{\tt srli \rdprime, \rdprime, shamt}；但{\tt shamt=0}的RV128C除外，它扩展到{\tt srli \rdprime, \rdprime, 64}。
+% C.SRLI is a CB-format instruction that performs a logical right shift
+% of the value in register {\em \rdprime} then writes the result to {\em \rdprime}.
+% The shift amount is encoded in the {\em shamt} field.
+% For RV128C, a shift amount of zero is used to encode a shift of 64.
+% Furthermore, the shift amount is sign-extended
+% for RV128C, and so the legal shift amounts are 1--31, 64, and 96--127.
+% C.SRLI expands into {\tt srli \rdprime, \rdprime, shamt},
+% except for RV128C with {\tt shamt=0}, which expands to
+% {\tt srli \rdprime, \rdprime, 64}.
+
+对于RV32C，{\em shamt[5]}必须是零；{\em shamt[5]}=1的代码点被指定用于自定义扩展。对于RV32C和RV64C，移位数目必须是非零的；{\em shamt}=0的代码点是HINT。
+% For RV32C, {\em shamt[5]} must be zero; the code points with {\em shamt[5]}=1
+% are designated for custom extensions.  For RV32C and RV64C, the shift
+% amount must be non-zero; the code points with {\em shamt}=0 are HINTs.
+
+C.SRAI的定义与C.SRLI类似，但是执行的是算数右移。C.SRAI扩展到{\tt srai \rdprime, \rdprime, shamt}。
+% C.SRAI is defined analogously to C.SRLI, but instead performs an arithmetic
+% right shift.
+% C.SRAI expands to {\tt srai \rdprime, \rdprime, shamt}.
+
+\begin{commentary}
+左移通常比右移更加频繁，因为左移被频繁用于放缩地址的值。右移因此被赋予较少的编码空间，并被放置在一个编码象限中，
+那里所有其它的立即数都是被符号扩展的。对于RV128，作出该决策是为了让6位移位数目立即数也被符号扩展。
+除了减少解码的复杂度，我们相信96 -127的右移数目比64 - 95的数目更加有用，以允许提取位于128位地址指针的高部分中的标签。
+我们注意到RV128C将不会与RV32C和RV64C被冻结在同一点，以允许评估128位地址空间代码的常见用法。
+% Left shifts are usually more frequent than right shifts, as left
+% shifts are frequently used to scale address values.  Right shifts have
+% therefore been granted less encoding space and are placed in an
+% encoding quadrant where all other immediates are sign-extended.  For
+% RV128, the decision was made to have the 6-bit shift-amount immediate
+% also be sign-extended.  Apart from reducing the decode complexity, we
+% believe right-shift amounts of 96--127 will be more useful than 64--95,
+% to allow extraction of tags located in the high portions of 128-bit
+% address pointers.  We note that RV128C will not be frozen at the same
+% point as RV32C and RV64C, to allow evaluation of typical usage of
+% 128-bit address-space codes.
+\end{commentary}
+
+\begin{center}
+\begin{tabular}{S@{}W@{}Y@{}S@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{10} &
+\instbitrange{9}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm[5]} &
+\multicolumn{1}{|c|}{funct2} &
+\multicolumn{1}{c|}{\rdprime/\rsoneprime} &
+\multicolumn{1}{c|}{imm[4:0]} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 2 & 3 & 5 & 2 \\
+C.ANDI  & imm[5] & C.ANDI & dest & imm[4:0] & C1 \\
+\end{tabular}
+\end{center}
+
+C.ANDI是一个CB格式的指令，它计算寄存器{\em \rdprime}中的值与符号扩展的6位立即数的按位AND，然后把结果写到{\em \rdprime}。
+C.ANDI扩展到{\tt andi \rdprime, \rdprime, imm}。
+% C.ANDI is a CB-format instruction that computes the bitwise AND of
+% the value in register {\em \rdprime} and the sign-extended 6-bit immediate,
+% then writes the result to {\em \rdprime}.
+% C.ANDI expands to {\tt andi \rdprime, \rdprime, imm}.
+
+
+\subsection*{整数寄存器-寄存器操作}
+\subsection*{Integer Register-Register Operations}
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{E@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{12} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct4} &
+\multicolumn{1}{c|}{rd/rs1} &
+\multicolumn{1}{c|}{rs2} &
+\multicolumn{1}{c|}{op} \\
+\hline
+4 & 5 & 5 & 2 \\
+C.MV & dest$\neq$0 & src$\neq$0 & C2 \\
+C.ADD & dest$\neq$0 & src$\neq$0 & C2 \\
+\end{tabular}
+\end{center}
+这些指令使用CR格式。
+% These instructions use the CR format.
+
+C.MV把寄存器{\em rs2}中的值复制到寄存器{\em rd}中。C.MV扩展到{\tt add rd, x0, rs2}。
+C.MV只在rs2＝x0时有效；$\textit{rs2}{=}\texttt{x0}$的代码点对应于C.JR指令。
+$\textit{rs2}{\neq}\texttt{x0}$和$\textit{rd}{=}\texttt{x0}$的代码点是HINT。
+% C.MV copies the value in register {\em rs2} into register {\em rd}.  C.MV
+% expands into {\tt add rd, x0, rs2}.
+% C.MV is only valid when $\textit{rs2}{\neq}\texttt{x0}$; the code points
+% with $\textit{rs2}{=}\texttt{x0}$ correspond to the C.JR instruction.
+% The code points with $\textit{rs2}{\neq}\texttt{x0}$ and
+% $\textit{rd}{=}\texttt{x0}$ are HINTs.
+
+\begin{commentary}
+C.MV扩展到与典型的MV伪指令（其使用ADDI）不同的指令。
+专门处理MV的实现，例如，使用寄存器重命名的硬件，可能会发现把C.MV扩展到MV而不是ADD会更加方便，只需轻微的额外的硬件开销。
+% C.MV expands to a different instruction than the canonical MV
+% pseudoinstruction, which instead uses ADDI. Implementations that handle MV
+% specially, e.g. using register-renaming hardware, may find it more convenient
+% to expand C.MV to MV instead of ADD, at slight additional hardware cost.
+\end{commentary}
+
+C.ADD把寄存器{\em rd}和{\em rs2}中的值相加，并把结果写到寄存器{\em rd}。
+C.ADD扩展到{\tt add rd, rd, rs2}。C.ADD只在$\textit{rs2}{\neq}\texttt{x0}$时有效；r$\textit{rs2}{=}\texttt{x0}$的代码点对应于C.JALR和C.EBREAK指令。
+$\textit{rs2}{\neq}\texttt{x0}$0和$\textit{rd}{=}\texttt{x0}$的代码点是HINT。
+% C.ADD adds the values in registers {\em rd} and {\em rs2} and writes the
+% result to register {\em rd}.  C.ADD expands into {\tt add rd, rd, rs2}.
+% C.ADD is only valid when $\textit{rs2}{\neq}\texttt{x0}$; the code points
+% with $\textit{rs2}{=}\texttt{x0}$ correspond to the C.JALR and C.EBREAK instructions.
+% The code points with $\textit{rs2}{\neq}\texttt{x0}$ and
+% $\textit{rd}{=}\texttt{x0}$ are HINTs.
+
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{M@{}S@{}Y@{}S@{}Y}
+\\
+\instbitrange{15}{10} &
+\instbitrange{9}{7} &
+\instbitrange{6}{5} &
+\instbitrange{4}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct6} &
+\multicolumn{1}{c|}{\rdprime/\rsoneprime} &
+\multicolumn{1}{c|}{funct2} &
+\multicolumn{1}{c|}{\rstwoprime} &
+\multicolumn{1}{c|}{op} \\
+\hline
+6 & 3 & 2 & 3 & 2 \\
+C.AND  & dest & C.AND  & src & C1 \\
+C.OR   & dest & C.OR   & src & C1 \\
+C.XOR  & dest & C.XOR  & src & C1 \\
+C.SUB & dest & C.SUB & src & C1 \\
+C.ADDW & dest & C.ADDW & src & C1 \\
+C.SUBW & dest & C.SUBW & src & C1 \\
+\end{tabular}
+\end{center}
+
+这些指令使用CA格式。
+% These instructions use the CA format.
+
+C.AND 计算寄存器{\em \rdprime}和{\em \rstwoprime}中的值的按位AND，然后把结果写到寄存器{\em \rdprime}。C.AND扩展到{\tt and \rdprime, \rdprime, \rstwoprime}。
+% C.AND computes the bitwise AND of the values in registers {\em \rdprime}
+% and {\em \rstwoprime}, then writes the result to register {\em \rdprime}.
+% C.AND expands into {\tt and \rdprime, \rdprime, \rstwoprime}.
+
+C.OR 计算寄存器{\em \rdprime}和{\em \rstwoprime}中的值的按位OR，然后把结果写到寄存器{\em \rdprime}。C.OR扩展到{\tt or \rdprime, \rdprime, \rstwoprime}。
+% C.OR computes the bitwise OR of the values in registers {\em \rdprime}
+% and {\em \rstwoprime}, then writes the result to register {\em \rdprime}.
+% C.OR expands into {\tt or \rdprime, \rdprime, \rstwoprime}.
+
+C.XOR计算寄存器{\em \rdprime}和{\em \rstwoprime}中的值的按位XOR，然后把结果写到寄存器{\em \rdprime}。C.XOR扩展到{\tt xor \rdprime, \rdprime, \rstwoprime}。
+% C.XOR computes the bitwise XOR of the values in registers {\em \rdprime}
+% and {\em \rstwoprime}, then writes the result to register {\em \rdprime}.
+% C.XOR expands into {\tt xor \rdprime, \rdprime, \rstwoprime}.
+
+C.SUB从寄存器{\em \rdprime}中的值中减去寄存器{\em \rstwoprime}中的值，然后把结果写到寄存器{\em \rdprime}。C.SUB扩展到{\tt sub \rdprime, \rdprime, \rstwoprime}。
+% C.SUB subtracts the value in register {\em \rstwoprime} from the value in
+% register {\em \rdprime}, then writes the result to register {\em \rdprime}.
+% C.SUB expands into {\tt sub \rdprime, \rdprime, \rstwoprime}.
+
+C.ADDW是一个RV64C/4V128C独有的指令，它把寄存器{\em \rdprime}和{\em \rstwoprime}中的值相加，然后在把结果写到寄存器{\em \rdprime}之前，对和的低32位进行符号扩展。C.ADDW扩展到{\tt addw \rdprime, \rdprime, \rstwoprime}。
+% C.ADDW is an RV64C/RV128C-only instruction that adds the values in
+% registers {\em \rdprime} and {\em \rstwoprime}, then sign-extends the lower
+% 32 bits of the sum before writing the result to register {\em \rdprime}.
+% C.ADDW expands into {\tt addw \rdprime, \rdprime, \rstwoprime}.
+
+C.SUBW是一个RV64C/RV128独有的指令，它从寄存器{\em \rdprime}中的值中减去寄存器{\em \rstwoprime}中的值，然后在把结果写到寄存器{\em \rdprime}之前，对差的低32位进行符号扩展。C.SUBW扩展到{\tt subw \rdprime, \rdprime, \rstwoprime}。
+% C.SUBW is an RV64C/RV128C-only instruction that subtracts the value in
+% register {\em \rstwoprime} from the value in register {\em \rdprime}, then
+% sign-extends the lower 32 bits of the difference before writing the result
+% to register {\em \rdprime}. C.SUBW expands into {\tt subw \rdprime, \rdprime, \rstwoprime}.
+
+\begin{commentary}
+这组的六个指令虽然不会各自提供（对资源的）大量节省，但是不会占据太多的编码空间，而且易于实现；
+并且作为一个组，在静态和动态压缩方面提供了值得改进的地方。
+% This group of six instructions do not provide large savings
+% individually, but do not occupy much encoding space and are
+% straightforward to implement, and as a group provide a worthwhile
+% improvement in static and dynamic compression.
+\end{commentary}
+
+\subsection*{Defined Illegal Instruction}
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{SW@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{0} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{0} \\
+\hline
+3 & 1 & 5 & 5 & 2 \\
+0 & 0 & 0 & 0 & 0 \\
+\end{tabular}
+\end{center}
+
+所有位都是零的16位指令被永久性地保留为一个非法指令。
+% A 16-bit instruction with all bits zero is permanently reserved as an
+% illegal instruction.
+\begin{commentary}
+我们把全零指令保留为非法指令，以帮助对尝试执行内存空间中以零结尾的、或者不存在的部分进行陷入。
+在任何非标准的扩展中，全零的值都应当被重新定义。
+类似地，我们保留了所有位都设为1的指令（对应于RISC-V可变长度编码策略中的非常长的指令）作为非法指令，
+以捕获另一些常见的在不存在的内存区域中的值。
+% We reserve all-zero instructions to be illegal instructions to help
+% trap attempts to execute zero-ed or non-existent portions of the
+% memory space.  The all-zero value should not be redefined in any
+% non-standard extension.  Similarly, we reserve instructions with all
+% bits set to 1 (corresponding to very long instructions in the RISC-V
+% variable-length encoding scheme) as illegal to capture another common
+% value seen in non-existent memory regions.
+\end{commentary}
+
+\subsection*{NOP指令}
+% \subsection*{NOP Instruction}
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{SW@{}T@{}T@{}Y}
+\\
+\instbitrange{15}{13} &
+\multicolumn{1}{c}{\instbit{12}} &
+\instbitrange{11}{7} &
+\instbitrange{6}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct3} &
+\multicolumn{1}{c|}{imm[5]} &
+\multicolumn{1}{c|}{rd/rs1} &
+\multicolumn{1}{c|}{imm[4:0]} &
+\multicolumn{1}{c|}{op} \\
+\hline
+3 & 1 & 5 & 5 & 2 \\
+C.NOP & 0 & 0 & 0 & C1 \\
+\end{tabular}
+\end{center}
+
+C.NOP是一个CI格式的指令，除了提升{\tt pc}和增加任何适用的性能计数器，它不改变任何用户可见的状态。
+C.NOP扩展到{\tt nop}。C.NOP只有在{\em imm}=0时有效；{\em imm}$\neq$0的代码点编码了HINT。
+% C.NOP is a CI-format instruction that does not change any user-visible state,
+% except for advancing the {\tt pc} and incrementing any applicable performance
+% counters.  C.NOP expands to {\tt nop}.  C.NOP is only valid when {\em imm}=0;
+% the code points with {\em imm}$\neq$0 encode HINTs.
+
+\subsection*{断点指令}
+% \subsection*{Breakpoint Instruction}
+\vspace{-0.4in}
+\begin{center}
+\begin{tabular}{E@{}U@{}Y}
+\\
+\instbitrange{15}{12} &
+\instbitrange{11}{2} &
+\instbitrange{1}{0} \\
+\hline
+\multicolumn{1}{|c|}{funct4} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{op} \\
+\hline
+4 & 10 & 2 \\
+C.EBREAK & 0 & C2 \\
+\end{tabular}
+\end{center}
+
+调试器可以使用C.EBREAK指令，它扩展到{\tt ebreak}，以造成控制被转移回调试环境。
+C.EBREAK与C.ADD共享操作码，但是{\em rd}和{\em rs2}都是零，因此也可以使用CR格式。
+% Debuggers can use the C.EBREAK instruction, which expands to {\tt ebreak},
+% to cause control to be transferred back to the debugging environment.
+% C.EBREAK shares the opcode with the C.ADD instruction, but with {\em
+%   rd} and {\em rs2} both zero, thus can also use the CR format.
+
+\section{C指令在LR/SC序列中的使用}
+% \section{Usage of C Instructions in LR/SC Sequences}
+
+在支持C扩展的实现上，在受限的LR/SC序列内部允许I指令的压缩形式，就像~\ref{sec:lrscseq}节中描述的那样，也允许在受限的LR/SC序列中使用。
+% On implementations that support the C extension, compressed forms of the
+% I instructions permitted inside constrained LR/SC sequences, as described in
+% Section~\ref{sec:lrscseq}, are also permitted inside constrained LR/SC
+% sequences.
+
+\begin{commentary}
+这意味着，任何声称同时支持A扩展和C扩展的实现都必须确保：包含有效C指令的LR/SC序列将最终完成。
+% The implication is that any implementation that claims to support both
+% the A and C extensions must ensure that LR/SC sequences containing
+% valid C instructions will eventually complete.
+\end{commentary}
+
+\section{“提示”指令}
+% \section{HINT Instructions}
+\label{sec:rvc-hints}
+
+RVC编码空间的一部分被保留用于微架构HINT。像在RV32I基础ISA中的HINT（见~\ref{sec:rv32i-hints}节），
+这些指令除了增加{\tt pc}和任何适用的性能计数器，不修改任何架构状态。在实现上，HINT作为no-op执行而忽略它们。
+% A portion of the RVC encoding space is reserved for microarchitectural HINTs.
+% Like the HINTs in the RV32I base ISA (see Section~\ref{sec:rv32i-hints}),
+% these instructions do not modify any architectural state, except for advancing
+% the {\tt pc} and any applicable performance counters.  HINTs are
+% executed as no-ops on implementations that ignore them.
+
+RVC HINT被编码为不修改架构状态的运算指令，或者是因为{\em rd}={\tt x0}（例如，\mbox{C.ADD {\em x0}, {\em t0}}），
+或者是因为{\em rd}被它自己的拷贝所覆写（例如，\mbox{C.ADDI {\em t0}, 0}）。
+% RVC HINTs are encoded as computational instructions that do not modify the
+% architectural state, either because {\em rd}={\tt x0}
+% (e.g. \mbox{C.ADD {\em x0}, {\em t0}}), or because {\em rd} is overwritten
+% with a copy of itself (e.g. \mbox{C.ADDI {\em t0}, 0}).
+
+\begin{commentary}
+选择这样的HINT编码，使得简单的实现可以忽略全部的HINT，代替为把HINT作为一个恰好不会改变架构状态的常规运算指令来执行。
+% This HINT encoding has been chosen so that simple implementations can ignore
+% HINTs altogether, and instead execute a HINT as a regular computational
+% instruction that happens not to mutate the architectural state.
+\end{commentary}
+
+没有必要把RVC HINT扩展到它们对应的RVI HINT。例如，\mbox{C.ADD {\em x0}, {\em a0}}可能不会编码为与\mbox{ADD {\em x0}, {\em x0}, {\em a0}}相同的HINT。
+% RVC HINTs do not necessarily expand to their RVI HINT counterparts.  For
+% example, \mbox{C.ADD {\em x0}, {\em a0}} might not encode the same HINT
+% as \mbox{ADD {\em x0}, {\em x0}, {\em a0}}.
+
+\begin{commentary}
+不需要把RVC HINT扩展到RVI HINT的主要原因是，HINT不可能以与底层运算指令相同的方式被压缩。
+并且，解耦RVC和RVI HINT的映射可以使稀缺的RVC HINT空间被分配给最常用的HINT，特别地，分配给适用于宏操作融合的HINT。
+% The primary reason to not require an RVC HINT to expand to an RVI HINT
+% is that HINTs are unlikely to be compressible in the same manner as
+% the underlying computational instruction.  Also, decoupling the RVC
+% and RVI HINT mappings allows the scarce RVC HINT space to be allocated
+% to the most popular HINTs, and in particular, to HINTs that are
+% amenable to macro-op fusion.
+\end{commentary}
+
+表~\ref{tab:rvc-hints}列出了所有的RVC HINT代码点。对于RV32C，78\%的HINT空间被保留给标准HINT。
+余下的HINT空间被指定给自定义HINT：永远不会有标准HINT将被定义在这个子空间中
+% Table~\ref{tab:rvc-hints} lists all RVC HINT code points.  For RV32C, 78\% of
+% the HINT space is reserved for standard HINTs.
+% The remainder of the HINT space is designated for custom HINTs: no standard
+% HINTs will ever be defined in this subspace.
+
+\begin{table}[hbt]
+\centering
+\begin{tabular}{|l|l|r|l|}
+  \hline
+  指令                     & 约束                                        & 代码点        & 用途 \\ \hline \hline
+  C.NOP                   & {\em nzimm}$\neq$0                          & 63          & \multirow{6}{*}{\em 保留供未来标准使用} \\ \cline{1-3}
+  C.ADDI                  & {\em rd}$\neq${\tt x0}, {\em nzimm}=0       & 31          & \\ \cline{1-3}
+  C.LI                    & {\em rd}={\tt x0}                           & 64          & \\ \cline{1-3}
+  C.LUI                   & {\em rd}={\tt x0}, {\em nzimm}$\neq$0       & 63          & \\ \cline{1-3}
+  C.MV                    & {\em rd}={\tt x0}, {\em rs2}$\neq${\tt x0}  & 31          & \\ \cline{1-3}
+  C.ADD                   & {\em rd}={\tt x0}, {\em rs2}$\neq${\tt x0}, {\em rs2}$\neq${\tt x2}--{\tt x5} & 27   & \\ \hline
+  \multirow{4}{*}{C.ADD}  & \multirow{4}{*}{{\em rd}={\tt x0}, {\em rs2}={\tt x2}--{\tt x5}}
+                                                                        & \multirow{4}{*}{$4$}
+                                                                                      & ({\em rs2}={\tt x2}) C.NTL.P1 \\
+                          &                                             &             & ({\em rs2}={\tt x3}) C.NTL.PALL \\
+                          &                                             &             & ({\em rs2}={\tt x4}) C.NTL.S1 \\
+                          &                                             &             & ({\em rs2}={\tt x5}) C.NTL.ALL \\ \hline
+  \multirow{2}{*}{C.SLLI} & \multirow{2}{*}{{\em rd}={\tt x0}, {\em nzimm}$\neq$0} & 31 (RV32)   & \multirow{6}{*}{\em 指定为自定义使用} \\
+                          &                                             & 63 (RV64/128) & \\ \cline{1-3}
+  C.SLLI64                & {\em rd}={\tt x0}                           & 1           & \\ \cline{1-3}
+  C.SLLI64                & {\em rd}$\neq${\tt x0}, RV32 和 RV64 独有  & 31          & \\ \cline{1-3}
+  C.SRLI64                & RV32 和 RV64 独有                          & 8           & \\ \cline{1-3}
+  C.SRAI64                & RV32 和 RV64 独有                          & 8           & \\ \hline
+\end{tabular}
+\caption{RVC HINT指令。}
+\label{tab:rvc-hints}
+\end{table}
+
+\clearpage
+
+\section{RVC指令集列表}
+% \section{RVC Instruction Set Listings}
+
+表~\ref{rvcopcodemap}显示了RVC主操作码的映射。表的每一行对应于编码空间的一个象限。最后一个象限，其设置了两个最小有效位，
+对应于宽度超过16位的指令，包括那些在基础ISA中的指令。一些指令只对特定的操作数有效；
+当无效的时候，它们被标记为{\em RES}来表示该操作码被保留用于未来的标准扩展；
+或者标记为{\em Custom}来表示该操作码被指定用于自定义扩展；或者标记为{\em HINT}来表示该操作码被保留用于微架构提示（见~\ref{sec:rvc-hints}节）。
+% Table~\ref{rvcopcodemap} shows a map of the major opcodes for RVC.
+% Each row of the table corresponds to one quadrant of the encoding
+% space.  The last quadrant, which has the two
+% least-significant bits set, corresponds to instructions wider
+% than 16 bits, including those in the base ISAs.  Several instructions
+% are only valid for certain operands; when invalid, they are marked
+% either {\em RES} to indicate that the opcode is reserved for future
+% standard extensions; {\em Custom} to indicate that the opcode is designated
+% for custom extensions; or {\em HINT} to indicate that the opcode
+% is reserved for microarchitectural hints (see Section~\ref{sec:rvc-hints}).
+
+\input{rvc-opcode-map}
+
+表~\ref{rvc-instr-table0} - \ref{rvc-instr-table2} 列出了RVC指令。
+% Tables~\ref{rvc-instr-table0}--\ref{rvc-instr-table2} list the RVC instructions.
+\input{rvc-instr-table}

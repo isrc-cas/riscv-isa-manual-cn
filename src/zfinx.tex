@@ -1,0 +1,194 @@
+\chapter{用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}
+% \chapter{``Zfinx'', ``Zdinx'', ``Zhinx'', ``Zhinxmin'': Standard Extensions for Floating-Point in Integer Registers, Version 1.0}
+\label{sec:zfinx}
+
+本章定义了“Zfinx”扩展（发音为“z-f-in-x”），为单精度浮点指令提供了与标准浮点F扩展类似的指令，但是操作在{\tt x}寄存器而不是{\tt f}寄存器上。
+本章还定义了“Zdinx”、“Zhinx”和“Zhinxmin”扩展，为其他浮点精度提供了类似的指令。
+% This chapter defines the ``Zfinx'' extension (pronounced ``z-f-in-x'')
+% that provides instructions similar to those in the standard
+% floating-point F extension for single-precision floating-point
+% instructions but which operate on the {\tt x} registers instead of the
+% {\tt f} registers.  This chapter also defines the ``Zdinx'',
+% ``Zhinx'', and ``Zhinxmin'' extensions that provide similar
+% instructions for other floating-point precisions.
+
+\begin{commentary}
+F扩展使用单独的{\tt f}寄存器进行浮点计算，以减少寄存器压力并为宽超标量简化寄存器文件端口的提供。
+然而，额外的\wunits{128}{B}架构状态增加了最小实现成本。
+通过消除{\tt f}寄存器，Zfinx扩展极大地减少了支持带有浮点指令集的简单RISC-V实现的成本。Zfinx也降低了上下文切换成本。
+% The F extension uses separate {\tt f} registers for floating-point
+% computation, to reduce register pressure and simplify the provision of
+% register-file ports for wide superscalars.
+% However, the additional \wunits{128}{B} of architectural state increases the
+% minimal implementation cost.
+% By eliminating the {\tt f} registers, the Zfinx extension substantially
+% reduces the cost of simple RISC-V implementations with floating-point
+% instruction-set support.
+% Zfinx also reduces context-switch cost.
+
+一般来说，假定F扩展存在的软件与假定Zfinx扩展存在的软件是不兼容的，反之亦然。
+% In general, software that assumes the presence of the F extension
+% is incompatible with software that assumes the presence of the Zfinx
+% extension, and vice versa.
+\end{commentary}
+
+{\em 除了}转移指令FLW、FSW、FMV.W.X、FMV.X.W、C.FLW[SP]和C.FSW[SP]外，Zfinx扩展添加了F扩展所增加的所有指令。
+% The Zfinx extension adds all of the instructions that the F extension
+% adds, {\em except} for the transfer instructions FLW, FSW, FMV.W.X,
+% FMV.X.W, C.FLW[SP], and C.FSW[SP].
+
+\begin{commentary}
+Zfinx软件使用整数的加载与存储在内存之间传递浮点值。在寄存器之间的传输既可以使用整数算术指令，也可以使用浮点符号注入指令。
+% Zfinx software uses integer loads and stores to transfer floating-point values
+% from and to memory.
+% Transfers between registers use either integer arithmetic or floating-point
+% sign-injection instructions.
+\end{commentary}
+
+这些F扩展指令的Zfinx变体具有相同的语义，只是当这样一条指令将访问{\tt f}寄存器时，改为访问具有相同编号的{\tt x}寄存器。
+% The Zfinx variants of these F-extension instructions have the same semantics,
+% except that whenever such an instruction would have accessed an {\tt f}
+% register, it instead accesses the {\tt x} register with the same number.
+
+\section{处理更窄的值}
+% \section{Processing of Narrower Values}
+
+宽度\mbox{{\em w} $<$ XLEN bits}位的浮点操作数占据{\tt x}寄存器的位\mbox{{\em w}-1:0}。对于{\em w}位的浮点操作会忽略位\mbox{XLEN-1:{\em w}}。
+% Floating-point operands of width \mbox{{\em w} $<$ XLEN bits} occupy bits
+% \mbox{{\em w}-1:0} of an {\tt x} register.
+% Floating-point operations on {\em w}-bit operands ignore operand bits
+% \mbox{XLEN-1:{\em w}}.
+
+产生\mbox{{\em w} $<$ XLEN-bit}位结果的浮点操作用位\mbox{{\em w}-1}（符号位）填充位\mbox{XLEN-1:{\em w}}。
+% Floating-point operations that produce \mbox{{\em w} $<$ XLEN-bit} results
+% fill bits \mbox{XLEN-1:{\em w}} with copies of bit \mbox{{\em w}-1} (the
+% sign bit).
+
+\begin{commentary}
+{\tt f}寄存器中采用的NaN装箱策略的设计足够支持重新编码的浮点格式。
+不过，由于浮点操作数和整数操作数占据相同的寄存器，重新编码对于Zfinx不太实用。因此，减少了对NaN装箱的需求。
+% The NaN-boxing scheme employed in the {\tt f} registers was designed to
+% efficiently support recoded floating-point formats.
+% Recoding is less practical for Zfinx, though, since the same registers
+% hold both floating-point and integer operands.
+% Hence, the need for NaN boxing is diminished.
+
+当符号扩展的32位浮点数保存在RV64的{\tt x}寄存器时，匹配现有的RV64调用约定，这需要所有的32位类型在传递到x寄存器、
+或从{\tt x}寄存器返回时，都被符号扩展。为了使架构更加规范，我们在RV32和RV64中都把这个式样扩展到了16位浮点数。
+% Sign-extending 32-bit floating-point numbers when held in RV64 {\tt x}
+% registers matches the existing RV64 calling conventions, which require all
+% 32-bit types to be sign-extended when passed or returned in {\tt x} registers.
+% To keep the architecture more regular, we extend this pattern to 16-bit
+% floating-point numbers in both RV32 and RV64.
+\end{commentary}
+
+\section{Zdinx}
+% \section{Zdinx}
+
+Zdinx扩展提供了类似于双精度浮点的指令。Zdinx扩展需要Zfinx扩展。
+% The Zdinx extension provides analogous double-precision floating-point
+% instructions.
+% The Zdinx extension requires the Zfinx extension.
+
+{\em 除了}转移指令FLD、FSD、FMV.D.X、C.FLD[SP]和C.FSD[SP]，Zdinx扩展添加了D扩展增加的所有指令。
+% The Zdinx extension adds all of the instructions that the D extension
+% adds, {\em except} for the transfer instructions FLD, FSD, FMV.D.X,
+% FMV.X.D, C.FLD[SP], and C.FSD[SP].
+
+这些D扩展指令的Zdinx变体具有相同的语义，只是当这样一条指令将访问{\tt f}寄存器时，改为访问具有相同编号的{\tt x}寄存器。
+% The Zdinx variants of these D-extension instructions have the same semantics,
+% except that whenever such an instruction would have accessed an {\tt f}
+% register, it instead accesses the {\tt x} register with the same number.
+
+\section{处理更宽的值}
+% \section{Processing of Wider Values}
+
+RV32Zdinx中的双精度操作数保存在对齐的{\tt x}寄存器对中，也就是说，寄存器数量必须是偶数。为双宽度浮点操作数使用未对齐的（奇数数量的）寄存器是{\em 保留的}。
+% Double-precision operands in RV32Zdinx
+% are held in aligned {\tt x}-register pairs, i.e.,
+% register numbers must be even.
+% Use of misaligned (odd-numbered) registers for double-width floating-point
+% operands is {\em reserved}.
+
+不论字节序如何，较低编号的寄存器都保存低序位，而较高编号的寄存器保存高序位：例如，
+RV32Zdinx中，双精度操作数的位31:0可能保存在寄存器{\tt x14}中，同时该操作数的位63:32保存在{\tt x15}中。
+% Regardless of endianness, the lower-numbered register holds the low-order
+% bits, and the higher-numbered register holds the high-order bits: e.g., bits
+% 31:0 of a double-precision operand in RV32Zdinx might be held in register
+% {\tt x14}, with bits 63:32 of that operand held in {\tt x15}.
+
+当一个双宽度浮点结果写入{\tt x0}时，整个写入是无效的：例如，对于RV32Zdinx，向{\tt x0}写入一个双精度结果并不会导致{\tt x1}被写入。
+% When a double-width floating-point result is written to {\tt x0}, the entire
+% write takes no effect: e.g., for RV32Zdinx, writing a double-precision result
+% to {\tt x0} does not cause {\tt x1} to be written.
+
+当{\tt x0}被用作一个双宽度浮点操作数时，完整的操作数是零——即，{\tt x1}是未访问的。
+% When {\tt x0} is used as a double-width floating-point operand, the entire
+% operand is zero---i.e., {\tt x1} is not accessed.
+
+\begin{commentary}
+没有提供按对加载和按对存储的指令，所以在RV32Zdinx中从内存或向内存转移双精度操作数需要两次加载或存储。
+然而，寄存器的移动只需要一个单独的FSGNJ.D指令。
+% Load-pair and store-pair instructions are not provided, so transferring
+% double-precision operands in RV32Zdinx from or to memory requires
+% two loads or stores.
+% Register moves need only a single FSGNJ.D instruction, however.
+\end{commentary}
+
+\section{Zhinx}
+
+Zhinx扩展提供了类似于半精度浮点的指令。Zhinx扩展需要Zfinx扩展。
+% The Zhinx extension provides analogous half-precision floating-point
+% instructions.
+% The Zhinx extension requires the Zfinx extension.
+
+{\em 除了}转移指令FLH、FSH、FMV.H.X和FMV.X.H外，Zhinx扩展添加了所有Zfh扩展增加的指令。
+% The Zhinx extension adds all of the instructions that the Zfh extension
+% adds, {\em except} for the transfer instructions FLH, FSH, FMV.H.X,
+% and FMV.X.H.
+
+这些Zfh扩展指令的Zhinx变体具有相同的语义，只是在这样一条指令将访问{\tt f}寄存器时，改为访问具有相同编号的{\tt x}寄存器。
+% The Zhinx variants of these Zfh-extension instructions have the same semantics,
+% except that whenever such an instruction would have accessed an {\tt f}
+% register, it instead accesses the {\tt x} register with the same number.
+
+\section{Zhinxmin}
+
+Zhinxmin扩展提供了对操作在{\tt x}寄存器上的16位半精度浮点指令的最小限度的支持。Zhinxmin扩展需要Zfinx扩展。
+% The Zhinxmin extension provides minimal support for 16-bit half-precision
+% floating-point instructions that operate on the {\tt x} registers.
+% The Zhinxmin extension requires the Zfinx extension.
+
+Zhinxmin扩展包含来自Zhinx扩展的下列指令：FCVT.S.H和FCVT.H.S。如果Zdinx扩展存在，也包含了FCVT.D.H和FCVT.H.D指令。
+% The Zhinxmin extension includes the following instructions from the Zhinx
+% extension: FCVT.S.H and FCVT.H.S.
+% If the Zdinx extension is present, the FCVT.D.H and FCVT.H.D instructions are
+% also included.
+
+\begin{commentary}
+在未来，可能定义与RV32Zdinx类似的RV64Zqinx四精度扩展。RV32Zqinx扩展也可能被定义，但是需要四寄存器组（译者注：指每组包含共同工作的四个寄存器，原文quad-register groups）。
+% In the future, an RV64Zqinx quad-precision extension could be defined analogously
+% to RV32Zdinx.
+% An RV32Zqinx extension could also be defined but would require
+% quad-register groups.
+\end{commentary}
+
+\section{特权架构的影响}
+% \section{Privileged Architecture Implications}
+
+在第二卷定义的标准特权架构中，如果实现了Zfinx扩展，{\tt mstatus}域FS被硬布线为零，
+并且FS不再影响浮点指令或{\tt fcsr}访问的陷入行为。
+% In the standard privileged architecture defined in Volume II, the
+% {\tt mstatus} field FS is hardwired to 0 if the Zfinx extension is
+% implemented, and FS no longer affects the trapping behavior of
+% floating-point instructions or {\tt fcsr} accesses.
+
+当实现了Zfinx扩展时，{\tt misa}位F、D和Q被硬布线为零。
+% The {\tt misa} bits F, D, and Q are hardwired to 0 when the Zfinx
+% extension is implemented.
+
+\begin{commentary}
+    未来的发现机制可能被用于探查Zfinx、Zhinx和Zdinx扩展的存在性。
+% A future discoverability mechanism might be used to probe the existence
+% of the Zfinx, Zhinx, and Zdinx extensions.
+\end{commentary}

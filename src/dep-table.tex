@@ -1,49 +1,58 @@
-\section{CSR Dependency Tracking Granularity}
+\section{CSR依赖跟踪粒度}
+% \section{CSR Dependency Tracking Granularity}
 \label{sec:csr-granularity}
 
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|l|}
     \hline
-    Name & Portions Tracked as Independent Units & Aliases  \\
+    名称 & 作为独立单元被追踪的部分 & 别称  \\
     \hline
     {\tt fflags} & Bits 4, 3, 2, 1, 0 & {\tt fcsr}  \\
     \hline
-    {\tt frm} & entire CSR & {\tt fcsr} \\
+    {\tt frm} & CSR整体 & {\tt fcsr} \\
     \hline
-    {\tt fcsr} & Bits 7-5, 4, 3, 2, 1, 0 & {\tt fflags}, {\tt frm} \\
+    {\tt fcsr} & 位 7-5, 4, 3, 2, 1, 0 & {\tt fflags}, {\tt frm} \\
     \hline
   \end{tabular}
-  \caption{Granularities at which syntactic dependencies are tracked through CSRs}
+  \caption{通过CSR跟踪的句法依赖的粒度
+    % Granularities at which syntactic dependencies are tracked through CSRs
+    }
 \end{table}
 
-Note: read-only CSRs are not listed, as they do not participate in the definition of syntactic dependencies.
+注意：没有列出只读的CSR，因为它们不参与句法依赖的定义。
+% Note: read-only CSRs are not listed, as they do not participate in the definition of syntactic dependencies.
 
-\section{Source and Destination Register Listings}
+\section{源寄存器和目的寄存器列表}
+% \section{Source and Destination Register Listings}
 \label{sec:source-dest-regs}
 
-This section provides a concrete listing of the source and destination registers for each instruction.
-These listings are used in the definition of syntactic dependencies in Section~\ref{sec:memorymodel:dependencies}.
+这节提供了每个指令的源寄存器和目的寄存器的具体列表。这些列表被用于定义~\ref{sec:memorymodel:dependencies}节中的句法依赖。
+% This section provides a concrete listing of the source and destination registers for each instruction.
+% These listings are used in the definition of syntactic dependencies in Section~\ref{sec:memorymodel:dependencies}.
 
-The term ``accumulating CSR'' is used to describe a CSR that is both a source and a destination register, but which carries a dependency only from itself to itself.
+术语“累积CSR”被用于描述一种CSR，它同时是一个源寄存器和一个目的寄存器，但是只携带一个从它自己到它自己的依赖。
+% The term ``accumulating CSR'' is used to describe a CSR that is both a source and a destination register, but which carries a dependency only from itself to itself.
 
-Instructions carry a dependency from each source register in the ``Source Registers'' column to each destination register in the ``Destination Registers'' column, from each source register in the ``Source Registers'' column to each CSR in the ``Accumulating CSRs'' column, and from each CSR in the ``Accumulating CSRs'' column to itself, except where annotated otherwise.
+除非另有说明，指令携带的依赖是：从“源寄存器”列中的各个源寄存器到“目的寄存器”列中的各个目的寄存器的依赖、从“源寄存器”列中的各个源寄存器到“累积CSR”列中的各个CSR的依赖，以及从“累积CSR”列中的各个CSR到其自身的依赖。
+% Instructions carry a dependency from each source register in the ``Source Registers'' column to each destination register in the ``Destination Registers'' column, from each source register in the ``Source Registers'' column to each CSR in the ``Accumulating CSRs'' column, and from each CSR in the ``Accumulating CSRs'' column to itself, except where annotated otherwise.
 
+要点：
 Key:
 
-$^A$Address source register
+$^A$ 地址源寄存器 % Address source register
 
-$^D$Data source register
+$^D$ 数据源寄存器 % Data source register
 
-$^\dagger$The instruction does not carry a dependency from any source register to any destination register
+$^\dagger$ 指令没有携带从任何源寄存器到任何目的寄存器的依赖  % The instruction does not carry a dependency from any source register to any destination register
 
-$^\ddagger$The instruction carries dependencies from source register(s) to destination register(s) as specified
+$^\ddagger$ 指令按照指定携带了从源寄存器到目的寄存器的依赖 % The instruction carries dependencies from source register(s) to destination register(s) as specified
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32I Base Integer Instruction Set} \\
+  \multicolumn{4}{l}{\bf RV32I 基础整数指令集} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+   & 源    & 目的 & 累积 \\
+   & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    LUI &  & {\em rd} &   & \\
    \cline{2-4}
@@ -130,25 +139,25 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32I Base Integer Instruction Set (continued)} \\
+  \multicolumn{4}{l}{\bf RV32I 基础整数指令集（续）} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
-   CSRRW$^\ddagger$ & {\em rs1}, {\em csr}$^*$ & {\em rd}, {\em csr} & & $^*$unless {\em rd}={\tt x0}  \\
+   CSRRW$^\ddagger$ & {\em rs1}, {\em csr}$^*$ & {\em rd}, {\em csr} & & $^*$除非{\em rd}={\tt x0}  \\
    \cline{2-4}
-   CSRRS$^\ddagger$ & {\em rs1}, {\em csr} & {\em rd}$^*$, {\em csr} & & $^*$unless {\em rs1}={\tt x0}  \\
+   CSRRS$^\ddagger$ & {\em rs1}, {\em csr} & {\em rd}$^*$, {\em csr} & & $^*$除非{\em rs1}={\tt x0}  \\
    \cline{2-4}
-   CSRRC$^\ddagger$ & {\em rs1}, {\em csr} & {\em rd}$^*$, {\em csr} & & $^*$unless {\em rs1}={\tt x0}  \\
+   CSRRC$^\ddagger$ & {\em rs1}, {\em csr} & {\em rd}$^*$, {\em csr} & & $^*$除非{\em rs1}={\tt x0}  \\
    \cline{2-4}
    \multicolumn{1}{c}{} & \multicolumn{3}{l}{$\ddagger$carries a dependency from {\em rs1} to {\em csr} and from {\em csr} to {\em rd}}
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32I Base Integer Instruction Set (continued)} \\
+  \multicolumn{4}{l}{\bf RV32I 基础整数指令集（续）} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
    \cline{2-4}
    CSRRWI$^\ddagger$ & {\em csr}$^*$ & {\em rd}, {\em csr} & & $^*$unless {\em rd}={\tt x0} \\
    \cline{2-4}
@@ -160,10 +169,10 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV64I Base Integer Instruction Set} \\
+  \multicolumn{4}{l}{\bf RV64I 基础整数指令集} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    LWU$^\dagger$ & {\em rs1}$^A$ & {\em rd} &   & \\
    \cline{2-4}
@@ -198,10 +207,10 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32M Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV32M 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    MUL & {\em rs1}, {\em rs2} & {\em rd} &   & \\
    \cline{2-4}
@@ -222,10 +231,10 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV64M Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV64M 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    MULW & {\em rs1}, {\em rs2} & {\em rd} &   & \\
    \cline{2-4}
@@ -240,14 +249,14 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32A Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV32A 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    LR.W$^\dagger$ & {\em rs1}$^A$ & {\em rd} &   & \\
    \cline{2-4}
-   SC.W$^\dagger$ & {\em rs1}$^A$, {\em rs2}$^D$ & {\em rd}$^*$ & & $^*$if successful  \\
+   SC.W$^\dagger$ & {\em rs1}$^A$, {\em rs2}$^D$ & {\em rd}$^*$ & & $^*$如果成功  \\
    \cline{2-4}
    AMOSWAP.W$^\dagger$ & {\em rs1}$^A$, {\em rs2}$^D$ & {\em rd} &   & \\
    \cline{2-4}
@@ -270,14 +279,14 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV64A Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV64A 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    LR.D$^\dagger$ & {\em rs1}$^A$ & {\em rd} &   & \\
    \cline{2-4}
-   SC.D$^\dagger$ & {\em rs1}$^A$, {\em rs2}$^D$ & {\em rd}$^*$ & & $^*$if successful  \\
+   SC.D$^\dagger$ & {\em rs1}$^A$, {\em rs2}$^D$ & {\em rd}$^*$ & & $^*$如果成功  \\
    \cline{2-4}
    AMOSWAP.D$^\dagger$ & {\em rs1}$^A$, {\em rs2}$^D$ & {\em rd} &   & \\
    \cline{2-4}
@@ -300,32 +309,32 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32F Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV32F 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    FLW$^\dagger$ & {\em rs1}$^A$ & {\em rd} & & \\
    \cline{2-4}
    FSW & {\em rs1}$^A$, {\em rs2}$^D$ &  &   & \\
    \cline{2-4}
-   FMADD.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111 \\
+   FMADD.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111 \\
    \cline{2-4}
-   FMSUB.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FMSUB.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FNMSUB.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FNMSUB.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FNMADD.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FNMADD.S & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FADD.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$if rm=111  \\
+   FADD.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FSUB.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$if rm=111  \\
+   FSUB.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FMUL.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FMUL.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FDIV.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, DZ, OF, UF, NX & $^*$if rm=111  \\
+   FDIV.S & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, DZ, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FSQRT.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FSQRT.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
    FSGNJ.S & {\em rs1}, {\em rs2} & {\em rd} &   & \\
    \cline{2-4}
@@ -337,9 +346,9 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
    \cline{2-4}
    FMAX.S & {\em rs1}, {\em rs2} & {\em rd} & NV &   \\
    \cline{2-4}
-   FCVT.W.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.W.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.WU.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.WU.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
    FMV.X.W & {\em rs1} & {\em rd} &   & \\
    \cline{2-4}
@@ -351,57 +360,57 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
    \cline{2-4}
    FCLASS.S & {\em rs1} & {\em rd} &   & \\
    \cline{2-4}
-   FCVT.S.W & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$if rm=111  \\
+   FCVT.S.W & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.S.WU & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$if rm=111  \\
+   FCVT.S.WU & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$如果rm=111  \\
    \cline{2-4}
    FMV.W.X & {\em rs1} & {\em rd} &   & \\
    \cline{2-4}
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV64F Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV64F 标准扩展 \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
-   FCVT.L.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.L.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.LU.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.LU.S & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.S.L & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$if rm=111  \\
+   FCVT.S.L & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.S.LU & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$if rm=111   \\
+   FCVT.S.LU & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$如果rm=111   \\
    \cline{2-4}
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV32D Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV32D 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
    FLD$^\dagger$ & {\em rs1}$^A$ & {\em rd} &   & \\
    \cline{2-4}
    FSD & {\em rs1}$^A$, {\em rs2}$^D$ &  &   & \\
    \cline{2-4}
-   FMADD.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FMADD.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FMSUB.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FMSUB.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FNMSUB.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FNMSUB.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FNMADD.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FNMADD.D & {\em rs1}, {\em rs2},  {\em rs3}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FADD.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$if rm=111  \\
+   FADD.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FSUB.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$if rm=111  \\
+   FSUB.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FMUL.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FMUL.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FDIV.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, DZ, OF, UF, NX & $^*$if rm=111  \\
+   FDIV.D & {\em rs1}, {\em rs2}, frm$^*$ & {\em rd} & NV, DZ, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FSQRT.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FSQRT.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
    FSGNJ.D & {\em rs1}, {\em rs2} & {\em rd} &   & \\
    \cline{2-4}
@@ -413,7 +422,7 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
    \cline{2-4}
    FMAX.D & {\em rs1}, {\em rs2} & {\em rd} & NV &   \\
    \cline{2-4}
-   FCVT.S.D & {\em rs1}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$if rm=111  \\
+   FCVT.S.D & {\em rs1}, frm$^*$ & {\em rd} & NV, OF, UF, NX & $^*$如果rm=111  \\
    \cline{2-4}
    FCVT.D.S & {\em rs1} & {\em rd} & NV &   \\
    \cline{2-4}
@@ -425,9 +434,9 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
    \cline{2-4}
    FCLASS.D & {\em rs1} & {\em rd} &   & \\
    \cline{2-4}
-   FCVT.W.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.W.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.WU.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.WU.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
    FCVT.D.W & {\em rs1} & {\em rd} &  & \\
    \cline{2-4}
@@ -436,20 +445,20 @@ $^\ddagger$The instruction carries dependencies from source register(s) to desti
 \end{tabular}
 
 \begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{4cm}|p{4cm}}
-  \multicolumn{4}{l}{\bf RV64D Standard Extension} \\
+  \multicolumn{4}{l}{\bf RV64D 标准扩展} \\
   \cline{2-4}
-   & Source    & Destination & Accumulating \\
-   & Registers & Registers   & CSRs \\
+    & 源    & 目的 & 累积 \\
+    & 寄存器 & 寄存器   & CSR \\
   \cline{2-4}
-   FCVT.L.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.L.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.LU.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$if rm=111  \\
+   FCVT.LU.D & {\em rs1}, frm$^*$ & {\em rd} & NV, NX & $^*$如果rm=111  \\
    \cline{2-4}
    FMV.X.D & {\em rs1} & {\em rd} &   & \\
    \cline{2-4}
-   FCVT.D.L & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$if rm=111  \\
+   FCVT.D.L & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$如果rm=111  \\
    \cline{2-4}
-   FCVT.D.LU & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$if rm=111  \\
+   FCVT.D.LU & {\em rs1}, frm$^*$ & {\em rd} & NX & $^*$如果rm=111  \\
    \cline{2-4}
    FMV.D.X & {\em rs1} & {\em rd} &   & \\
    \cline{2-4}

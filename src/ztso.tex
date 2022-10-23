@@ -1,0 +1,44 @@
+\chapter{用于全存储排序的“Ztso”标准扩展（0.1版本）}
+% \chapter{``Ztso'' Standard Extension for Total Store Ordering, v0.1}
+\label{sec:ztso}
+
+本章定义了用于RISC-V全存储排序（RVTSO）内存一致性模型的“Ztso扩展”。RVTSO被定义为与RVWMO（定义在~\ref{sec:rvwmo}章中）有差异的部分。
+% This chapter defines the ``Ztso'' extension for the RISC-V Total Store Ordering (RVTSO) memory consistency model.
+% RVTSO is defined as a delta from RVWMO, which is defined in Chapter~\ref{sec:rvwmo}.
+
+\begin{commentary}
+  Ztso扩展旨在帮助原本为带有TSO模型的架构（例如x86或某些版本的SPARC）写的代码进行移植，而这两种代码都默认使用TSO。它也支持那些固有地提供RVTSO行为并希望将此事实暴露给软件的实现。
+  % The Ztso extension is meant to facilitate the porting of code originally written for architectures with TSO memory models, such as x86 or some versions of SPARC.
+  % It also supports implementations which inherently provide RVTSO behavior and want to expose that fact to software.
+\end{commentary}
+
+RVTSO对RVWMO做了如下调整：
+% RVTSO makes the following adjustments to RVWMO:
+
+\begin{itemize}
+  \item 所有的加载操作的行为如同它们有acquire-RCpc注释一样  % All load operations behave as if they have an acquire-RCpc annotation
+  \item 所有的存储操作的行为如同它们有release-RCpc注释一样  % All store operations behave as if they have a release-RCpc annotation.
+  \item 所有的AMO行为如同它们同时有acquire-RCsc和release-RCsc注释一样  % All AMOs behave as if they have both acquire-RCsc and release-RCsc annotations.
+\end{itemize}
+
+\begin{commentary}
+  这些规则让除了\ref{ppo:fence}-\ref{ppo:rcsc}之外的所有PPO规则变得多余。它们也让任何没有同时设置了PW和SR的非I/O屏障变得多余。
+  最终，它们也暗示了，不会有内存操作将被重新排序而在任何方向上超越一个AMO。
+  % These rules render all PPO rules except \ref{ppo:fence}--\ref{ppo:rcsc} redundant.
+  % They also make redundant any non-I/O fences that do not have both PW and SR set.
+  % Finally, they also imply that no memory operation will be reordered past an AMO in either direction.
+  
+  在RVTSO的上下文中，就像是RVWMO的情况那样，通过PPO规则\ref{ppo:acquire}-\ref{ppo:rcsc}简明而完整地定义了存储次序。在这两个内存模型中，都是\nameref{rvwmo:ax:load}使得硬件线程能够将一个来自它的存储缓冲区的值发送到一个后续的（以程序次序）加载——那就是说，存储可以在它们对其它硬件线程可见之前，被本地发送。
+  % In the context of RVTSO, as is the case for RVWMO, the storage ordering annotations are concisely and completely defined by PPO rules \ref{ppo:acquire}--\ref{ppo:rcsc}. In both of these memory models, it is the \nameref{rvwmo:ax:load} that allows a hart to forward a value from its store buffer to a subsequent (in program order) load---that is to say that stores can be forwarded locally before they are visible to other harts.
+\end{commentary}
+
+此外，如果实现了Ztso扩展，则V扩展和Zve系列扩展中的向量内存指令在指令级遵循RVTSO。Ztso扩展不强化指令内部元素访问的顺序。
+% Additionally, if the Ztso extension is implemented, then vector memory
+% instructions in the V extension and Zve family of extensions follow RVTSO at
+% the instruction level.
+% The Ztso extension does not strengthen the ordering of intra-instruction
+% element accesses.
+
+尽管事实上Ztso没有向ISA添加新的指令，假定RVTSO写出的代码也将不能正确运行在不支持Ztso的实现上。编译的二进制只能运行在Ztso下，这应当通过二进制中的一个标志被表示出来，使得没有实现Ztso的平台可以简单地拒绝运行它们。
+% In spite of the fact that Ztso adds no new instructions to the ISA, code written assuming RVTSO will not run correctly on implementations not supporting Ztso.
+% Binaries compiled to run only under Ztso should indicate as such via a flag in the binary, so that platforms which do not implement Ztso can simply refuse to run them.

@@ -1,31 +1,40 @@
-\chapter{``Zfh'' and ``Zfhmin'' Standard Extensions for Half-Precision Floating-Point,
-  Version 1.0}
+\chapter{用于半精度浮点的“Zfh”和“Zfhmin”标准扩展（1.0版本}
+% \chapter{``Zfh'' and ``Zfhmin'' Standard Extensions for Half-Precision Floating-Point,
+  % Version 1.0}
 
-This chapter describes the Zfh standard extension for 16-bit half-precision
-binary floating-point instructions compliant with the IEEE 754-2008 arithmetic
-standard.
-The Zfh extension depends on the single-precision floating-point extension, F.
-The NaN-boxing scheme described in Section~\ref{nanboxing} is extended to
-allow a half-precision value to be NaN-boxed inside a single-precision value
-(which may be recursively NaN-boxed inside a double- or quad-precision value
-when the D or Q extension is present).
+本章描述了用于16位半精度二元浮点指令的Zfh标准扩展，兼容IEEE 754-2008算术标准。
+Zfh扩展依赖于单精度浮点扩展，F。
+在第14章描述的NaN装箱策略被扩展为，允许在一个单精度值中对一个半精度值NaN装箱（当D扩展或Q扩展存在时，其可以在双精度或四精度值中递归地NaN装箱）。
+% This chapter describes the Zfh standard extension for 16-bit half-precision
+% binary floating-point instructions compliant with the IEEE 754-2008 arithmetic
+% standard.
+% The Zfh extension depends on the single-precision floating-point extension, F.
+% The NaN-boxing scheme described in Section~\ref{nanboxing} is extended to
+% allow a half-precision value to be NaN-boxed inside a single-precision value
+% (which may be recursively NaN-boxed inside a double- or quad-precision value
+% when the D or Q extension is present).
 
 \begin{commentary}
-This extension primarily provides instructions that consume half-precision
-operands and produce half-precision results.
-However, it is also common to compute on half-precision data using higher
-intermediate precision.
-Although this extension provides explicit conversion instructions that suffice
-to implement that pattern, future extensions might further accelerate such
-computation with additional instructions that implicitly widen their
-operands---e.g., half$\times$half$+$single$\rightarrow$single---or implicitly
-narrow their results---e.g., half$+$single$\rightarrow$half.
+  这个扩展主要提供了消费半精度操作数并产生半精度结果的指令。然而，在计算半精度数据中使用更高的中间精度也是很常见的。
+  尽管这个扩展提供了足以实现该样式的显式转换指令，未来的扩展也可能用额外的指令进一步加速此类运算，
+  那些额外的指令会隐式地加宽其操作数——例如，半$\times$半$+$单$\rightarrow$单——或者隐式地收窄其结果——例如，半$+$单$\rightarrow$半。
+% This extension primarily provides instructions that consume half-precision
+% operands and produce half-precision results.
+% However, it is also common to compute on half-precision data using higher
+% intermediate precision.
+% Although this extension provides explicit conversion instructions that suffice
+% to implement that pattern, future extensions might further accelerate such
+% computation with additional instructions that implicitly widen their
+% operands---e.g., half$\times$half$+$single$\rightarrow$single---or implicitly
+% narrow their results---e.g., half$+$single$\rightarrow$half.
 \end{commentary}
 
-\section{Half-Precision Load and Store Instructions}
+\section{半精度加载和存储指令}
+% \section{Half-Precision Load and Store Instructions}
 
-New 16-bit variants of LOAD-FP and STORE-FP instructions are added,
-encoded with a new value for the funct3 width field.
+添加了LOAD-FP和STORE-FP指令的新的16位变体，并为funct3宽度域编码了新的值。
+% New 16-bit variants of LOAD-FP and STORE-FP instructions are added,
+% encoded with a new value for the funct3 width field.
 
 \vspace{-0.2in}
 \begin{center}
@@ -71,41 +80,47 @@ offset[11:5] & src & base & H & offset[4:0] & STORE-FP \\
 \end{tabular}
 \end{center}
 
-FLH and FSH are only guaranteed to execute atomically if the effective address
-is naturally aligned.
+只有当有效地址被自然对齐时，才保证FLH和FSH原子地执行。
+% FLH and FSH are only guaranteed to execute atomically if the effective address
+% is naturally aligned.
 
-FLH and FSH do not modify the bits being transferred; in particular, the
-payloads of non-canonical NaNs are preserved.
-FLH NaN-boxes the result written to {\em rd}, whereas FSH ignores all but
-the lower 16 bits in {\em rs2}.
+FLH和FSH不改变正在被传输的位；特别地，保留了非典型NaN的有效载荷。
+FLH 将写入{\em rd}的结果进行NaN装箱，而FSH忽略{\em rs2}中除低16位之外的所有位。
+% FLH and FSH do not modify the bits being transferred; in particular, the
+% payloads of non-canonical NaNs are preserved.
+% FLH NaN-boxes the result written to {\em rd}, whereas FSH ignores all but
+% the lower 16 bits in {\em rs2}.
 
-\section{Half-Precision Computational Instructions}
+\section{半精度运算指令}
+% \section{Half-Precision Computational Instructions}
 
-A new supported format is added to the format field of most
-instructions, as shown in Table~\ref{tab:fpextfmth}.
+向大多数指令的format域添加了一个新的支持格式，如表~\ref{tab:fpextfmth}所示。
+% A new supported format is added to the format field of most
+% instructions, as shown in Table~\ref{tab:fpextfmth}.
 
 \begin{table}[htp]
 \begin{center}
 \begin{tabular}{|c|c|l|}
 \hline
-{\em fmt} field &
-Mnemonic &
-Meaning \\
+{\em fmt}域 &
+助记符 &
+含义 \\
 \hline
-00 & S & 32-bit single-precision \\
-01 & D & 64-bit double-precision \\
-10 & H & 16-bit half-precision \\
-11 & Q & 128-bit quad-precision \\
+00 & S & 32位单精度\\
+01 & D & 64位双精度\\
+10 & H & 16位半精度\\
+11 & Q & 128位四精度\\
 \hline
 \end{tabular}
 \end{center}
-\caption{Format field encoding.}
+\caption{格式域编码。}
 \label{tab:fpextfmth}
 \end{table}
 
-The half-precision floating-point computational instructions are
-defined analogously to their single-precision counterparts, but operate on
-half-precision operands and produce half-precision results.
+半精度浮点运算指令的定义类似于它们对应的单精度指令，但是在半精度操作数上操作，并产生半精度结果。
+% The half-precision floating-point computational instructions are
+% defined analogously to their single-precision counterparts, but operate on
+% half-precision operands and produce half-precision results.
 
 \vspace{-0.2in}
 \begin{center}
@@ -160,17 +175,23 @@ src3 & H & src2 & src1 & RM  & dest & F[N]MADD/F[N]MSUB  \\
 \end{tabular}
 \end{center}
 
-\section{Half-Precision Conversion and Move Instructions}
+\section{半精度转换和移动指令}
+% \section{Half-Precision Conversion and Move Instructions}
 
-New floating-point-to-integer and integer-to-floating-point conversion
-instructions are added.  These instructions are defined analogously to the
-single-precision-to-integer and integer-to-single-precision conversion
-instructions.  FCVT.W.H or FCVT.L.H converts a half-precision floating-point
-number to a signed 32-bit or 64-bit integer, respectively.  FCVT.H.W or
-FCVT.H.L converts a 32-bit or 64-bit signed integer, respectively, into a
-half-precision floating-point number. FCVT.WU.H, FCVT.LU.H, FCVT.H.WU, and
-FCVT.H.LU variants convert to or from unsigned integer values.  FCVT.L[U].H and
-FCVT.H.L[U] are RV64-only instructions.
+添加了新的浮点到整数转换指令和整数到浮点转换指令。这些指令的定义与单精度到整数转换指令及整数到单精度转换指令类似。
+FCVT.W.H或FCVT.L.H分别把一个半精度浮点数转换为一个有符号的32位或64位整数。
+FCVT.H.W或FCVT.H.L分别把一个32位或64位有符号整数转换为一个半精度浮点数。
+FCVT.WU.H、FCVT.LU.H、FCVT.H.WU和FCVT.H.LU的变体与无符号整数值相互转换。
+FCVT.L[U].H和FCVT.H.L[U]是只在RV64中使用的指令。
+% New floating-point-to-integer and integer-to-floating-point conversion
+% instructions are added.  These instructions are defined analogously to the
+% single-precision-to-integer and integer-to-single-precision conversion
+% instructions.  FCVT.W.H or FCVT.L.H converts a half-precision floating-point
+% number to a signed 32-bit or 64-bit integer, respectively.  FCVT.H.W or
+% FCVT.H.L converts a 32-bit or 64-bit signed integer, respectively, into a
+% half-precision floating-point number. FCVT.WU.H, FCVT.LU.H, FCVT.H.WU, and
+% FCVT.H.LU variants convert to or from unsigned integer values.  FCVT.L[U].H and
+% FCVT.H.L[U] are RV64-only instructions.
 
 \vspace{-0.2in}
 \begin{center}
@@ -198,17 +219,21 @@ FCVT.H.{\em int} & H & W[U]/L[U] & src & RM  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
-New floating-point-to-floating-point conversion instructions are added.  These
-instructions are defined analogously to the double-precision
-floating-point-to-floating-point conversion instructions.
-FCVT.S.H or FCVT.H.S converts a half-precision floating-point number to
-a single-precision floating-point number, or vice-versa, respectively.
-If the D extension is present, FCVT.D.H or FCVT.H.D converts a half-precision
-floating-point number to a double-precision floating-point number, or
-vice-versa, respectively.
-If the Q extension is present, FCVT.Q.H or FCVT.H.Q converts a half-precision
-floating-point number to a quad-precision floating-point number, or
-vice-versa, respectively.
+添加了新的浮点到浮点转换指令。这些指令的定义与双精度浮点到浮点转换指令类似。
+FCVT.S.H或FCVT.H.S分别把一个半精度浮点数转换为一个单精度浮点数、以及相反的操作。
+如果存在D扩展，FCVT.D.H或FCVT.H.D分别把一个半精度浮点数转换为一个双精度浮点数、以及相反的操作。
+如果存在Q扩展，FCVT.Q.H或FCVT.H.Q分别把一个半精度浮点数转换为一个四精度浮点数、以及相反的操作。
+% New floating-point-to-floating-point conversion instructions are added.  These
+% instructions are defined analogously to the double-precision
+% floating-point-to-floating-point conversion instructions.
+% FCVT.S.H or FCVT.H.S converts a half-precision floating-point number to
+% a single-precision floating-point number, or vice-versa, respectively.
+% If the D extension is present, FCVT.D.H or FCVT.H.D converts a half-precision
+% floating-point number to a double-precision floating-point number, or
+% vice-versa, respectively.
+% If the Q extension is present, FCVT.Q.H or FCVT.H.Q converts a half-precision
+% floating-point number to a quad-precision floating-point number, or
+% vice-versa, respectively.
 
 \vspace{-0.2in}
 \begin{center}
@@ -240,9 +265,10 @@ FCVT.H.Q & H & Q & src & RM  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
-Floating-point to floating-point sign-injection instructions, FSGNJ.H,
-FSGNJN.H, and FSGNJX.H are defined analogously to the single-precision
-sign-injection instruction.
+浮点到浮点的符号注入指令，FSGNJ.H、FSGNJN.H和FSGNJX.H的定义与单精度符号注入指令类似。
+% Floating-point to floating-point sign-injection instructions, FSGNJ.H,
+% FSGNJN.H, and FSGNJX.H are defined analogously to the single-precision
+% sign-injection instruction.
 
 \vspace{-0.2in}
 \begin{center}
@@ -269,20 +295,24 @@ FSGNJ & H & src2 & src1 & J[N]/JX & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
+提供了在浮点和整数寄存器之间移动位式样的指令。
+FMV.X.H把浮点寄存器{\em rs1}中的半精度值按照IEEE 754-2008标准编码的一种表示形式移动到整数寄存器{\em rd}中，
+并把浮点数的符号位复制填充到高XLEN-16位。
+% Instructions are provided to move bit patterns between the floating-point and
+% integer registers.
+% FMV.X.H moves the half-precision value in floating-point register {\em rs1} to
+% a representation in IEEE 754-2008 standard encoding in integer register {\em
+% rd}, filling the upper XLEN-16 bits with copies of the floating-point number's
+% sign bit.
 
-Instructions are provided to move bit patterns between the floating-point and
-integer registers.
-FMV.X.H moves the half-precision value in floating-point register {\em rs1} to
-a representation in IEEE 754-2008 standard encoding in integer register {\em
-rd}, filling the upper XLEN-16 bits with copies of the floating-point number's
-sign bit.
+FMV.H.X把按照IEEE 754-2008标准编码的半精度值从整数寄存器{\em rs1}的低16位移动到浮点寄存器{\em rd}，并把结果NaN装箱。
+% FMV.H.X moves the half-precision value encoded in IEEE 754-2008 standard
+% encoding from the lower 16 bits of integer register {\em rs1} to the
+% floating-point register {\em rd}, NaN-boxing the result.
 
-FMV.H.X moves the half-precision value encoded in IEEE 754-2008 standard
-encoding from the lower 16 bits of integer register {\em rs1} to the
-floating-point register {\em rd}, NaN-boxing the result.
-
-FMV.X.H and FMV.H.X do not modify the bits being transferred; in particular,
-the payloads of non-canonical NaNs are preserved.
+FMV.X.H和FMV.H.X不改变正在被传输的位；特别地，非典型NaN的有效载荷被保留。
+% FMV.X.H and FMV.H.X do not modify the bits being transferred; in particular,
+% the payloads of non-canonical NaNs are preserved.
 
 \vspace{-0.2in}
 \begin{center}
@@ -310,11 +340,13 @@ FMV.H.X & H & 0    & src  & 000  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
-\section{Half-Precision Floating-Point Compare Instructions}
+\section{半精度浮点比较指令}
+% \section{Half-Precision Floating-Point Compare Instructions}
 
-The half-precision floating-point compare instructions are
-defined analogously to their single-precision counterparts, but operate on
-half-precision operands.
+半精度浮点比较指令的定义与其对应的单精度版本类似，但是在半精度操作数上操作。
+% The half-precision floating-point compare instructions are
+% defined analogously to their single-precision counterparts, but operate on
+% half-precision operands.
 
 \vspace{-0.2in}
 \begin{center}
@@ -341,11 +373,13 @@ FCMP & H & src2 & src1 & EQ/LT/LE & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
-\section{Half-Precision Floating-Point Classify Instruction}
+\section{半精度浮点分类指令}
+% \section{Half-Precision Floating-Point Classify Instruction}
 
-The half-precision floating-point classify instruction, FCLASS.H, is
-defined analogously to its single-precision counterpart, but operates on
-half-precision operands.
+半精度浮点分类指令，FCLASS.H，其定义与其对应的单精度版本类似，但是在半精度操作数上操作。
+% The half-precision floating-point classify instruction, FCLASS.H, is
+% defined analogously to its single-precision counterpart, but operates on
+% half-precision operands.
 
 \vspace{-0.2in}
 \begin{center}
@@ -372,45 +406,58 @@ FCLASS & H & 0 & src & 001 & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
-\section{``Zfhmin'' Standard Extension for Minimal Half-Precision Floating-Point Support}
+\section{用于最小半精度浮点支持的“Zfhmin”标准扩展}
+% \section{``Zfhmin'' Standard Extension for Minimal Half-Precision Floating-Point Support}
 
-This section describes the Zfhmin standard extension, which provides minimal
-support for 16-bit half-precision binary floating-point instructions.
-The Zfhmin extension is a subset of the Zfh extension, consisting only
-of data transfer and conversion instructions.
-Like Zfh, the Zfhmin extension depends on the single-precision floating-point
-extension, F.
-The expectation is that Zfhmin software primarily uses the half-precision
-format for storage, performing most computation in higher precision.
+本节描述了Zfhmin标准扩展，它为16位半精度二进制浮点指令提供了最低限度的支持。
+Zfhmin扩展是Zfh扩展的一个子集，仅由数据传输与转换指令组成。像Zfh一样，Zfhmin扩展依赖于单精度浮点扩展，F。
+预想的Zfhmin软件主要使用半精度格式存储，而以更高精度执行大多数运算。
+% This section describes the Zfhmin standard extension, which provides minimal
+% support for 16-bit half-precision binary floating-point instructions.
+% The Zfhmin extension is a subset of the Zfh extension, consisting only
+% of data transfer and conversion instructions.
+% Like Zfh, the Zfhmin extension depends on the single-precision floating-point
+% extension, F.
+% The expectation is that Zfhmin software primarily uses the half-precision
+% format for storage, performing most computation in higher precision.
 
-The Zfhmin extension includes the following instructions from the Zfh
-extension: FLH, FSH, FMV.X.H, FMV.H.X, FCVT.S.H, and FCVT.H.S.
-If the D extension is present, the FCVT.D.H and FCVT.H.D instructions are
-also included.
-If the Q extension is present, the FCVT.Q.H and FCVT.H.Q instructions are
-additionally included.
+Zfhmin扩展包括下列来自Zfh的指令：FLH、FSH、FMV.X.H、FMV.H.X、FCVT.S.H和FCVT.H.S。
+如果D扩展存在，也包括FCVT.D.H和FCVT.H.D指令。如果Q扩展存在，还额外包括了FCVT.Q.H和FCVT.H.Q指令。
+% The Zfhmin extension includes the following instructions from the Zfh
+% extension: FLH, FSH, FMV.X.H, FMV.H.X, FCVT.S.H, and FCVT.H.S.
+% If the D extension is present, the FCVT.D.H and FCVT.H.D instructions are
+% also included.
+% If the Q extension is present, the FCVT.Q.H and FCVT.H.Q instructions are
+% additionally included.
 
 \begin{commentary}
-Zfhmin does not include the FSGNJ.H instruction, because it suffices to
-instead use the FSGNJ.S instruction to move half-precision values between
-floating-point registers.
+  Zfhmin不包括FSGNJ.H指令，因为将半精度值在浮点寄存器之间移动，使用FSGNJ.S指令代替就足够了。
+% Zfhmin does not include the FSGNJ.H instruction, because it suffices to
+% instead use the FSGNJ.S instruction to move half-precision values between
+% floating-point registers.
 \end{commentary}
 
 \begin{commentary}
-Half-precision addition, subtraction, multiplication, division, and
-square-root operations can be faithfully emulated by converting the
-half-precision operands to single-precision, performing the operation
-using single-precision arithmetic, then converting back to
-half-precision~\cite{roux:hal-01091186}.
-Performing half-precision fused multiply-addition using this method incurs
-a 1-ulp error on some inputs for the RNE and RMM rounding modes.
+  半精度加法、减法、乘法、除法，和平方根操作可以通过把半精度操作数转化为单精度、
+  使用单精度算术执行操作再转化回单精度~\cite{roux:hal-01091186}来忠实地模拟。
+  对于RNE和RMM舍入模式，使用这种方法执行半精度融合乘加，在某些输入时会产生1-ulp的误差。
+% Half-precision addition, subtraction, multiplication, division, and
+% square-root operations can be faithfully emulated by converting the
+% half-precision operands to single-precision, performing the operation
+% using single-precision arithmetic, then converting back to
+% half-precision~\cite{roux:hal-01091186}.
+% Performing half-precision fused multiply-addition using this method incurs
+% a 1-ulp error on some inputs for the RNE and RMM rounding modes.
 
-Conversion from 8- or 16-bit integers to half-precision can be emulated by
-first converting to single-precision, then converting to half-precision.
-Conversion from 32-bit integer can be emulated by first converting to
-double-precision.
-If the D extension is not present and a 1-ulp error under RNE or RMM is
-tolerable, 32-bit integers can be first converted to single-precision instead.
-The same remark applies to conversions from 64-bit integers without the Q
-extension.
+把8位或16位整数转化为半精度，可以通过先转化为单精度、再转化到半精度来模拟。
+从32位整数的转换可以用首先转化为双精度来模拟。如果D扩展不存在，而且在RNE或RMM模式下1-ulp的误差是可容忍的，
+那么32位整数也可以先被转化为单精度。同样的标注也适用于没有Q扩展时的从64位整数的转换。
+% Conversion from 8- or 16-bit integers to half-precision can be emulated by
+% first converting to single-precision, then converting to half-precision.
+% Conversion from 32-bit integer can be emulated by first converting to
+% double-precision.
+% If the D extension is not present and a 1-ulp error under RNE or RMM is
+% tolerable, 32-bit integers can be first converted to single-precision instead.
+% The same remark applies to conversions from 64-bit integers without the Q
+% extension.
 \end{commentary}
