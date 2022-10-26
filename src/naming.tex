@@ -1,188 +1,242 @@
-\chapter{ISA Extension Naming Conventions}
+\chapter{ISA扩展命名约定}
+% \chapter{ISA Extension Naming Conventions}
 \label{naming}
 
-This chapter describes the RISC-V ISA extension naming scheme that is
-used to concisely describe the set of instructions present in a
-hardware implementation, or the set of instructions used by an
-application binary interface (ABI).
+这章描述了RISC-V ISA扩展的命名策略，它被用于简洁地描述一个硬件实现中现有指令的集合，
+或者被一个应用二进制接口（ABI）所使用的指令的集合。
+% This chapter describes the RISC-V ISA extension naming scheme that is
+% used to concisely describe the set of instructions present in a
+% hardware implementation, or the set of instructions used by an
+% application binary interface (ABI).
 
 \begin{commentary}
-The RISC-V ISA is designed to support a wide variety of
-implementations with various experimental instruction-set extensions.
-We have found that an organized naming scheme simplifies software
-tools and documentation.
+  RISC-V ISA为了支持多种多样的实现而设计，带有各种实验的指令集扩展。
+  我们已经发现，一个有组织的命名策略对软件工具和文档具有简化作用。
+% The RISC-V ISA is designed to support a wide variety of
+% implementations with various experimental instruction-set extensions.
+% We have found that an organized naming scheme simplifies software
+% tools and documentation.
 \end{commentary}
 
-\section{Case Sensitivity}
+\section{大小写敏感性}
+% \section{Case Sensitivity}
 
-The ISA naming strings are case insensitive.
+ISA命名字符串是大小写敏感的。
+% The ISA naming strings are case insensitive.
 
-\section{Base Integer ISA}
-RISC-V ISA strings begin with either RV32I, RV32E, RV64I, or RV128I
-indicating the supported address space size in bits for the base
-integer ISA.
+\section{基础整数ISA}
+% \section{Base Integer ISA}
+RISC-V ISA字符串以RV32I、RV32E、RV64I或RV128I开始，表示了对于基础整数ISA所支持的地址空间尺寸的位数。
+% RISC-V ISA strings begin with either RV32I, RV32E, RV64I, or RV128I
+% indicating the supported address space size in bits for the base
+% integer ISA.
 
-\section{Instruction-Set Extension Names}
+\section{指令集扩展的命名}
+% \section{Instruction-Set Extension Names}
 
-Standard ISA extensions are given a name consisting of a single
-letter.  For example, the first four standard
-extensions to the integer bases are:
-``M'' for integer multiplication and division,
-``A'' for atomic memory instructions,
-``F'' for single-precision floating-point instructions, and
-``D'' for double-precision floating-point instructions.
-Any RISC-V instruction-set variant can be succinctly described by
-concatenating the base integer prefix with the names of the included
-extensions, e.g., ``RV64IMAFD''.
+标准ISA被赋予了由单个字母组成的命名。
+例如，最初的四个对于整数基础的标准扩展是：用于整数乘法和除法的“M”，用于原子内存指令的“A”，用于单精度浮点指令的“F”，和用于双精度浮点指令的“D”。
+任何RISC-V指令集的变体可以被简洁地描述为，将基础整数前缀与所包含的扩展的命名的结合，例如，“RV64IMAFD”。
+% Standard ISA extensions are given a name consisting of a single
+% letter.  For example, the first four standard
+% extensions to the integer bases are:
+% ``M'' for integer multiplication and division,
+% ``A'' for atomic memory instructions,
+% ``F'' for single-precision floating-point instructions, and
+% ``D'' for double-precision floating-point instructions.
+% Any RISC-V instruction-set variant can be succinctly described by
+% concatenating the base integer prefix with the names of the included
+% extensions, e.g., ``RV64IMAFD''.
 
-We have also defined an abbreviation ``G'' to represent the ``IMAFDZicsr\_Zifencei''
-base and extensions, as this is intended to represent our standard
-general-purpose ISA.
+我们也定义了一个缩写“G”来代表“IMAFDZicsr_Zifencei”基础和扩展，因为这是为了表示我们的标准通用目的ISA。
+% We have also defined an abbreviation ``G'' to represent the ``IMAFDZicsr\_Zifencei''
+% base and extensions, as this is intended to represent our standard
+% general-purpose ISA.
 
-Standard extensions to the RISC-V ISA are given other reserved
-letters, e.g., ``Q'' for quad-precision floating-point, or
-``C'' for the 16-bit compressed instruction format.
+对RISC-V ISA的标准扩展被赋予了其它保留的字母，例如用于四精度浮点的“Q”，或者用于16位压缩指令格式的“C”。
+% Standard extensions to the RISC-V ISA are given other reserved
+% letters, e.g., ``Q'' for quad-precision floating-point, or
+% ``C'' for the 16-bit compressed instruction format.
 
-Some ISA extensions depend on the presence of other extensions, e.g., ``D''
-depends on ``F'' and ``F'' depends on ``Zicsr''.  These dependences may be
-implicit in the ISA name: for example, RV32IF is equivalent to RV32IFZicsr,
-and RV32ID is equivalent to RV32IFD and RV32IFDZicsr.
+有些ISA扩展依赖于其它扩展的存在，例如，“D”扩展依赖于“F”扩展，而“F”扩展依赖于“Zicsr”扩展。
+这些依赖可能隐含在ISA命名之中：例如，RV32IF等价于RV32IFZicsr，而RV32ID等价于RV32IFD和RV32IFDZicsr。
+% Some ISA extensions depend on the presence of other extensions, e.g., ``D''
+% depends on ``F'' and ``F'' depends on ``Zicsr''.  These dependences may be
+% implicit in the ISA name: for example, RV32IF is equivalent to RV32IFZicsr,
+% and RV32ID is equivalent to RV32IFD and RV32IFDZicsr.
 
-\section{Version Numbers}
-Recognizing that instruction sets may expand or alter over time, we
-encode extension version numbers following the extension name.  Version
-numbers are divided into major and minor version numbers, separated by
-a ``p''.  If the minor version is ``0'', then ``p0'' can be omitted
-from the version string.  Changes in major version numbers imply a
-loss of backwards compatibility, whereas changes in only the minor
-version number must be backwards-compatible.  For example, the
-original 64-bit standard ISA defined in release 1.0 of this manual can
-be written in full as ``RV64I1p0M1p0A1p0F1p0D1p0'', more concisely as
-``RV64I1M1A1F1D1''.
+\section{版本号}
+% \section{Version Numbers}
+认识到指令集可能随着时间而扩展或改变，我们在扩展的名字后面编码了扩展的版本号。
+版本号被划分为主版本号和次版本号，使用“p”分割。如果次版本是“0”，那么“p0”可以从版本字符串中被忽略。
+主版本号的改变表示了一种向后兼容性的损失，而只改变次版本号必须是向后兼容的。
+例如，在这本手册的1.0发布版本中定义的原始的64位标准ISA可以被写全为“RV64I1p0M1p0A1p0F1p0D1p0”，
+而“RV64I1M1A1F1D1”是更简洁的写法。
+% Recognizing that instruction sets may expand or alter over time, we
+% encode extension version numbers following the extension name.  Version
+% numbers are divided into major and minor version numbers, separated by
+% a ``p''.  If the minor version is ``0'', then ``p0'' can be omitted
+% from the version string.  Changes in major version numbers imply a
+% loss of backwards compatibility, whereas changes in only the minor
+% version number must be backwards-compatible.  For example, the
+% original 64-bit standard ISA defined in release 1.0 of this manual can
+% be written in full as ``RV64I1p0M1p0A1p0F1p0D1p0'', more concisely as
+% ``RV64I1M1A1F1D1''.
 
-We introduced the version numbering scheme with the second release.  Hence, we
-define the default version of a standard extension to be the version present at that
-time, e.g., ``RV32I'' is equivalent to ``RV32I2''.
+我们在第二个发布版本中介绍了版本号策略。因此我们把一个标准扩展的默认版本定义为在那个时间的当前版本，例如，“RV32I”等价于“RV32I2”。
+% We introduced the version numbering scheme with the second release.  Hence, we
+% define the default version of a standard extension to be the version present at that
+% time, e.g., ``RV32I'' is equivalent to ``RV32I2''.
 
-\section{Underscores}
+\section{着重说明}
+% \section{Underscores}
 
-Underscores ``\_'' may be used to separate ISA extensions to
-improve readability and to provide disambiguation, e.g., ``RV32I2\_M2\_A2''.
+下划线“_”可以被用于分割ISA扩展，以增强可读性，和提供歧义消除，例如“RV32I2_M2_A2”。
+% Underscores ``\_'' may be used to separate ISA extensions to
+% improve readability and to provide disambiguation, e.g., ``RV32I2\_M2\_A2''.
 
-Because the ``P'' extension for Packed SIMD can be confused for the decimal
-point in a version number, it must be preceded by an underscore if it follows
-a number.  For example, ``rv32i2p2'' means version 2.2 of RV32I, whereas
-``rv32i2\_p2'' means version 2.0 of RV32I with version 2.0 of the P extension.
+因为用于打包SIMD的“P”扩展可能会与版本号中的小数点相混淆，所以如果它跟在一个数字后面，那么在它前面必须加下划线。
+例如，“rv32i2p2”意味着RV32I的2.2版本，而“rv32i2_p2”意味着带有P扩展的2.0版本的RV32I的2.0版本。
+% Because the ``P'' extension for Packed SIMD can be confused for the decimal
+% point in a version number, it must be preceded by an underscore if it follows
+% a number.  For example, ``rv32i2p2'' means version 2.2 of RV32I, whereas
+% ``rv32i2\_p2'' means version 2.0 of RV32I with version 2.0 of the P extension.
 
-\section{Additional Standard Extension Names}
+\section{附加的标准扩展的命名}
+% \section{Additional Standard Extension Names}
 
-Standard extensions can also be named using a single ``Z'' followed by an
-alphabetical name and an optional version number.  For example,
-``Zifencei'' names the instruction-fetch fence extension described in
-Chapter~\ref{chap:zifencei}; ``Zifencei2'' and ``Zifencei2p0'' name version
-2.0 of same.
+标准扩展也可以使用一个“Z”、后面跟着一个按字母顺序排列的名字和一个可选的版本号来命名。
+例如，“Zifencei”命名了第~\ref{chap:zifencei}章中描述的指令获取屏障扩展；“Zifencei2”和“Zifencei2p0”描述了相同扩展的2.0版本。
+% Standard extensions can also be named using a single ``Z'' followed by an
+% alphabetical name and an optional version number.  For example,
+% ``Zifencei'' names the instruction-fetch fence extension described in
+% Chapter~\ref{chap:zifencei}; ``Zifencei2'' and ``Zifencei2p0'' name version
+% 2.0 of same.
 
-The first letter following the ``Z'' conventionally indicates the most closely
-related alphabetical extension category, IMAFDQCVH.  For the ``Zam''
-extension for misaligned atomics, for example, the letter ``a'' indicates the
-extension is related to the ``A'' standard extension.  If multiple ``Z''
-extensions are named, they should be ordered first by category, then
-alphabetically within a category---for example, ``Zicsr\_Zifencei\_Zam''.
+跟在“Z”后面的第一个字母通常暗示了相关字母顺序最近的扩展种类，IMAFDQCVH。
+例如，对于用于未对齐原子的“Zam”扩展，字母“a”表示该扩展与“A”标准扩展相关。
+如果命名了多个“Z”扩展，它们应当首先按种类排序，然后在每个种类中按字母顺序排序——例如，“Zicsr_Zifencei_Zam”。
+% The first letter following the ``Z'' conventionally indicates the most closely
+% related alphabetical extension category, IMAFDQCVH.  For the ``Zam''
+% extension for misaligned atomics, for example, the letter ``a'' indicates the
+% extension is related to the ``A'' standard extension.  If multiple ``Z''
+% extensions are named, they should be ordered first by category, then
+% alphabetically within a category---for example, ``Zicsr\_Zifencei\_Zam''.
 
-Extensions with the ``Z'' prefix must be separated
-from other multi-letter extensions by an underscore, e.g.,
-``RV32IMACZicsr\_Zifencei''.
+使用“Z”前缀的扩展必须使用一个下划线与其它多字母的扩展分割，例如，“RV32IMAC_Zicsr_Zifencei”。
+% Extensions with the ``Z'' prefix must be separated
+% from other multi-letter extensions by an underscore, e.g.,
+% ``RV32IMACZicsr\_Zifencei''.
 
-\section{Supervisor-level Instruction-Set Extensions}
+\section{监管器级指令集扩展}
+% \section{Supervisor-level Instruction-Set Extensions}
 
-Standard supervisor-level instruction-set extensions are defined in Volume II,
-but are named using ``S'' as a prefix, followed by an alphabetical name and an
-optional version number.  Supervisor-level extensions must be separated from
-other multi-letter extensions by an underscore.
+标准监管器级指令集扩展在第二卷中定义，但是在命名时使用“S”作为前缀，后面跟着按字母顺序排列的名称和一个可选的版本号。
+监管器级别的扩展必须通过一个下划线与其他多字母的扩展进行分割。
+% Standard supervisor-level instruction-set extensions are defined in Volume II,
+% but are named using ``S'' as a prefix, followed by an alphabetical name and an
+% optional version number.  Supervisor-level extensions must be separated from
+% other multi-letter extensions by an underscore.
 
-Standard supervisor-level extensions should be listed after standard
-unprivileged extensions.  If multiple supervisor-level extensions are listed,
-they should be ordered alphabetically.
+标准监管器级扩展应当被列在标准非特权扩展之后。如果列出了多个监管器级别的扩展，它们应当按字母顺序排列。
+% Standard supervisor-level extensions should be listed after standard
+% unprivileged extensions.  If multiple supervisor-level extensions are listed,
+% they should be ordered alphabetically.
 
-\section{Machine-level Instruction-Set Extensions}
+\section{机器级指令集扩展}
+% \section{Machine-level Instruction-Set Extensions}
 
-Standard machine-level instruction-set extensions are prefixed with the three
-letters ``Zxm''.
+标准机器级指令集扩展使用三个字母“Zxm”作为前缀。
+% Standard machine-level instruction-set extensions are prefixed with the three
+% letters ``Zxm''.
 
-Standard machine-level extensions should be listed after standard
-lesser-privileged extensions.  If multiple machine-level extensions are listed,
-they should be ordered alphabetically.
+标准机器级扩展应当被列在标准更低特权级扩展之后。如果列出了多个机器级扩展，它们应当按字母顺序排列。
+% Standard machine-level extensions should be listed after standard
+% lesser-privileged extensions.  If multiple machine-level extensions are listed,
+% they should be ordered alphabetically.
 
-\section{Non-Standard Extension Names}
+\section{非标准扩展的命名}
+% \section{Non-Standard Extension Names}
 
-Non-standard extensions are named using a single ``X'' followed by an
-alphabetical name and an optional version number.
-For example, ``Xhwacha'' names the Hwacha vector-fetch ISA extension;
-``Xhwacha2'' and ``Xhwacha2p0'' name version 2.0 of same.
+非标准扩展使用一个单独的“X”、后面跟着一个按字母顺序排列的名字和一个可选的版本号来命名。
+例如，“Xhwacha”命名了Hwacha向量获取ISA扩展；“Xhwacha2”和“Xhwacha2p0”命名了相同扩展的2.0版本。
+% Non-standard extensions are named using a single ``X'' followed by an
+% alphabetical name and an optional version number.
+% For example, ``Xhwacha'' names the Hwacha vector-fetch ISA extension;
+% ``Xhwacha2'' and ``Xhwacha2p0'' name version 2.0 of same.
 
-Non-standard extensions must be listed after all standard extensions.
-They must be separated from other multi-letter extensions
-by an underscore.  For example, an ISA with non-standard extensions
-Argle and Bargle may be named ``RV64IZifencei\_Xargle\_Xbargle''.
+非标准扩展必须被列在所有的标准扩展之后。它们必须通过一条下划线来与其它多字母的扩展分割。
+例如，一个带有非标准扩展Argle和Bargle的ISA可以被命名为“RV64IZifencei_Xargle_Xbargle”。
+% Non-standard extensions must be listed after all standard extensions.
+% They must be separated from other multi-letter extensions
+% by an underscore.  For example, an ISA with non-standard extensions
+% Argle and Bargle may be named ``RV64IZifencei\_Xargle\_Xbargle''.
 
-If multiple non-standard extensions are listed, they should be ordered
-alphabetically.
+如果列出了多个非标准扩展，它们应当按照字母顺序排序。
+% If multiple non-standard extensions are listed, they should be ordered
+% alphabetically.
 
-\section{Subset Naming Convention}
-Table~\ref{isanametable} summarizes the standardized extension names.
+\section{子集命名约定}
+% \section{Subset Naming Convention}
+表~\ref{isanametable}总结了标准化的扩展命名。
+% Table~\ref{isanametable} summarizes the standardized extension names.
 ~\\
 \begin{table}[h]
 \center
 \begin{tabular}{|l|c|c|}
 \hline
-Subset & Name & Implies \\
+子集 & 命名 & 隐含 \\
 \hline
 \hline
-\multicolumn{3}{|c|}{Base ISA}\\
+\multicolumn{3}{|c|}{基础ISA}\\
 \hline
-Integer & I & \\
-Reduced Integer & E & \\
-\hline
-\hline
-\multicolumn{3}{|c|}{Standard Unprivileged Extensions}\\
-\hline
-Integer Multiplication and Division & M & \\
-Atomics & A & \\
-Single-Precision Floating-Point & F & Zicsr \\
-Double-Precision Floating-Point & D & F \\
-\hline
-General & G & IMAFDZicsr\_Zifencei \\
-\hline
-Quad-Precision Floating-Point & Q & D\\
-16-bit Compressed Instructions & C & \\
-Packed-SIMD Extensions & P & \\
-Vector Extension & V & D \\
-Hypervisor Extension & H & \\
-Control and Status Register Access & Zicsr & \\
-Instruction-Fetch Fence & Zifencei & \\
-Misaligned Atomics & Zam & A \\
-Total Store Ordering & Ztso & \\
+整数 & I & \\
+约简的整数 & E & \\
 \hline
 \hline
-\multicolumn{3}{|c|}{Standard Supervisor-Level Extensions}\\
+\multicolumn{3}{|c|}{标准非特权扩展}\\
 \hline
-Supervisor-level extension ``def'' & Sdef & \\
+整数乘法和除法 & M & \\
+原子性 & A & \\
+单精度浮点 & F & Zicsr \\
+双精度浮点 & D & F \\
+\hline
+通用 & G & IMAFDZicsr\_Zifencei \\
+\hline
+四精度浮点 & Q & D\\
+16位压缩指令 & C & \\
+打包的SIMD扩展 & P & \\
+向量扩展 & V & D \\
+监视级扩展 & H & \\
+控制和状态寄存器访问 & Zicsr & \\
+指令获取屏障 & Zifencei & \\
+未对齐原子性 & Zam & A \\
+全存储排序 & Ztso & \\
 \hline
 \hline
-\multicolumn{3}{|c|}{Standard Machine-Level Extensions}\\
+\multicolumn{3}{|c|}{标准监管器级扩展}\\
 \hline
-Machine-level extension ``jkl'' & Zxmjkl & \\
+监管器级扩展“def” & Sdef & \\
 \hline
 \hline
-\multicolumn{3}{|c|}{Non-Standard Extensions}\\
+\multicolumn{3}{|c|}{标准机器级扩展}\\
 \hline
-Non-standard extension ``mno'' & Xmno & \\
+机器级扩展“jkl” & Zxmjkl & \\
+\hline
+\hline
+\multicolumn{3}{|c|}{非标准扩展}\\
+\hline
+非标准扩展“mno” & Xmno & \\
 \hline
 \end{tabular}
-\caption{Standard ISA extension names.  The table also defines the
-  canonical order in which extension names must appear in the name
-  string, with top-to-bottom in table indicating first-to-last in the
-  name string, e.g., RV32IMACV is legal, whereas RV32IMAVC is not.}
+\caption{
+  % Standard ISA extension names.  The table also defines the
+  % canonical order in which extension names must appear in the name
+  % string, with top-to-bottom in table indicating first-to-last in the
+  % name string, e.g., RV32IMACV is legal, whereas RV32IMAVC is not.
+  标准ISA扩展命名。该表也定义了扩展的名字在命名字符串中必须出现在的传统次序，
+  表中从上到下的顺序表示命名字符串中从开始到结束的顺序，例如，RV32IMACV是合法的，而RV32IMAVC是不合法的。
+  }
 \label{isanametable}
 \end{table}
 

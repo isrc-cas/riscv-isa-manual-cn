@@ -1,403 +1,547 @@
-\chapter{History and Acknowledgments}
+\chapter{历史和鸣谢}
+% \chapter{History and Acknowledgments}
 \label{history}
 
-\section{``Why Develop a new ISA?'' Rationale from Berkeley Group}
+\section{“为什么要开发一个新的ISA？”伯克利小组的理由}
+% \section{``Why Develop a new ISA?'' Rationale from Berkeley Group}
 
-We developed RISC-V to support our own needs in research and
-education, where our group is particularly interested in actual
-hardware implementations of research ideas (we have completed eleven
-different silicon fabrications of RISC-V since the first edition of
-this specification), and in providing real implementations for
-students to explore in classes (RISC-V processor RTL designs have been
-used in multiple undergraduate and graduate classes at Berkeley).  In
-our current research, we are especially interested in the move towards
-specialized and heterogeneous accelerators, driven by the power
-constraints imposed by the end of conventional transistor scaling.  We
-wanted a highly flexible and extensible base ISA around which to build
-our research effort.
+我们开发RISC-V来支持我们自己在研究和教育中的需求，这里，
+我们组尤其对研究想法的实际硬件实现（自从这个规范的初次编辑以来，我们已经完成了11个不同的RISC-V的硅制品）、
+以及为学生们在课堂中的探索提供真实实现（RISC-V处理器RTL设计已经用在了伯克利的多个本科和研究生课程之中）感兴趣。
+在我们目前的研究中，受到传统晶体管规模的终结所引发的能量受限的驱使，我们特别感兴趣于转向专用化和异构化的加速器。
+我们希望有一种高度灵活的和可扩展的基础ISA，围绕它来构建我们的研究工作。
+% We developed RISC-V to support our own needs in research and
+% education, where our group is particularly interested in actual
+% hardware implementations of research ideas (we have completed eleven
+% different silicon fabrications of RISC-V since the first edition of
+% this specification), and in providing real implementations for
+% students to explore in classes (RISC-V processor RTL designs have been
+% used in multiple undergraduate and graduate classes at Berkeley).  In
+% our current research, we are especially interested in the move towards
+% specialized and heterogeneous accelerators, driven by the power
+% constraints imposed by the end of conventional transistor scaling.  We
+% wanted a highly flexible and extensible base ISA around which to build
+% our research effort.
 
-A question we have been repeatedly asked is ``Why develop a new ISA?''
-The biggest obvious benefit of using an existing commercial ISA is the
-large and widely supported software ecosystem, both development tools
-and ported applications, which can be leveraged in research and
-teaching.  Other benefits include the existence of large amounts of
-documentation and tutorial examples.  However, our experience of using
-commercial instruction sets for research and teaching is that these
-benefits are smaller in practice, and do not outweigh the
-disadvantages:
-
-\begin{itemize}
-\item {\bf Commercial ISAs are proprietary.}  Except for SPARC V8,
-  which is an open IEEE standard~\cite{sparcieee1994}, most owners of
-  commercial ISAs carefully guard their intellectual property and do
-  not welcome freely available competitive implementations.  This is
-  much less of an issue for academic research and teaching using only
-  software simulators, but has been a major concern for groups wishing
-  to share actual RTL implementations.  It is also a major concern for
-  entities who do not want to trust the few sources of commercial ISA
-  implementations, but who are prohibited from creating their own
-  clean room implementations.  We cannot guarantee that all RISC-V
-  implementations will be free of third-party patent infringements,
-  but we can guarantee we will not attempt to sue a RISC-V
-  implementor.
-
-\item {\bf Commercial ISAs are only popular in certain market
-  domains.}  The most obvious examples at time of writing are that
-  the ARM architecture is not well supported in the server space, and
-  the Intel x86 architecture (or for that matter, almost every other
-  architecture) is not well supported in the mobile space, though both
-  Intel and ARM are attempting to enter each other's market segments.
-  Another example is ARC and Tensilica, which provide extensible cores
-  but are focused on the embedded space.  This market segmentation
-  dilutes the benefit of supporting a particular commercial ISA as in
-  practice the software ecosystem only exists for certain domains, and
-  has to be built for others.
-
-\item {\bf Commercial ISAs come and go.}  Previous research
-  infrastructures have been built around commercial ISAs that are no
-  longer popular (SPARC, MIPS) or even no longer in production
-  (Alpha).  These lose the benefit of an active software ecosystem,
-  and the lingering intellectual property issues around the ISA and
-  supporting tools interfere with the ability of interested third
-  parties to continue supporting the ISA.  An open ISA might also lose
-  popularity, but any interested party can continue using and
-  developing the ecosystem.
-
-\item {\bf Popular commercial ISAs are complex.}  The dominant
-  commercial ISAs (x86 and ARM) are both very complex to implement in
-  hardware to the level of supporting common software stacks and
-  operating systems.  Worse, nearly all the complexity is due to bad,
-  or at least outdated, ISA design decisions rather than features that
-  truly improve efficiency.
-
-\item {\bf Commercial ISAs alone are not enough to bring up
-  applications.}  Even if we expend the effort to implement a
-  commercial ISA, this is not enough to run existing applications for
-  that ISA.  Most applications need a complete ABI (application binary
-  interface) to run, not just the user-level ISA.  Most ABIs rely on
-  libraries, which in turn rely on operating system support.  To run an
-  existing operating system requires implementing the supervisor-level
-  ISA and device interfaces expected by the OS.  These are usually
-  much less well-specified and considerably more complex to
-  implement than the user-level ISA.
-
-\item {\bf Popular commercial ISAs were not designed for extensibility.}  The
-  dominant commercial ISAs were not particularly designed for
-  extensibility, and as a consequence have added considerable
-  instruction encoding complexity as their instruction sets have
-  grown.  Companies such as Tensilica (acquired by Cadence) and ARC
-  (acquired by Synopsys) have built ISAs and toolchains around
-  extensibility, but have focused on embedded applications rather than
-  general-purpose computing systems.
-
-\item {\bf A modified commercial ISA is a new ISA.} One of our main
-  goals is to support architecture research, including major ISA
-  extensions.  Even small extensions diminish the benefit of using a
-  standard ISA, as compilers have to be modified and applications
-  rebuilt from source code to use the extension.  Larger extensions
-  that introduce new architectural state also require modifications to
-  the operating system.  Ultimately, the modified commercial ISA
-  becomes a new ISA, but carries along all the legacy baggage of the
-  base ISA.
-\end{itemize}
-
-Our position is that the ISA is perhaps the most important interface
-in a computing system, and there is no reason that such an important
-interface should be proprietary.  The dominant commercial ISAs are
-based on instruction-set concepts that were already well known over 30
-years ago.  Software developers should be able to target an open
-standard hardware target, and commercial processor designers should
-compete on implementation quality.
-
-We are far from the first to contemplate an open ISA design suitable
-for hardware implementation.  We also considered other existing open
-ISA designs, of which the closest to our goals was the OpenRISC
-architecture~\cite{openriscarch}.  We decided against adopting the
-OpenRISC ISA for several technical reasons:
+我们被重复问到的一个问题是“为什么要开发一个新的ISA？”使用一个现有的商业ISA的最显而易见的好处是有大而广泛的软件生态系统的支持，
+无论是开发工具还是移植的应用，都可以被用于研究和教学。其它好处包括存在大量的文档和教程样例。
+然而，我们使用商业指令集用于研究和教学的经验是，这些好处在实际中是比较小的，并且比不过其劣势：
+% A question we have been repeatedly asked is ``Why develop a new ISA?''
+% The biggest obvious benefit of using an existing commercial ISA is the
+% large and widely supported software ecosystem, both development tools
+% and ported applications, which can be leveraged in research and
+% teaching.  Other benefits include the existence of large amounts of
+% documentation and tutorial examples.  However, our experience of using
+% commercial instruction sets for research and teaching is that these
+% benefits are smaller in practice, and do not outweigh the
+% disadvantages:
 
 \begin{itemize}
-\item OpenRISC has condition codes and branch delay slots, which
-  complicate higher performance implementations.
-\item OpenRISC uses a fixed 32-bit encoding and 16-bit immediates,
-  which precludes a denser instruction encoding and limits space for
-  later expansion of the ISA.
-\item OpenRISC does not support the 2008 revision to the IEEE 754
-  floating-point standard.
-\item The OpenRISC 64-bit design had not been completed when we began.
+\item {\bf 商业ISA是有专利的。} 除了SPARC V8，它是一个开放的IEEE标准~\cite{sparcieee1994}，大多数商业ISA的所有者都小心地保卫着他们的知识产权，
+而不欢迎自由地提供有竞争力的实现。这对于只使用软件模拟器的学术研究和教学来说还不是太大的问题，
+但是对于那些希望分享确实的RTL实现的团队来说却是主要关注的事情。
+对于不愿意相信几乎没有源代码的商业ISA实现的群体来说，这也是个主要的问题——但是他们被禁止创造他们自己的干净实现。
+我们不能保证所有的RISC-V实现都将免受第三方专利的侵权，但是我们可以保证我们不会尝试起诉RISC-V的实现者。
+% {\bf Commercial ISAs are proprietary.}  Except for SPARC V8,
+%   which is an open IEEE standard~\cite{sparcieee1994}, most owners of
+%   commercial ISAs carefully guard their intellectual property and do
+%   not welcome freely available competitive implementations.  This is
+%   much less of an issue for academic research and teaching using only
+%   software simulators, but has been a major concern for groups wishing
+%   to share actual RTL implementations.  It is also a major concern for
+%   entities who do not want to trust the few sources of commercial ISA
+%   implementations, but who are prohibited from creating their own
+%   clean room implementations.  We cannot guarantee that all RISC-V
+%   implementations will be free of third-party patent infringements,
+%   but we can guarantee we will not attempt to sue a RISC-V
+%   implementor.
+
+\item {\bf 商业ISA只流行于特定的市场领域。} 在编写时，最显而易见的例子是，ARM架构对服务器空间的支持并不好，
+而英特尔x86架构（或者同样地，几乎其余的所有架构）都不能很好地支持移动空间——尽管英特尔和ARM都在尝试进入相互的市场段。
+另一个例子是ARC和Tensilica，它们提供可扩展的核心，但是聚焦于嵌入式空间。
+这种市场分割冲淡了支持特定商业ISA的好处，因为实际上，软件生态系统只针对特定领域而存在，而不得不为了其它领域而构建。
+  % {\bf Commercial ISAs are only popular in certain market
+  % domains.}  The most obvious examples at time of writing are that
+  % the ARM architecture is not well supported in the server space, and
+  % the Intel x86 architecture (or for that matter, almost every other
+  % architecture) is not well supported in the mobile space, though both
+  % Intel and ARM are attempting to enter each other's market segments.
+  % Another example is ARC and Tensilica, which provide extensible cores
+  % but are focused on the embedded space.  This market segmentation
+  % dilutes the benefit of supporting a particular commercial ISA as in
+  % practice the software ecosystem only exists for certain domains, and
+  % has to be built for others.
+
+\item {\bf 商业ISA来来往往。} 先前的研究基础设施围绕着商业ISA构建，那些商业ISA已经不再流行（SPARC、MIPS）或者甚至不再生产了（Alpha）。
+  这些都失去了一个活跃的软件生态系统的好处，而围绕ISA和支持工具的持续不断的知识产权问题一直在阻碍着感兴趣的第三方继续支持ISA的能力。
+  一个开放的ISA可能也会失去流行性，但是任何感兴趣的团体都可以继续使用和开发这个生态系统。
+  % {\bf Commercial ISAs come and go.}  Previous research
+  % infrastructures have been built around commercial ISAs that are no
+  % longer popular (SPARC, MIPS) or even no longer in production
+  % (Alpha).  These lose the benefit of an active software ecosystem,
+  % and the lingering intellectual property issues around the ISA and
+  % supporting tools interfere with the ability of interested third
+  % parties to continue supporting the ISA.  An open ISA might also lose
+  % popularity, but any interested party can continue using and
+  % developing the ecosystem.
+
+\item  {\bf 流行的商业ISA是复杂的。} 对于在硬件中的支持常见软件栈和操作系统的级别，居主导的商业ISA（x86和ARM）的实现都是非常复杂的。
+更糟的是，几乎所有的复杂度都是由于坏的、或者至少是过时的ISA设计决策，而不是由于真正的提高效率的特性。
+% {\bf Popular commercial ISAs are complex.}  The dominant
+%   commercial ISAs (x86 and ARM) are both very complex to implement in
+%   hardware to the level of supporting common software stacks and
+%   operating systems.  Worse, nearly all the complexity is due to bad,
+%   or at least outdated, ISA design decisions rather than features that
+%   truly improve efficiency.
+
+\item {\bf 只有商业ISA自己是不足以带起应用的。} 即使我们扩展了实现一个商业ISA的工作，这也仍然不足以使ISA运行现有的应用。
+大多数应用需要一个完整的ABI（应用程序二进制接口）来运行，而不仅仅是用户级ISA。
+大多数ABI依赖于库，而这又反过来依赖于操作系统的支持。
+为了运行一个现有的操作系统，需要实现监管器级别的ISA和操作系统期望的设备接口。
+与用户级ISA相比，这些通常更加不明确，并且实现起来也要更复杂得多。
+% {\bf Commercial ISAs alone are not enough to bring up
+%   applications.}  Even if we expend the effort to implement a
+%   commercial ISA, this is not enough to run existing applications for
+%   that ISA.  Most applications need a complete ABI (application binary
+%   interface) to run, not just the user-level ISA.  Most ABIs rely on
+%   libraries, which in turn rely on operating system support.  To run an
+%   existing operating system requires implementing the supervisor-level
+%   ISA and device interfaces expected by the OS.  These are usually
+%   much less well-specified and considerably more complex to
+%   implement than the user-level ISA.
+
+\item {\bf 流行的商业ISA并非为了扩展而设计。} 居主导的商业ISA不会特地为扩展设计，并且因此，随着它们的指令集的增长，增加了相当多的指令编码复杂度。
+  诸如Tensilica（被Cadence收购）和ARC（被Synopsys收购）的公司虽然围绕着可扩展性构建了ISA和工具链，但是更加聚焦于嵌入式应用，
+  而不是通用目的的计算系统。
+  % {\bf Popular commercial ISAs were not designed for extensibility.}  The
+  % dominant commercial ISAs were not particularly designed for
+  % extensibility, and as a consequence have added considerable
+  % instruction encoding complexity as their instruction sets have
+  % grown.  Companies such as Tensilica (acquired by Cadence) and ARC
+  % (acquired by Synopsys) have built ISAs and toolchains around
+  % extensibility, but have focused on embedded applications rather than
+  % general-purpose computing systems.
+
+\item {\bf 修改后的商业ISA是一种新的ISA。} 我们的目标之一是支持架构研究，包括主要ISA扩展在内。
+甚至小型扩展也会减少使用标准ISA的收益，因为，为了使用扩展，不得不修改编译器和从源代码重新构建应用。
+更大的扩展引入了新的架构状态，也需要对操作系统的修改。最终，修改后的商业ISA变成了一个新的ISA，
+但是它仍然保留了基础ISA的所有的遗留的包袱。
+% {\bf A modified commercial ISA is a new ISA.} One of our main
+%   goals is to support architecture research, including major ISA
+%   extensions.  Even small extensions diminish the benefit of using a
+%   standard ISA, as compilers have to be modified and applications
+%   rebuilt from source code to use the extension.  Larger extensions
+%   that introduce new architectural state also require modifications to
+%   the operating system.  Ultimately, the modified commercial ISA
+%   becomes a new ISA, but carries along all the legacy baggage of the
+%   base ISA.
 \end{itemize}
 
-By starting from a clean slate, we could design an ISA that met all of
-our goals, though of course, this took far more effort than we had
-planned at the outset.  We have now invested considerable effort in
-building up the RISC-V ISA infrastructure, including documentation,
-compiler tool chains, operating system ports, reference ISA
-simulators, FPGA implementations, efficient ASIC implementations,
-architecture test suites, and teaching materials. Since the last
-edition of this manual, there has been considerable uptake of the
-RISC-V ISA in both academia and industry, and we have created the
-non-profit RISC-V Foundation to protect and promote the standard.  The
-RISC-V Foundation website at \url{https://riscv.org} contains the latest
-information on the Foundation membership and various open-source
-projects using RISC-V.
+我们的立场是，ISA或许是计算系统中最重要的接口，并且这样一个重要的接口应当没有理由成为专利。
+居主导的商业ISA是基于30年前就已经广为人知的指令集概念。软件开发者应当能够瞄准一种开放的标准硬件目标，
+而商业处理器设计者应当在实现质量上竞争。
+% Our position is that the ISA is perhaps the most important interface
+% in a computing system, and there is no reason that such an important
+% interface should be proprietary.  The dominant commercial ISAs are
+% based on instruction-set concepts that were already well known over 30
+% years ago.  Software developers should be able to target an open
+% standard hardware target, and commercial processor designers should
+% compete on implementation quality.
+
+我们远不是第一个考虑适合硬件实现的开发ISA设计的。我们也考虑过其它的开放ISA设计，
+其中最接近我们目标的是OpenRISC架构~\cite{openriscarch}。但我们决定不采用OpenRISC ISA，是由于一些技术原因：
+% We are far from the first to contemplate an open ISA design suitable
+% for hardware implementation.  We also considered other existing open
+% ISA designs, of which the closest to our goals was the OpenRISC
+% architecture~\cite{openriscarch}.  We decided against adopting the
+% OpenRISC ISA for several technical reasons:
+
+\begin{itemize}
+\item OpenRISC具有条件代码和分支延迟槽，这使更高性能的实现复杂化。
+% OpenRISC has condition codes and branch delay slots, which
+%   complicate higher performance implementations.
+\item OpenRISC使用固定32位编码和16位立即数，这妨碍了更密集的指令编码，并限制了ISA的后续扩展的空间。
+% OpenRISC uses a fixed 32-bit encoding and 16-bit immediates,
+%   which precludes a denser instruction encoding and limits space for
+%   later expansion of the ISA.
+\item OpenRISC不支持2008年修订的IEEE 754浮点标准。
+% OpenRISC does not support the 2008 revision to the IEEE 754
+%   floating-point standard.
+\item 在我们开始时，OpenRISC的64位设计还没有完成。
+% The OpenRISC 64-bit design had not been completed when we began.
+\end{itemize}
+
+通过从一片空白开始，我们可以设计一个满足我们所有目标的ISA，尽管理所当然地，
+这比我们一开始所计划的要采取的工作量要大得多。我们现在已经调查了在构建RISC-V ISA基础设施方面相当多的工作，
+包括文档、编译器工具链、操作系统端口、参考ISA模拟器、FPGA实现、有效的ASIC实现、架构测试套件和教学材料。
+从这本手册的上一次编辑开始，RISC-V ISA在学术和工业中已经有了相当大的应用，
+而我们已经创造了非营利性的RISC-V基金会来保护和推广该标准。RISC-V基金会网站在\url{https://riscv.org}，
+它包括了关于基金会成员和各种使用RISC-V的开源项目的最新信息。
+% By starting from a clean slate, we could design an ISA that met all of
+% our goals, though of course, this took far more effort than we had
+% planned at the outset.  We have now invested considerable effort in
+% building up the RISC-V ISA infrastructure, including documentation,
+% compiler tool chains, operating system ports, reference ISA
+% simulators, FPGA implementations, efficient ASIC implementations,
+% architecture test suites, and teaching materials. Since the last
+% edition of this manual, there has been considerable uptake of the
+% RISC-V ISA in both academia and industry, and we have created the
+% non-profit RISC-V Foundation to protect and promote the standard.  The
+% RISC-V Foundation website at \url{https://riscv.org} contains the latest
+% information on the Foundation membership and various open-source
+% projects using RISC-V.
 
 
-\section{History from Revision 1.0 of ISA manual}
+\section{从ISA手册1.0版的修订历史}
+% \section{History from Revision 1.0 of ISA manual}
 
-The RISC-V ISA and instruction-set manual builds upon several earlier
-projects.  Several aspects of the supervisor-level machine and the
-overall format of the manual date back to the T0 (Torrent-0) vector
-microprocessor project at UC Berkeley and ICSI, begun in 1992.  T0 was
-a vector processor based on the MIPS-II ISA, with Krste Asanovi\'{c}
-as main architect and RTL designer, and Brian Kingsbury and Bertrand
-Irrisou as principal VLSI implementors.  David Johnson at ICSI was a
-major contributor to the T0 ISA design, particularly supervisor mode,
-and to the manual text.  John Hauser also provided considerable
-feedback on the T0 ISA design.
+RISC-V ISA和指令集手册构建在一些较早的项目之上。监管器级机器的某些方面和手册的整体格式可以追溯到开始于1992年UC伯克利和ICSI的T0（Torrent-0）向量微处理器项目。
+T0是一个基于MIPS-II ISA的向量处理器，由克尔斯泰·阿桑诺维奇作为主要的架构和RTL设计者，以及布莱恩·金斯伯里和伯特兰·伊里索作为主要的VLSI实现者。
+ICSI的大卫·约翰逊是对T0 ISA设计、尤其是监管器模式，以及手册文本的主要贡献者。约翰·豪瑟也提供了关于T0 ISA设计的相当多的反馈。
+% The RISC-V ISA and instruction-set manual builds upon several earlier
+% projects.  Several aspects of the supervisor-level machine and the
+% overall format of the manual date back to the T0 (Torrent-0) vector
+% microprocessor project at UC Berkeley and ICSI, begun in 1992.  T0 was
+% a vector processor based on the MIPS-II ISA, with Krste Asanovi\'{c}
+% as main architect and RTL designer, and Brian Kingsbury and Bertrand
+% Irrisou as principal VLSI implementors.  David Johnson at ICSI was a
+% major contributor to the T0 ISA design, particularly supervisor mode,
+% and to the manual text.  John Hauser also provided considerable
+% feedback on the T0 ISA design.
 
-The Scale (Software-Controlled Architecture for Low Energy) project at
-MIT, begun in 2000, built upon the T0 project infrastructure, refined
-the supervisor-level interface, and moved away from the MIPS scalar
-ISA by dropping the branch delay slot.  Ronny Krashinsky and
-Christopher Batten were the principal architects of the Scale
-Vector-Thread processor at MIT, while Mark Hampton ported the
-GCC-based compiler infrastructure and tools for Scale.
+麻省理工学院在2000年开始的Scale（用于低能耗的软件控制架构）项目，在T0项目基础设施上构建，
+改良了监管器级的接口；并通过丢弃分支延迟槽，移除了MIPS标量ISA。
+罗尼·克拉辛斯基和克里斯托弗·巴顿是麻省理工学院的Scale向量线程处理器的主要架构师，
+而马克·汉普顿为Scale移植了基于GCC的编译器基础设施和工具。
+% The Scale (Software-Controlled Architecture for Low Energy) project at
+% MIT, begun in 2000, built upon the T0 project infrastructure, refined
+% the supervisor-level interface, and moved away from the MIPS scalar
+% ISA by dropping the branch delay slot.  Ronny Krashinsky and
+% Christopher Batten were the principal architects of the Scale
+% Vector-Thread processor at MIT, while Mark Hampton ported the
+% GCC-based compiler infrastructure and tools for Scale.
 
-A lightly edited version of the T0 MIPS scalar processor specification
-(MIPS-6371) was used in teaching a new version of the MIT 6.371
-Introduction to VLSI Systems class in the Fall 2002 semester, with
-Chris Terman and Krste Asanovi\'{c} as lecturers.  Chris Terman
-contributed most of the lab material for the class (there was no
-TA!). The 6.371 class evolved into the trial 6.884 Complex Digital
-Design class at MIT, taught by Arvind and Krste Asanovi\'{c} in Spring
-2005, which became a regular Spring class 6.375.  A reduced version of
-the Scale MIPS-based scalar ISA, named SMIPS, was used in 6.884/6.375.
-Christopher Batten was the TA for the early offerings of these classes
-and developed a considerable amount of documentation and lab material
-based around the SMIPS ISA.  This same SMIPS lab material was adapted
-and enhanced by TA Yunsup Lee for the UC Berkeley Fall 2009 CS250 VLSI
-Systems Design class taught by John Wawrzynek, Krste Asanovi\'{c}, and
-John Lazzaro.
+在2002年秋季学期，T0 MIPS标量处理器规范的一个轻微编辑的版本（MIPS-6371）被用于教授MIT 6.371的VLSI系统入门课程，
+由克里斯·特曼和克尔斯泰·阿桑诺维奇作为讲师。克里斯·特曼为课程（当时没有TAI）贡献了大部分的实验材料。
+2005年春季，在麻省理工学院，6.371课程演化为实验性的6.884复杂数字设计课程，由阿文和克尔斯泰·阿桑诺维奇教授，
+该课程成为一个常规的春季课程6.375。在6.884/6.375中使用了基于Scale MIPS标量ISA的一个约简版本，
+命名为SMIPS。克里斯托弗·巴顿是早期提供了这些的课程的助教，围绕SMIPS ISA开发了相当大量的文档和实验材料。
+这个相同的SMIPS实验材料被助教李云燮采纳和强化，用于UC伯克利2009年秋季的CS250 VLSI系统设计课程，
+该课程由约翰·沃兹内克、克尔斯泰·阿桑诺维奇和约翰·拉扎罗教授。
+% A lightly edited version of the T0 MIPS scalar processor specification
+% (MIPS-6371) was used in teaching a new version of the MIT 6.371
+% Introduction to VLSI Systems class in the Fall 2002 semester, with
+% Chris Terman and Krste Asanovi\'{c} as lecturers.  Chris Terman
+% contributed most of the lab material for the class (there was no
+% TA!). The 6.371 class evolved into the trial 6.884 Complex Digital
+% Design class at MIT, taught by Arvind and Krste Asanovi\'{c} in Spring
+% 2005, which became a regular Spring class 6.375.  A reduced version of
+% the Scale MIPS-based scalar ISA, named SMIPS, was used in 6.884/6.375.
+% Christopher Batten was the TA for the early offerings of these classes
+% and developed a considerable amount of documentation and lab material
+% based around the SMIPS ISA.  This same SMIPS lab material was adapted
+% and enhanced by TA Yunsup Lee for the UC Berkeley Fall 2009 CS250 VLSI
+% Systems Design class taught by John Wawrzynek, Krste Asanovi\'{c}, and
+% John Lazzaro.
 
-The Maven (Malleable Array of Vector-thread ENgines) project was a
-second-generation vector-thread architecture.  Its design was led by
-Christopher Batten when he was an Exchange Scholar at UC Berkeley starting
-in summer 2007.  Hidetaka Aoki, a visiting industrial fellow from
-Hitachi, gave considerable feedback on the early Maven ISA and
-microarchitecture design.  The Maven infrastructure was based on the
-Scale infrastructure but the Maven ISA moved further away from the
-MIPS ISA variant defined in Scale, with a unified floating-point and
-integer register file.  Maven was designed to support experimentation
-with alternative data-parallel accelerators.  Yunsup Lee was the main
-implementor of the various Maven vector units, while Rimas Avi\v{z}ienis
-was the main implementor of the various Maven scalar units.
-Yunsup Lee and Christopher Batten ported GCC to work with the new
-Maven ISA.  Christopher Celio provided the initial definition of a
-traditional vector instruction set (``Flood'') variant of Maven.
+Maven（向量线程引擎的可塑阵列）项目是一种第二代向量线程架构。它由克里斯托弗·巴顿主导设计，
+当时他是UC伯克利的一名开始于2007年夏季的交换学者。青木秀田，一名来自日立的客座工业研究员，
+给出了关于早期Maven ISA和微架构设计的大量反馈。Maven基础设施是基于Scale基础设施，
+但是Maven ISA进一步地移除了Scale中定义的MIPS ISA变体，而使用一个统一的浮点和整数寄存器文件。
+设计Maven是为了支持带有备用数据并行加速器的实验。李云燮是各种Maven向量单元的主要实现者，
+同时里马斯·阿维齐尼斯是各种Maven标量单元的主要实现者。李云燮和克里斯托弗·巴顿将GCC移植到新的Maven ISA中共同工作。
+克里斯托弗·塞利奥提供了Maven的一种传统的向量指令集（“Flood”）变体的原始定义。
+% The Maven (Malleable Array of Vector-thread ENgines) project was a
+% second-generation vector-thread architecture.  Its design was led by
+% Christopher Batten when he was an Exchange Scholar at UC Berkeley starting
+% in summer 2007.  Hidetaka Aoki, a visiting industrial fellow from
+% Hitachi, gave considerable feedback on the early Maven ISA and
+% microarchitecture design.  The Maven infrastructure was based on the
+% Scale infrastructure but the Maven ISA moved further away from the
+% MIPS ISA variant defined in Scale, with a unified floating-point and
+% integer register file.  Maven was designed to support experimentation
+% with alternative data-parallel accelerators.  Yunsup Lee was the main
+% implementor of the various Maven vector units, while Rimas Avi\v{z}ienis
+% was the main implementor of the various Maven scalar units.
+% Yunsup Lee and Christopher Batten ported GCC to work with the new
+% Maven ISA.  Christopher Celio provided the initial definition of a
+% traditional vector instruction set (``Flood'') variant of Maven.
 
-Based on experience with all these previous projects, the RISC-V ISA
-definition was begun in Summer 2010, with Andrew Waterman, Yunsup Lee,
-Krste Asanovi\'{c}, and David Patterson as principal designers.
-An initial version of the RISC-V
-32-bit instruction subset was used in the UC Berkeley Fall 2010 CS250
-VLSI Systems Design class, with Yunsup Lee as TA.  RISC-V is a clean
-break from the earlier MIPS-inspired designs.  John Hauser contributed
-to the floating-point ISA definition, including the sign-injection
-instructions and a register encoding scheme that permits
-internal recoding of floating-point values.
+基于所有这些先前项目的经验，在2010年夏天，开始了RISC-V ISA的定义，由安德鲁·沃特曼、李云燮、克尔斯泰·阿桑诺维奇和大卫·帕特森作为主要设计者。
+RISC-V 32位指令子集的一个最初版本被用于UC伯克利2010年秋季CS250 VLSI系统设计课程之中，由李云燮作为助教。
+RISC-V与较早的MIPS灵感的设计有明显的不同。约翰·豪瑟贡献了浮点ISA的定义，包括符号注入指令和一个寄存器编码策略，
+它允许浮点值的内部重新编码。
+% Based on experience with all these previous projects, the RISC-V ISA
+% definition was begun in Summer 2010, with Andrew Waterman, Yunsup Lee,
+% Krste Asanovi\'{c}, and David Patterson as principal designers.
+% An initial version of the RISC-V
+% 32-bit instruction subset was used in the UC Berkeley Fall 2010 CS250
+% VLSI Systems Design class, with Yunsup Lee as TA.  RISC-V is a clean
+% break from the earlier MIPS-inspired designs.  John Hauser contributed
+% to the floating-point ISA definition, including the sign-injection
+% instructions and a register encoding scheme that permits
+% internal recoding of floating-point values.
 
-\section{History from Revision 2.0 of ISA manual}
+\section{从ISA手册2.0版的修订历史}
+% \section{History from Revision 2.0 of ISA manual}
 
-Multiple implementations of RISC-V processors have been completed,
-including several silicon fabrications, as shown in
-Figure~\ref{silicon}.
+已经完成了RISC-V处理器的多个实现，包括一些硅制品，就像表~\ref{silicon}中显示的那样。
+% Multiple implementations of RISC-V processors have been completed,
+% including several silicon fabrications, as shown in
+% Figure~\ref{silicon}.
 
 \begin{table*}[!h]
 \begin{center}
 \begin{tabular}{|l|r|l|l|}
 \hline
-\multicolumn{1}{|c|}{Name} & \multicolumn{1}{|c|}{Tapeout Date} & \multicolumn{1}{|c|}{Process} & \multicolumn{1}{|c|}{ISA} \\ \hline
+\multicolumn{1}{|c|}{名称} & \multicolumn{1}{|c|}{流片日期} & \multicolumn{1}{|c|}{处理} & \multicolumn{1}{|c|}{ISA} \\ \hline
 \hline
-Raven-1 & May 29, 2011 & ST 28nm FDSOI & RV64G1\_Xhwacha1 \\ \hline
-EOS14 & April 1, 2012 & IBM 45nm SOI & RV64G1p1\_Xhwacha2 \\ \hline
-EOS16 & August 17, 2012 & IBM 45nm SOI & RV64G1p1\_Xhwacha2 \\ \hline
-Raven-2 & August 22, 2012 & ST 28nm FDSOI & RV64G1p1\_Xhwacha2 \\ \hline
-EOS18 & February 6, 2013 & IBM 45nm SOI & RV64G1p1\_Xhwacha2 \\ \hline
-EOS20 & July 3, 2013 & IBM 45nm SOI & RV64G1p99\_Xhwacha2 \\ \hline
-Raven-3 & September 26, 2013 & ST 28nm SOI & RV64G1p99\_Xhwacha2 \\ \hline
-EOS22 & March 7, 2014 & IBM 45nm SOI & RV64G1p9999\_Xhwacha3 \\ \hline
+Raven-1 & 2011年5月29日 & ST 28nm FDSOI & RV64G1\_Xhwacha1 \\ \hline
+EOS14 & 2012年4月1日 & IBM 45nm SOI & RV64G1p1\_Xhwacha2 \\ \hline
+EOS16 & 2012年8月17日 & IBM 45nm SOI & RV64G1p1\_Xhwacha2 \\ \hline
+Raven-2 & 2012年8月22日 & ST 28nm FDSOI & RV64G1p1\_Xhwacha2 \\ \hline
+EOS18 & 2013年2月6日 & IBM 45nm SOI & RV64G1p1\_Xhwacha2 \\ \hline
+EOS20 & 2013年7月3日 & IBM 45nm SOI & RV64G1p99\_Xhwacha2 \\ \hline
+Raven-3 & 2013年9月26日 & ST 28nm SOI & RV64G1p99\_Xhwacha2 \\ \hline
+EOS22 & 2014年3月7日 & IBM 45nm SOI & RV64G1p9999\_Xhwacha3 \\ \hline
 \end{tabular}
 \end{center}
 \vspace{-0.15in}
-\caption{Fabricated RISC-V testchips.}
+\caption{已制造的RISC-V测试芯片。}
 \label{silicon}
 \end{table*}
 
-The first RISC-V processors to be fabricated were written in Verilog and
-manufactured in a pre-production \wunits{28}{nm} FDSOI technology from
-ST as the Raven-1 testchip in 2011.  Two cores were developed by Yunsup
-Lee and Andrew Waterman, advised by Krste Asanovi\'{c}, and fabricated
-together: 1) an RV64 scalar core with error-detecting flip-flops, and 2)
-an RV64 core with an attached 64-bit floating-point vector unit.  The
-first microarchitecture was informally known as ``TrainWreck'', due to
-the short time available to complete the design with immature design
-libraries.
+第一个被制造的RISC-V处理器是用Verilog编写的，并且在2011年作为Raven-1测试芯片，以一种从ST预先生产的\wunits{28}{纳米}FDSOI技术制造。
+在克尔斯泰·阿桑诺维奇的建议下，李云燮和安德鲁·沃特曼共同开发和制造了两个核心：
+1)一个带有错误检测反转的RV64标量核心，和
+2)一个带有附着64位浮点向量单元的RV64核心。第一个微架构被非正式地称之为“TrainWreck”，因为可用来完成设计的时间较短，而且使用了不成熟的设计库。
+% The first RISC-V processors to be fabricated were written in Verilog and
+% manufactured in a pre-production \wunits{28}{nm} FDSOI technology from
+% ST as the Raven-1 testchip in 2011.  Two cores were developed by Yunsup
+% Lee and Andrew Waterman, advised by Krste Asanovi\'{c}, and fabricated
+% together: 1) an RV64 scalar core with error-detecting flip-flops, and 2)
+% an RV64 core with an attached 64-bit floating-point vector unit.  The
+% first microarchitecture was informally known as ``TrainWreck'', due to
+% the short time available to complete the design with immature design
+% libraries.
 
-Subsequently, a clean microarchitecture for an in-order decoupled RV64
-core was developed by Andrew Waterman, Rimas Avi\v{z}ienis, and Yunsup
-Lee, advised by Krste Asanovi\'{c}, and, continuing the railway theme,
-was codenamed ``Rocket'' after George Stephenson's successful steam
-locomotive design.  Rocket was written in Chisel, a new hardware
-design language developed at UC Berkeley.  The IEEE floating-point
-units used in Rocket were developed by John Hauser, Andrew
-Waterman, and Brian Richards.
-Rocket has since been refined and developed further, and has been
-fabricated two more times in \wunits{28}{nm} FDSOI (Raven-2, Raven-3),
-and five times in IBM \wunits{45}{nm} SOI technology (EOS14, EOS16,
-EOS18, EOS20, EOS22) for a photonics project.  Work is ongoing to make
-the Rocket design available as a parameterized RISC-V processor
-generator.
+随后，在克尔斯泰·阿桑诺维奇的建议下，安德鲁·沃特曼、里马斯·阿维齐尼斯和李云燮开发了一个干净的微架构，
+用于有序解耦的RV64核，并且，延续了铁路的主题，以乔治·史蒂芬森的成功的蒸汽机车设计“Rocket”为代号。
+Rocket是用Chisel编写的，后者是UC伯克利开发的一种新的硬件设计语言。
+Rocket使用的IEEE浮点单元由约翰·豪瑟、安德鲁·沃特曼和布莱恩·理查兹开发。在这之后，Rocket被进一步精炼和开发，
+并以\wunits{28}{纳米}FDSOI又制造了两次（Raven-2,、Raven-3），并为了一个光电项目以IBM \wunits{45}{纳米}SOI技术制造了五次（EOS14、EOS16、EOS18、EOS20、EOS22）。
+让Rocket的设计可以用作一种参数化的RISC-V处理器生成器的工作正在进行中。
+% Subsequently, a clean microarchitecture for an in-order decoupled RV64
+% core was developed by Andrew Waterman, Rimas Avi\v{z}ienis, and Yunsup
+% Lee, advised by Krste Asanovi\'{c}, and, continuing the railway theme,
+% was codenamed ``Rocket'' after George Stephenson's successful steam
+% locomotive design.  Rocket was written in Chisel, a new hardware
+% design language developed at UC Berkeley.  The IEEE floating-point
+% units used in Rocket were developed by John Hauser, Andrew
+% Waterman, and Brian Richards.
+% Rocket has since been refined and developed further, and has been
+% fabricated two more times in \wunits{28}{nm} FDSOI (Raven-2, Raven-3),
+% and five times in IBM \wunits{45}{nm} SOI technology (EOS14, EOS16,
+% EOS18, EOS20, EOS22) for a photonics project.  Work is ongoing to make
+% the Rocket design available as a parameterized RISC-V processor
+% generator.
 
-EOS14--EOS22 chips include early versions of Hwacha, a 64-bit IEEE
-floating-point vector unit, developed by Yunsup Lee, Andrew Waterman,
-Huy Vo, Albert Ou, Quan Nguyen, and Stephen Twigg, advised by Krste
-Asanovi\'{c}.  EOS16--EOS22 chips include dual cores with a
-cache-coherence protocol developed by Henry Cook and Andrew Waterman,
-advised by Krste Asanovi\'{c}.  EOS14 silicon has successfully run at
-\wunits{1.25}{GHz}. EOS16 silicon suffered from a bug in the IBM pad
-libraries.  EOS18 and EOS20 have successfully run at \wunits{1.35}{GHz}.
+EOS14-EOS22芯片包括了Hwacha的早期版本，它是一个64位的IEEE浮点向量单元，在克尔斯泰·阿桑诺维奇的建议下，
+由李云燮、安德鲁·沃特曼、海·沃、欧伯特、全阮和史蒂芬·提格开发。EOS16-EOS22芯片包括了带有缓存一致协议的两个核，
+该协议是在克尔斯泰·阿桑诺维奇的建议下，由亨利·库克和安德鲁·沃特曼开发的。EOS14硅已经成功地以\wunits{1.25}{GHz}运行了。
+EOS16硅遇到了一个来自IBM焊接点库的故障。EOS18和EOS20也已经成功地以\wunits{1.35}{GHz}运行。
+% EOS14--EOS22 chips include early versions of Hwacha, a 64-bit IEEE
+% floating-point vector unit, developed by Yunsup Lee, Andrew Waterman,
+% Huy Vo, Albert Ou, Quan Nguyen, and Stephen Twigg, advised by Krste
+% Asanovi\'{c}.  EOS16--EOS22 chips include dual cores with a
+% cache-coherence protocol developed by Henry Cook and Andrew Waterman,
+% advised by Krste Asanovi\'{c}.  EOS14 silicon has successfully run at
+% \wunits{1.25}{GHz}. EOS16 silicon suffered from a bug in the IBM pad
+% libraries.  EOS18 and EOS20 have successfully run at \wunits{1.35}{GHz}.
 
-Contributors to the Raven testchips include Yunsup Lee, Andrew Waterman,
-Rimas Avi\v{z}ienis, Brian Zimmer, Jaehwa Kwak, Ruzica Jevti\'{c},
-Milovan Blagojevi\'{c}, Alberto Puggelli, Steven Bailey, Ben Keller,
-Pi-Feng Chiu, Brian Richards, Borivoje Nikoli\'{c}, and Krste
-Asanovi\'{c}.
+Raven测试芯片的贡献者包括李云燮、安德鲁·沃特曼、里马斯·阿维齐尼斯、布莱恩·齐默、扎瓦·夸克、
+鲁齐卡·杰夫蒂、米洛万·布拉戈耶维奇、阿尔贝托·普盖利、斯蒂芬·贝利、本·凯勒、皮凤秋、布莱恩·理查兹、
+鲍里沃耶·尼科利和克尔斯泰·阿桑诺维奇。
+% Contributors to the Raven testchips include Yunsup Lee, Andrew Waterman,
+% Rimas Avi\v{z}ienis, Brian Zimmer, Jaehwa Kwak, Ruzica Jevti\'{c},
+% Milovan Blagojevi\'{c}, Alberto Puggelli, Steven Bailey, Ben Keller,
+% Pi-Feng Chiu, Brian Richards, Borivoje Nikoli\'{c}, and Krste
+% Asanovi\'{c}.
 
-Contributors to the EOS testchips include Yunsup Lee, Rimas
-Avi\v{z}ienis, Andrew Waterman, Henry Cook, Huy Vo, Daiwei Li, Chen Sun,
-Albert Ou, Quan Nguyen, Stephen Twigg, Vladimir Stojanovi\'{c}, and
-Krste Asanovi\'{c}.
+EOS测试芯片的贡献者包括李云燮、里马斯·阿维齐尼斯、安德鲁·沃特曼、亨利·库克、海·沃、李代伟、孙晨、欧伯特、全阮、
+史蒂芬·提格、弗拉基米尔·斯托亚诺维奇和克尔斯泰·阿桑诺维奇。
+% Contributors to the EOS testchips include Yunsup Lee, Rimas
+% Avi\v{z}ienis, Andrew Waterman, Henry Cook, Huy Vo, Daiwei Li, Chen Sun,
+% Albert Ou, Quan Nguyen, Stephen Twigg, Vladimir Stojanovi\'{c}, and
+% Krste Asanovi\'{c}.
 
-Andrew Waterman and Yunsup Lee developed the C++ ISA simulator
-``Spike'', used as a golden model in development and named after the
-golden spike used to celebrate completion of the US transcontinental
-railway.  Spike has been made available as a BSD open-source project.
+安德鲁·沃特曼和李云燮开发了C++ ISA模拟器“Spike”，用作开发中的一个黄金模型，
+并且以用于庆祝美国横贯大陆铁路的完成的黄金钉来命名。Spike已经可以作为一个BSD开源项目而获得了。
+% Andrew Waterman and Yunsup Lee developed the C++ ISA simulator
+% ``Spike'', used as a golden model in development and named after the
+% golden spike used to celebrate completion of the US transcontinental
+% railway.  Spike has been made available as a BSD open-source project.
 
-Andrew Waterman completed a Master's thesis with a preliminary design
-of the RISC-V compressed instruction set~\cite{waterman-ms}. 
+安德鲁·沃特曼完成了一篇RISC-V压缩指令集的初步设计的硕士论文~\cite{waterman-ms}。
+% Andrew Waterman completed a Master's thesis with a preliminary design
+% of the RISC-V compressed instruction set~\cite{waterman-ms}. 
 
-Various FPGA implementations of the RISC-V have been completed,
-primarily as part of integrated demos for the Par Lab project research
-retreats.  The largest FPGA design has 3 cache-coherent RV64IMA
-processors running a research operating system.  Contributors to the
-FPGA implementations include Andrew Waterman, Yunsup Lee, Rimas
-Avi\v{z}ienis, and Krste Asanovi\'{c}.
+已经完成了RISC-V的各种FPGA的实现，主要作为Par实验室项目研究撤离的集成演示的一部分。
+最大的FPGA设计是运行一个研究操作系统的三个缓存一致RV64IMA处理器。FPGA实现的贡献者包括安德鲁·沃特曼、李云燮、里马斯·阿维齐尼斯和克尔斯泰·阿桑诺维奇。
+% Various FPGA implementations of the RISC-V have been completed,
+% primarily as part of integrated demos for the Par Lab project research
+% retreats.  The largest FPGA design has 3 cache-coherent RV64IMA
+% processors running a research operating system.  Contributors to the
+% FPGA implementations include Andrew Waterman, Yunsup Lee, Rimas
+% Avi\v{z}ienis, and Krste Asanovi\'{c}.
 
-RISC-V processors have been used in several classes at UC Berkeley.
-Rocket was used in the Fall 2011 offering of CS250 as a basis for class
-projects, with Brian Zimmer as TA.  For the undergraduate CS152 class in
-Spring 2012, Christopher Celio used Chisel to write a suite of educational
-RV32 processors, named ``Sodor'' after the island on which ``Thomas the
-Tank Engine'' and friends live.  The suite includes a microcoded core,
-an unpipelined core, and 2, 3, and 5-stage pipelined cores, and is
-publicly available under a BSD license.  The suite was subsequently
-updated and used again in CS152 in Spring 2013, with Yunsup Lee as TA,
-and in Spring 2014, with Eric Love as TA.
-Christopher Celio also developed an out-of-order RV64 design known as BOOM
-(Berkeley Out-of-Order Machine), with accompanying pipeline
-visualizations, that was used in the CS152 classes.  The CS152 classes
-also used cache-coherent versions of the Rocket core developed by Andrew
-Waterman and Henry Cook.
+RISC-V处理器已经用在了UC伯克利的一些课程之中。Rocket被用在2011年秋季推出的CS250中，作为班级项目的基础，布莱恩·齐默担任助教。
+对于2012年春季的本科CS152课程，克里斯托弗·塞利奥使用Chisel来写了一个教育用RV32处理器的套件，以“坦克引擎Thomas”和朋友们居住的岛屿命名为“Sodor”。
+该套件包括了一个微代码核，一个无管道核，和2级、3级与5级流水线核，并在一个BSD许可证下公开可用。
+该套件后续再次被更新和使用是在2013年春季的CS152中，李云燮担任助教，以及2014年春季，由埃里克·洛夫担任助教。
+克里斯托弗·塞利奥也开发了一个乱序的RV64设计，称之为BOOM（伯克利乱序机器），伴有流水线可视化，它被用在CS152课程之中。
+CS152课程也使用了由安德鲁·沃特曼和亨利·库克开发的Rocket核的缓存一致版本。
+% RISC-V processors have been used in several classes at UC Berkeley.
+% Rocket was used in the Fall 2011 offering of CS250 as a basis for class
+% projects, with Brian Zimmer as TA.  For the undergraduate CS152 class in
+% Spring 2012, Christopher Celio used Chisel to write a suite of educational
+% RV32 processors, named ``Sodor'' after the island on which ``Thomas the
+% Tank Engine'' and friends live.  The suite includes a microcoded core,
+% an unpipelined core, and 2, 3, and 5-stage pipelined cores, and is
+% publicly available under a BSD license.  The suite was subsequently
+% updated and used again in CS152 in Spring 2013, with Yunsup Lee as TA,
+% and in Spring 2014, with Eric Love as TA.
+% Christopher Celio also developed an out-of-order RV64 design known as BOOM
+% (Berkeley Out-of-Order Machine), with accompanying pipeline
+% visualizations, that was used in the CS152 classes.  The CS152 classes
+% also used cache-coherent versions of the Rocket core developed by Andrew
+% Waterman and Henry Cook.
 
-Over the summer of 2013, the RoCC (Rocket Custom Coprocessor)
-interface was defined to simplify adding custom accelerators to the
-Rocket core.  Rocket and the RoCC interface were used extensively in
-the Fall 2013 CS250 VLSI class taught by Jonathan Bachrach, with
-several student accelerator projects built to the RoCC interface.  The
-Hwacha vector unit has been rewritten as a RoCC coprocessor.
+整个2013年的夏天，RoCC（Rocket定制协处理器）接口被定义为简化了定制加速器向Rocket核的添加。
+Rocket和RoCC接口在乔纳森·巴赫拉赫教授的2013年秋季CS250 VLSI课程中得到了广泛的使用，
+为RoCC接口构建了一些学生加速器项目。Hwacha向量单元已经被重写为一个RoCC协处理器。
+% Over the summer of 2013, the RoCC (Rocket Custom Coprocessor)
+% interface was defined to simplify adding custom accelerators to the
+% Rocket core.  Rocket and the RoCC interface were used extensively in
+% the Fall 2013 CS250 VLSI class taught by Jonathan Bachrach, with
+% several student accelerator projects built to the RoCC interface.  The
+% Hwacha vector unit has been rewritten as a RoCC coprocessor.
 
-Two Berkeley undergraduates, Quan Nguyen and Albert Ou, have
-successfully ported Linux to run on RISC-V in Spring 2013.
+在2013年春天，两个伯克利的本科生，全阮和欧伯特，已经成功地将Linux移植到RISC-V上运行。
+% Two Berkeley undergraduates, Quan Nguyen and Albert Ou, have
+% successfully ported Linux to run on RISC-V in Spring 2013.
 
-Colin Schmidt successfully completed an LLVM backend for RISC-V 2.0 in
-January 2014.
+在2014年1月，科林·施密特成功地为RISC-V 2.0完成了一个LLVM后端。
+% Colin Schmidt successfully completed an LLVM backend for RISC-V 2.0 in
+% January 2014.
 
-Darius Rad at Bluespec contributed soft-float ABI support to the GCC port in
-March 2014.
+在2014年3月，大流士·拉德在Bluespec为GCC的移植贡献了软浮点ABI支持。
+% Darius Rad at Bluespec contributed soft-float ABI support to the GCC port in
+% March 2014.
 
-John Hauser contributed the definition of the floating-point classification
-instructions.
+约翰·豪瑟贡献了浮点分类指令的定义
+% John Hauser contributed the definition of the floating-point classification
+% instructions.
 
-We are aware of several other RISC-V core implementations, including
-one in Verilog by Tommy Thorn, and one in Bluespec by Rishiyur Nikhil.
+我们还了解了一些其它的RISC-V核的实现，包括一个由汤米·索恩用Verilog的实现，和一个由里希尔·尼希尔用Bluespec的实现。
+% We are aware of several other RISC-V core implementations, including
+% one in Verilog by Tommy Thorn, and one in Bluespec by Rishiyur Nikhil.
 
-\section*{Acknowledgments}
+\section*{鸣谢}
+% \section*{Acknowledgments}
 
-Thanks to Christopher F. Batten, Preston Briggs, Christopher Celio, David
-Chisnall, Stefan Freudenberger, John Hauser, Ben Keller, Rishiyur
-Nikhil, Michael Taylor, Tommy Thorn, and Robert Watson for comments on
-the draft ISA version 2.0 specification.
+感谢克里斯托弗·F·巴顿、普雷斯顿·布里格斯、克里斯托弗·塞利奥、大卫·奇斯纳尔、斯特凡·弗洛伊德伯格、约翰·豪瑟、本·凯勒、
+里希尔·尼希尔、迈克尔·泰勒、汤米·索恩和罗伯特·沃森关于规范2.0版本草案ISA的评论。
+% Thanks to Christopher F. Batten, Preston Briggs, Christopher Celio, David
+% Chisnall, Stefan Freudenberger, John Hauser, Ben Keller, Rishiyur
+% Nikhil, Michael Taylor, Tommy Thorn, and Robert Watson for comments on
+% the draft ISA version 2.0 specification.
 
-\section{History from Revision 2.1}
+\section{从2.1版的修订历史}
+% \section{History from Revision 2.1}
 
-Uptake of the RISC-V ISA has been very rapid since the introduction of
-the frozen version 2.0 in May 2014, with too much activity to record
-in a short history section such as this.  Perhaps the most important
-single event was the formation of the non-profit RISC-V Foundation in
-August 2015. The Foundation will now take over stewardship of the
-official RISC-V ISA standard, and the official website {\tt riscv.org}
-is the best place to obtain news and updates on the RISC-V standard.
+从引入2014年5月冻结的2.0版本依赖，RISC-V ISA的应用已经非常迅速，在这样一个简短的历史小节中有太多的活动要记录。
+或许最重要的单一事件就是，在2015年8月，非盈利RISC-V基金会的成立。基金会现在将接管官方RISC-V ISA标准的管理工作，
+而官方网站{\tt riscv.org}是获得关于RISC-V标准的新闻和更新的最佳场所。
+% Uptake of the RISC-V ISA has been very rapid since the introduction of
+% the frozen version 2.0 in May 2014, with too much activity to record
+% in a short history section such as this.  Perhaps the most important
+% single event was the formation of the non-profit RISC-V Foundation in
+% August 2015. The Foundation will now take over stewardship of the
+% official RISC-V ISA standard, and the official website {\tt riscv.org}
+% is the best place to obtain news and updates on the RISC-V standard.
 
-\section*{Acknowledgments}
+\section*{鸣谢}
+% \section*{Acknowledgments}
 
-Thanks to Scott Beamer, Allen J. Baum, Christopher Celio, David Chisnall,
-Paul Clayton, Palmer Dabbelt, Jan Gray, Michael Hamburg, and John
-Hauser for comments on the version 2.0 specification.
+感谢斯科特·比默、艾伦·J·鲍姆、克里斯托弗·塞利奥、大卫·奇斯纳尔、保罗·克莱顿、帕默·达贝尔特、
+简·格雷、迈克尔·汉伯格和约翰·豪瑟对2.0版本规范的评论。
+% Thanks to Scott Beamer, Allen J. Baum, Christopher Celio, David Chisnall,
+% Paul Clayton, Palmer Dabbelt, Jan Gray, Michael Hamburg, and John
+% Hauser for comments on the version 2.0 specification.
 
-\section{History from Revision 2.2}
+\section{从2.2版的修订历史}
+% \section{History from Revision 2.2}
 
+\section*{鸣谢}
+% \section*{Acknowledgments}
 
-\section*{Acknowledgments}
+感谢雅各布·巴赫迈耶、亚历克斯·布拉德伯里、戴维·霍纳、斯特凡·奥雷尔和约瑟夫·迈尔斯对2.1版本规范的评论。
+% Thanks to Jacob Bachmeyer, Alex Bradbury, David Horner, Stefan O'Rear,
+% and Joseph Myers for comments on the version 2.1 specification.
 
-Thanks to Jacob Bachmeyer, Alex Bradbury, David Horner, Stefan O'Rear,
-and Joseph Myers for comments on the version 2.1 specification.
+\section{2.3版的修订历史}
+% \section{History for Revision 2.3}
 
-\section{History for Revision 2.3}
+RISC-V的应用持续以惊人的速度发展着。
+% Uptake of RISC-V continues at breakneck pace.
 
-Uptake of RISC-V continues at breakneck pace.
+基于保罗·邦齐尼的一个提议，约翰·豪瑟和安德鲁·沃特曼贡献了一个超管级ISA扩展。
+% John Hauser and Andrew Waterman contributed a hypervisor ISA extension
+% based upon a proposal from Paolo Bonzini.
 
-John Hauser and Andrew Waterman contributed a hypervisor ISA extension
-based upon a proposal from Paolo Bonzini.
+丹尼尔·卢斯蒂格、阿文、克尔斯泰·阿桑诺维奇、谢克德·弗勒、保罗·洛文斯坦、雅廷·曼尔卡、卢克·马兰杰、玛格丽特·马托诺西、
+维贾亚南德·纳加拉扬、里希尔·尼希尔、乔纳斯·奥伯豪斯、克里斯托弗·普尔特、何塞·雷诺、彼得·苏厄尔、萨米特·萨卡尔、
+卡罗琳·特里普、穆拉里达兰·维贾亚拉加万、安德鲁·沃特曼、德里克·威廉姆斯、安德鲁·赖特和张思卓贡献了内存一致模型。
+% Daniel Lustig, Arvind, Krste Asanovi\'{c}, Shaked Flur, Paul Loewenstein, Yatin
+% Manerkar, Luc Maranget, Margaret Martonosi, Vijayanand Nagarajan, Rishiyur
+% Nikhil, Jonas Oberhauser, Christopher Pulte, Jose Renau, Peter Sewell, Susmit
+% Sarkar, Caroline Trippel, Muralidaran Vijayaraghavan, Andrew Waterman, Derek
+% Williams, Andrew Wright, and Sizhuo Zhang contributed the memory consistency
+% model.
 
-Daniel Lustig, Arvind, Krste Asanovi\'{c}, Shaked Flur, Paul Loewenstein, Yatin
-Manerkar, Luc Maranget, Margaret Martonosi, Vijayanand Nagarajan, Rishiyur
-Nikhil, Jonas Oberhauser, Christopher Pulte, Jose Renau, Peter Sewell, Susmit
-Sarkar, Caroline Trippel, Muralidaran Vijayaraghavan, Andrew Waterman, Derek
-Williams, Andrew Wright, and Sizhuo Zhang contributed the memory consistency
-model.
+\section{赞助}
+% \section{Funding}
 
-\section{Funding}
-
-Development of the RISC-V architecture and implementations has been
-partially funded by the following sponsors.
+部分RISC-V架构和实现的开发由如下赞助者所赞助：
+% Development of the RISC-V architecture and implementations has been
+% partially funded by the following sponsors.
 \begin{itemize}
 
-\item {\bf Par Lab:} Research supported by Microsoft (Award \#024263) and Intel (Award
-    \#024894) funding and by matching funding by U.C. Discovery
-    (Award \#DIG07-10227). Additional support came from Par Lab
-    affiliates Nokia, NVIDIA, Oracle, and Samsung.
+\item {\bf Par实验室：}研究由微软（Award \#024263）和英特尔（Award \#024894）赞助，
+并由U.C.Discovery（Award \#DIG07-10227）提供匹配资助。额外的支持来自于Par 实验室附属的诺基亚、英伟达、甲骨文和三星。
+% {\bf Par Lab:} Research supported by Microsoft (Award \#024263) and Intel (Award
+%     \#024894) funding and by matching funding by U.C. Discovery
+%     (Award \#DIG07-10227). Additional support came from Par Lab
+%     affiliates Nokia, NVIDIA, Oracle, and Samsung.
 
-\item {\bf Project Isis:} DoE Award DE-SC0003624.
+\item {\bf 项目Isis}：DoE Award DE-SC0003624。 
+% \{\bf Project Isis:} DoE Award DE-SC0003624.
 
-\item {\bf ASPIRE Lab}: DARPA PERFECT program, Award
-    HR0011-12-2-0016.  DARPA POEM program Award HR0011-11-C-0100.  The
-    Center for Future Architectures Research (C-FAR), a STARnet center
-    funded by the Semiconductor Research Corporation.  Additional
-    support from ASPIRE industrial sponsor, Intel, and ASPIRE
-    affiliates, Google, Hewlett Packard Enterprise, Huawei, Nokia,
-    NVIDIA, Oracle, and Samsung.
+\item {\bf ASPIRE实验室}：DARPA PERFECT工程，Award HR0011-12-2-0016。DARPA POEM工程Award HR0011-11-C-0100。
+未来架构研究中心（C-FAR），一个由半导体研究公司资助的STARnet中心。
+额外的支持来自于ASPIRE工业赞助者，英特尔，和ASPIRE附属，谷歌，惠普企业，华为，诺基亚，英伟达，甲骨文，和三星。
+% {\bf ASPIRE Lab}: DARPA PERFECT program, Award
+%     HR0011-12-2-0016.  DARPA POEM program Award HR0011-11-C-0100.  The
+%     Center for Future Architectures Research (C-FAR), a STARnet center
+%     funded by the Semiconductor Research Corporation.  Additional
+%     support from ASPIRE industrial sponsor, Intel, and ASPIRE
+%     affiliates, Google, Hewlett Packard Enterprise, Huawei, Nokia,
+%     NVIDIA, Oracle, and Samsung.
 
 \end{itemize}
 
-The content of this paper does not necessarily reflect the position or the
-policy of the US government and no official endorsement should be
-inferred. 
+本文的内容并不能必然地反映出美国政府的立场和政策，并且不应被推断出官方的认可。
+% The content of this paper does not necessarily reflect the position or the
+% policy of the US government and no official endorsement should be
+% inferred. 

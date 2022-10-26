@@ -1,75 +1,118 @@
-\chapter{RV32/64G Instruction Set Listings}
+\chapter{RV32/64G指令集列表}
+% \chapter{RV32/64G Instruction Set Listings}
 
-One goal of the RISC-V project is that it be used as a stable software
-development target.  For this purpose, we define a combination of a
-base ISA (RV32I or RV64I) plus selected standard extensions (IMAFD, Zicsr, Zifencei) as
-a ``general-purpose'' ISA, and we use the abbreviation G for the IMAFDZicsr\_Zifencei
-combination of instruction-set extensions.    This chapter presents
-opcode maps and instruction-set listings for RV32G and RV64G.
+RISC-V项目的一个目标是，将它作为一个稳定的软件开发目标来使用。
+为了这个目的，我们定义了一个基础ISA（RV32I或RV64I）加上选择的标准扩展（IMAFD、Zicsr、Zifencei）的组合，
+作为一个“通用目的”的ISA，而且，我们使用缩写G来表示指令集扩展的IMAFDZicsr Zifencei组合。
+本章展示了为RV32G和RV64G列出的操作码映射和指令集。
+% One goal of the RISC-V project is that it be used as a stable software
+% development target.  For this purpose, we define a combination of a
+% base ISA (RV32I or RV64I) plus selected standard extensions (IMAFD, Zicsr, Zifencei) as
+% a ``general-purpose'' ISA, and we use the abbreviation G for the IMAFDZicsr\_Zifencei
+% combination of instruction-set extensions.    This chapter presents
+% opcode maps and instruction-set listings for RV32G and RV64G.
 
 \input{opcode-map}
 
-Table~\ref{opcodemap} shows a map of the major opcodes for RVG.  Major
-opcodes with 3 or more lower bits set are reserved for instruction
-lengths greater than 32 bits.  Opcodes marked as {\em reserved} should
-be avoided for custom instruction-set extensions as they might be used
-by future standard extensions.  Major opcodes marked as {\em custom-0}
-and {\em custom-1} will be avoided by future standard extensions and
-are recommended for use by custom instruction-set extensions within
-the base 32-bit instruction format.  The opcodes marked {\em
-  custom-2/rv128} and {\em custom-3/rv128} are reserved for future use
-by RV128, but will otherwise be avoided for standard extensions and so
-can also be used for custom instruction-set extensions in RV32 and
-RV64.
+表~\ref{opcodemap}显示了RVG的主要操作码的映射。设置了3或更低位的主要操作码被保留用于超过32位的指令长度。
+标记为{\em 保留的}的操作码应当被避免用于自定义的指令集扩展，因为它们可能会用在未来的标准扩展中。
+标记为{\em 自定义－0}和{\em 自定义－1}的主操作码应当被避免用于未来的标准扩展，并且建议用于具有基础32位指令格式的自定义指令集扩展。
+标记为{\em 自定义－2/rv128}和{\em 自定义－3/rv128}的操作码被保留，以供RV128未来使用，
+但如果不是RV128，那么它们将避免被用于标准扩展，并因此也可以被用于RV32和RV64中的自定义指令集扩展。
+% Table~\ref{opcodemap} shows a map of the major opcodes for RVG.  Major
+% opcodes with 3 or more lower bits set are reserved for instruction
+% lengths greater than 32 bits.  Opcodes marked as {\em reserved} should
+% be avoided for custom instruction-set extensions as they might be used
+% by future standard extensions.  Major opcodes marked as {\em custom-0}
+% and {\em custom-1} will be avoided by future standard extensions and
+% are recommended for use by custom instruction-set extensions within
+% the base 32-bit instruction format.  The opcodes marked {\em
+%   custom-2/rv128} and {\em custom-3/rv128} are reserved for future use
+% by RV128, but will otherwise be avoided for standard extensions and so
+% can also be used for custom instruction-set extensions in RV32 and
+% RV64.
 
-We believe RV32G and RV64G provide simple but complete instruction
-sets for a broad range of general-purpose computing.  The optional
-compressed instruction set described in Chapter~\ref{compressed} can
-be added (forming RV32GC and RV64GC) to improve performance, code
-size, and energy efficiency, though with some additional hardware
-complexity.
+我们相信RV32G和RV64G为大量通用目的计算提供了简单但完整的指令集。
+可以添加可选的在~\ref{compressed}章中描述的压缩指令集（形成RV32GC和RV64GC）来改善性能、代码尺寸和能量效率，尽管这会带来额外的硬件复杂度。
+% We believe RV32G and RV64G provide simple but complete instruction
+% sets for a broad range of general-purpose computing.  The optional
+% compressed instruction set described in Chapter~\ref{compressed} can
+% be added (forming RV32GC and RV64GC) to improve performance, code
+% size, and energy efficiency, though with some additional hardware
+% complexity.
 
-As we move beyond IMAFDC into further instruction-set extensions, the
-added instructions tend to be more domain-specific and only provide
-benefits to a restricted class of applications, e.g., for multimedia
-or security.  Unlike most commercial ISAs, the RISC-V ISA design
-clearly separates the base ISA and broadly applicable standard
-extensions from these more specialized additions.
-Chapter~\ref{extensions} has a more extensive discussion of ways to
-add extensions to the RISC-V ISA.
+随着我们的脚步超越了IMAFDC，走进进一步的指令集扩展，添加的指令更加倾向于特定领域，
+而只对严格的某类应用（例如，多媒体应用或者安全应用）提供收益。不像大多数商业化的ISA，
+RISC-V ISA的设计将基础ISA和广泛可用的标准扩展与这些更特定化的额外部分清晰地分离开。
+第~\ref{extensions}章对于向RISC-V ISA添加扩展的方法进行了更加广泛的讨论。
+% As we move beyond IMAFDC into further instruction-set extensions, the
+% added instructions tend to be more domain-specific and only provide
+% benefits to a restricted class of applications, e.g., for multimedia
+% or security.  Unlike most commercial ISAs, the RISC-V ISA design
+% clearly separates the base ISA and broadly applicable standard
+% extensions from these more specialized additions.
+% Chapter~\ref{extensions} has a more extensive discussion of ways to
+% add extensions to the RISC-V ISA.
 
 \input{instr-table}
 
 \FloatBarrier
-Table~\ref{rvgcsrnames} lists the CSRs that have
-currently been allocated CSR addresses.  The timers, counters, and
-floating-point CSRs are the only CSRs defined in this specification.
+表~\ref{rvgcsrnames}列出了当前被分配了CSR地址的CSR。计时器、计数器，和浮点CSR是这个规范中定义的仅有的CSR。
+% Table~\ref{rvgcsrnames} lists the CSRs that have
+% currently been allocated CSR addresses.  The timers, counters, and
+% floating-point CSRs are the only CSRs defined in this specification.
 
 \begin{table}[htb!]
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Number    & Privilege & Name & Description \\
+编号   & 权限 & 名称 & 描述 \\
 \hline
-\multicolumn{4}{|c|}{Floating-Point Control and Status Registers} \\
+\multicolumn{4}{|c|}{浮点控制和状态寄存器} \\
 \hline
-\tt 0x001 & Read/write  &\tt fflags     & Floating-Point Accrued Exceptions. \\
-\tt 0x002 & Read/write  &\tt frm        & Floating-Point Dynamic Rounding Mode. \\
-\tt 0x003 & Read/write  &\tt fcsr       & Floating-Point Control and Status
-Register ({\tt frm} + {\tt fflags}). \\
+\tt 0x001 & 读/写  &\tt fflags     & 浮点增长异常。 \\
+\tt 0x002 & 读/写  &\tt frm        & 浮点动态舍入模式。 \\
+\tt 0x003 & 读/写  &\tt fcsr       & 浮点控制和状态寄存器（{\tt frm} + {\tt fflags}）。 \\
 \hline
-\multicolumn{4}{|c|}{Counters and Timers} \\
+\multicolumn{4}{|c|}{计数器和计时器} \\
 \hline
-\tt 0xC00 & Read-only  &\tt cycle      & Cycle counter for RDCYCLE instruction. \\
-\tt 0xC01 & Read-only  &\tt time       & Timer for RDTIME instruction. \\
-\tt 0xC02 & Read-only  &\tt instret    & Instructions-retired counter for RDINSTRET instruction. \\
-\tt 0xC80 & Read-only  &\tt cycleh     & Upper 32 bits of {\tt cycle}, RV32I only. \\
-\tt 0xC81 & Read-only  &\tt timeh      & Upper 32 bits of {\tt time}, RV32I only. \\
-\tt 0xC82 & Read-only  &\tt instreth   & Upper 32 bits of {\tt instret}, RV32I only. \\
+\tt 0xC00 & 只读  &\tt cycle      & 用于RDCYCLE指令的周期计数器。\\
+\tt 0xC01 & 只读  &\tt time       & 用于RDTIME指令的计时器。 \\
+\tt 0xC02 & 只读  &\tt instret    & 用于RDINSTRET指令的指令退场计数器。\\
+\tt 0xC80 & 只读  &\tt cycleh     & {\tt cycle}的高32位，RV32I专用。 \\
+\tt 0xC81 & 只读  &\tt timeh      & {\tt time}的高32位，RV32I专用。 \\
+\tt 0xC82 & 只读  &\tt instreth   & {\tt instret}的高32位，RV32I专用。 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{RISC-V control and status register (CSR) address map.}
+\caption{RISC-V控制和状态寄存器（CSR）地址映射。}
 \label{rvgcsrnames}
 \end{table}
 
+% \begin{table}[htb!]
+%   \begin{center}
+%   \begin{tabular}{|l|l|l|l|}
+%   \hline
+%   Number    & Privilege & Name & Description \\
+%   \hline
+%   \multicolumn{4}{|c|}{Floating-Point Control and Status Registers} \\
+%   \hline
+%   \tt 0x001 & Read/write  &\tt fflags     & Floating-Point Accrued Exceptions. \\
+%   \tt 0x002 & Read/write  &\tt frm        & Floating-Point Dynamic Rounding Mode. \\
+%   \tt 0x003 & Read/write  &\tt fcsr       & Floating-Point Control and Status
+%   Register ({\tt frm} + {\tt fflags}). \\
+%   \hline
+%   \multicolumn{4}{|c|}{Counters and Timers} \\
+%   \hline
+%   \tt 0xC00 & Read-only  &\tt cycle      & Cycle counter for RDCYCLE instruction. \\
+%   \tt 0xC01 & Read-only  &\tt time       & Timer for RDTIME instruction. \\
+%   \tt 0xC02 & Read-only  &\tt instret    & Instructions-retired counter for RDINSTRET instruction. \\
+%   \tt 0xC80 & Read-only  &\tt cycleh     & Upper 32 bits of {\tt cycle}, RV32I only. \\
+%   \tt 0xC81 & Read-only  &\tt timeh      & Upper 32 bits of {\tt time}, RV32I only. \\
+%   \tt 0xC82 & Read-only  &\tt instreth   & Upper 32 bits of {\tt instret}, RV32I only. \\
+%   \hline
+%   \end{tabular}
+%   \end{center}
+%   \caption{RISC-V control and status register (CSR) address map.}
+%   \label{rvgcsrnames}
+%   \end{table}
