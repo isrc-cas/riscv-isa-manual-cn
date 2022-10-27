@@ -1,9 +1,13 @@
-\section{Formal Axiomatic Specification in Herd}
+\section{Herd中的形式公理规范}
+% \section{Formal Axiomatic Specification in Herd}
 \label{sec:herd}
 
-The tool \textsf{herd} takes a memory model and a litmus test as input and simulates the execution of the test on top of the memory model. Memory models are written in the domain specific language \textsc{Cat}. This section provides two \textsc{Cat} memory model of RVWMO. The first model, Figure~\ref{fig:herd2}, follows the \emph{global memory order}, Chapter~\ref{ch:memorymodel}, definition of~RVWMO, as much as is possible for a \textsc{Cat} model. The second model, Figure~\ref{fig:herd3}, is an equivalent, more efficient, partial order based RVWMO model.
+工具\textsf{herd}把一个内存模型和一个石蕊测试作为输入，并在内存模型顶端模拟测试的执行。内存模型使用领域专用语言\textsc{Cat}写成。
+这节提供了两个RVWMO的\textsc{Cat}内存模型。第一个模型，图~\ref{fig:herd2}，对于一个Cat模型而言尽可能多地遵循了\emph{全局内存次序}、第~\ref{ch:memorymodel}章、RVWMO的定义。第二个模型，图~\ref{fig:herd3}，是一个等价的、更加有效的的、基于部分次序的RVWMO模型。
+% The tool \textsf{herd} takes a memory model and a litmus test as input and simulates the execution of the test on top of the memory model. Memory models are written in the domain specific language \textsc{Cat}. This section provides two \textsc{Cat} memory model of RVWMO. The first model, Figure~\ref{fig:herd2}, follows the \emph{global memory order}, Chapter~\ref{ch:memorymodel}, definition of~RVWMO, as much as is possible for a \textsc{Cat} model. The second model, Figure~\ref{fig:herd3}, is an equivalent, more efficient, partial order based RVWMO model.
 
-The simulator~\textsf{herd} is part of the \textsf{diy} tool suite --- see \url{http://diy.inria.fr} for software and documentation. The models and more are available online at~\url{http://diy.inria.fr/cats7/riscv/}.
+模拟器~\textsf{herd}是\textsf{DIY}工具套件的一部分——软件和文件见 \url{http://diy.inria.fr} 。模型和更多内容可以从~url{http://diy.inria.fr/cats7/riscv/} 在线获得。
+% The simulator~\textsf{herd} is part of the \textsf{diy} tool suite --- see \url{http://diy.inria.fr} for software and documentation. The models and more are available online at~\url{http://diy.inria.fr/cats7/riscv/}.
 
 \begin{figure}[h!]
   {
@@ -72,7 +76,9 @@ and r13 = [R];addr;[M];po;[W]
 let ppo = r1 | r2 | r3 | r4 | r5 | r6 | r7 | r8 | r9 | r10 | r11 | r12 | r13
 \end{lstlisting}
   }
-  \caption{{\tt riscv-defs.cat}, a herd definition of preserved program order (1/3)}
+  \caption{riscv-defs.cat，一个关于保留程序次序的Herd定义（1/3）
+    % {\tt riscv-defs.cat}, a herd definition of preserved program order (1/3)
+    }
   \label{fig:herd1}
 \end{figure}
 
@@ -120,7 +126,9 @@ let winside  = (infloc;rmw;inflocext) & (infloc;rf;rmw;inflocext) & [W]
 empty winside as Atomic
 \end{lstlisting}
   }
-  \caption{{\tt riscv.cat}, a herd version of the RVWMO memory model (2/3)}
+  \caption{riscv.cat，RVWMO内存模型的一个Herd版本（2/3）
+    % {\tt riscv.cat}, a herd version of the RVWMO memory model (2/3)
+    }
   \label{fig:herd2}
 \end{figure}
 
@@ -154,7 +162,9 @@ acyclic co|rfe|fr|ppo as Model
 empty rmw & (fre;coe) as Atomic
 \end{lstlisting}
   }
-  \caption{{\tt riscv.cat}, an alternative herd presentation of the RVWMO memory model (3/3)}
+  \caption{{\tt riscv.cat}，RVWMO内存模型的一种备选的Herd表示（3/3）
+    % {\tt riscv.cat}, an alternative herd presentation of the RVWMO memory model (3/3)
+    }
   \label{fig:herd3}
 \end{figure}
 

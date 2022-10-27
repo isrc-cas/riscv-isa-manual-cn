@@ -1,4 +1,5 @@
-\section{Formal Axiomatic Specification in Alloy}
+\section{Alloy中的形式公理规范}
+% \section{Formal Axiomatic Specification in Alloy}
 \label{sec:alloy}
 
 \lstdefinelanguage{alloy}{
@@ -14,10 +15,13 @@
 \lstset{aboveskip=0pt}
 \lstset{belowskip=0pt}
 
-We present a formal specification of the RVWMO memory model in Alloy (\url{http://alloy.mit.edu}).
-This model is available online at \url{https://github.com/daniellustig/riscv-memory-model}.
+我们在Alloy（\url{http://alloy.mit.edu}）中呈现了RVWMO内存模型的一种形式规范。
+这个模型可以从\url{https://github.com/daniellustig/riscv-memory-model}在线获得。
+% We present a formal specification of the RVWMO memory model in Alloy (\url{http://alloy.mit.edu}).
+% This model is available online at \url{https://github.com/daniellustig/riscv-memory-model}.
 
-The online material also contains some litmus tests and some examples of how Alloy can be used to model check some of the mappings in Section~\ref{sec:memory:porting}.
+该线上材料也包含了一些石蕊测试和一些关于Alloy可以怎样被用于对第~\ref{sec:memory:porting}节中的一些映射进行模型检查的例子。
+% The online material also contains some litmus tests and some examples of how Alloy can be used to model check some of the mappings in Section~\ref{sec:memory:porting}.
 
 \begin{figure}[h!]
   {
@@ -26,34 +30,36 @@ The online material also contains some litmus tests and some examples of how All
 ////////////////////////////////////////////////////////////////////////////////
 // =RVWMO PPO=
 
-// Preserved Program Order
+// 保留的程序次序
 fun ppo : Event->Event {
   // same-address ordering
   po_loc :> Store
   + rdw
   + (AMO + StoreConditional) <: rfi
 
-  // explicit synchronization
+  // 显式同步
   + ppo_fence
   + Acquire <: ^po :> MemoryEvent
   + MemoryEvent <: ^po :> Release
   + RCsc <: ^po :> RCsc
   + pair
 
-  // syntactic dependencies
+  // 句法依赖
   + addrdep
   + datadep
   + ctrldep :> Store
 
-  // pipeline dependencies
+  // 管道依赖
   + (addrdep+datadep).rfi
   + addrdep.^po :> Store
 }
 
-// the global memory order respects preserved program order
+// 全局内存次序尊重保留的程序次序
 fact { ppo in ^gmo }
 \end{lstlisting}}
-  \caption{The RVWMO memory model formalized in Alloy (1/5: PPO)}
+  \caption{Alloy中的形式化RVWMO内存模型（1/5：PPO）  
+  % The RVWMO memory model formalized in Alloy (1/5: PPO)
+  }
   \label{fig:alloy1}
 \end{figure}
 \begin{figure}[h!]
@@ -61,12 +67,12 @@ fact { ppo in ^gmo }
   \tt\bfseries\centering\footnotesize
   \begin{lstlisting}
 ////////////////////////////////////////////////////////////////////////////////
-// =RVWMO axioms=
+// =RVWMO 公理=
 
-// Load Value Axiom
+// 加载值公理
 fun candidates[r: MemoryEvent] : set MemoryEvent {
-  (r.~^gmo & Store & same_addr[r]) // writes preceding r in gmo
-  + (r.^~po & Store & same_addr[r]) // writes preceding r in po
+  (r.~^gmo & Store & same_addr[r]) // 在gmo中写前趋r
+  + (r.^~po & Store & same_addr[r]) // 在po中写前趋r
 }
 
 fun latest_among[s: set Event] : Event { s - s.~^gmo }
@@ -76,21 +82,23 @@ pred LoadValue {
     w->r in rf <=> w = latest_among[candidates[r]]
 }
 
-// Atomicity Axiom
+// 原子性公理
 pred Atomicity {
-  all r: Store.~pair |            // starting from the lr,
-    no x: Store & same_addr[r] |  // there is no store x to the same addr
-      x not in same_hart[r]       // such that x is from a different hart,
-      and x in r.~rf.^gmo         // x follows (the store r reads from) in gmo,
-      and r.pair in x.^gmo        // and r follows x in gmo
+  all r: Store.~pair |            // 从lr开始,
+    no x: Store & same_addr[r] |  // 对于相同的地址，没有存储x
+      x not in same_hart[r]       // 使得x来自不同的硬件线程，
+      and x in r.~rf.^gmo         // 在gmo中x跟着(存储r的“读从”)，
+      and r.pair in x.^gmo        // 以及在gmo中，r跟着x
 }
 
-// Progress Axiom implicit: Alloy only considers finite executions
+// 进程公理被隐去：Alloy只考虑有限的执行
 
 pred RISCV_mm { LoadValue and Atomicity /* and Progress */ }
 
 \end{lstlisting}}
-  \caption{The RVWMO memory model formalized in Alloy (2/5: Axioms)}
+  \caption{Alloy中的形式化RVWMO内存模型（2/5：公理）
+    % The RVWMO memory model formalized in Alloy (2/5: Axioms)
+    }
   \label{fig:alloy2}
 \end{figure}
 \begin{figure}[h!]
@@ -98,14 +106,14 @@ pred RISCV_mm { LoadValue and Atomicity /* and Progress */ }
   \tt\bfseries\centering\footnotesize
   \begin{lstlisting}
 ////////////////////////////////////////////////////////////////////////////////
-// Basic model of memory
+// 内存的基础模型
 
-sig Hart {  // hardware thread
+sig Hart {  // 硬件线程
   start : one Event
 }
 sig Address {}
 abstract sig Event {
-  po: lone Event // program order
+  po: lone Event // 程序次序
 }
 
 abstract sig MemoryEvent extends Event {
@@ -117,7 +125,7 @@ abstract sig MemoryEvent extends Event {
   addrdep: set MemoryEvent,
   ctrldep: set Event,
   datadep: set MemoryEvent,
-  gmo: set MemoryEvent,  // global memory order
+  gmo: set MemoryEvent,  // 全局内存次序
   rf: set MemoryEvent
 }
 sig LoadNormal extends MemoryEvent {} // l{b|h|w|d}
@@ -125,7 +133,7 @@ sig LoadReserve extends MemoryEvent { // lr
   pair: lone StoreConditional
 }
 sig StoreNormal extends MemoryEvent {}       // s{b|h|w|d}
-// all StoreConditionals in the model are assumed to be successful
+// 模型中所有的StoreConditionals 都假定是成功的
 sig StoreConditional extends MemoryEvent {}  // sc
 sig AMO extends MemoryEvent {}               // amo
 sig NOP extends Event {}
@@ -134,23 +142,22 @@ fun Load : Event { LoadNormal + LoadReserve + AMO }
 fun Store : Event { StoreNormal + StoreConditional + AMO }
 
 sig Fence extends Event {
-  pr: lone Fence, // opcode bit
-  pw: lone Fence, // opcode bit
-  sr: lone Fence, // opcode bit
-  sw: lone Fence  // opcode bit
+  pr: lone Fence, // 操作位
+  pw: lone Fence, // 操作位
+  sr: lone Fence, // 操作位
+  sw: lone Fence  // 操作位
 }
 sig FenceTSO extends Fence {}
 
-/* Alloy encoding detail: opcode bits are either set (encoded, e.g.,
- * as f.pr in iden) or unset (f.pr not in iden).  The bits cannot be used for
- * anything else */
+/* Alloy编码细节：操作码位要么被设置（被编码，例如 as f.pr in iden），
+ * 要么不被设置（f.pr not in iden）。这些位不能被用作其它任何用途 */
 fact { pr + pw + sr + sw in iden }
-// likewise for ordering annotations
+// 对排序注释也是类似的
 fact { acquireRCpc + acquireRCsc + releaseRCpc + releaseRCsc in iden }
-// don't try to encode FenceTSO via pr/pw/sr/sw; just use it as-is
+// 不要试图通过pr/pw/sr/sw来编码FenceTSO；只把它当做is那样使用
 fact { no FenceTSO.(pr + pw + sr + sw) }
 \end{lstlisting}}
-  \caption{The RVWMO memory model formalized in Alloy (3/5: model of memory)}
+  \caption{Alloy中的形式化RVWMO内存模型（3/5：内存的模型）}
   \label{fig:alloy3}
 \end{figure}
 
@@ -159,15 +166,15 @@ fact { no FenceTSO.(pr + pw + sr + sw) }
   \tt\bfseries\centering\footnotesize
   \begin{lstlisting}
 ////////////////////////////////////////////////////////////////////////////////
-// =Basic model rules=
+// =基本模型规则 =
 
-// Ordering annotation groups
+// 次序注释组
 fun Acquire : MemoryEvent { MemoryEvent.acquireRCpc + MemoryEvent.acquireRCsc }
 fun Release : MemoryEvent { MemoryEvent.releaseRCpc + MemoryEvent.releaseRCsc }
 fun RCpc : MemoryEvent { MemoryEvent.acquireRCpc + MemoryEvent.releaseRCpc }
 fun RCsc : MemoryEvent { MemoryEvent.acquireRCsc + MemoryEvent.releaseRCsc }
 
-// There is no such thing as store-acquire or load-release, unless it's both
+// 没有像store - acquire或者load - release那样的东西，除非两者结合
 fact { Load & Release in Acquire }
 fact { Store & Acquire in Release }
 
@@ -186,21 +193,21 @@ fun ppo_fence : MemoryEvent->MemoryEvent {
   + (Store <: ^po :> FenceTSO) .(^po :> Store)
 }
 
-// auxiliary definitions
+// 辅助定义
 fun po_loc : Event->Event { ^po & address.~address }
 fun same_hart[e: Event] : set Event { e + e.^~po + e.^po }
 fun same_addr[e: Event] : set Event { e.address.~address }
 
-// initial stores
+// 初始化存储
 fun NonInit : set Event { Hart.start.*po }
 fun Init : set Event { Event - NonInit }
 fact { Init in StoreNormal }
 fact { Init->(MemoryEvent & NonInit) in ^gmo }
-fact { all e: NonInit | one e.*~po.~start }  // each event is in exactly one hart
-fact { all a: Address | one Init & a.~address } // one init store per address
+fact { all e: NonInit | one e.*~po.~start }  // 各事件都确实地在one硬件线程中
+fact { all a: Address | one Init & a.~address } // one初始化各地址的存储
 fact { no Init <: po and no po :> Init }
 \end{lstlisting}}
-  \caption{The RVWMO memory model formalized in Alloy (4/5: Basic model rules)}
+  \caption{Alloy中的形式化RVWMO内存模型（4/5：基础模型规则）}
   \label{fig:alloy4}
 \end{figure}
 
@@ -212,10 +219,10 @@ fact { no Init <: po and no po :> Init }
 fact { acyclic[po] }
 
 // gmo
-fact { total[^gmo, MemoryEvent] } // gmo is a total order over all MemoryEvents
+fact { total[^gmo, MemoryEvent] } // gmo是在所有MemoryEvents上的总次序
 
 //rf
-fact { rf.~rf in iden } // each read returns the value of only one write
+fact { rf.~rf in iden } // 每个读返回唯一写的值
 fact { rf in Store <: address.~address :> Load }
 fun rfi : MemoryEvent->MemoryEvent { rf & (*po + *~po) }
 
@@ -225,7 +232,7 @@ fact { addrdep + ctrldep + datadep + pair in ^po }
 fact { datadep in datadep :> Store }
 fact { ctrldep.*po in ctrldep }
 fact { no pair & (^po :> (LoadReserve + StoreConditional)).^po }
-fact { StoreConditional in LoadReserve.pair } // assume all SCs succeed
+fact { StoreConditional in LoadReserve.pair } // 假设所有的SC都成功了
 
 // rdw
 fun rdw : Event->Event {
@@ -234,14 +241,14 @@ fun rdw : Event->Event {
   - (po_loc.rfi)            // and subtract out "fri-rfi" patterns
 }
 
-// filter out redundant instances and/or visualizations
-fact { no gmo & gmo.gmo } // keep the visualization uncluttered
+// 过滤出冗余的实例和/或可视化效果
+fact { no gmo & gmo.gmo } // 保持可视化效果整洁
 fact { all a: Address | some a.~address }
 
 ////////////////////////////////////////////////////////////////////////////////
-// =Optional: opcode encoding restrictions=
+// =可选：操作码编码约束=
 
-// the list of blessed fences
+// 神圣的屏障列表
 fact { Fence in
   Fence.pr.sr
   + Fence.pw.sw
@@ -256,14 +263,16 @@ pred restrict_to_current_encodings {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// =Alloy shortcuts=
+// =Alloy捷径 =
 pred acyclic[rel: Event->Event] { no iden & ^rel }
 pred total[rel: Event->Event, bag: Event] {
   all disj e, e': bag | e->e' in rel + ~rel
   acyclic[rel]
 }
 \end{lstlisting}}
-  \caption{The RVWMO memory model formalized in Alloy (5/5: Auxiliaries)}
+  \caption{Alloy中的形式化RVWMO内存模型（5/5：辅助内容）
+    % The RVWMO memory model formalized in Alloy (5/5: Auxiliaries)
+    ]}
   \label{fig:alloy5}
 \end{figure}
 

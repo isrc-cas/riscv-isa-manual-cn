@@ -217,4 +217,7 @@ section/format = { \Large\bfseries },
   % and there can be no store from a hart other than $h$ to byte $x$ following $s$ and preceding $w$ in the global memory order.
 }
 
-\newcommand{\progressaxiom}{No memory operation may be preceded in the global memory order by an infinite sequence of other memory operations.}
+\newcommand{\progressaxiom}{
+  在全局内存次序之中，任何内存操作之前都不能有其它内存操作的无限序列。
+  % No memory operation may be preceded in the global memory order by an infinite sequence of other memory operations.
+  }

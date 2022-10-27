@@ -235,7 +235,9 @@ Litmus测试被用于理解特定具体情境中的内存模型的含义。
   &
   \input{figs/litmus_sb_fwd.pdf_t}
   \end{tabular}
-  \caption{A store buffer forwarding litmus test (outcome permitted)}
+  \caption{一个存储缓冲区转发石蕊测试（允许的输出结果）
+    % A store buffer forwarding litmus test (outcome permitted)
+    }
   \label{fig:litmus:storebuffer}
 \end{figure}
 
@@ -348,11 +350,15 @@ RISC-V架构把原子性的概念从排序的概念中解耦出来。
 % Unlike architectures such as TSO, RISC-V atomics under RVWMO do not impose any ordering requirements by default.  
 % Ordering semantics are only guaranteed by the PPO rules that otherwise apply.
 
-RISC-V contains two types of atomics: AMOs and LR/SC pairs.
-These conceptually behave differently, in the following way.
-LR/SC behave as if the old value is brought up to the core, modified, and written back to memory, all while a reservation is held on that memory location.
-AMOs on the other hand conceptually behave as if they are performed directly in memory.
-AMOs are therefore inherently atomic, while LR/SC pairs are atomic in the slightly different sense that the memory location in question will not be modified by another hart during the time the original hart holds the reservation.
+RISC-V包含两种类型的原子性：AMO和LR/SC对。通过下列方式，它们在概念上有不同的表现。
+LR/SC的行为就像是，旧值被带到核心，修改，然后写回到内存，所有这些保留都维持在该内存位置。
+另一方面，AMO在概念上表现得像是，它们直接在内存中执行。AMO因此有固有的原子性，而LR/SC对的原子性在某种意义上略有不同，
+即在内存位置方面，在起初的硬件线程持有该保留的期间，不会被另一个硬件线程所修改。
+% RISC-V contains two types of atomics: AMOs and LR/SC pairs.
+% These conceptually behave differently, in the following way.
+% LR/SC behave as if the old value is brought up to the core, modified, and written back to memory, all while a reservation is held on that memory location.
+% AMOs on the other hand conceptually behave as if they are performed directly in memory.
+% AMOs are therefore inherently atomic, while LR/SC pairs are atomic in the slightly different sense that the memory location in question will not be modified by another hart during the time the original hart holds the reservation.
 
 \begin{figure}[h!]
   \centering\small
@@ -383,18 +389,26 @@ AMOs are therefore inherently atomic, while LR/SC pairs are atomic in the slight
   (c) sc.w t2, 8(s0)
   \end{verbbox}
   \theverbbox
-  \caption{In all four (independent) code snippets, the store-conditional (c) is permitted but not guaranteed to succeed}
+  \caption{在所有的四个（独立的）代码片段中，存储条件(c)是被允许的，但是不保证成功
+    % In all four (independent) code snippets, the store-conditional (c) is permitted but not guaranteed to succeed
+    }
   \label{fig:litmus:lrsdsc}
 \end{figure}
 
-The atomicity axiom forbids stores from other harts from being interleaved in global memory order between an LR and the SC paired with that LR.
-The atomicity axiom does not forbid loads from being interleaved between the paired operations in program order or in the global memory order, nor does it forbid stores from the same hart or stores to non-overlapping locations from appearing between the paired operations in either program order or in the global memory order.
-For example, the SC instructions in Figure~\ref{fig:litmus:lrsdsc} may (but are not guaranteed to) succeed.
-None of those successes would violate the atomicity axiom, because the intervening non-conditional stores are from the same hart as the paired load-reserved and store-conditional instructions.
-This way, a memory system that tracks memory accesses at cache line granularity (and which therefore will see the four snippets of Figure~\ref{fig:litmus:lrsdsc} as identical) will not be forced to fail a store-conditional instruction that happens to (falsely) share another portion of the same cache line as the memory location being held by the reservation.
+原子性公理禁止在全局内存次序中，来自其它硬件线程的存储，在一个LR核、与该LR配对的SC之间交错。
+原子性公理没有禁止在程序次序或全局内存次序中，加载在成对的操作之间交错，也没有禁止在程序次序或全局内存次序中，
+来自相同硬件线程的存储或者对非重叠位置的存储出现在成对的操作之间。例如，图~\ref{fig:litmus:lrsdsc}中的SC指令可以（但是不保证）成功。
+那些成功没有一个将违背原子性公理，因为其间的非条件存储是与成对的加载-存储指令和存储-条件指令来自相同的硬件线程。
+这样，一个在缓存行粒度追踪内存访问（并因此将看到图~\ref{fig:litmus:lrsdsc}中的四个片段是完全相同的）的内存系统将不会强制让碰巧（假）共享了相同缓存行另一部分作为保留所正在持有的内存位置的存储-条件指令失败。
+% The atomicity axiom forbids stores from other harts from being interleaved in global memory order between an LR and the SC paired with that LR.
+% The atomicity axiom does not forbid loads from being interleaved between the paired operations in program order or in the global memory order, nor does it forbid stores from the same hart or stores to non-overlapping locations from appearing between the paired operations in either program order or in the global memory order.
+% For example, the SC instructions in Figure~\ref{fig:litmus:lrsdsc} may (but are not guaranteed to) succeed.
+% None of those successes would violate the atomicity axiom, because the intervening non-conditional stores are from the same hart as the paired load-reserved and store-conditional instructions.
+% This way, a memory system that tracks memory accesses at cache line granularity (and which therefore will see the four snippets of Figure~\ref{fig:litmus:lrsdsc} as identical) will not be forced to fail a store-conditional instruction that happens to (falsely) share another portion of the same cache line as the memory location being held by the reservation.
 
-The atomicity axiom also technically supports cases in which the LR and SC touch different addresses and/or use different access sizes; however, use cases for such behaviors are expected to be rare in practice.
-Likewise, scenarios in which stores from the same hart between an LR/SC pair actually overlap the memory location(s) referenced by the LR or SC are expected to be rare compared to scenarios where the intervening store may simply fall onto the same cache line.
+这个原子性公理也技术性地支持了LR和SC接触不同地址和/或使用不同访问尺寸的情形；然而，在实际中，预计这种行为的使用情形会很稀少。同样地，那种在一个LR/SC对之间，来自相同硬件线程的存储与该LR或SC引用的内存位置实际重叠的情景，与其间的存储可能简单地落在相同的缓存行上的情景相比，也是稀少的。
+% The atomicity axiom also technically supports cases in which the LR and SC touch different addresses and/or use different access sizes; however, use cases for such behaviors are expected to be rare in practice.
+% Likewise, scenarios in which stores from the same hart between an LR/SC pair actually overlap the memory location(s) referenced by the LR or SC are expected to be rare compared to scenarios where the intervening store may simply fall onto the same cache line.
 
 \subsection{\nameref*{rvwmo:ax:prog}}
 \label{sec:memory:progress}
@@ -402,17 +416,24 @@ Likewise, scenarios in which stores from the same hart between an LR/SC pair act
 \nameref{rvwmo:ax:prog}: \progressaxiom
 \end{tabular}
 
-The progress axiom ensures a minimal forward progress guarantee.
-It ensures that stores from one hart will eventually be made visible to other harts in the system in a finite amount of time, and that loads from other harts will eventually be able to read those values (or successors thereof).
-Without this rule, it would be legal, for example, for a spinlock to spin infinitely on a value, even with a store from another hart waiting to unlock the spinlock.
+进程公理确保了一个最小的向前进程保证。它确保了来自一个硬件线程的存储将在有限数量的时间之内，最终变得对于系统中的其它硬件线程可见，
+并且来自其它硬件线程的加载将最终能够读取那些值（或由该值而来的后继值）。没有这个规则的话，举个例子，
+一个自旋锁无限地在一个值上旋转，将变得合法，甚至是在有来自另一个硬件线程的存储正在等待该自旋锁解锁的时候。
+% The progress axiom ensures a minimal forward progress guarantee.
+% It ensures that stores from one hart will eventually be made visible to other harts in the system in a finite amount of time, and that loads from other harts will eventually be able to read those values (or successors thereof).
+% Without this rule, it would be legal, for example, for a spinlock to spin infinitely on a value, even with a store from another hart waiting to unlock the spinlock.
 
-The progress axiom is intended not to impose any other notion of fairness, latency, or quality of service onto the harts in a RISC-V implementation.
-Any stronger notions of fairness are up to the rest of the ISA and/or up to the platform and/or device to define and implement.
+进程公理并不试图在一个RISC-V实现中的硬件线程上采用任何其它的公平、延迟或者服务质量的概念。任何更强的公平性概念都取决于剩余的ISA和/或平台和/或设备的定义和实现。
+% The progress axiom is intended not to impose any other notion of fairness, latency, or quality of service onto the harts in a RISC-V implementation.
+% Any stronger notions of fairness are up to the rest of the ISA and/or up to the platform and/or device to define and implement.
 
-The forward progress axiom will in almost all cases be naturally satisfied by any standard cache coherence protocol.
-Implementations with non-coherent caches may have to provide some other mechanism to ensure the eventual visibility of all stores (or successors thereof) to all harts.
+在几乎所有的情况中，向前进程公理都将被任何标准的缓存一致协议所满足。带有非一致性缓存的实现可能不得不提供一些其它的机制来确保所有的存储（或者由此而来的后继者）对于所有硬件线程的最终可见性。
+% The forward progress axiom will in almost all cases be naturally satisfied by any standard cache coherence protocol.
+% Implementations with non-coherent caches may have to provide some other mechanism to ensure the eventual visibility of all stores (or successors thereof) to all harts.
 
-\subsection{Overlapping-Address Orderings (Rules~\ref{ppo:->st}--\ref{ppo:amoforward})}
+\subsection{重叠地址排序（规则~\ref{ppo:->st}-\ref{ppo:amoforward}）
+% Overlapping-Address Orderings (Rules~\ref{ppo:->st}--\ref{ppo:amoforward})
+}
 \label{sec:memory:overlap}
 \begin{tabular}{p{1cm}|p{12cm}}
   & Rule \ref{ppo:->st}: \ppost \\
@@ -420,14 +441,21 @@ Implementations with non-coherent caches may have to provide some other mechanis
   & Rule \ref{ppo:amoforward}: \ppoamoforward \\
 \end{tabular}
 
-Same-address orderings where the latter is a store are straightforward: a load or store can never be reordered with a later store to an overlapping memory location.  From a microarchitecture perspective, generally speaking, it is difficult or impossible to undo a speculatively reordered store if the speculation turns out to be invalid, so such behavior is simply disallowed by the model.
-Same-address orderings from a store to a later load, on the other hand, do not need to be enforced.
-As discussed in Section~\ref{sec:memory:loadvalueaxiom}, this reflects the observable behavior of implementations that forward values from buffered stores to later loads.
+相同地址排序，如果后者是一个存储，那么是简单的：一个加载或存储永远不会被重新排序到一个与后面的存储重叠的内存位置。
+从微架构的视角，总的来说，如果推测被证明是无效的，很难或者说不可能来撤销一个推测性重排的存储，因此这种行为被模型简单地禁止了。
+换句话说，不需要从一个存储到后一个加载的相同地址排序。正如在~\ref{sec:memory:loadvalueaxiom}节中讨论的那样，这反映了将值从缓冲的存储转发到之后的加载的实现的可观察的行为。
+% Same-address orderings where the latter is a store are straightforward: a load or store can never be reordered with a later store to an overlapping memory location.  From a microarchitecture perspective, generally speaking, it is difficult or impossible to undo a speculatively reordered store if the speculation turns out to be invalid, so such behavior is simply disallowed by the model.
+% Same-address orderings from a store to a later load, on the other hand, do not need to be enforced.
+% As discussed in Section~\ref{sec:memory:loadvalueaxiom}, this reflects the observable behavior of implementations that forward values from buffered stores to later loads.
 
-Same-address load-load ordering requirements are far more subtle.
-The basic requirement is that a younger load must not return a value that is older than a value returned by an older load in the same hart to the same address.  This is often known as ``CoRR'' (Coherence for Read-Read pairs), or as part of a broader ``coherence'' or ``sequential consistency per location'' requirement.
-Some architectures in the past have relaxed same-address load-load ordering, but in hindsight this is generally considered to complicate the programming model too much, and so RVWMO requires CoRR ordering to be enforced.
-However, because the global memory order corresponds to the order in which loads perform rather than the ordering of the values being returned, capturing CoRR requirements in terms of the global memory order requires a bit of indirection.
+相同地址的加载-加载排序的要求要微妙得多。基础要求是，较新的加载一定不能返回比同一个硬件线程中对相同地址进行的较旧的加载所返回的值更旧的值。
+这通常被称为“CoRR”（读-读对的一致性），或者称为更宽泛的“一致性”或者“各位置的顺序连贯性”需求的一部分。
+过去，一些架构已经放松了相同地址的加载-加载排序，但是事后看来，这通常会让编程模型变得过于复杂，并且因此RVWMO需要强制执行CoRR排序。
+然而，因为全局内存次序对应于加载执行的次序，而不是值被返回的次序，所以，从全局内存次序的角度，捕获CoRR的需求需要一点间接性。
+% Same-address load-load ordering requirements are far more subtle.
+% The basic requirement is that a younger load must not return a value that is older than a value returned by an older load in the same hart to the same address.  This is often known as ``CoRR'' (Coherence for Read-Read pairs), or as part of a broader ``coherence'' or ``sequential consistency per location'' requirement.
+% Some architectures in the past have relaxed same-address load-load ordering, but in hindsight this is generally considered to complicate the programming model too much, and so RVWMO requires CoRR ordering to be enforced.
+% However, because the global memory order corresponds to the order in which loads perform rather than the ordering of the values being returned, capturing CoRR requirements in terms of the global memory order requires a bit of indirection.
 
 \begin{figure}[h!]
   \center
@@ -450,28 +478,35 @@ However, because the global memory order corresponds to the order in which loads
   &
   \input{figs/litmus_mp_fenceww_fri_rfi_addr.pdf_t}
   \end{tabular}
-  \caption{Litmus test MP+fence.w.w+fri-rfi-addr (outcome permitted)}
+  \caption{石蕊测试MP＋fence.w.w＋fir-rfi-addr（允许的输出结果）。 
+  % Litmus test MP+fence.w.w+fri-rfi-addr (outcome permitted)
+  }
   \label{fig:litmus:frirfi}
 \end{figure}
 
-Consider the litmus test of Figure~\ref{fig:litmus:frirfi}, which is one particular instance of the more general ``fri-rfi'' pattern.
-The term ``fri-rfi'' refers to the sequence (d), (e), (f): (d) ``from-reads'' (i.e., reads from an earlier write than) (e) which is the same hart, and (f) reads from (e) which is in the same hart.
+考虑图~\ref{fig:litmus:frirfi}的石蕊测试，它是更一般的“fri-rfi”式样的一个特别的实例。术语“fri-rfi”表示序列(d)、(e)、(f)：(d)“从读取”来自相同硬件线程的(e)（例如，从一个比(e)更早的写读取），而(f)从来自相同硬件线程的(e)读取。
+% Consider the litmus test of Figure~\ref{fig:litmus:frirfi}, which is one particular instance of the more general ``fri-rfi'' pattern.
+% The term ``fri-rfi'' refers to the sequence (d), (e), (f): (d) ``from-reads'' (i.e., reads from an earlier write than) (e) which is the same hart, and (f) reads from (e) which is in the same hart.
 
-From a microarchitectural perspective, outcome {\tt a0=1}, {\tt a1=2}, {\tt a2=0} is legal (as are various other less subtle outcomes).  Intuitively, the following would produce the outcome in question:
+从微架构的视角，输出结果{\tt a0=1}，{\tt a1=2}，{\tt a2=0}是合法的（比起各种其它更加不怎么微妙的输出结果）。直观地讲，下列将产生上述提及的输出结果：
+% From a microarchitectural perspective, outcome {\tt a0=1}, {\tt a1=2}, {\tt a2=0} is legal (as are various other less subtle outcomes).  Intuitively, the following would produce the outcome in question:
 \begin{itemize}
-  \item (d) stalls (for whatever reason; perhaps it's stalled waiting for some other preceding instruction)
-  \item (e) executes and enters the store buffer (but does not yet drain to memory)
-  \item (f) executes and forwards from (e) in the store buffer
-  \item (g), (h), and (i) execute
-  \item (a) executes and drains to memory, (b) executes, and (c) executes and drains to memory
-  \item (d) unstalls and executes
-  \item (e) drains from the store buffer to memory
+  \item (d) 暂停（不论出于什么原因；或许它在等待一些其它先前的指令时就暂停了）
+  \item (e) 执行，并进入存储缓冲区（但是还没有排放到内存）
+  \item (f) 执行，并从存储缓冲区中的(e)转发
+  \item (g)、(h)和(i)执行
+  \item (a) 执行并排放到内存，(b)执行，且(c)执行并排放到内存
+  \item (d) 解除暂停并执行
+  \item (e) 从存储缓冲区排放到内存
 \end{itemize}
-This corresponds to a global memory order of (f), (i), (a), (c), (d), (e).
-Note that even though (f) performs before (d), the value returned by (f) is newer than the value returned by (d).
-Therefore, this execution is legal and does not violate the CoRR requirements.
+这个对应于全局内存次序(f)、(i)、(a)、(c)、(d)、(e)。注意，即使(f)在(d)之前执行，由(f)返回的值也比由(d)返回的值更新。
+因此，这个执行是合法的，并且不会违背CoRR需求。
+% This corresponds to a global memory order of (f), (i), (a), (c), (d), (e).
+% Note that even though (f) performs before (d), the value returned by (f) is newer than the value returned by (d).
+% Therefore, this execution is legal and does not violate the CoRR requirements.
 
-Likewise, if two back-to-back loads return the values written by the same store, then they may also appear out-of-order in the global memory order without violating CoRR.  Note that this is not the same as saying that the two loads return the same value, since two different stores may write the same value.
+类似地，如果两个背靠背的加载返回了相同存储所写入的值，那么在全局内存次序中，它们也可以乱序出现而不违背CoRR。注意这与说两个加载返回相同的值是不相同的，因为两个不同的存储也可以写入相同的值。
+% Likewise, if two back-to-back loads return the values written by the same store, then they may also appear out-of-order in the global memory order without violating CoRR.  Note that this is not the same as saying that the two loads return the same value, since two different stores may write the same value.
 
 \begin{figure}[h!]
   \centering
@@ -496,53 +531,77 @@ Likewise, if two back-to-back loads return the values written by the same store,
   &
   \input{figs/litmus_rsw.pdf_t}
    \end{tabular}
-  \caption{Litmus test RSW (outcome permitted)}
+  \caption{石蕊测试RSW（允许的输出结果） 
+  % Litmus test RSW (outcome permitted)
+  }
   \label{fig:litmus:rsw}
 \end{figure}
 
-Consider the litmus test of Figure~\ref{fig:litmus:rsw}.
-The outcome {\tt a0=1}, {\tt a1=$v$},  {\tt a2=$v$}, {\tt a3=0} (where $v$ is some value written by another hart) can be observed by allowing (g) and (h) to be reordered.  This might be done speculatively, and the speculation can be justified by the microarchitecture (e.g., by snooping for cache invalidations and finding none) because replaying (h) after (g) would return the value written by the same store anyway.
-Hence assuming {\tt a1} and {\tt a2} would end up with the same value written by the same store anyway, (g) and (h) can be legally reordered.
-The global memory order corresponding to this execution would be (h),(k),(a),(c),(d),(g).
+考虑图~\ref{fig:litmus:rsw}的石蕊测试。
+输出结果{\tt a0=1}、{\tt a1=$v$}、{\tt a2=$v$}、{\tt a3=0}（这里$v$是由另一个硬件线程所写入的某个值）
+可以通过允许(g)和(h)重排而被观察到。这个做法可能是推测性的，并且该推测可以被微架构证明（例如，通过监视缓存失效情况而没有发现），
+因为无论如何，在(g)之后重新执行(h)都将返回相同存储所写入的值。因此假设，无论如何a1和a2都将最终由相同的存储写入相同的值，(g)和(h)可以被合法地重新排序。
+对应这个执行的全局内存次序将是(h)、(k)、(a)、(c)、(d)、(g)。
+% Consider the litmus test of Figure~\ref{fig:litmus:rsw}.
+% The outcome {\tt a0=1}, {\tt a1=$v$},  {\tt a2=$v$}, {\tt a3=0} (where $v$ is some value written by another hart) can be observed by allowing (g) and (h) to be reordered.  This might be done speculatively, and the speculation can be justified by the microarchitecture (e.g., by snooping for cache invalidations and finding none) because replaying (h) after (g) would return the value written by the same store anyway.
+% Hence assuming {\tt a1} and {\tt a2} would end up with the same value written by the same store anyway, (g) and (h) can be legally reordered.
+% The global memory order corresponding to this execution would be (h),(k),(a),(c),(d),(g).
 
-Executions of the test in Figure~\ref{fig:litmus:rsw} in which {\tt a1} does not equal {\tt a2} do in fact require that (g) appears before (h) in the global memory order.
-Allowing (h) to appear before (g) in the global memory order would in that case result in a violation of CoRR, because then (h) would return an older value than that returned by (g).
-Therefore, PPO rule~\ref{ppo:rdw} forbids this CoRR violation from occurring.
-As such, PPO rule~\ref{ppo:rdw} strikes a careful balance between enforcing CoRR in all cases while simultaneously being weak enough to permit ``RSW'' and ``fri-rfi'' patterns that commonly appear in real microarchitectures.
+图~\ref{fig:litmus:rsw}中{\tt a1}不等于{\tt a2}的测试的执行实际上需要(g)在全局内存次序中出现在(h)之前。允许(h)在全局内存次序中出现在(g)之前，那种情况中将导致违反CoRR，因为接下来(h)将返回一个比(g)所返回的更旧的值。
+因此，PPO规则~\ref{ppo:rdw}禁止这种CoRR违背的发生。严格来说，PPO规则~\ref{ppo:rdw}在所有情况中执行CoRR都达成了一种小心的平衡，同时又足够弱，以允许在真实的微架构中经常出现的“RSW”和“fri-rfi”式样。
+% Executions of the test in Figure~\ref{fig:litmus:rsw} in which {\tt a1} does not equal {\tt a2} do in fact require that (g) appears before (h) in the global memory order.
+% Allowing (h) to appear before (g) in the global memory order would in that case result in a violation of CoRR, because then (h) would return an older value than that returned by (g).
+% Therefore, PPO rule~\ref{ppo:rdw} forbids this CoRR violation from occurring.
+% As such, PPO rule~\ref{ppo:rdw} strikes a careful balance between enforcing CoRR in all cases while simultaneously being weak enough to permit ``RSW'' and ``fri-rfi'' patterns that commonly appear in real microarchitectures.
 
-There is one more overlapping-address rule: PPO rule~\ref{ppo:amoforward} simply states that a value cannot be returned from an AMO or SC to a subsequent load until the AMO or SC has (in the case of the SC, successfully) performed globally.
-This follows somewhat naturally from the conceptual view that both AMOs and SC instructions are meant to be performed atomically in memory.
-However, notably, PPO rule~\ref{ppo:amoforward} states that hardware may not even non-speculatively forward the value being stored by an AMOSWAP to a subsequent load, even though for AMOSWAP that store value is not actually semantically dependent on the previous value in memory, as is the case for the other AMOs.
-The same holds true even when forwarding from SC store values that are not semantically dependent on the value returned by the paired LR.
+还有一个重叠地址规则：PPO规则~\ref{ppo:amoforward}简单地陈述了，一个值不能从AMO或SC返回到后续的加载，直到AMO或SC已经全局执行（在SC的情况中，
+还要是成功的全局执行）。从概念的观点，AMO和SC指令理应在内存中原子性地执行，这有点是顺理成章的。然而，特别地，PPO规则~\ref{ppo:amoforward}陈述了，
+硬件可能甚至不会无意识地转发正在被AMOSWAP存储到后续加载的值，即使对于AMOSWAP，
+该存储的值实际在语义上并不依赖于内存中的先前的值，就像对于其它AMO的情况一样。
+即使当从SC转发存储的值在语义上不依赖于所配对的LR所返回的值时也同样如此。
+% There is one more overlapping-address rule: PPO rule~\ref{ppo:amoforward} simply states that a value cannot be returned from an AMO or SC to a subsequent load until the AMO or SC has (in the case of the SC, successfully) performed globally.
+% This follows somewhat naturally from the conceptual view that both AMOs and SC instructions are meant to be performed atomically in memory.
+% However, notably, PPO rule~\ref{ppo:amoforward} states that hardware may not even non-speculatively forward the value being stored by an AMOSWAP to a subsequent load, even though for AMOSWAP that store value is not actually semantically dependent on the previous value in memory, as is the case for the other AMOs.
+% The same holds true even when forwarding from SC store values that are not semantically dependent on the value returned by the paired LR.
 
-The three PPO rules above also apply when the memory accesses in question only overlap partially.
-This can occur, for example, when accesses of different sizes are used to access the same object.
-Note also that the base addresses of two overlapping memory operations need not necessarily be the same for two memory accesses to overlap.
-When misaligned memory accesses are being used, the overlapping-address PPO rules apply to each of the component memory accesses independently.
+上面这三个PPO规则也应用在当上述提到的内存访问只有部分重叠的情况中。
+这是可能发生的，例如，当使用了不同尺寸的访问来访问相同的对象。也要注意，为了两个内存访问重叠，
+两个重叠的内存操作的基地址不需要必定是相同的。当使用了未对齐的内存访问的时候，重叠地址PPO规则独立地应用到每个组件内存访问。
+% The three PPO rules above also apply when the memory accesses in question only overlap partially.
+% This can occur, for example, when accesses of different sizes are used to access the same object.
+% Note also that the base addresses of two overlapping memory operations need not necessarily be the same for two memory accesses to overlap.
+% When misaligned memory accesses are being used, the overlapping-address PPO rules apply to each of the component memory accesses independently.
 
-\begin{comment}
-The formal model captures this as follows:
-\begin{itemize}
-  \item (a) precedes (b) in preserved program order because both are stores to the same address, and (b) is a store (Rule~\ref{ppo:->st}).  Therefore, (c) cannot return the value written by (a), because (b) is a later store to the same address in both program order and the global memory order, and so returning the value written by (a) would violate the load value axiom.
-  \item (c) precedes (d) in preserved program order because both are accesses to the same address, and (d) is a store.  (c) also precedes (d) in program order.  Therefore, (c) is not able to return the value written by (d), because neither option in the load value axiom applies.
-\end{itemize}
-\end{comment}
+% ----------  word文档初稿中没有这一段的翻译，可能是后期版本加上去的，需再三核查  ----------------
+% \begin{comment}
+% The formal model captures this as follows:
+% \begin{itemize}
+%   \item (a) precedes (b) in preserved program order because both are stores to the same address, and (b) is a store (Rule~\ref{ppo:->st}).  Therefore, (c) cannot return the value written by (a), because (b) is a later store to the same address in both program order and the global memory order, and so returning the value written by (a) would violate the load value axiom.
+%   \item (c) precedes (d) in preserved program order because both are accesses to the same address, and (d) is a store.  (c) also precedes (d) in program order.  Therefore, (c) is not able to return the value written by (d), because neither option in the load value axiom applies.
+% \end{itemize}
+% \end{comment}
 
-\subsection{Fences (Rule~\ref{ppo:fence})}
+\subsection{屏障（规则~\ref{ppo:fence}）}
 \label{sec:mm:fence}
 \begin{tabular}{p{1cm}|p{12cm}} &
 Rule \ref{ppo:fence}: \ppofence
 \end{tabular}
 
-By default, the FENCE instruction ensures that all memory accesses from instructions preceding the fence in program order (the ``predecessor set'') appear earlier in the global memory order than memory accesses from instructions appearing after the fence in program order (the ``successor set'').
-However, fences can optionally further restrict the predecessor set and/or the successor set to  a smaller set of memory accesses in order to provide some speedup.
-Specifically, fences have PR, PW, SR, and SW bits which restrict the predecessor and/or successor sets.
-The predecessor set includes loads (resp.\@ stores) if and only if PR (resp.\@ PW) is set.
-Similarly, the successor set includes loads (resp.\@ stores) if and only if SR (resp.\@ SW) is set.
+默认情况下，FENCE指令确保程序次序中所有的来自屏障之前的指令的内存访问（即，“前趋集”）在全局内存次序中，早于程序次序中来自屏障之后的指令的内存访问（即，“后继集”）出现。
+然而，屏障可以选择性地把前趋集和/或后继集进一步限制到一个更小的内存访问集合，以提供某些加速。
+特别地，屏障拥有限制前趋集和/或后继集的PR、PW、SR和SW位。当且仅当设置了PR位（对应于PW）时，前趋集包括加载（对应于存储）。
+类似地，当且仅当设置了SR（对应于SW）时，后继集包括加载（对应于存储）。
+% By default, the FENCE instruction ensures that all memory accesses from instructions preceding the fence in program order (the ``predecessor set'') appear earlier in the global memory order than memory accesses from instructions appearing after the fence in program order (the ``successor set'').
+% However, fences can optionally further restrict the predecessor set and/or the successor set to  a smaller set of memory accesses in order to provide some speedup.
+% Specifically, fences have PR, PW, SR, and SW bits which restrict the predecessor and/or successor sets.
+% The predecessor set includes loads (resp.\@ stores) if and only if PR (resp.\@ PW) is set.
+% Similarly, the successor set includes loads (resp.\@ stores) if and only if SR (resp.\@ SW) is set.
 
-The FENCE encoding currently has nine non-trivial combinations of the four bits PR, PW, SR, and SW, plus one extra encoding FENCE.TSO which facilitates mapping of ``acquire+release'' or RVTSO semantics.
-The remaining seven combinations have empty predecessor and/or successor sets and hence are no-ops.
-Of the ten non-trivial options, only six are commonly used in practice:
+当前的FENCE编码有关于四个位PR、PW、SR和SW的九个非平凡的组合，加上一个额外的编码FENCE.TSO，它有助于“获取＋释放”或RVTSO语义的映射。
+剩余的七个组合没有前趋集和/或后继集，并因此都是no-op。对于十个非平凡的选项，只有六个是在实际中经常使用的：
+% The FENCE encoding currently has nine non-trivial combinations of the four bits PR, PW, SR, and SW, plus one extra encoding FENCE.TSO which facilitates mapping of ``acquire+release'' or RVTSO semantics.
+% The remaining seven combinations have empty predecessor and/or successor sets and hence are no-ops.
+% Of the ten non-trivial options, only six are commonly used in practice:
 {
 \begin{itemize}
   \item FENCE RW,RW
@@ -553,105 +612,130 @@ Of the ten non-trivial options, only six are commonly used in practice:
   \item FENCE W,W
 \end{itemize}
 }
-FENCE instructions using any other combination of PR, PW, SR, and SW are reserved.  We strongly recommend that programmers stick to these six.
-Other combinations may have unknown or unexpected interactions with the memory model.
+使用PR、PW、SR和SW的任何其它组合的FENCE指令是被保留的。我们强烈建议编程人员坚持使用这六个。其它的组合可能与内存模型有未知的或者不期望的交互。
+% FENCE instructions using any other combination of PR, PW, SR, and SW are reserved.  We strongly recommend that programmers stick to these six.
+% Other combinations may have unknown or unexpected interactions with the memory model.
 
-Finally, we note that since RISC-V uses a multi-copy atomic memory model, programmers can reason about fences bits in a thread-local manner.  There is no complex notion of ``fence cumulativity'' as found in memory models that are not multi-copy atomic.
+最后，我们注意到，由于RISC-V使用一种多重拷贝原子的内存模型，编程人员因此可以以一种线程本地的方式来推断屏障位。在非多重拷贝原子的内存模型中，没有“屏障累积性”的复杂性概念。
+% Finally, we note that since RISC-V uses a multi-copy atomic memory model, programmers can reason about fences bits in a thread-local manner.  There is no complex notion of ``fence cumulativity'' as found in memory models that are not multi-copy atomic.
 
-\subsection{Explicit Synchronization (Rules~\ref{ppo:acquire}--\ref{ppo:pair})}
+\subsection{显式同步（规则~\ref{ppo:acquire}-\ref{ppo:pair}）}
+% \subsection{Explicit Synchronization (Rules~\ref{ppo:acquire}--\ref{ppo:pair})}
 \label{sec:memory:acqrel}
 \begin{tabular}{p{1cm}|p{12cm}}
-  & Rule \ref{ppo:acquire}: \ppoacquire \\
-  & Rule \ref{ppo:release}: \pporelease \\
-  & Rule \ref{ppo:rcsc}: \pporcsc \\
-  & Rule \ref{ppo:pair}: \ppopair \\
+  & 规则 \ref{ppo:acquire}: \ppoacquire \\
+  & 规则 \ref{ppo:release}: \pporelease \\
+  & 规则 \ref{ppo:rcsc}: \pporcsc \\
+  & 规则 \ref{ppo:pair}: \ppopair \\
 \end{tabular}
 
-An {\em acquire} operation, as would be used at the start of a critical section, requires all memory operations following the acquire in program order to also follow the acquire in the global memory order.
-This ensures, for example, that all loads and stores inside the critical section are up to date with respect to the synchronization variable being used to protect it.
-Acquire ordering can be enforced in one of two ways: with an acquire annotation, which enforces ordering with respect to just the synchronization variable itself, or with a FENCE~R,RW, which enforces ordering with respect to all previous loads.
+一个{\em 获取}操作，正如应当被用在临界区开始处那样，需要在程序次序中的所有之后的内存操作也都在全局内存次序中在获取操作之后。这确保了，例如，临界区之内的所有的加载和存储，相对于正在保护它们的同步变量，都是最新的。
+获取次序可以通过两种方式之一而采用：通过一个acquire注释，它采用只相对于同步变量自身的次序，或者通过一个FENCE R, RW，它采用相对于所有先前的加载的次序。
+% An {\em acquire} operation, as would be used at the start of a critical section, requires all memory operations following the acquire in program order to also follow the acquire in the global memory order.
+% This ensures, for example, that all loads and stores inside the critical section are up to date with respect to the synchronization variable being used to protect it.
+% Acquire ordering can be enforced in one of two ways: with an acquire annotation, which enforces ordering with respect to just the synchronization variable itself, or with a FENCE~R,RW, which enforces ordering with respect to all previous loads.
 
 \begin{figure}[h!]
   \centering\small
   \begin{verbatim}
-          sd           x1, (a1)     # Arbitrary unrelated store
-          ld           x2, (a2)     # Arbitrary unrelated load
-          li           t0, 1        # Initialize swap value.
+          sd           x1, (a1)     # 任意不相关的存储 
+          ld           x2, (a2)     # 任意不相关的加载  
+          li           t0, 1        # 初始化交换值 
       again:
-          amoswap.w.aq t0, t0, (a0) # Attempt to acquire lock.
-          bnez         t0, again    # Retry if held.
+          amoswap.w.aq t0, t0, (a0) # 尝试获取锁 
+          bnez         t0, again    # 如果被占用则重试 
           # ...
           # Critical section.
           # ...
-          amoswap.w.rl x0, x0, (a0) # Release lock by storing 0.
-          sd           x3, (a3)     # Arbitrary unrelated store
-          ld           x4, (a4)     # Arbitrary unrelated load
+          amoswap.w.rl x0, x0, (a0) # 通过存入0来释放锁 
+          sd           x3, (a3)     # 任意不相关的存储 
+          ld           x4, (a4)     # 任意不相关的加载 
   \end{verbatim}
-  \caption{A spinlock with atomics}
+  \caption{带原子性的自旋锁}
   \label{fig:litmus:spinlock_atomics}
 \end{figure}
 
-Consider Figure~\ref{fig:litmus:spinlock_atomics}.
-Because this example uses {\em aq}, the loads and stores in the critical section are guaranteed to appear in the global memory order after the AMOSWAP used to acquire the lock.  However, assuming {\tt a0}, {\tt a1}, and {\tt a2} point to different memory locations, the loads and stores in the critical section may or may not appear after the ``Arbitrary unrelated load'' at the beginning of the example in the global memory order.
+考虑图~\ref{fig:litmus:spinlock_atomics}。
+因为这个例子使用{\em aq}，临界区中的加载和存储被保证在全局内存次序中出现在用于获取锁的AMOSWAP之后。然而，假设{\tt a0}、{\tt a1}和{\tt a2}指向不同的内存位置，临界区中的加载和存储可能会、或可能不会在全局内存次序中，出现在例子开始的“任意不相干的加载”之后。
+% Consider Figure~\ref{fig:litmus:spinlock_atomics}.
+% Because this example uses {\em aq}, the loads and stores in the critical section are guaranteed to appear in the global memory order after the AMOSWAP used to acquire the lock.  However, assuming {\tt a0}, {\tt a1}, and {\tt a2} point to different memory locations, the loads and stores in the critical section may or may not appear after the ``Arbitrary unrelated load'' at the beginning of the example in the global memory order.
 
 \begin{figure}[h!]
   \centering\small
   \begin{verbatim}
-          sd           x1, (a1)     # Arbitrary unrelated store
-          ld           x2, (a2)     # Arbitrary unrelated load
-          li           t0, 1        # Initialize swap value.
+          sd           x1, (a1)     # 任意不相关的存储 
+          ld           x2, (a2)     # 任意不相关的加载 
+          li           t0, 1        # 初始化交换值 
       again:
-          amoswap.w    t0, t0, (a0) # Attempt to acquire lock.
-          fence        r, rw        # Enforce "acquire" memory ordering
-          bnez         t0, again    # Retry if held.
+          amoswap.w    t0, t0, (a0) # 尝试获取锁
+          fence        r, rw        # 强制采用“acquire”内存次序
+          bnez         t0, again    # 如果被占用则重试
           # ...
           # Critical section.
           # ...
-          fence        rw, w        # Enforce "release" memory ordering
-          amoswap.w    x0, x0, (a0) # Release lock by storing 0.
-          sd           x3, (a3)     # Arbitrary unrelated store
-          ld           x4, (a4)     # Arbitrary unrelated load
+          fence        rw, w        # 强制采用“release”内存次序
+          amoswap.w    x0, x0, (a0) # 通过存入0来释放锁 
+          sd           x3, (a3)     # 任意不相关的存储 
+          ld           x4, (a4)     # 任意不相关的加载
   \end{verbatim}
-  \caption{A spinlock with fences}
+  \caption{带屏障的自旋锁}
   \label{fig:litmus:spinlock_fences}
 \end{figure}
 
-Now, consider the alternative in Figure~\ref{fig:litmus:spinlock_fences}.
-In this case, even though the AMOSWAP does not enforce ordering with an {\em aq} bit, the fence nevertheless enforces that the acquire AMOSWAP appears earlier in the global memory order than all loads and stores in the critical section.
-Note, however, that in this case, the fence also enforces additional orderings: it also requires that the ``Arbitrary unrelated load'' at the start of the program appears earlier in the global memory order than the loads and stores of the critical section.  (This particular fence does not, however, enforce any ordering with respect to the ``Arbitrary unrelated store'' at the start of the snippet.)
-In this way, fence-enforced orderings are slightly coarser than orderings enforced by {\em .aq}.
+现在，考虑图~\ref{fig:litmus:spinlock_fences}中的替代方案。
+在这种情况中，即使AMOSWAP不会采用带有{\em aq}位的次序，尽管如此，屏障也会使获取AMOSWAP在全局内存次序中早于临界区中的所有加载和存储出现。
+然而，注意，在这种情况中，屏障也会强制采用额外的次序：它也需要程序开始处的“任意不相干的加载”在全局内存次序中比临界区的加载和存储出现得更早。（然而，这个特别的屏障并不强制采用任何相对于片段开始处的“任意不相干的存储”的次序。）
+通过这种方式，屏障强加的次序比通过{\em .aq}采用的次序会稍微地更粗糙些。
+% Now, consider the alternative in Figure~\ref{fig:litmus:spinlock_fences}.
+% In this case, even though the AMOSWAP does not enforce ordering with an {\em aq} bit, the fence nevertheless enforces that the acquire AMOSWAP appears earlier in the global memory order than all loads and stores in the critical section.
+% Note, however, that in this case, the fence also enforces additional orderings: it also requires that the ``Arbitrary unrelated load'' at the start of the program appears earlier in the global memory order than the loads and stores of the critical section.  (This particular fence does not, however, enforce any ordering with respect to the ``Arbitrary unrelated store'' at the start of the snippet.)
+% In this way, fence-enforced orderings are slightly coarser than orderings enforced by {\em .aq}.
 
-Release orderings work exactly the same as acquire orderings, just in the opposite direction.  Release semantics require all loads and stores preceding the release operation in program order to also precede the release operation in the global memory order.
-This ensures, for example, that memory accesses in a critical section appear before the lock-releasing store in the global memory order.  Just as for acquire semantics, release semantics can be enforced using release annotations or with a FENCE~RW,W operation.  Using the same examples, the ordering between the loads and stores in the critical section and the ``Arbitrary unrelated store'' at the end of the code snippet is enforced only by the FENCE~RW,W in Figure~\ref{fig:litmus:spinlock_fences}, not by the {\em rl} in Figure~\ref{fig:litmus:spinlock_atomics}.
+释放次序和获取次序的效果完全相同，只是方向相反。释放的语义需要在程序次序中所有的先于释放操作的加载和存储也要在全局内存次序中先于释放操作。
+这确保了，例如，在临界区中的内存访问在全局内存次序中出现在锁释放存储之前。
+正如和获取的语义一样，释放的语义可以使用relase注释或者用FENCE RW, W操作来强制采用。使用相同的例子，临界区中的加载和存储和代码片段末尾处的“任意不相干存储”之间的次序只由图~\ref{fig:litmus:spinlock_fences}的FENCE RW,W采用，而不是图~\ref{fig:litmus:spinlock_atomics}中的{\em rl}。
+% Release orderings work exactly the same as acquire orderings, just in the opposite direction.  Release semantics require all loads and stores preceding the release operation in program order to also precede the release operation in the global memory order.
+% This ensures, for example, that memory accesses in a critical section appear before the lock-releasing store in the global memory order.  Just as for acquire semantics, release semantics can be enforced using release annotations or with a FENCE~RW,W operation.  Using the same examples, the ordering between the loads and stores in the critical section and the ``Arbitrary unrelated store'' at the end of the code snippet is enforced only by the FENCE~RW,W in Figure~\ref{fig:litmus:spinlock_fences}, not by the {\em rl} in Figure~\ref{fig:litmus:spinlock_atomics}.
 
-With RCpc annotations alone, store-release-to-load-acquire ordering is not enforced.  This facilitates the porting of code written under the TSO and/or RCpc memory models.  
-To enforce store-release-to-load-acquire ordering, the code must use store-release-RCsc and load-acquire-RCsc operations so that PPO rule \ref{ppo:rcsc} applies.
-RCpc alone is sufficient for many use cases in C/C++ but is insufficient for many other use cases in C/C++, Java, and Linux, to name just a few examples; see Section~\ref{sec:memory:porting} for details.
+单独使用RCpc注释，存储-释放到加载-获取的次序是不会被强制采用的。这有助于在TSO和/或RCpc内存模型下所写的代码的移植。
+为了强制采用存储-释放到加载-获取的次序，代码必须使用store-release-RCsc和load-acquire-RCsc操作，以便应用PPO规则\ref{ppo:rcsc}。
+对于许多C/C++中的使用情形，只有RCpc来举一些例子是足够的，但是对于许多C/C++、Java和Linux中的其它的使用情形是不够的；详情请见~\ref{sec:memory:porting}节。
+% With RCpc annotations alone, store-release-to-load-acquire ordering is not enforced.  This facilitates the porting of code written under the TSO and/or RCpc memory models.  
+% To enforce store-release-to-load-acquire ordering, the code must use store-release-RCsc and load-acquire-RCsc operations so that PPO rule \ref{ppo:rcsc} applies.
+% RCpc alone is sufficient for many use cases in C/C++ but is insufficient for many other use cases in C/C++, Java, and Linux, to name just a few examples; see Section~\ref{sec:memory:porting} for details.
 
-PPO rule~\ref{ppo:pair} indicates that an SC must appear after its paired LR in the global memory order.
-This will follow naturally from the common use of LR/SC to perform an atomic read-modify-write operation due to the inherent data dependency.
-However, PPO rule~\ref{ppo:pair} also applies even when the value being stored does not syntactically depend on the value returned by the paired LR.
+PPO规则~\ref{ppo:pair}说明了，一个SC必须在全局内存次序中出现在它所配对的LR之后。由于固有的数据依赖，这将自然地从LR/SC的常见使用开始去执行一个原子的读-修改-写操作。
+然而，PPO规则~\ref{ppo:pair}也会应用，即使当正在存储的值在句法上并不依赖于所配对的LR所返回的值。
+% PPO rule~\ref{ppo:pair} indicates that an SC must appear after its paired LR in the global memory order.
+% This will follow naturally from the common use of LR/SC to perform an atomic read-modify-write operation due to the inherent data dependency.
+% However, PPO rule~\ref{ppo:pair} also applies even when the value being stored does not syntactically depend on the value returned by the paired LR.
 
-Lastly, we note that just as with fences, programmers need not worry about ``cumulativity'' when analyzing ordering annotations.
+最后，我们注意到，只使用屏障，编程人员在分析排序注释的时候，不需要担心“累积性”。
+% Lastly, we note that just as with fences, programmers need not worry about ``cumulativity'' when analyzing ordering annotations.
 
-\subsection{Syntactic Dependencies (Rules~\ref{ppo:addr}--\ref{ppo:ctrl})}
+\subsection{句法依赖（规则~\ref{ppo:addr}-\ref{ppo:ctrl}）}
 \label{sec:memory:dependencies}
 \begin{tabular}{p{1cm}|p{12cm}}
-  & Rule \ref{ppo:addr}: \ppoaddr \\
-  & Rule \ref{ppo:data}: \ppodata \\
-  & Rule \ref{ppo:ctrl}: \ppoctrl \\
+  & 规则 \ref{ppo:addr}: \ppoaddr \\
+  & 规则 \ref{ppo:data}: \ppodata \\
+  & 规则 \ref{ppo:ctrl}: \ppoctrl \\
 \end{tabular}
 
-Dependencies from a load to a later memory operation in the same hart are respected by the RVWMO memory model.
-The Alpha memory model was notable for choosing {\em not} to enforce the ordering of such dependencies, but most modern hardware and software memory models consider allowing dependent instructions to be reordered too confusing and counterintuitive.
-Furthermore, modern code sometimes intentionally uses such dependencies as a particularly lightweight ordering enforcement mechanism.
+从一个加载到相同硬件线程中的后续内存操作的依赖是RVWMO内存模型所考虑的。Alpha内存模型由于选择{\em 不}强制采用这些依赖而著名，但是大多数现代硬件和软件内存模型都考虑允许依赖指令被重新排序，是过于混乱和违反直觉的。此外，现代代码有时会故意使用这种依赖，作为一种特别轻量级的排序实施机制。
+% Dependencies from a load to a later memory operation in the same hart are respected by the RVWMO memory model.
+% The Alpha memory model was notable for choosing {\em not} to enforce the ordering of such dependencies, but most modern hardware and software memory models consider allowing dependent instructions to be reordered too confusing and counterintuitive.
+% Furthermore, modern code sometimes intentionally uses such dependencies as a particularly lightweight ordering enforcement mechanism.
 
-The terms in Section~\ref{sec:memorymodel:dependencies} work as follows.
-Instructions are said to carry dependencies from their source register(s) to their destination register(s) whenever the value written into each destination register is a function of the source register(s).
-For most instructions, this means that the destination register(s) carry a dependency from all source register(s).
-However, there are a few notable exceptions.
-In the case of memory instructions, the value written into the destination register ultimately comes from the memory system rather than from the source register(s) directly, and so this breaks the chain of dependencies carried from the source register(s).
-In the case of unconditional jumps, the value written into the destination register comes from the current {\tt pc} (which is never considered a source register by the memory model), and so likewise, JALR (the only jump with a source register) does not carry a dependency from {\em rs1} to {\em rd}.
+~\ref{sec:memorymodel:dependencies}节中的术语工作如下。
+无论何时，当写入每个目的寄存器的值是源寄存器的函数的时候，指令被称为携带了从它们的源寄存器到它们的目的寄存器的依赖。
+对于大多数指令，这意味着，目的寄存器携带了一个来自所有源寄存器的依赖。然而，也有一些著名的例外。在内存指令的情形中，写入目的寄存器的值最终来自于内存系统，而不是直接来自源寄存器，并因此这样打破了所携带的来自源寄存器的依赖链。
+在无条件跳转的情形中，写入目的寄存器的值来自于当前的{\tt pc}（它永远不会被内存模型认为是一个源寄存器），并因此类似地，JALR（仅有的带有源寄存器的跳转）不会携带一个从{\em rs1}到{\em rd}的依赖。
+% The terms in Section~\ref{sec:memorymodel:dependencies} work as follows.
+% Instructions are said to carry dependencies from their source register(s) to their destination register(s) whenever the value written into each destination register is a function of the source register(s).
+% For most instructions, this means that the destination register(s) carry a dependency from all source register(s).
+% However, there are a few notable exceptions.
+% In the case of memory instructions, the value written into the destination register ultimately comes from the memory system rather than from the source register(s) directly, and so this breaks the chain of dependencies carried from the source register(s).
+% In the case of unconditional jumps, the value written into the destination register comes from the current {\tt pc} (which is never considered a source register by the memory model), and so likewise, JALR (the only jump with a source register) does not carry a dependency from {\em rs1} to {\em rd}.
 
 \begin{verbbox}
 (a) fadd  f3,f1,f2
@@ -661,21 +745,28 @@ In the case of unconditional jumps, the value written into the destination regis
 \begin{figure}[h!]
   \centering\small
   \theverbbox
-  \caption{(c) has a syntactic dependency on both (a) and (b) via {\tt fflags}, a destination register that both (a) and (b) implicitly accumulate into}
+  \caption{通过{\tt fflags}，一个(a)和(b)都会隐含地累积进去的目的寄存器，(c)有一个关于(a)和(b)的句法依赖。
+    % (c) has a syntactic dependency on both (a) and (b) via {\tt fflags}, a destination register that both (a) and (b) implicitly accumulate into
+    }
   \label{fig:litmus:fflags}
 \end{figure}
 
-The notion of accumulating into a destination register rather than writing into it reflects the behavior of CSRs such as {\tt fflags}.
-In particular, an accumulation into a register does not clobber any previous writes or accumulations into the same register.
-For example, in Figure~\ref{fig:litmus:fflags}, (c) has a syntactic dependency on both (a) and (b).
+累积到一个目的寄存器，而不是写入它，这个概念反应了类似{\tt fflags}的CSR的行为。特别地，累积进一个寄存器不会冲击到任何先前的写入或对相同寄存器的累积。
+例如，在图~\ref{fig:litmus:fflags}中，(c)有一个同时关于(a)和(b)的句法依赖。
+% The notion of accumulating into a destination register rather than writing into it reflects the behavior of CSRs such as {\tt fflags}.
+% In particular, an accumulation into a register does not clobber any previous writes or accumulations into the same register.
+% For example, in Figure~\ref{fig:litmus:fflags}, (c) has a syntactic dependency on both (a) and (b).
 
-Like other modern memory models, the RVWMO memory model uses syntactic rather than semantic dependencies.
-In other words, this definition depends on the identities of the
-registers being accessed by different instructions, not the actual
-contents of those registers.  This means that an address, control, or
-data dependency must be enforced even if the calculation could seemingly
-be ``optimized away''.
-This choice ensures that RVWMO remains compatible with code that uses these false syntactic dependencies as a lightweight ordering mechanism.
+类似其它现代内存模型，RVWMO内存模型使用句法依赖，而不是语义依赖。换句话说，这个定义依赖于正在被不同指令访问的寄存器的标识，
+而不是那些寄存器的实际的内容。这意味着地址依赖、控制依赖、或者内存依赖必须是强制采用的，即使计算看起来是可以“优化掉”的。
+这个选择确保了RVWMO保留了与使用这些假句法依赖作为轻量级排序机制的代码的兼容性。
+% Like other modern memory models, the RVWMO memory model uses syntactic rather than semantic dependencies.
+% In other words, this definition depends on the identities of the
+% registers being accessed by different instructions, not the actual
+% contents of those registers.  This means that an address, control, or
+% data dependency must be enforced even if the calculation could seemingly
+% be ``optimized away''.
+% This choice ensures that RVWMO remains compatible with code that uses these false syntactic dependencies as a lightweight ordering mechanism.
 
 \begin{verbbox}
 ld  a1,0(s0)
@@ -686,19 +777,26 @@ ld  a5,0(s1)
 \begin{figure}[h!]
   \centering\small
   \theverbbox
-  \caption{A syntactic address dependency}
+  \caption{一个句法地址依赖  
+  % A syntactic address dependency
+  }
   \label{fig:litmus:address}
 \end{figure}
 
-For example, there is a syntactic address
-dependency from the memory operation generated by the first instruction to the memory operation generated by the last instruction in
-Figure~\ref{fig:litmus:address}, even though {\tt a1} XOR {\tt a1} is zero and
-hence has no effect on the address accessed by the second load.
+例如，在图~\ref{fig:litmus:address}中，存在一个从第一个指令生成的内存操作到最后一个指令生成的内存操作的句法地址依赖，即使{\tt a1} XOR {\tt a1}是零，
+并因此不会影响到第二个加载所访问的地址。
+% For example, there is a syntactic address
+% dependency from the memory operation generated by the first instruction to the memory operation generated by the last instruction in
+% Figure~\ref{fig:litmus:address}, even though {\tt a1} XOR {\tt a1} is zero and
+% hence has no effect on the address accessed by the second load.
 
-The benefit of using dependencies as a lightweight synchronization mechanism is that the ordering enforcement requirement is limited only to the specific two instructions in question.
-Other non-dependent instructions may be freely reordered by aggressive implementations.
-One alternative would be to use a load-acquire, but this would enforce ordering for the first load with respect to {\em all} subsequent instructions.
-Another would be to use a FENCE~R,R, but this would include all previous and all subsequent loads, making this option more expensive.
+使用依赖作为轻量级同步机制的好处是，排序的强制性需求仅仅被限制在上述提及的特定的两个指令。
+其它非依赖的指令可以被激进的实现自由地重排。一个替代方案是使用一个加载-获取，但是这将强制第一个加载相对于所有后继指令的次序。
+另一个替代方案是使用FENCE R, R，但是这将包含所有先前的加载和{\em 所有}后继的加载，使这个选择更加昂贵。
+% The benefit of using dependencies as a lightweight synchronization mechanism is that the ordering enforcement requirement is limited only to the specific two instructions in question.
+% Other non-dependent instructions may be freely reordered by aggressive implementations.
+% One alternative would be to use a load-acquire, but this would enforce ordering for the first load with respect to {\em all} subsequent instructions.
+% Another would be to use a FENCE~R,R, but this would include all previous and all subsequent loads, making this option more expensive.
 
 \begin{verbbox}
       lw  x1,0(x2)
@@ -709,12 +807,16 @@ next: sw  x5,0(x6)
 \begin{figure}[h!]
   \centering\small
   \theverbbox
-  \caption{A syntactic control dependency}
+  \caption{一个句法控制依赖 
+  % A syntactic control dependency
+  }
   \label{fig:litmus:control1}
 \end{figure}
 
-Control dependencies behave differently from address and data dependencies in the sense that a control dependency always extends to all instructions following the original target in program order.
-Consider Figure~\ref{fig:litmus:control1}: the instruction at {\tt next} will always execute, but the memory operation generated by that last instruction nevertheless still has a control dependency from the memory operation generated by the first instruction.
+一个控制依赖总是扩展到程序次序中跟在原始目标之后的所有的指令，在这个意义上，控制依赖的表现不同于地址依赖和数据依赖。
+考虑表~\ref{fig:litmus:control1}：尽管{\tt 下}一个指令将总是执行，但是由上一个指令生成的内存操作仍然有一个来自第一个指令生成的内存操作的控制依赖。
+% Control dependencies behave differently from address and data dependencies in the sense that a control dependency always extends to all instructions following the original target in program order.
+% Consider Figure~\ref{fig:litmus:control1}: the instruction at {\tt next} will always execute, but the memory operation generated by that last instruction nevertheless still has a control dependency from the memory operation generated by the first instruction.
 
 \begin{verbbox}
         lw  x1,0(x2)
@@ -724,19 +826,27 @@ Consider Figure~\ref{fig:litmus:control1}: the instruction at {\tt next} will al
 \begin{figure}[h!]
   \centering\small
   \theverbbox
-  \caption{Another syntactic control dependency}
+  \caption{另一个句法控制依赖  
+  % Another syntactic control dependency
+  }
   \label{fig:litmus:control2}
 \end{figure}
 
-Likewise, consider Figure~\ref{fig:litmus:control2}.
-Even though both branch outcomes have the same target, there is still a control dependency from the memory operation generated by the first instruction in this snippet to the memory operation generated by the last instruction.
-This definition of control dependency is subtly stronger than what might be seen in other contexts (e.g., C++), but it conforms with standard definitions of control dependencies in the literature.
+类似地，考虑图~\ref{fig:litmus:control2}。
+即使两个分支的最终结果都有相同的目标，仍然存在从这个片段的第一个指令生成的内存操作，到最后一个指令生成的内存操作的一个控制依赖。控制依赖的这个定义比其它环境中（例如，C++）可能看到的要强一些，但是它符合文献中控制依赖的标准定义。
+% Likewise, consider Figure~\ref{fig:litmus:control2}.
+% Even though both branch outcomes have the same target, there is still a control dependency from the memory operation generated by the first instruction in this snippet to the memory operation generated by the last instruction.
+% This definition of control dependency is subtly stronger than what might be seen in other contexts (e.g., C++), but it conforms with standard definitions of control dependencies in the literature.
 
-Notably, PPO rules \ref{ppo:addr}--\ref{ppo:ctrl} are also intentionally designed to respect dependencies that originate from the output of a successful store-conditional instruction.
-Typically, an SC instruction will be followed by a conditional branch checking whether the outcome was successful; this implies that there will be a control dependency from the store operation generated by the SC instruction to any memory operations following the branch.
-PPO rule~\ref{ppo:ctrl} in turn implies that any subsequent store operations will appear later in the global memory order than the store operation generated by the SC.
-However, since control, address, and data dependencies are defined over memory operations, and since an unsuccessful SC does not generate a memory operation, no order is enforced between unsuccessful SC and its dependent instructions.
-Moreover, since SC is defined to carry dependencies from its source registers to {\em rd} only when the SC is successful, an unsuccessful SC has no effect on the global memory order.
+显然，PPO规则\ref{ppo:addr} - \ref{ppo:ctrl}也是有意设计的，以尊重来源于成功的存储条件指令的输出的依赖。
+通常，一个SC指令将跟随一个检测输出结果是否成功的条件分支；这暗示了将会有一个从SC指令生成的存储操作到分支随后的任何内存操作的控制依赖。
+PPO规则~\ref{ppo:ctrl}反过来暗示了，任何后继的存储操作将在全局内存次序中比SC生成的存储操作出现得更晚。
+然而，由于控制依赖、地址依赖和数据依赖是定义在内存操作上的，并且由于一次不成功的SC不会生成内存操作，所以在不成功的SC和它的依赖指令之间不会强制排序。并且，由于只有当SC成功的时候，SC才被定义为携带从它的源寄存器到{\em rd}的依赖，一次不成功的SC不会影响全局内存次序。
+% Notably, PPO rules \ref{ppo:addr}--\ref{ppo:ctrl} are also intentionally designed to respect dependencies that originate from the output of a successful store-conditional instruction.
+% Typically, an SC instruction will be followed by a conditional branch checking whether the outcome was successful; this implies that there will be a control dependency from the store operation generated by the SC instruction to any memory operations following the branch.
+% PPO rule~\ref{ppo:ctrl} in turn implies that any subsequent store operations will appear later in the global memory order than the store operation generated by the SC.
+% However, since control, address, and data dependencies are defined over memory operations, and since an unsuccessful SC does not generate a memory operation, no order is enforced between unsuccessful SC and its dependent instructions.
+% Moreover, since SC is defined to carry dependencies from its source registers to {\em rd} only when the SC is successful, an unsuccessful SC has no effect on the global memory order.
 
 
 \begin{figure}[h!]
@@ -760,26 +870,34 @@ Moreover, since SC is defined to carry dependencies from its source registers to
   & &
   \input{figs/litmus_lb_lrsc.pdf_t}
   \end{tabular}
-  \caption{A variant of the LB litmus test (outcome forbidden)}
+  \caption{LB石蕊测试的一种变体（禁止的输出结果）  
+  % A variant of the LB litmus test (outcome forbidden)
+  }
   \label{fig:litmus:successdeps}
 \end{figure}
 
-In addition, the choice to respect dependencies originating at store-conditional instructions ensures that certain out-of-thin-air-like behaviors will be prevented.
-Consider Figure~\ref{fig:litmus:successdeps}.
-Suppose a hypothetical implementation could occasionally make some early guarantee that a store-conditional operation will succeed.
-In this case, (c) could return 0 to {\tt a2} early (before actually executing), allowing the sequence (d), (e), (f), (a), and then (b) to execute, and then (c) might execute (successfully) only at that point.
-This would imply that (c) writes its own success value to {\tt 0(s1)}!
-Fortunately, this situation and others like it are prevented by the fact that RVWMO respects dependencies originating at the stores generated by successful SC instructions.
+此外，选择尊重源自于存储-条件指令的依赖确保了，特定的类似无中生有的行为会被阻止。
+考虑图~\ref{fig:litmus:successdeps}。假设一个假想的实现可以偶然地做到提前保证存储-条件操作将会成功。
+在这种情形中，(c)将提前返回0到{\tt a2}（在实际执行之前），从而允许序列(d)、(e)、(f)、(a)、然后是(b)的执行，接着(c)可能只在那一点（成功地）执行。这将表示(c)把它自己的成功的值写到了{\tt 0(s1)}！幸运的是，由于RVWMO尊重源自于由成功的SC指令生成的存储的依赖的事实，这个情形和其它类似的情形被阻止了。
+% In addition, the choice to respect dependencies originating at store-conditional instructions ensures that certain out-of-thin-air-like behaviors will be prevented.
+% Consider Figure~\ref{fig:litmus:successdeps}.
+% Suppose a hypothetical implementation could occasionally make some early guarantee that a store-conditional operation will succeed.
+% In this case, (c) could return 0 to {\tt a2} early (before actually executing), allowing the sequence (d), (e), (f), (a), and then (b) to execute, and then (c) might execute (successfully) only at that point.
+% This would imply that (c) writes its own success value to {\tt 0(s1)}!
+% Fortunately, this situation and others like it are prevented by the fact that RVWMO respects dependencies originating at the stores generated by successful SC instructions.
 
-We also note that syntactic dependencies between instructions only have any force when they take the form of a syntactic address, control, and/or data dependency.
-For example: a syntactic dependency between two ``F'' instructions via one of the ``accumulating CSRs'' in Section~\ref{sec:source-dest-regs} does {\em not} imply that the two ``F'' instructions must be executed in order.
-Such a dependency would only serve to ultimately set up later a dependency from both ``F'' instructions to a later CSR instruction accessing the CSR flag in question.
+我们也注意到，指令之间的句法依赖，只有当它们采取句法地址依赖、句法控制依赖，和/或句法数据依赖的形式时才会有效力。
+例如，~\ref{sec:source-dest-regs}节中，在两个“F”指令之间通过“累积CSR”形成的句法依赖并{\em 不}表示这两个“F”指令必须按次序执行。这种依赖将只会用于之后最终建立从两个“F”指令到之后的上述提及的访问CSR标志的CSR指令的依赖。
+% We also note that syntactic dependencies between instructions only have any force when they take the form of a syntactic address, control, and/or data dependency.
+% For example: a syntactic dependency between two ``F'' instructions via one of the ``accumulating CSRs'' in Section~\ref{sec:source-dest-regs} does {\em not} imply that the two ``F'' instructions must be executed in order.
+% Such a dependency would only serve to ultimately set up later a dependency from both ``F'' instructions to a later CSR instruction accessing the CSR flag in question.
 
-\subsection{Pipeline Dependencies (Rules~\ref{ppo:addrdatarfi}--\ref{ppo:addrpo})}
+\subsection{流水线依赖（规则~\ref{ppo:addrdatarfi}-\ref{ppo:addrpo}）}
+% \subsection{Pipeline Dependencies (Rules~\ref{ppo:addrdatarfi}--\ref{ppo:addrpo})}
 \label{sec:memory:ppopipeline}
 \begin{tabular}{p{1cm}|p{12cm}}
-  & Rule \ref{ppo:addrdatarfi}: \ppoaddrdatarfi \\
-  & Rule \ref{ppo:addrpo}: \ppoaddrpo \\
+  & 规则 \ref{ppo:addrdatarfi}: \ppoaddrdatarfi \\
+  & 规则 \ref{ppo:addrpo}: \ppoaddrpo \\
 %  & Rule \ref{ppo:ctrlcfence}: \ppoctrlcfence \\
 %  & Rule \ref{ppo:addrpocfence}: \ppoaddrpocfence \\
 \end{tabular}
@@ -805,15 +923,20 @@ Such a dependency would only serve to ultimately set up later a dependency from 
   \input{figs/litmus_datarfi.pdf_t}
   \end{tabular}
 
-  \caption{Because of PPO rule~\ref{ppo:addrdatarfi} and the data dependency from (d) to (e), (d) must also precede (f) in the global memory order (outcome forbidden)}
+  \caption{根据PPO规则~\ref{ppo:addrdatarfi}和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果）
+    % Because of PPO rule~\ref{ppo:addrdatarfi} and the data dependency from (d) to (e), (d) must also precede (f) in the global memory order (outcome forbidden)
+    }
   \label{fig:litmus:addrdatarfi}
 \end{figure}
 
-PPO rules~\ref{ppo:addrdatarfi} and \ref{ppo:addrpo} reflect behaviors of almost all real processor pipeline implementations.
-Rule~\ref{ppo:addrdatarfi} states that a load cannot forward from a store until the address and data for that store are known.
-Consider Figure~\ref{fig:litmus:addrdatarfi}:
-(f) cannot be executed until the data for (e) has been resolved, because (f) must return the value written by (e) (or by something even later in the global memory order), and the old value must not be clobbered by the writeback of (e) before (d) has had a chance to perform.
-Therefore, (f) will never perform before (d) has performed.
+PPO规则~\ref{ppo:addrdatarfi}和\ref{ppo:addrpo}反应了几乎所有的真实的处理器流水线实现的行为。规则~\ref{ppo:addrdatarfi}陈述了一个加载不能从一个存储转发，
+直到那个存储的地址和数据是已知的时候。考虑图~\ref{fig:litmus:addrdatarfi}：在(e)的数据被决定之前，(f)不能执行，因为(f)必须返回由(e)写入的值（或者在全局内存次序中由某些更加靠后的所写入的值），
+而在(d)有机会执行之前，旧的值必须不能被(e)的写回所冲击。因此，(f)将永远不会在(d)的执行之前执行。
+% PPO rules~\ref{ppo:addrdatarfi} and \ref{ppo:addrpo} reflect behaviors of almost all real processor pipeline implementations.
+% Rule~\ref{ppo:addrdatarfi} states that a load cannot forward from a store until the address and data for that store are known.
+% Consider Figure~\ref{fig:litmus:addrdatarfi}:
+% (f) cannot be executed until the data for (e) has been resolved, because (f) must return the value written by (e) (or by something even later in the global memory order), and the old value must not be clobbered by the writeback of (e) before (d) has had a chance to perform.
+% Therefore, (f) will never perform before (d) has performed.
 
 \begin{figure}[h!]
   \centering
@@ -839,15 +962,20 @@ Therefore, (f) will never perform before (d) has performed.
   \input{figs/litmus_datacoirfi.pdf_t}
   \end{tabular}
 
-  \caption{Because of the extra store between (e) and (g), (d) no longer necessarily precedes (g) (outcome permitted)}
+  \caption{根据PPO规则12和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果）
+    % Because of the extra store between (e) and (g), (d) no longer necessarily precedes (g) (outcome permitted)
+    }
   \label{fig:litmus:addrdatarfi_no}
 \end{figure}
 
-If there were another store to the same address in between (e) and (f), as in Figure~\ref{fig:litmus:addrdatarfi_no}, then (f) would no longer be dependent on the data of (e) being resolved, and hence the dependency of (f) on (d), which produces the data for (e), would be broken.
+如果在(e)和(f)之间，有另一个针对相同地址的存储，就像图~\ref{fig:litmus:addrdatarfi_no}中的那样，那么(f)将不再依赖于(e)正在被决定的数据，并因此(f)关于为(e)生产数据的(d)的依赖将被打破。
+% If there were another store to the same address in between (e) and (f), as in Figure~\ref{fig:litmus:addrdatarfi_no}, then (f) would no longer be dependent on the data of (e) being resolved, and hence the dependency of (f) on (d), which produces the data for (e), would be broken.
 
-Rule~\ref{ppo:addrpo} makes a similar observation to the previous rule: a store cannot be performed at memory until all previous loads that might access the same address have themselves been performed.
-Such a load must appear to execute before the store, but it cannot do so if the store were to overwrite the value in memory before the load had a chance to read the old value.
-Likewise, a store generally cannot be performed until it is known that preceding instructions will not cause an exception due to failed address resolution, and in this sense, rule~\ref{ppo:addrpo} can be seen as somewhat of a special case of rule~\ref{ppo:ctrl}.
+规则~\ref{ppo:addrpo}制定了一个和之前规则相似的观点：一个存储不能在内存执行，直到所有的先前可能访问相同地址的加载自身已经被执行。
+这样的加载看起来必须在存储之前执行，但是如果存储在加载有机会读取旧值之前就覆写了内存中的值，它就不能这么做了。类似地，一个存储通常不能执行，直到它已知了先前的指令不会由于地址解析失败而引发异常，而从这个意义上讲，规则~\ref{ppo:addrpo}可以被视作规则~\ref{ppo:ctrl}的某种特殊情况。
+% Rule~\ref{ppo:addrpo} makes a similar observation to the previous rule: a store cannot be performed at memory until all previous loads that might access the same address have themselves been performed.
+% Such a load must appear to execute before the store, but it cannot do so if the store were to overwrite the value in memory before the load had a chance to read the old value.
+% Likewise, a store generally cannot be performed until it is known that preceding instructions will not cause an exception due to failed address resolution, and in this sense, rule~\ref{ppo:addrpo} can be seen as somewhat of a special case of rule~\ref{ppo:ctrl}.
 
 \begin{figure}[h!]
   \centering
@@ -866,51 +994,74 @@ Likewise, a store generally cannot be performed until it is known that preceding
     & &
     \input{figs/litmus_addrpo.pdf_t}
   \end{tabular}
-  \caption{Because of the address dependency from (d) to (e), (d) also precedes (f) (outcome forbidden)}
+  \caption{因为在(e)和(g)之间的额外的存储，(d)不再必须先于(g)了（允许的输出结果）
+    % Because of the address dependency from (d) to (e), (d) also precedes (f) (outcome forbidden)
+    }
   \label{fig:litmus:addrpo}
 \end{figure}
 
-Consider Figure~\ref{fig:litmus:addrpo}:
-(f) cannot be executed until the address for (e) is resolved, because it may turn out that the addresses match; i.e., that {\tt a1=s0}.  Therefore, (f) cannot be sent to memory before (d) has executed and confirmed whether the addresses do indeed overlap.
+考虑图~\ref{fig:litmus:addrpo}：在(e)的地址被决定之前，(f)不能执行，因为它可能会导致地址匹配；也就是说，{\tt a1=s0}。
+因此，在(d)已经执行并证实地址是否确实重叠之前，(f)不能被送到内存。
+% Consider Figure~\ref{fig:litmus:addrpo}:
+% (f) cannot be executed until the address for (e) is resolved, because it may turn out that the addresses match; i.e., that {\tt a1=s0}.  Therefore, (f) cannot be sent to memory before (d) has executed and confirmed whether the addresses do indeed overlap.
 
+\section{超出主存范围}
+% \section{Beyond Main Memory}
 
-\section{Beyond Main Memory}
+RVWMO当前不会尝试正式地描述FENCE.I、SFENCE.VMA、I/O屏障和PMA的行为如何。所有这些的行为都将在未来的形式化中描述。
+与之同时，FENCE.I的行为描述在第~\ref{chap:zifencei}章中，SFENCE.VMA的行为描述在RISC-V指令集特权架构手册之中，而I/O屏障的行为和PMA的效果将在下面描述。
+% RVWMO does not currently attempt to formally describe how FENCE.I, SFENCE.VMA, I/O fences, and PMAs behave.
+% All of these behaviors will be described by future formalizations.
+% In the meantime, the behavior of FENCE.I is described in Chapter~\ref{chap:zifencei}, the behavior of SFENCE.VMA is described in the RISC-V Instruction Set Privileged Architecture Manual, and the behavior of I/O fences and the effects of PMAs are described below.
 
-RVWMO does not currently attempt to formally describe how FENCE.I, SFENCE.VMA, I/O fences, and PMAs behave.
-All of these behaviors will be described by future formalizations.
-In the meantime, the behavior of FENCE.I is described in Chapter~\ref{chap:zifencei}, the behavior of SFENCE.VMA is described in the RISC-V Instruction Set Privileged Architecture Manual, and the behavior of I/O fences and the effects of PMAs are described below.
+\subsection{一致性和可缓存性}
+% \subsection{Coherence and Cacheability}
 
-\subsection{Coherence and Cacheability}
-
-The RISC-V Privileged ISA defines Physical Memory Attributes (PMAs) which specify, among other things, whether portions of the address space are coherent and/or cacheable.
-See the RISC-V Privileged ISA Specification for the complete details.
-Here, we simply discuss how the various details in each PMA relate to the memory model:
+RISC-V特权ISA定义了物理内存属性（PMA），除此之外，它指定了地址空间的各部分是否是一致的和/或可缓存的。完整的细节见RISC-V特权ISA规范。这里，我们简单地讨论每个PMA中的各种细节是如何关系到内存模型的：
+% The RISC-V Privileged ISA defines Physical Memory Attributes (PMAs) which specify, among other things, whether portions of the address space are coherent and/or cacheable.
+% See the RISC-V Privileged ISA Specification for the complete details.
+% Here, we simply discuss how the various details in each PMA relate to the memory model:
 
 \begin{itemize}
-  \item Main memory vs.\@ I/O, and I/O memory ordering PMAs: the memory model as defined applies to main memory regions.  I/O ordering is discussed below.
-  \item Supported access types and atomicity PMAs: the memory model is simply applied on top of whatever primitives each region supports.
-  \item Cacheability PMAs: the cacheability PMAs in general do not affect the memory model.  Non-cacheable regions may have more restrictive behavior than cacheable regions, but the set of allowed behaviors does not change regardless.  However, some platform-specific and/or device-specific cacheability settings may differ.
-  \item Coherence PMAs: The memory consistency model for memory regions marked as non-coherent in PMAs is currently platform-specific and/or device-specific: the load-value axiom, the atomicity axiom, and the progress axiom all may be violated with non-coherent memory.  Note however that coherent memory does not require a hardware cache coherence protocol.  The RISC-V Privileged ISA Specification suggests that hardware-incoherent regions of main memory are discouraged, but the memory model is compatible with hardware coherence, software coherence, implicit coherence due to read-only memory, implicit coherence due to only one agent having access, or otherwise.
-  \item Idempotency PMAs: Idempotency PMAs are used to specify memory regions for which loads and/or stores may have side effects, and this in turn is used by the microarchitecture to determine, e.g., whether prefetches are legal.  This distinction does not affect the memory model.
+  \item 主内存vs I/O，以及I/O内存次序PMA：定义的内存模型适用于主内存区域。I/O次序在下面讨论。
+  % Main memory vs.\@ I/O, and I/O memory ordering PMAs: the memory model as defined applies to main memory regions.  I/O ordering is discussed below.
+  \item 支持的访问类型和原子性PMA：内存模型简单地被应用在每个区域所支持的任何原语之上。
+  % Supported access types and atomicity PMAs: the memory model is simply applied on top of whatever primitives each region supports.
+  \item 可缓存性PMA：可缓存性PMA总体上不会影响内存模型。非可缓存的区域可能比可缓存的区域有更多的限制性行为，但是所允许的行为集合无论如何都不会再变化。然而，一些平台相关的和/或设备相关的可缓存性设置可能有区别。
+  %  PMAs: the cacheability PMAs in general do not affect the memory model.  Non-cacheable regions may have more restrictive behavior than cacheable regions, but the set of allowed behaviors does not change regardless.  However, some platform-specific and/or device-specific cacheability settings may differ.
+  \item 一致性PMA：在PMA中标记为非一致性的内存区域，其内存一致性模型当前是平台相关的和/或设备相关的：加载值公理、原子性公理和进程公理都可能被非一致性内存所违背。然而请注意，一致性内存不需要硬件缓存一致性协议。RISC-V特权ISA规范建议，主内存的硬件不一致区域是不鼓励的，但是内存模型与硬件一致性、软件一致性、由只读性内存导致的隐含一致性、由只有一个拥有权限的代理导致的隐含一致性，或者其它的一致性，相兼容。
+  % Coherence PMAs: The memory consistency model for memory regions marked as non-coherent in PMAs is currently platform-specific and/or device-specific: the load-value axiom, the atomicity axiom, and the progress axiom all may be violated with non-coherent memory.  Note however that coherent memory does not require a hardware cache coherence protocol.  The RISC-V Privileged ISA Specification suggests that hardware-incoherent regions of main memory are discouraged, but the memory model is compatible with hardware coherence, software coherence, implicit coherence due to read-only memory, implicit coherence due to only one agent having access, or otherwise.
+  \item 幂等性PMA：幂等性PMA被用于指定那些加载和/或存储可能有副作用的内存区域，而这反过来被微架构用来决定，例如，预取是否合法。这个区别不影响内存模型。
+  % Idempotency PMAs: Idempotency PMAs are used to specify memory regions for which loads and/or stores may have side effects, and this in turn is used by the microarchitecture to determine, e.g., whether prefetches are legal.  This distinction does not affect the memory model.
 \end{itemize}
 
+\subsection{I/O排序}
+% \subsection{I/O Ordering}
 
-\subsection{I/O Ordering}
-
-For I/O, the load value axiom and atomicity axiom in general do not apply, as both reads and writes might have device-specific side effects and may return values other than the value ``written'' by the most recent store to the same address.
-Nevertheless, the following preserved program order rules still generally apply for accesses to I/O memory:
-memory access $a$ precedes memory access $b$ in global memory order if $a$ precedes $b$ in program order and one or more of the following holds:
+对于I/O，通常不会应用加载值公理和原子性公理，因为读和写都可能有设备相关的副作用，并可能把由最近的存储所“写”的值以外的值返回到相同的地址。
+无论如何，下面保留的程序次序规则通常仍然适用于对I/O内存的访问：在全局内存次序中，内存访问$a$先于内存访问$b$，如果在程序次序中$a$先于$b$，并且满足如下的一个或多个条件：
+% For I/O, the load value axiom and atomicity axiom in general do not apply, as both reads and writes might have device-specific side effects and may return values other than the value ``written'' by the most recent store to the same address.
+% Nevertheless, the following preserved program order rules still generally apply for accesses to I/O memory:
+% memory access $a$ precedes memory access $b$ in global memory order if $a$ precedes $b$ in program order and one or more of the following holds:
 \begin{enumerate}
-  \item $a$ precedes $b$ in preserved program order as defined in Chapter~\ref{ch:memorymodel}, with the exception that acquire and release ordering annotations apply only from one memory operation to another memory operation and from one I/O operation to another I/O operation, but not from a memory operation to an I/O nor vice versa
-  \item $a$ and $b$ are accesses to overlapping addresses in an I/O region
-  \item $a$ and $b$ are accesses to the same strongly ordered I/O region
-  \item $a$ and $b$ are accesses to I/O regions, and the channel associated with the I/O region accessed by either $a$ or $b$ is channel 1
-  \item $a$ and $b$ are accesses to I/O regions associated with the same channel (except for channel 0)
+  \item 在如第~\ref{ch:memorymodel}章中定义的保留的程序次序中，$a$先于$b$，除了只适用于从一个内存操作到另一个内存操作、和从一个I/O操作到另一个I/O操作的获取和释放次序注释的例外，但从一个内存操作到一个I/O操作，或者反过来，则不是。
+  % $a$ precedes $b$ in preserved program order as defined in Chapter~\ref{ch:memorymodel}, with the exception that acquire and release ordering annotations apply only from one memory operation to another memory operation and from one I/O operation to another I/O operation, but not from a memory operation to an I/O nor vice versa
+  \item $a$和$b$是对于一个I/O区域中重叠地址的访问 
+  % $a$ and $b$ are accesses to overlapping addresses in an I/O region
+  \item $a$和$b$是对于相同的强排序的I/O区域的访问
+  % $a$ and $b$ are accesses to the same strongly ordered I/O region
+  \item $a$和$b$是对于I/O区域的访问，且关联到被$a$或$b$所访问的I/O区域的通道是通道1
+  % $a$ and $b$ are accesses to I/O regions, and the channel associated with the I/O region accessed by either $a$ or $b$ is channel 1
+  \item $a$和$b$是对于关联到相同通道（除了通道0）的I/O区域的访问
+  % $a$ and $b$ are accesses to I/O regions associated with the same channel (except for channel 0)
 \end{enumerate}
 
-Note that the FENCE instruction distinguishes between main memory operations and I/O operations in its predecessor and successor sets.
-To enforce ordering between I/O operations and main memory operations, code must use a FENCE with PI, PO, SI, and/or SO, plus PR, PW, SR, and/or SW.
-For example, to enforce ordering between a write to main memory and an I/O write to a device register, a FENCE~W,O or stronger is needed.
+注意FENCE指令在其前驱集和后继集之中区分了主内存操作和I/O操作。
+为了强制在I/O操作和主内存操作之间排序，代码必须使用一个带有PI、PO、SI和/或SO，加上PR、PW、SR和/或SW的FENCE。
+例如，为了强制在一个对主内存的写和一个对设备寄存器的I/O写之间排序，需要一个FENCE W, O或者更强的指令。
+% Note that the FENCE instruction distinguishes between main memory operations and I/O operations in its predecessor and successor sets.
+% To enforce ordering between I/O operations and main memory operations, code must use a FENCE with PI, PO, SI, and/or SO, plus PR, PW, SR, and/or SW.
+% For example, to enforce ordering between a write to main memory and an I/O write to a device register, a FENCE~W,O or stronger is needed.
 
 \begin{verbbox}
   sd t0, 0(a0)
@@ -920,81 +1071,104 @@ For example, to enforce ordering between a write to main memory and an I/O write
 \begin{figure}[h!]
   \centering\small
   \theverbbox
-  \caption{Ordering memory and I/O accesses}
+  \caption{有序的内存和I/O访问}
   \label{fig:litmus:wo}
 \end{figure}
 
-When a fence is in fact used, implementations must assume that the device may attempt to access memory immediately after receiving the MMIO signal, and subsequent memory accesses from that device to memory must observe the effects of all accesses ordered prior to that MMIO operation.
-In other words, in Figure~\ref{fig:litmus:wo}, suppose {\tt 0(a0)} is in main memory and {\tt 0(a1)} is the address of a device register in I/O memory.
-If the device accesses {\tt 0(a0)} upon receiving the MMIO write, then that load must conceptually appear after the first store to {\tt 0(a0)} according to the rules of the RVWMO memory model.
-In some implementations, the only way to ensure this will be to require that the first store does in fact complete before the MMIO write is issued.
-Other implementations may find ways to be more aggressive, while others still may not need to do anything different at all for I/O and main memory accesses.
-Nevertheless, the RVWMO memory model does not distinguish between these options; it simply provides an implementation-agnostic mechanism to specify the orderings that must be enforced.
+当一个屏障被实际使用时，实现必须假定设备可能尝试在接收到MMIO信号之后立即访问内存，以及来自该设备到内存的后继的内存访问必须观察到所有次序优先于该MMIO操作的访问的影响。
+换句话说，在图~\ref{fig:litmus:wo}中，假设{\tt 0(a0)}是在主内存中的，而{\tt 0(a1)}是在I/O内存中的一个设备寄存器的地址。如果设备在接收到MMIO写的时候访问{\tt 0(a0)}，那么根据RVWMO内存模型的规则，在概念上，该加载必须出现在第一个对0（a0）的存储之后。
+在一些实现中，确保这一点的仅有的方法将是要求第一个存储确实在MMIO写被发出之前完成。其它实现可能找到了更加激进的方式，同时其它实现仍然可能不需要对I/O和主内存访问做任何完全不同的事。
+无论如何，RVWMO内存模型不在这些选项中做区分；它只是简单地提供了一种与实现无关的机制来指定必须强制采用的次序。
+% When a fence is in fact used, implementations must assume that the device may attempt to access memory immediately after receiving the MMIO signal, and subsequent memory accesses from that device to memory must observe the effects of all accesses ordered prior to that MMIO operation.
+% In other words, in Figure~\ref{fig:litmus:wo}, suppose {\tt 0(a0)} is in main memory and {\tt 0(a1)} is the address of a device register in I/O memory.
+% If the device accesses {\tt 0(a0)} upon receiving the MMIO write, then that load must conceptually appear after the first store to {\tt 0(a0)} according to the rules of the RVWMO memory model.
+% In some implementations, the only way to ensure this will be to require that the first store does in fact complete before the MMIO write is issued.
+% Other implementations may find ways to be more aggressive, while others still may not need to do anything different at all for I/O and main memory accesses.
+% Nevertheless, the RVWMO memory model does not distinguish between these options; it simply provides an implementation-agnostic mechanism to specify the orderings that must be enforced.
 
-Many architectures include separate notions of ``ordering'' and ``completion'' fences, especially as it relates to I/O (as opposed to regular main memory).
-Ordering fences simply ensure that memory operations stay in order, while completion fences ensure that predecessor accesses have all completed before any successors are made visible.
-RISC-V does not explicitly distinguish between ordering and completion fences.
-Instead, this distinction is simply inferred from different uses of the FENCE bits.
+许多架构包括了“次序”和“完成”屏障的独立概念，尤其是当它与I/O相关时（与常规的主内存相反）。
+次序屏障简单地确保了内存操作保持有序，而完成屏障确保了，在任何后继的访问变得可见之前，前趋的访问都已经被完成。
+RISC-V不会明确地区分次序屏障和完成屏障。反之，这种区分是从FENCE位的不同用法简单地推断出来的。
+% Many architectures include separate notions of ``ordering'' and ``completion'' fences, especially as it relates to I/O (as opposed to regular main memory).
+% Ordering fences simply ensure that memory operations stay in order, while completion fences ensure that predecessor accesses have all completed before any successors are made visible.
+% RISC-V does not explicitly distinguish between ordering and completion fences.
+% Instead, this distinction is simply inferred from different uses of the FENCE bits.
 
-For implementations that conform to the RISC-V Unix Platform Specification, I/O devices and DMA operations are required to access memory coherently and via strongly ordered I/O channels.
-Therefore, accesses to regular main memory regions that are concurrently accessed by external devices can also use the standard synchronization mechanisms.
-Implementations that do not conform to the Unix Platform Specification and/or in which devices do not access memory coherently will need to use mechanisms (which are currently platform-specific or device-specific) to enforce coherency.
+对于遵守RISC-V Unix平台规范的实现，I/O设备和DMA操作被要求一致性地访问内存，并且通过强排序的I/O通道完成。
+因此，访问常规的主内存区域，如果该区域同时被外部设备访问，那么也可以使用标准同步机制。
+不遵守Unix平台规范的实现和/或在不会一致性地访问内存的设备中，将需要使用机制（这目前是平台相关的或者设备相关的）来强制一致性。
+% For implementations that conform to the RISC-V Unix Platform Specification, I/O devices and DMA operations are required to access memory coherently and via strongly ordered I/O channels.
+% Therefore, accesses to regular main memory regions that are concurrently accessed by external devices can also use the standard synchronization mechanisms.
+% Implementations that do not conform to the Unix Platform Specification and/or in which devices do not access memory coherently will need to use mechanisms (which are currently platform-specific or device-specific) to enforce coherency.
 
-I/O regions in the address space should be considered non-cacheable regions in the PMAs for those regions.  Such regions can be considered coherent by the PMA if they are not cached by any agent.
+地址空间中的I/O区域应当被考虑为在那些区域的PMA中的非可缓存的区域。这种区域可以被PMA认为是一致性的，如果它们还没有被任何代理缓存的话。
+% I/O regions in the address space should be considered non-cacheable regions in the PMAs for those regions.  Such regions can be considered coherent by the PMA if they are not cached by any agent.
 
-The ordering guarantees in this section may not apply beyond a platform-specific boundary between the RISC-V cores and the device.  In particular, I/O accesses sent across an external bus (e.g., PCIe) may be reordered before they reach their ultimate destination.  Ordering must be enforced in such situations according to the platform-specific rules of those external devices and buses.
+这一节中的次序保证可能不适用于在RISC-V核心和设备之间的平台相关的边界。特别地，经过外部总线（例如，PCIe）发送的I/O访问可能在它们到达它们的最终目的地之前被重新排序。在那种情景中，必须根据那些外部设备和总线的平台相关的规则来强制实行排序。
+% The ordering guarantees in this section may not apply beyond a platform-specific boundary between the RISC-V cores and the device.  In particular, I/O accesses sent across an external bus (e.g., PCIe) may be reordered before they reach their ultimate destination.  Ordering must be enforced in such situations according to the platform-specific rules of those external devices and buses.
 
-\section{Code Porting and Mapping Guidelines}
+\section{代码移植和映射指南}
 \label{sec:memory:porting}
 
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
     \hline
-    x86/TSO Operation & RVWMO Mapping \\
+    x86/TSO 操作 & RVWMO 映射 \\
     \hline
     \hline
-    Load              & \tt l\{b|h|w|d\}; fence r,rw               \\
+    加载             & \tt l\{b|h|w|d\}; fence r,rw               \\
     \hline
-    Store             & \tt fence rw,w; s\{b|h|w|d\}               \\
+    存储             & \tt fence rw,w; s\{b|h|w|d\}               \\
     \hline
-    \multirow{2}{*}{Atomic RMW}
+    \multirow{2}{*}{原子 RMW}
     & \tt amo<op>.\{w|d\}.aqrl \textrm{OR} \\
     & \tt loop:\@ lr.\{w|d\}.aq; <op>; sc.\{w|d\}.aqrl; bnez loop \\
     \hline
-    Fence             & \tt fence rw,rw \\
+    屏障             & \tt fence rw,rw \\
     \hline
   \end{tabular}
-  \caption{Mappings from TSO operations to RISC-V operations}
+  \caption{从TSO操作到RISC-V操作的映射  
+  % Mappings from TSO operations to RISC-V operations
+  }
   \label{tab:tsomappings}
 \end{table}
 
-Table~\ref{tab:tsomappings} provides a mapping from TSO memory operations onto RISC-V memory instructions.
-Normal x86 loads and stores are all inherently acquire-RCpc and release-RCpc operations: TSO enforces all load-load, load-store, and store-store ordering by default.
-Therefore, under RVWMO, all TSO loads must be mapped onto a load followed by FENCE~R,RW, and all TSO stores must be mapped onto FENCE~RW,W followed by a store.
-TSO atomic read-modify-writes and x86 instructions using the LOCK prefix are fully ordered and can be implemented either via an AMO with both {\em aq} and {\em rl} set, or via an LR with {\em aq} set, the arithmetic operation in question, an SC with both {\em aq} and {\em rl} set, and a conditional branch checking the success condition.
-In the latter case, the {\em rl} annotation on the LR turns out (for non-obvious reasons) to be redundant and can be omitted.
+表~\ref{tab:tsomappings}提供了一份从TSO内存操作到RISC-V内存指令的映射。
+通常的x86加载和存储都是固有的acquire-RCpc和release-RCpc操作：TSO默认强制所有的加载-加载、加载-存储，和存储-存储排序。
+因此，在RVWMO下，所有的TSO加载必须被映射到随后跟有FENCE R, RW的加载，而所有的TSO存储必须被映射到跟在存储之后的FENCE RW, W。
+TSO原子读-修改-写和使用LOCK前缀的x86指令是完全排序的，并且可以或者通过一个同时设置了{\em aq}和{\em rl}的AMO实现，或者通过一个设置了{\em aq}的LR、上述提及的算数操作、一个同时设置了{\em aq}和{\em rl}的SC，还有一个检查成功条件的条件分支来实现。
+在最后一种情况中，在LR上的{\em rl}注释（由于不明的原因）是多余的，并且可以被省略。
+% Table~\ref{tab:tsomappings} provides a mapping from TSO memory operations onto RISC-V memory instructions.
+% Normal x86 loads and stores are all inherently acquire-RCpc and release-RCpc operations: TSO enforces all load-load, load-store, and store-store ordering by default.
+% Therefore, under RVWMO, all TSO loads must be mapped onto a load followed by FENCE~R,RW, and all TSO stores must be mapped onto FENCE~RW,W followed by a store.
+% TSO atomic read-modify-writes and x86 instructions using the LOCK prefix are fully ordered and can be implemented either via an AMO with both {\em aq} and {\em rl} set, or via an LR with {\em aq} set, the arithmetic operation in question, an SC with both {\em aq} and {\em rl} set, and a conditional branch checking the success condition.
+% In the latter case, the {\em rl} annotation on the LR turns out (for non-obvious reasons) to be redundant and can be omitted.
 
-Alternatives to Table~\ref{tab:tsomappings} are also possible.
-A TSO store can be mapped onto AMOSWAP with {\em rl} set.
-However, since RVWMO PPO Rule~\ref{ppo:amoforward} forbids forwarding of values from AMOs to subsequent loads, the use of AMOSWAP for stores may negatively affect performance.
-A TSO load can be mapped using LR with {\em aq} set: all such LR instructions will be unpaired, but that fact in and of itself does not preclude the use of LR for loads.
-However, again, this mapping may also negatively affect performance if it puts more pressure on the reservation mechanism than was originally intended.
+表~\ref{tab:tsomappings}的替代方案也是可行的。一个TSO存储可以被映射到设置了{\em rl}的AMOSWAP上。
+然而，由于RVWMO PPO规则~\ref{ppo:amoforward}禁止值从AMO到后继加载的转发，对存储使用AMOSWAP可能对性能产生负面的影响。
+一个TSO加载可以使用设置了{\em aq}的LR来映射：所有的这种LR指令将是无配对的，但是事实上本身并不排除使用LR进行加载。
+然而，再次强调，这种映射也可能对性能有负面影响，如果它把比最初意图更多的压力放在了保留机制上的话。
+% Alternatives to Table~\ref{tab:tsomappings} are also possible.
+% A TSO store can be mapped onto AMOSWAP with {\em rl} set.
+% However, since RVWMO PPO Rule~\ref{ppo:amoforward} forbids forwarding of values from AMOs to subsequent loads, the use of AMOSWAP for stores may negatively affect performance.
+% A TSO load can be mapped using LR with {\em aq} set: all such LR instructions will be unpaired, but that fact in and of itself does not preclude the use of LR for loads.
+% However, again, this mapping may also negatively affect performance if it puts more pressure on the reservation mechanism than was originally intended.
 
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
     \hline
-    Power Operation & RVWMO Mapping \\
+    Power 操作 & RVWMO 映射 \\
     \hline
     \hline
-    Load              & \tt l\{b|h|w|d\}  \\
+    加载              & \tt l\{b|h|w|d\}  \\
     \hline
-    Load-Reserve      & \tt lr.\{w|d\}  \\
+    加载-保留      & \tt lr.\{w|d\}  \\
     \hline
-    Store             & \tt s\{b|h|w|d\}  \\
+    存储             & \tt s\{b|h|w|d\}  \\
     \hline
-    Store-Conditional & \tt sc.\{w|d\}  \\
+    存储-条件 & \tt sc.\{w|d\}  \\
     \hline
     \tt lwsync        & \tt fence.tso \\
     \hline
@@ -1003,35 +1177,37 @@ However, again, this mapping may also negatively affect performance if it puts m
     \tt isync         & \tt fence.i; fence r,r \\
     \hline
   \end{tabular}
-  \caption{Mappings from Power operations to RISC-V operations}
+  \caption{从Power操作到RISC-V操作的映射}
   \label{tab:powermappings}
 \end{table}
 
-Table~\ref{tab:powermappings} provides a mapping from Power memory operations onto RISC-V memory instructions.
-Power ISYNC maps on RISC-V to a FENCE.I followed by a FENCE~R,R; the latter fence is needed because ISYNC is used to define a ``control+control fence'' dependency that is not present in RVWMO.
+表~\ref{tab:powermappings}提供了一份从Power内存操作到RISC-V内存指令的映射。
+Power ISYNC在RISC-V上映射到一个后跟有FENCE R, R的FENCE.I上；后一个屏障是必须的，因为ISYNC被用于定义一种“控制＋控制屏障”的依赖，而它在RVWMO中是不存在的。
+% Table~\ref{tab:powermappings} provides a mapping from Power memory operations onto RISC-V memory instructions.
+% Power ISYNC maps on RISC-V to a FENCE.I followed by a FENCE~R,R; the latter fence is needed because ISYNC is used to define a ``control+control fence'' dependency that is not present in RVWMO.
 
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
     \hline
-    ARM Operation             & RVWMO Mapping \\
+    ARM 操作             & RVWMO 映射 \\
     \hline
     \hline
-    Load                      & \tt l\{b|h|w|d\}  \\
+    加载                      & \tt l\{b|h|w|d\}  \\
     \hline
-    Load-Acquire              & \tt fence rw, rw; l\{b|h|w|d\}; fence r,rw  \\
+    加载-获取              & \tt fence rw, rw; l\{b|h|w|d\}; fence r,rw  \\
     \hline
-    Load-Exclusive            & \tt lr.\{w|d\}  \\
+    加载-独占            & \tt lr.\{w|d\}  \\
     \hline
-    Load-Acquire-Exclusive    & \tt lr.\{w|d\}.aqrl \\
+    加载-获取-独占    & \tt lr.\{w|d\}.aqrl \\
     \hline
-    Store                     & \tt s\{b|h|w|d\}  \\
+    存储                     & \tt s\{b|h|w|d\}  \\
     \hline
-    Store-Release             & \tt fence rw,w; s\{b|h|w|d\}  \\
+    存储-释放             & \tt fence rw,w; s\{b|h|w|d\}  \\
     \hline
-    Store-Exclusive           & \tt sc.\{w|d\}  \\
+    存储-独占           & \tt sc.\{w|d\}  \\
     \hline
-    Store-Release-Exclusive   & \tt sc.\{w|d\}.rl  \\
+    存储-释放-独占   & \tt sc.\{w|d\}.rl  \\
     \hline
     \tt dmb                   & \tt fence rw,rw \\
     \hline
@@ -1042,21 +1218,26 @@ Power ISYNC maps on RISC-V to a FENCE.I followed by a FENCE~R,R; the latter fenc
     \tt isb                   & \tt fence.i; fence r,r \\
     \hline
   \end{tabular}
-  \caption{Mappings from ARM operations to RISC-V operations}
+  \caption{从ARM操作到RISC-V操作的映射}
   \label{tab:armmappings}
 \end{table}
 
-Table~\ref{tab:armmappings} provides a mapping from ARM memory operations onto RISC-V memory instructions.
-Since RISC-V does not currently have plain load and store opcodes with {\em aq} or {\em rl} annotations, ARM load-acquire and store-release operations should be mapped using fences instead.
-Furthermore, in order to enforce store-release-to-load-acquire ordering, there must be a FENCE~RW,RW between the store-release and load-acquire; Table~\ref{tab:armmappings} enforces this by always placing the fence in front of each acquire operation.
-ARM load-exclusive and store-exclusive instructions can likewise map onto their RISC-V LR and SC equivalents, but instead of placing a FENCE~RW,RW in front of an LR with {\em aq} set, we simply also set {\em rl} instead.
-ARM ISB maps on RISC-V to FENCE.I followed by FENCE~R,R similarly to how ISYNC maps for Power.
+表~\ref{tab:armmappings}提供了一份从ARM内存操作到RISC-V内存指令的映射。由于RISC-V目前没有带{\em aq}或{\em rl}注释的不修饰的加载和存储的操作码，ARM加载-获取和存储-释放操作应当代之以使用屏障来映射。
+而且，为了强制采用存储-释放到加载-获取的次序，在存储-释放和加载-获取之间必须有一个FENCE RW, RW；
+表~\ref{tab:armmappings}通过把屏障放置在每个获取操作之前，强制采用了这个次序。
+ARM的load-exclusive和store-exclusive指令可以类似地映射到与它们对等的RISC-V LR和SC上，但是并非把FENCE RW, RW放在设置了{\em aq}的LR之前，而是我们也简单地用设置{\em rl}代替。
+ARM ISB在RISC-V上映射到后跟有FENCE R, R的FENCE.I上，类似于ISYNC映射Power的方式。
+% Table~\ref{tab:armmappings} provides a mapping from ARM memory operations onto RISC-V memory instructions.
+% Since RISC-V does not currently have plain load and store opcodes with {\em aq} or {\em rl} annotations, ARM load-acquire and store-release operations should be mapped using fences instead.
+% Furthermore, in order to enforce store-release-to-load-acquire ordering, there must be a FENCE~RW,RW between the store-release and load-acquire; Table~\ref{tab:armmappings} enforces this by always placing the fence in front of each acquire operation.
+% ARM load-exclusive and store-exclusive instructions can likewise map onto their RISC-V LR and SC equivalents, but instead of placing a FENCE~RW,RW in front of an LR with {\em aq} set, we simply also set {\em rl} instead.
+% ARM ISB maps on RISC-V to FENCE.I followed by FENCE~R,R similarly to how ISYNC maps for Power.
 
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|l|}
     \hline
-    Linux Operation           & RVWMO Mapping \\
+    Linux 操作           & RVWMO 映射 \\
     \hline
     \hline
     \tt smp\_mb()             & \tt fence rw,rw \\
@@ -1080,7 +1261,7 @@ ARM ISB maps on RISC-V to FENCE.I followed by FENCE~R,R similarly to how ISYNC m
     \tt smp\_store\_release()  & \tt fence.tso; s\{b|h|w|d\}  \\
     \hline
     \hline
-    Linux Construct            & RVWMO AMO Mapping        \\
+    Linux 构造            & RVWMO AMO 映射        \\
     \hline
     \tt atomic\_<op>\_relaxed  & \tt amo<op>.\{w|d\}      \\
     \hline
@@ -1091,7 +1272,7 @@ ARM ISB maps on RISC-V to FENCE.I followed by FENCE~R,R similarly to how ISYNC m
     \tt atomic\_<op>           & \tt amo<op>.\{w|d\}.aqrl \\
     \hline
     \hline
-    Linux Construct            & RVWMO LR/SC Mapping\\
+    Linux 构造            & RVWMO LR/SC 映射\\
     \hline
     \tt atomic\_<op>\_relaxed  & \tt loop:\@ lr.\{w|d\}; <op>; sc.\{w|d\}; bnez loop \\
     \hline
@@ -1104,30 +1285,41 @@ ARM ISB maps on RISC-V to FENCE.I followed by FENCE~R,R similarly to how ISYNC m
     \tt atomic\_<op>           & \tt loop:\@ lr.\{w|d\}.aq; <op>; sc.\{w|d\}.aqrl; bnez loop \\
     \hline
   \end{tabular}
-  \caption{Mappings from Linux memory primitives to RISC-V primitives.  Other constructs (such as spinlocks) should follow accordingly.  Platforms or devices with non-coherent DMA may need additional synchronization (such as cache flush or invalidate mechanisms); currently any such extra synchronization will be device-specific.}
+  \caption{从Linux内存原语到RISC-V原语的映射。其它的构造（例如自旋锁）应当相应地服从。非一致性DMA的平台或设备可能需要额外的同步（例如缓存冲刷或无效性机制）；当前任何这样的额外同步都将是设备相关的。
+    % Mappings from Linux memory primitives to RISC-V primitives.  Other constructs (such as spinlocks) should follow accordingly.  Platforms or devices with non-coherent DMA may need additional synchronization (such as cache flush or invalidate mechanisms); currently any such extra synchronization will be device-specific.
+    }
   \label{tab:linuxmappings}
 \end{table}
 
-Table~\ref{tab:linuxmappings} provides a mapping of Linux memory ordering macros onto RISC-V memory instructions.
-%The now-deprecated fence {\tt smp\_read\_barrier\_depends()} map to a no-op due to preserved program order rules \ref{ppo:addr}--\ref{ppo:ctrl}.
-The Linux fences {\tt dma\_rmb()} and {\tt dma\_wmb()} map onto FENCE~R,R and FENCE~W,W, respectively, since the RISC-V Unix Platform requires coherent DMA, but would be mapped onto FENCE~RI,RI and FENCE~WO,WO, respectively, on a platform with non-coherent DMA.
-Platforms with non-coherent DMA may also require a mechanism by which cache lines can be flushed and/or invalidated.
-Such mechanisms will be device-specific and/or standardized in a future extension to the ISA.
+表~\ref{tab:linuxmappings}提供了一份Linux内存排序宏到RISC-V内存指令的映射。
+Linux屏障{\tt dma\_rmb()}和{\tt dma\_wmb()}分别映射到FENCE R, R和FENCE W, W，因为RISC-V Unix平台需要一致性DMA，但是在非一致性DMA平台上将分别被映射到FENCE RI, RI和FENCE WO, WO。
+非一致性DMA的平台也可以要求一种“缓存行可以被冲刷和/或无效化”的机制。这种机制将是设备相关的、和/或在未来对ISA的扩展中标准化的。
+% Table~\ref{tab:linuxmappings} provides a mapping of Linux memory ordering macros onto RISC-V memory instructions.
+% The Linux fences {\tt dma\_rmb()} and {\tt dma\_wmb()} map onto FENCE~R,R and FENCE~W,W, respectively, since the RISC-V Unix Platform requires coherent DMA, but would be mapped onto FENCE~RI,RI and FENCE~WO,WO, respectively, on a platform with non-coherent DMA.
+% Platforms with non-coherent DMA may also require a mechanism by which cache lines can be flushed and/or invalidated.
+% Such mechanisms will be device-specific and/or standardized in a future extension to the ISA.
 
-The Linux mappings for release operations may seem stronger than necessary, but these mappings are needed to cover some cases in which Linux requires stronger orderings than the more intuitive mappings would provide.
-In particular, as of the time this text is being written, Linux is actively debating whether to require load-load, load-store, and store-store orderings between accesses in one critical section and accesses in a subsequent critical section in the same hart and protected by the same synchronization object.
-Not all combinations of FENCE~RW,W/FENCE~R,RW mappings with {\em aq}/{\em rl} mappings combine to provide such orderings.
-There are a few ways around this problem, including:
+Linux对于释放操作的映射可能看起来比必要的更强，但是需要这些映射去覆盖某些Linux需要比更直观的映射将提供的更强的次序的情况。
+特别地，在本文正在被编写的时候，Linux正在积极地讨论，在一个临界区中的访问和相同硬件线程中的一个后继的临界区中的访问之间，
+是否需要加载-加载、加载-存储，和存储-存储的次序，并由相同的同步对象进行保护。
+不是所有的FENCE RW, W/FENCE R, RW映射和{\em aq}/{\em rl}映射的组合都能提供这种次序。围绕这个问题有这样一些方法，包括：
+% The Linux mappings for release operations may seem stronger than necessary, but these mappings are needed to cover some cases in which Linux requires stronger orderings than the more intuitive mappings would provide.
+% In particular, as of the time this text is being written, Linux is actively debating whether to require load-load, load-store, and store-store orderings between accesses in one critical section and accesses in a subsequent critical section in the same hart and protected by the same synchronization object.
+% Not all combinations of FENCE~RW,W/FENCE~R,RW mappings with {\em aq}/{\em rl} mappings combine to provide such orderings.
+% There are a few ways around this problem, including:
 \begin{enumerate}
-  \item Always use FENCE~RW,W/FENCE~R,RW, and never use {\em aq}/{\em rl}.  This suffices but is undesirable, as it defeats the purpose of the {\em aq}/{\em rl} modifiers.
-  \item Always use {\em aq}/{\em rl}, and never use FENCE~RW,W/FENCE~R,RW.  This does not currently work due to the lack of load and store opcodes with {\em aq} and {\em rl} modifiers.
-  \item Strengthen the mappings of release operations such that they would enforce sufficient orderings in the presence of either type of acquire mapping.  This is the currently recommended solution, and the one shown in Table~\ref{tab:linuxmappings}.
+  \item 永远使用FENCE RW, W/FENCE R, RW，并且永远不使用{\em aq}/{\em rl}。这是足够的，但是不可取，因为它违背了{\em aq}/{\em rl}修饰符的目的。
+  % Always use FENCE~RW,W/FENCE~R,RW, and never use {\em aq}/{\em rl}.  This suffices but is undesirable, as it defeats the purpose of the {\em aq}/{\em rl} modifiers.
+  \item 永远使用{\em aq}/{\em rl}，并永远不使用FENCE RW, W/FENCE R, RW。这目前不会起作用，因为缺少带有{\em aq}和{\em rl}修饰符的加载和存储操作码。
+  % Always use {\em aq}/{\em rl}, and never use FENCE~RW,W/FENCE~R,RW.  This does not currently work due to the lack of load and store opcodes with {\em aq} and {\em rl} modifiers.
+  \item 加强释放操作的映射，使得它们将在现有的任何种类的获取映射中强制采用充分的次序。这是当前推荐的方案，该方案展示在表~\ref{tab:linuxmappings}中。
+  % Strengthen the mappings of release operations such that they would enforce sufficient orderings in the presence of either type of acquire mapping.  This is the currently recommended solution, and the one shown in Table~\ref{tab:linuxmappings}.
 \end{enumerate}
 
 \begin{figure}[h!]
   \centering\small
   \begin{verbbox}
-Linux code:
+Linux 代码:
 (a)  int r0 = *x;
 (bc) spin_unlock(y, 0);
      ...
@@ -1138,7 +1330,7 @@ Linux code:
   \theverbbox
   ~~~~~~~~~~
   \begin{verbbox}
-RVWMO Mapping:
+RVWMO 映射:
 (a) lw           a0, 0(s0)
 (b) fence.tso  // vs. fence rw,w
 (c) sd           x0,0(s1)
@@ -1149,13 +1341,14 @@ RVWMO Mapping:
 (e) lw           a2,0(s2)
   \end{verbbox}
   \theverbbox
-  \caption{Orderings between critical sections in Linux}
+  \caption{Linux中临界区之间的次序}
   \label{fig:litmus:lkmm_ll}
 \end{figure}
 
-For example, the critical section ordering rule currently being debated by the Linux community would require (a) to be ordered before (e) in Figure~\ref{fig:litmus:lkmm_ll}.
-If that will indeed be required, then it would be insufficient for (b) to map as FENCE~RW,W.
-That said, these mappings are subject to change as the Linux Kernel Memory Model evolves.
+例如，Linux社区当前正在讨论临界区次序规则，该规则将要求图~\ref{fig:litmus:lkmm_ll}中的(a)被排序在(e)之前。如果确实那样要求，那么把(b)映射为FENCE RW, W将是不充分的。也就是说，随着Linux内核内存模型的演化，这些映射也将随之变化。
+% For example, the critical section ordering rule currently being debated by the Linux community would require (a) to be ordered before (e) in Figure~\ref{fig:litmus:lkmm_ll}.
+% If that will indeed be required, then it would be insufficient for (b) to map as FENCE~RW,W.
+% That said, these mappings are subject to change as the Linux Kernel Memory Model evolves.
 
 \begin{table}[h!]
   \centering
@@ -1237,10 +1430,10 @@ That said, these mappings are subject to change as the Linux Kernel Memory Model
   \centering
   \begin{tabular}{|l|l|}
     \hline
-    C/C++ Construct                            & RVWMO Mapping \\
+    C/C++ 构造                            & RVWMO 映射 \\
     \hline
     \hline
-    Non-atomic load                            & \tt l\{b|h|w|d\}               \\
+    非原子性加载                            & \tt l\{b|h|w|d\}               \\
     \hline
     \tt atomic\_load(memory\_order\_relaxed)   & \tt l\{b|h|w|d\}               \\
     \hline
@@ -1249,7 +1442,7 @@ That said, these mappings are subject to change as the Linux Kernel Memory Model
     \tt atomic\_load(memory\_order\_seq\_cst)  & \tt l\{b|h|w|d\}.aq  \\
     \hline
     \hline
-    Non-atomic store                           & \tt s\{b|h|w|d\}               \\
+    非原子性存储                          & \tt s\{b|h|w|d\}               \\
     \hline
     \tt atomic\_store(memory\_order\_relaxed)  & \tt s\{b|h|w|d\}               \\
     \hline
@@ -1267,7 +1460,7 @@ That said, these mappings are subject to change as the Linux Kernel Memory Model
     \tt atomic\_thread\_fence(memory\_order\_seq\_cst) & \tt fence rw,rw \\
     \hline
     \hline
-    C/C++ Construct                           & RVWMO AMO Mapping    \\
+    C/C++ 构造                           & RVWMO AMO 映射    \\
     \hline
     \tt atomic\_<op>(memory\_order\_relaxed)  & \tt amo<op>.\{w|d\}      \\
     \hline
@@ -1280,7 +1473,7 @@ That said, these mappings are subject to change as the Linux Kernel Memory Model
     \tt atomic\_<op>(memory\_order\_seq\_cst) & \tt amo<op>.\{w|d\}.aqrl \\
     \hline
     \hline
-    C/C++ Construct                           & RVWMO LR/SC Mapping\\
+    C/C++ 构造                           & RVWMO LR/SC 映射\\
     \hline
     \tt atomic\_<op>(memory\_order\_relaxed)  & \tt lr.\{w|d\}; <op>; sc.\{w|d\} \\
     \hline
@@ -1292,89 +1485,144 @@ That said, these mappings are subject to change as the Linux Kernel Memory Model
     \hline
     \tt atomic\_<op>(memory\_order\_seq\_cst) & \tt lr.\{w|d\}.aq$^*$; <op>; sc.\{w|d\}.rl \\
     \hline
-    \multicolumn{2}{l}{$^*$must be {\tt lr.\{w|d\}.aqrl} in order to interoperate with code mapped per Table~\ref{tab:c11mappings}}
+    \multicolumn{2}{l}{为了能与表~\ref{tab:c11mappings}中的各个代码映射相互操作，$^*$必须是{\tt lr.\{w|d\}.aqrl}  
+    % $^*$must be {\tt lr.\{w|d\}.aqrl} in order to interoperate with code mapped per Table~\ref{tab:c11mappings}
+    }
   \end{tabular}
-  \caption{Hypothetical mappings from C/C++ primitives to RISC-V primitives, if native load-acquire and store-release opcodes are introduced.}
+  \caption{假设的从C/C++原语到RISC-V原语的映射，如果引入了原生的加载-获取和存储释放操作码的话。
+    % Hypothetical mappings from C/C++ primitives to RISC-V primitives, if native load-acquire and store-release opcodes are introduced.
+    }
   \label{tab:c11mappings_hypothetical}
 \end{table}
 
-Table~\ref{tab:c11mappings} provides a mapping of C11/C++11 atomic operations onto RISC-V memory instructions.
-If load and store opcodes with {\em aq} and {\em rl} modifiers are introduced, then the mappings in Table~\ref{tab:c11mappings_hypothetical} will suffice.
-Note however that the two mappings only interoperate correctly if {\tt atomic\_<op>(memory\_order\_seq\_cst)} is mapped using an LR that has both {\em aq} and {\em rl} set.
+表~\ref{tab:c11mappings}提供了一份C11/C++11原子操作到RISC-V内存指令的映射。
+如果引入了带有{\em aq}和{\em rl}修饰符的加载和存储操作码，那么表~\ref{tab:c11mappings_hypothetical}中的映射就将足够了。
+然而要注意，只有当原子的{\tt atomic\_<op>(内存\_次序\_seq\_cst)}被使用一个同时设置了{\em aq}和{\em rl}的LR映射时，这两个映射才会正确地互通。
+% Table~\ref{tab:c11mappings} provides a mapping of C11/C++11 atomic operations onto RISC-V memory instructions.
+% If load and store opcodes with {\em aq} and {\em rl} modifiers are introduced, then the mappings in Table~\ref{tab:c11mappings_hypothetical} will suffice.
+% Note however that the two mappings only interoperate correctly if {\tt atomic\_<op>(memory\_order\_seq\_cst)} is mapped using an LR that has both {\em aq} and {\em rl} set.
 
-Any AMO can be emulated by an LR/SC pair, but care must be taken to ensure that any PPO orderings that originate from the LR are also made to originate from the SC, and that any PPO orderings that terminate at the SC are also made to terminate at the LR.
-For example, the LR must also be made to respect any data dependencies that the AMO has, given that load operations do not otherwise have any notion of a data dependency.
-Likewise, the effect a FENCE~R,R elsewhere in the same hart must also be made to apply to the SC, which would not otherwise respect that fence.
-The emulator may achieve this effect by simply mapping AMOs onto {\tt lr.aq;~<op>;~sc.aqrl}, matching the mapping used elsewhere for fully ordered atomics.
+任何AMO可以通过一个LR/SC对来模拟，但是必须注意确保任何源自于LR的PPO次序也是源自于SC的，并且任何在SC终止的PPO次序也会使得在LR处终止。
+例如，LR必须也要服从任何AMO拥有的数据依赖，使得加载操作否则将没有任何数据依赖的概念。类似地，相同硬件线程中的其它地方的一个FENCE R, R的影响也必须适用于SC，否则将不会遵从该屏障。
+模拟器可以系通过简单地把AMO映射到{\tt lr.aq;~<op>;~sc.aqrl}上来达成这个效果，与其它地方的用于全排序原子性的映射相匹配。
+% Any AMO can be emulated by an LR/SC pair, but care must be taken to ensure that any PPO orderings that originate from the LR are also made to originate from the SC, and that any PPO orderings that terminate at the SC are also made to terminate at the LR.
+% For example, the LR must also be made to respect any data dependencies that the AMO has, given that load operations do not otherwise have any notion of a data dependency.
+% Likewise, the effect a FENCE~R,R elsewhere in the same hart must also be made to apply to the SC, which would not otherwise respect that fence.
+% The emulator may achieve this effect by simply mapping AMOs onto {\tt lr.aq;~<op>;~sc.aqrl}, matching the mapping used elsewhere for fully ordered atomics.
 
-These C11/C++11 mappings require the platform to provide the following Physical Memory Attributes (as defined in the RISC-V Privileged ISA) for all memory:
+这些C11/C++11映射需要平台为所有内存提供下列物理内存属性（正如RISC-V特权ISAS中定义的那样）：
+% These C11/C++11 mappings require the platform to provide the following Physical Memory Attributes (as defined in the RISC-V Privileged ISA) for all memory:
 \begin{itemize}
-  \item main memory
-  \item coherent
+  \item 主内存
+  \item 连贯性
   \item AMOArithmetic
   \item RsrvEventual
 \end{itemize}
-Platforms with different attributes may require different mappings, or require platform-specific SW (e.g., memory-mapped I/O).
+具有不同属性的平台可能需要不同的映射，或者需要平台相关的SW（例如，内存映射I/O）。
+% Platforms with different attributes may require different mappings, or require platform-specific SW (e.g., memory-mapped I/O).
 
-\section{Implementation Guidelines}
+\section{实现指南}
+% \section{Implementation Guidelines}
 
-The RVWMO and RVTSO memory models by no means preclude microarchitectures from employing sophisticated speculation techniques or other forms of optimization in order to deliver higher performance.
-The models also do not impose any requirement to use any one particular cache hierarchy, nor even to use a cache coherence protocol at all.
-Instead, these models only specify the behaviors that can be exposed to software.
-Microarchitectures are free to use any pipeline design, any coherent or non-coherent cache hierarchy, any on-chip interconnect, etc., as long as the design only admits executions that satisfy the memory model rules.
-That said, to help people understand the actual implementations of the memory model, in this section we provide some guidelines on how architects and programmers should interpret the models' rules.
+RVWMO和RVTSO内存模型绝不排除微架构采用复杂的推测技术或其它形式的优化来提供更高的性能。
+模型也不采用任何需要使用任何一个特定的缓存层次的需求，甚至一点也不使用缓存一致性协议。
+相反，这些模型只指定了可以暴露给软件的行为。微架构可以自由地使用任何流水线设计，任何一致性或非一致性缓存层次，任何片上互连，等等，
+只要设计只认可满足内存模型规则的执行。也就是说，为了帮助人们理解内存模型的实际实现，本节中我们提供了一些关于架构师和编程人员应当如何解释模型的规则的指导。
+% The RVWMO and RVTSO memory models by no means preclude microarchitectures from employing sophisticated speculation techniques or other forms of optimization in order to deliver higher performance.
+% The models also do not impose any requirement to use any one particular cache hierarchy, nor even to use a cache coherence protocol at all.
+% Instead, these models only specify the behaviors that can be exposed to software.
+% Microarchitectures are free to use any pipeline design, any coherent or non-coherent cache hierarchy, any on-chip interconnect, etc., as long as the design only admits executions that satisfy the memory model rules.
+% That said, to help people understand the actual implementations of the memory model, in this section we provide some guidelines on how architects and programmers should interpret the models' rules.
 
-Both RVWMO and RVTSO are multi-copy atomic (or ``other-multi-copy-atomic''): any store value that is visible to a hart other than the one that originally issued it must also be conceptually visible to all other harts in the system.
-In other words, harts may forward from their own previous stores before those stores have become globally visible to all harts, but no early inter-hart forwarding is permitted.
-Multi-copy atomicity may be enforced in a number of ways.
-It might hold inherently due to the physical design of the caches and store buffers, it may be enforced via a single-writer/multiple-reader cache coherence protocol, or it might hold due to some other mechanism.
+RVWMO和RVTSO都是多重拷贝原子性（或者“其它多重拷贝原子性”）的：任何对一个硬件线程（除了最初发出它的那个硬件线程）可见的存储的值，在概念上必须也对系统中的所有的其它硬件线程可见。
+换句话说，硬件线程可以从它们自己的先前的存储进行转发，时机在那些存储变得对所有的硬件线程全局可见之前，但是提前在硬件线程之间进行转发是不被允许的。
+多重拷贝原子性可以通过多种方式被采用。它可能由于缓存和存储缓冲区的物理设计而固有地存在，它可以通过一种单一写者/多重读者的缓存一致性协议来采用，或者它可以由于某些其它机制而存在。
+% Both RVWMO and RVTSO are multi-copy atomic (or ``other-multi-copy-atomic''): any store value that is visible to a hart other than the one that originally issued it must also be conceptually visible to all other harts in the system.
+% In other words, harts may forward from their own previous stores before those stores have become globally visible to all harts, but no early inter-hart forwarding is permitted.
+% Multi-copy atomicity may be enforced in a number of ways.
+% It might hold inherently due to the physical design of the caches and store buffers, it may be enforced via a single-writer/multiple-reader cache coherence protocol, or it might hold due to some other mechanism.
 
-Although multi-copy atomicity does impose some restrictions on the microarchitecture, it is one of the key properties keeping the memory model from becoming extremely complicated.
-For example, a hart may not legally forward a value from a neighbor hart's private store buffer (unless of course it is done in such a way that no new illegal behaviors become architecturally visible).
-Nor may a cache coherence protocol forward a value from one hart to another until the coherence protocol has invalidated all older copies from other caches.
-Of course, microarchitectures may (and high-performance implementations likely will) violate these rules under the covers through speculation or other optimizations, as long as any non-compliant behaviors are not exposed to the programmer.
+尽管多重拷贝原子性的确在微架构上采用了一些限制，但是它是保持内存模型免于变得极度复杂的关键属性之一。
+例如，一个硬件线程不可以从一个邻居硬件线程的私有存储缓冲区合法地转发一个值（当然，除非它这么做，不会有新的非法行为变得架构可见）。
+一个缓存一致性协议也不能在其已经无效化了所有来自其它缓存的更旧的拷贝之前，从一个硬件线程向另一个硬件线程转发一个值。
+当然，微架构可以（并且高性能实现可能会）通过推测或其它的优化来暗中违背这些规则，只要任何不合规的行为都不会暴露给编程人员。
+% Although multi-copy atomicity does impose some restrictions on the microarchitecture, it is one of the key properties keeping the memory model from becoming extremely complicated.
+% For example, a hart may not legally forward a value from a neighbor hart's private store buffer (unless of course it is done in such a way that no new illegal behaviors become architecturally visible).
+% Nor may a cache coherence protocol forward a value from one hart to another until the coherence protocol has invalidated all older copies from other caches.
+% Of course, microarchitectures may (and high-performance implementations likely will) violate these rules under the covers through speculation or other optimizations, as long as any non-compliant behaviors are not exposed to the programmer.
 
-As a rough guideline for interpreting the PPO rules in RVWMO, we expect the following from the software perspective:
+作为一份解释RVWMO中的PPO规则的粗略指南，从软件的角度，我们期待看到以下情形：
+% As a rough guideline for interpreting the PPO rules in RVWMO, we expect the following from the software perspective:
 \begin{itemize}
-  \item programmers will use PPO rules \ref{ppo:->st} and \ref{ppo:fence}--\ref{ppo:pair} regularly and actively.
-  \item expert programmers will use PPO rules \ref{ppo:addr}--\ref{ppo:ctrl} to speed up critical paths of important data structures.
-  \item even expert programmers will rarely if ever use PPO rules \ref{ppo:rdw}--\ref{ppo:amoforward} and \ref{ppo:addrdatarfi}--\ref{ppo:addrpo} directly.  These are included to facilitate common microarchitectural optimizations (rule~\ref{ppo:rdw}) and the operational formal modeling approach (rules \ref{ppo:amoforward} and \ref{ppo:addrdatarfi}--\ref{ppo:addrpo}) described in Section~\ref{sec:operational}.  They also facilitate the process of porting code from other architectures that have similar rules.
+  \item 编程人员将有规律地和积极地使用PPO规则\ref{ppo:->st}和\ref{ppo:fence}－\ref{ppo:pair}。
+  % programmers will use PPO rules \ref{ppo:->st} and \ref{ppo:fence}--\ref{ppo:pair} regularly and actively.
+  \item 专业的编程人员将使用PPO规则\ref{ppo:addr}－\ref{ppo:ctrl}来加速重要数据结构的关键路径。
+  % expert programmers will use PPO rules \ref{ppo:addr}--\ref{ppo:ctrl} to speed up critical paths of important data structures.
+  \item 即使是专业的编程人员也将很少直接使用PPO规则\ref{ppo:rdw}－\ref{ppo:amoforward}和\ref{ppo:addrdatarfi}－\ref{ppo:addrpo}，如果它们有的话。
+  % even expert programmers will rarely if ever use PPO rules \ref{ppo:rdw}--\ref{ppo:amoforward} and \ref{ppo:addrdatarfi}--\ref{ppo:addrpo} directly.  These are included to facilitate common microarchitectural optimizations (rule~\ref{ppo:rdw}) and the operational formal modeling approach (rules \ref{ppo:amoforward} and \ref{ppo:addrdatarfi}--\ref{ppo:addrpo}) described in Section~\ref{sec:operational}.  They also facilitate the process of porting code from other architectures that have similar rules.
 \end{itemize}
 
-We also expect the following from the hardware perspective:
+% -------------  word文档里有这一段，但是tex源文件中没有，可能是这版tex去掉了这段话，需要再三审核。--------------
+% 包含这些规则是为了方便在B.3节中描述的常见微架构优化（规则2）和操作形式化模型方法（规则3和12－13）。它们也有助于从拥有相似规则的其它架构移植代码的进程。
+
+
+从硬件的角度，我们也希望看到下列情况：
+% We also expect the following from the hardware perspective:
 \begin{itemize}
-  \item PPO rules \ref{ppo:->st} and \ref{ppo:amoforward}--\ref{ppo:release} reflect well-understood rules that should pose few surprises to architects.
-  \item PPO rule \ref{ppo:rdw} reflects a natural and common hardware optimization, but one that is very subtle and hence is worth double checking carefully.
-  \item PPO rule \ref{ppo:rcsc} may not be immediately obvious to architects, but it is a standard memory model requirement
-  \item The load value axiom, the atomicity axiom, and PPO rules \ref{ppo:pair}--\ref{ppo:addrpo} reflect rules that most hardware implementations will enforce naturally, unless they contain extreme optimizations.  Of course, implementations should make sure to double check these rules nevertheless.  Hardware must also ensure that syntactic dependencies are not ``optimized away''.
+  \item PPO规则\ref{ppo:->st}和\ref{ppo:amoforward}－\ref{ppo:release}反映了好理解的规则，应当不会给架构师带来什么惊喜。
+  % PPO rules \ref{ppo:->st} and \ref{ppo:amoforward}--\ref{ppo:release} reflect well-understood rules that should pose few surprises to architects.
+  \item PPO规则\ref{ppo:rdw}反映了一个自然的和常见的硬件优化，但那是一个非常微妙的优化，因此值得仔细地复查。
+  % PPO rule \ref{ppo:rdw} reflects a natural and common hardware optimization, but one that is very subtle and hence is worth double checking carefully.
+  \item PPO规则\ref{ppo:rcsc}可能对于架构师来说不会立刻感到显然，但是它是标准内存模型的需求。
+  % PPO rule \ref{ppo:rcsc} may not be immediately obvious to architects, but it is a standard memory model requirement
+  \item 加载值公理、原子性公理，和PPO规则\ref{ppo:pair}－\ref{ppo:addrpo}反映了大多数硬件实现将自然地采用的规则，除非它们包含了极度的优化。当然，尽管如此，实现应当确保复查这些规则。硬件也必须确保句法依赖不会“被优化掉”。
+  % The load value axiom, the atomicity axiom, and PPO rules \ref{ppo:pair}--\ref{ppo:addrpo} reflect rules that most hardware implementations will enforce naturally, unless they contain extreme optimizations.  Of course, implementations should make sure to double check these rules nevertheless.  Hardware must also ensure that syntactic dependencies are not ``optimized away''.
 \end{itemize}
 
-Architectures are free to implement any of the memory model rules as conservatively as they choose.  For example, a hardware implementation may choose to do any or all of the following:
+架构可以自由地实现任何的内存模型规则，正如它们选择的那样保守。例如，一个硬件实现可以选择做到下列中的任何或者所有：
+% Architectures are free to implement any of the memory model rules as conservatively as they choose.  For example, a hardware implementation may choose to do any or all of the following:
   \begin{itemize}
-    \item interpret all fences as if they were FENCE~RW,RW (or FENCE~IORW,IORW, if I/O is involved), regardless of the bits actually set
-    \item implement all fences with PW and SR as if they were FENCE~RW,RW (or FENCE~IORW,IORW, if I/O is involved), as PW with SR is the most expensive of the four possible main memory ordering components anyway
-    \item emulate {\em aq} and {\em rl} as described in Section~\ref{sec:memory:porting}
-    \item enforcing all same-address load-load ordering, even in the presence of patterns such as ``fri-rfi'' and ``RSW''
-    \item forbid any forwarding of a value from a store in the store buffer to a subsequent AMO or LR to the same address
-    \item forbid any forwarding of a value from an AMO or SC in the store buffer to a subsequent load to the same address
-    \item implement TSO on all memory accesses, and ignore any main memory fences that do not include PW and SR ordering (e.g., as Ztso implementations will do)
-    \item implement all atomics to be RCsc or even fully ordered, regardless of annotation
+    \item 无论各位实际如何设置，把所有的屏障都按它们是FENCE RW, RW（或者FENCE IORW, IORW，如果涉及了I/O）来解释
+    % interpret all fences as if they were FENCE~RW,RW (or FENCE~IORW,IORW, if I/O is involved), regardless of the bits actually set
+    \item 把所有的带PW和SR的屏障都按它们是FENCE RW, RW（或者FENCE IORW, IORW，如果涉及了I/O）来实现，因为无论如何，带SR的PW都是四个可能的主内存次序组件中最昂贵的
+    % implement all fences with PW and SR as if they were FENCE~RW,RW (or FENCE~IORW,IORW, if I/O is involved), as PW with SR is the most expensive of the four possible main memory ordering components anyway
+    \item 像~\ref{sec:memory:porting}节中描述的那样模拟{\em aq}和{\em rl}
+    % emulate {\em aq} and {\em rl} as described in Section~\ref{sec:memory:porting}
+    \item 强制所有的相同地址的加载-加载次序，即使存在在诸如“fri-rfi”和“RSW”等式样
+    %  all same-address load-load ordering, even in the presence of patterns such as ``fri-rfi'' and ``RSW''
+    \item 禁止任何从存储缓冲区中的存储到相同地址的后继的AMO或LR的值的转发
+    % forbid any forwarding of a value from a store in the store buffer to a subsequent AMO or LR to the same address
+    \item 禁止任何从存储缓冲区中的AMO或SC到相同地址的后继的加载的值的转发
+    % forbid any forwarding of a value from an AMO or SC in the store buffer to a subsequent load to the same address
+    \item 在所有内存访问上实现TSO，并忽略任何不包括PW和SR次序的主内存屏障（例如，就像Ztso实现会做的那样）
+    % implement TSO on all memory accesses, and ignore any main memory fences that do not include PW and SR ordering (e.g., as Ztso implementations will do)
+    \item 把所有的原子性实现为RCsc或者甚至是全排序的，无论注释如何
+    % implement all atomics to be RCsc or even fully ordered, regardless of annotation
   \end{itemize}
 
-Architectures that implement RVTSO can safely do the following:
+实现了RVTSO的架构可以安全地做到下列事情：
+% Architectures that implement RVTSO can safely do the following:
 \begin{itemize}
-  \item Ignore all fences that do not have both PW and SR (unless the fence also orders I/O)
-  \item Ignore all PPO rules except for rules \ref{ppo:fence} through \ref{ppo:rcsc}, since the rest are redundant with other PPO rules under RVTSO assumptions
+  \item 忽略所有不同时具有PW和SR的屏障（除非该屏障也排序了I/O）
+  % Ignore all fences that do not have both PW and SR (unless the fence also orders I/O)
+  \item 忽略所有除了规则\ref{ppo:fence}至\ref{ppo:rcsc}之外的PPO规则，因为在RVTSO的假设下，剩下的规则与其它的PPO规则是多余的
+  % Ignore all PPO rules except for rules \ref{ppo:fence} through \ref{ppo:rcsc}, since the rest are redundant with other PPO rules under RVTSO assumptions
 \end{itemize}
 
-Other general notes:
+其它的一般注意事项：
+% Other general notes:
 
 \begin{itemize}
-  \item Silent stores (i.e., stores that write the same value that already exists at a memory location) behave like any other store from a memory model point of view.  Likewise, AMOs which do not actually change the value in memory (e.g., an AMOMAX for which the value in {\em rs2} is smaller than the value currently in memory) are still semantically considered store operations.  Microarchitectures that attempt to implement silent stores must take care to ensure that the memory model is still obeyed, particularly in cases such as RSW (Section~\ref{sec:memory:overlap}) which tend to be incompatible with silent stores.
-  \item Writes may be merged (i.e., two consecutive writes to the same address may be merged) or subsumed (i.e., the earlier of two back-to-back writes to the same address may be elided) as long as the resulting behavior does not otherwise violate the memory model semantics.
+  \item 从内存模型的观点来看，静默存储（例如，写入与内存位置已经存在的值相同的值的存储）的行为与任何其它的存储相像。
+  类似地，不实际改变内存中的值的AMO（例如，一个{\em rs2}中的值比内存中当前的值更小的AMOMAX）仍然在语义上被认为是存储操作。
+  尝试实现静默存储的微架构必须小心地确保仍然服从内存模型，特别是在诸如RSW（章节~\ref{sec:memory:overlap}）的情形中，它们往往与静默存储不兼容。
+  % Silent stores (i.e., stores that write the same value that already exists at a memory location) behave like any other store from a memory model point of view.  Likewise, AMOs which do not actually change the value in memory (e.g., an AMOMAX for which the value in {\em rs2} is smaller than the value currently in memory) are still semantically considered store operations.  Microarchitectures that attempt to implement silent stores must take care to ensure that the memory model is still obeyed, particularly in cases such as RSW (Section~\ref{sec:memory:overlap}) which tend to be incompatible with silent stores.
+  \item 写可以被融合（即，对相同地址的两个连续的写可以被融合）或归并（即，对于相同地址的两个背靠背的写，可以省略较早的那个），只要结果行为不会违反内存模型语义。
+  % Writes may be merged (i.e., two consecutive writes to the same address may be merged) or subsumed (i.e., the earlier of two back-to-back writes to the same address may be elided) as long as the resulting behavior does not otherwise violate the memory model semantics.
 \end{itemize}
 
-The question of write subsumption can be understood from the following example:
+写归并的问题可以从下面的例子来理解：
+% The question of write subsumption can be understood from the following example:
 \begin{figure}[h!]
   \centering
   \begin{tabular}{m{.4\linewidth}m{.1\linewidth}m{.4\linewidth}}
@@ -1391,39 +1639,59 @@ The question of write subsumption can be understood from the following example:
   & &
     \input{figs/litmus_subsumption.pdf_t}
   \end{tabular}
-  \caption{Write subsumption litmus test, allowed execution.}
+  \caption{写归并石蕊测试，允许的执行。
+  %  Write subsumption litmus test, allowed execution.
+  }
   \label{fig:litmus:subsumption}
 \end{figure}
 
-As written, if the load ~(d) reads value~$1$, then (a) must precede (f) in the global memory order:
+如前所写，如果加载(d)读取值$1$，然后(a)在全局内存次序中必须先于(f)：
+% As written, if the load ~(d) reads value~$1$, then (a) must precede (f) in the global memory order:
 \begin{itemize}
-  \item (a) precedes (c) in the global memory order because of rule 2
-  \item (c) precedes (d) in the global memory order because of the Load Value axiom
-  \item (d) precedes (e) in the global memory order because of rule 7
-  \item (e) precedes (f) in the global memory order because of rule 1
+  \item 由于规则2，在全局内存次序中，(a)先于(c)
+  % (a) precedes (c) in the global memory order because of rule 2
+  \item 由于加载值公理，在全局内存次序中，(c)先于(d)
+  % (c) precedes (d) in the global memory order because of the Load Value axiom
+  \item 由于规则7，在全局内存次序中，(d)先于(e)
+  % (d) precedes (e) in the global memory order because of rule 7
+  \item 由于规则1，在全局内存次序中，(e)先于(f)
+  % (e) precedes (f) in the global memory order because of rule 1
 \end{itemize}
-In other words the final value of the memory location whose address is in {\tt s0} must be~$2$ (the value written by the store~(f)) and cannot be~$3$ (the value written by the store~(a)).
+换句话说，地址在{\tt s0}中的内存位置的最终取值必定是$2$（由存储(f)写入的值），而不能是$3$（由存储(a)写入的值）。
+% In other words the final value of the memory location whose address is in {\tt s0} must be~$2$ (the value written by the store~(f)) and cannot be~$3$ (the value written by the store~(a)).
 
-A very aggressive microarchitecture might erroneously decide to discard (e), as (f) supersedes it, and this may in turn lead the microarchitecture to break the now-eliminated dependency between (d) and (f) (and hence also between (a) and (f)).
-This would violate the memory model rules, and hence it is forbidden.
-Write subsumption may in other cases be legal, if for example there were no data dependency between (d) and (e).
+一个非常激进的微架构可能会错误地决定丢弃(e)，因为(f)取代了它，而这可能反过来导致微架构打破(d)和(f)之间现在已消除的依赖
+（并因此也会打破(a)和(f)之间的）。这将违反内存模型规则，因而它是被禁止的。
+写归并可能在其他情形中是合法的，如果，例如在(d)和(e)之间没有数据依赖的话。
+% A very aggressive microarchitecture might erroneously decide to discard (e), as (f) supersedes it, and this may in turn lead the microarchitecture to break the now-eliminated dependency between (d) and (f) (and hence also between (a) and (f)).
+% This would violate the memory model rules, and hence it is forbidden.
+% Write subsumption may in other cases be legal, if for example there were no data dependency between (d) and (e).
 
-\subsection{Possible Future Extensions}
+\subsection{未来可能的扩展}
+% \subsection{Possible Future Extensions}
 
-We expect that any or all of the following possible future extensions would be compatible with the RVWMO memory model:
+我们希望任何或所有的下列可能的未来扩展都将与RVWMO内存模型兼容：
+% We expect that any or all of the following possible future extensions would be compatible with the RVWMO memory model:
 
 \begin{itemize}
-  \item `V' vector ISA extensions
-  \item `J' JIT extension
-  \item Native encodings for load and store opcodes with {\em aq} and {\em rl} set
-  \item Fences limited to certain addresses
-  \item Cache writeback/flush/invalidate/etc.\@ instructions
+  \item ‘V’向量ISA扩展  
+  % `V' vector ISA extensions
+  \item ‘J’JIT扩展 
+  % `J' JIT extension
+  \item 用于设置了{\em aq}和{\em rl}的加载和存储操作码的原生编码
+  % Native encodings for load and store opcodes with {\em aq} and {\em rl} set
+  \item 限制到特定地址的屏障
+  % Fences limited to certain addresses
+  \item 缓存的写回/冲刷/无效化/等等……指令
+  % Cache writeback/flush/invalidate/etc.\@ instructions
 \end{itemize}
 
-\section{Known Issues}
+\section{已知问题}
+% \section{Known Issues}
 \label{sec:memory:discrepancies}
 
-\subsection{Mixed-size RSW}
+\subsection{混合尺寸的RSW}
+% \subsection{Mixed-size RSW}
 \label{sec:memory:discrepancies:mixedrsw}
 
 \begin{figure}[h!]
@@ -1441,10 +1709,12 @@ We expect that any or all of the following possible future extensions would be c
           &             &     & add s0,s0,a5  \\
           &             & (h) & sw a2,0(s0)   \\
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a1=1}, {\tt a2=0}, {\tt a3=1}, {\tt a4=0}}
+      \multicolumn{4}{c}{输出结果： {\tt a0=1}, {\tt a1=1}, {\tt a2=0}, {\tt a3=1}, {\tt a4=0}}
     \end{tabular}
   }
-  \caption{Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}
+  \caption{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）
+    % Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)
+    }
   \label{fig:litmus:discrepancy:rsw1}
 \end{figure}
 
@@ -1461,10 +1731,12 @@ We expect that any or all of the following possible future extensions would be c
           &             &     & add s0,s0,a3  \\
           &             & (f) & sw a2,0(s0)   \\
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=0}, {\tt a1=1}, {\tt a2=0}}
+      \multicolumn{4}{c}{输出结果: {\tt a0=0}, {\tt a1=1}, {\tt a2=0}}
     \end{tabular}
   }
-  \caption{Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}
+  \caption{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）
+    % Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)
+    }
   \label{fig:litmus:discrepancy:rsw2}
 \end{figure}
 
@@ -1485,23 +1757,34 @@ We expect that any or all of the following possible future extensions would be c
       \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a1=0x100000001}, {\tt a1=1}}
     \end{tabular}
   }
-  \caption{Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}
+  \caption{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}
   \label{fig:litmus:discrepancy:rsw3}
 \end{figure}
 
-There is a known discrepancy between the operational and axiomatic specifications within the family of mixed-size RSW variants shown in Figures~\ref{fig:litmus:discrepancy:rsw1}--\ref{fig:litmus:discrepancy:rsw3}.
-To address this, we may choose to add something like the following new PPO rule:
-Memory operation $a$ precedes memory operation $b$ in preserved program order (and hence also in the global memory order) if $a$ precedes $b$ in program order, $a$ and $b$ both access regular main memory (rather than I/O regions), $a$ is a load, $b$ is a store, there is a load $m$ between $a$ and $b$, there is a byte $x$ that both $a$ and $m$ read, there is no store between $a$ and $m$ that writes to $x$, and $m$ precedes $b$ in PPO.
-In other words, in {\sf herd} syntax, we may choose to add ``{\tt (po-loc \& rsw);ppo;[W]}'' to PPO.
-Many implementations will already enforce this ordering naturally.
-As such, even though this rule is not official, we recommend that implementers enforce it nevertheless in order to ensure forwards compatibility with the possible future addition of this rule to RVWMO.
+在混合尺寸的RSW变体家族中，操作规范和公理规范之间有一种已知的差异性，显示在表~\ref{fig:litmus:discrepancy:rsw1}—\ref{fig:litmus:discrepancy:rsw3}中。
+为了解决这个差异性，我们可以选择添加一些像是下列新的PPO规则的东西：在保留的程序次序中（并因此也在全局内存次序中），
+内存操作$a$先于内存操作$b$，如果在程序次序中a先于b，a和b都访问常规主内存（而不是I/O区域），$a$是一个加载，$b$是一个存储，
+那么在$a$和$b$之间存在一个加载$m$，$a$和$m$都读取一个位$x$，在$a$和$m$之间没有写$x$的存储，且在PPO中$m$先于$b$。换句话说，在{\sf herd}语法中，
+我们可以选择向PPO添加“{\tt (po-loc \& rsw);ppo;[W]}”。许多实现已经自然地采用了这种次序。严格来说，即使这个规则不是官方的，
+尽管如此，我们也推荐实现者采用它，以便确保未来可能把这个规则添加到RVWMO的向前兼容性。
+% There is a known discrepancy between the operational and axiomatic specifications within the family of mixed-size RSW variants shown in Figures~\ref{fig:litmus:discrepancy:rsw1}--\ref{fig:litmus:discrepancy:rsw3}.
+% To address this, we may choose to add something like the following new PPO rule:
+% Memory operation $a$ precedes memory operation $b$ in preserved program order (and hence also in the global memory order) if $a$ precedes $b$ in program order, $a$ and $b$ both access regular main memory (rather than I/O regions), $a$ is a load, $b$ is a store, there is a load $m$ between $a$ and $b$, there is a byte $x$ that both $a$ and $m$ read, there is no store between $a$ and $m$ that writes to $x$, and $m$ precedes $b$ in PPO.
+% In other words, in {\sf herd} syntax, we may choose to add ``{\tt (po-loc \& rsw);ppo;[W]}'' to PPO.
+% Many implementations will already enforce this ordering naturally.
+% As such, even though this rule is not official, we recommend that implementers enforce it nevertheless in order to ensure forwards compatibility with the possible future addition of this rule to RVWMO.
 
-\chapter{Formal Memory Model Specifications, Version 0.1}
-To facilitate formal analysis of RVWMO, this chapter presents a set of formalizations using different tools and modeling approaches.  Any discrepancies are unintended; the expectation is that the models describe exactly the same sets of legal behaviors.
 
-This appendix should be treated as commentary; all normative material is provided in Chapter~\ref{ch:memorymodel} and in the rest of the main body of the ISA specification.
-All currently known discrepancies are listed in Section~\ref{sec:memory:discrepancies}.
-Any other discrepancies are unintentional.
+\chapter{形式化的内存模型规范（0.1版本）}
+% \chapter{Formal Memory Model Specifications, Version 0.1}
+为了便于对RVWMO的形式化分析，这章使用不同的工具和建模方法呈现了一组形式化。
+任何差异性都是无意的；希望这些模型确实描述了相同的合法行为集合。
+% To facilitate formal analysis of RVWMO, this chapter presents a set of formalizations using different tools and modeling approaches.  Any discrepancies are unintended; the expectation is that the models describe exactly the same sets of legal behaviors.
+
+这个附录应当被视为注释；所有的规范材料都提供在第~\ref{ch:memorymodel}章和ISA规范主体的剩余部分中。第~\ref{sec:memory:discrepancies}节中列出了所有当前已知的差异性。任何其它的差异性都是无意的。
+% This appendix should be treated as commentary; all normative material is provided in Chapter~\ref{ch:memorymodel} and in the rest of the main body of the ISA specification.
+% All currently known discrepancies are listed in Section~\ref{sec:memory:discrepancies}.
+% Any other discrepancies are unintentional.
 
 \clearpage
 \input{memory-model-alloy.tex}
