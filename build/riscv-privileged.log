@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  11 OCT 2022 15:22
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  28 OCT 2022 14:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -756,7 +756,95 @@ Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
 
 Package array Warning: Column W is already defined on input line 124.
 
-) (./riscv-privileged.aux)
+) (./riscv-privileged.aux
+
+LaTeX Warning: Label `stvec-mode' multiply defined.
+
+
+LaTeX Warning: Label `sipreg' multiply defined.
+
+
+LaTeX Warning: Label `siereg' multiply defined.
+
+
+LaTeX Warning: Label `sipreg-standard' multiply defined.
+
+
+LaTeX Warning: Label `siereg-standard' multiply defined.
+
+
+LaTeX Warning: Label `scounteren' multiply defined.
+
+
+LaTeX Warning: Label `kregs' multiply defined.
+
+
+LaTeX Warning: Label `epcreg' multiply defined.
+
+
+LaTeX Warning: Label `scausereg' multiply defined.
+
+
+LaTeX Warning: Label `scauses' multiply defined.
+
+
+LaTeX Warning: Label `stvalreg' multiply defined.
+
+
+LaTeX Warning: Label `fig:senvcfg' multiply defined.
+
+
+LaTeX Warning: Label `tab:senvcfg-FIOM' multiply defined.
+
+
+LaTeX Warning: Label `rv32satp' multiply defined.
+
+
+LaTeX Warning: Label `rv64satp' multiply defined.
+
+
+LaTeX Warning: Label `tab:satp-mode' multiply defined.
+
+
+LaTeX Warning: Label `sv32va' multiply defined.
+
+
+LaTeX Warning: Label `rv32va' multiply defined.
+
+
+LaTeX Warning: Label `sv32pte' multiply defined.
+
+
+LaTeX Warning: Label `pteperm' multiply defined.
+
+
+LaTeX Warning: Label `sv39va' multiply defined.
+
+
+LaTeX Warning: Label `sv39pa' multiply defined.
+
+
+LaTeX Warning: Label `sv39pte' multiply defined.
+
+
+LaTeX Warning: Label `sv48va' multiply defined.
+
+
+LaTeX Warning: Label `sv48pa' multiply defined.
+
+
+LaTeX Warning: Label `sv48pte' multiply defined.
+
+
+LaTeX Warning: Label `sv57va' multiply defined.
+
+
+LaTeX Warning: Label `sv57pa' multiply defined.
+
+
+LaTeX Warning: Label `sv57pte' multiply defined.
+
+)
 \openout1 = `riscv-privileged.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
@@ -947,148 +1035,295 @@ File: figs/privimps.pdf Graphic file (type pdf)
 
 ]
 
-LaTeX Warning: Float too large for page by 165.22195pt on input line 112.
+LaTeX Warning: Float too large for page by 165.22195pt on input line 138.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-
-Overfull \hbox (25.75658pt too wide) in paragraph at lines 153--182
+[6]
+Overfull \hbox (25.75658pt too wide) in paragraph at lines 201--230
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 118.5404pt on input line 353.
+LaTeX Warning: Float too large for page by 118.5404pt on input line 401.
 
-[6] [7] [8] [9] [10] [11] [12] [13
+[7] [8] [9] [10] [11] [12] [13] [14
 
-]
+] [15]
 
 LaTeX Font Warning: Font shape `TU/SongtiSCLight(0)/m/sc' undefined
-(Font)              using `TU/SongtiSCLight(0)/m/n' instead on input line 478.
+(Font)              using `TU/SongtiSCLight(0)/m/n' instead on input line 561.
 
 
 LaTeX Font Warning: Font shape `TU/lmr/m/scit' undefined
-(Font)              using `TU/lmr/m/scsl' instead on input line 491.
+(Font)              using `TU/lmr/m/scsl' instead on input line 576.
 
 
 LaTeX Font Warning: Font shape `TU/SongtiSCLight(0)/m/scsl' undefined
-(Font)              using `TU/SongtiSCLight(0)/m/n' instead on input line 491.
+(Font)              using `TU/SongtiSCLight(0)/m/n' instead on input line 576.
 
 
 LaTeX Font Warning: Font shape `TU/lmr/m/scit' undefined
-(Font)              using `TU/lmr/m/scsl' instead on input line 502.
+(Font)              using `TU/lmr/m/scsl' instead on input line 581.
 
-[14]) (../src/machine.tex [15] [16
+
+LaTeX Font Warning: Font shape `TU/lmr/m/scit' undefined
+(Font)              using `TU/lmr/m/scsl' instead on input line 591.
+
+
+LaTeX Font Warning: Font shape `TU/lmr/m/scit' undefined
+(Font)              using `TU/lmr/m/scsl' instead on input line 596.
+
+[16]) (../src/machine.tex [17] [18]
+第三章
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[19
+
+] [20] [21] [22] [23]
+
+LaTeX Warning: Reference `mstatusreg- RV32' on page 24 undefined on input line 
+519.
+
+[24] [25] [26]
+
+LaTeX Warning: Reference `XLEN -control' on page 27 undefined on input line 957
+.
+
+[27] [28]
+
+LaTeX Warning: Reference `WFI' on page 29 undefined on input line 1163.
+
+[29] [30] [31]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[32] [33] [34]
+
+LaTeX Warning: Reference `mcause' on page 35 undefined on input line 1857.
+
+
+LaTeX Warning: Reference `mcause' on page 35 undefined on input line 1857.
+
+[35]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[36]
+Underfull \hbox (badness 1270) in paragraph at lines 2171--2177
+\TU/SongtiSCLight(0)/m/it/10 果 执 行 []，|  \TU/lmr/m/it/10 tt t0[9] \TU/SongtiSCL
+ight(0)/m/it/10 用 []，|  则 \TU/lmtt/m/n/10 B \TU/SongtiSCLight(0)/m/it/10 写 成 []
+。|  如 果
+ []
+
+[37]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[38] [39] [40] [41]
+
+LaTeX Warning: Float too large for page by 23.06358pt on input line 2782.
+
+[42] [43] [44] [45]
+
+LaTeX Font Warning: Font shape `TU/STFangsong(0)/m/it' undefined
+(Font)              using `TU/STFangsong(0)/m/n' instead on input line 3038.
+
+LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10.95> not available
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 3061.
+[46]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Underfull \hbox (badness 3780) in paragraph at lines 3229--3231
+\TU/lmtt/m/n/10 menvcfg \TU/STFangsong(0)/m/n/10 中 需 要 \TU/lmtt/m/it/10 FIOM \T
+U/STFangsong(0)/m/n/10 位，|  因 此 \TU/lmtt/m/it/10 m \TU/STFangsong(0)/m/n/10 模 式
+ 可 以 模 拟 \TU/lmtt/m/it/10 Chapter [][]\TU/STFangsong(0)/m/n/10 八[][]的 \TU/lmtt/
+m/it/10 hypervisor \TU/STFangsong(0)/m/n/10 扩 展，|  它 在
+ []
+
+[47]
+Underfull \hbox (badness 4429) in paragraph at lines 3283--3286
+\TU/lmtt/m/n/10.95 MXLEN=32 \TU/STFangsong(0)/m/n/10.95 时，| \TU/lmtt/m/n/10.95 
+menvcfgh \TU/STFangsong(0)/m/n/10.95 是 一 个 \TU/lmtt/m/n/10.95 32 \TU/STFangsong
+(0)/m/n/10.95 位 的 读\TU/lmtt/m/n/10.95 /\TU/STFangsong(0)/m/n/10.95 写 寄 存 器，|  它
+ 包 含 与 \TU/lmtt/m/n/10.95 MXLEN=64 \TU/STFangsong(0)/m/n/10.95 时 \TU/lmtt/m/n/1
+0.95 menvcfg \TU/STFangsong(0)/m/n/10.95 的
+ []
+
+[48] [49] [50]
+
+LaTeX Warning: Reference `virt control' on page 51 undefined on input line 3648
+.
+
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 3671--3675
+[]\TU/lmtt/m/n/10.95 If an enabled interrupt is present or later becomes presen
+t while the hart is
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3671--3675
+\TU/lmtt/m/n/10.95 stalled, the interrupt trap will be taken on the following i
+nstruction, i.e.,
+ []
+
+[52]
+Underfull \hbox (badness 1107) in paragraph at lines 3782--3784
+[]\TU/STFangsong(0)/m/n/10.95 图 [][]\TU/lmtt/m/n/10.95 3.30[][]\TU/STFangsong(0
+)/m/n/10.95 中 所 示 的 \TU/lmtt/m/n/10.95 SYSTEM \TU/STFangsong(0)/m/n/10.95 主 操 作
+ 码 的 子 空 间 被 指 定 用 于 自 定 义 用 途。|  建 议 这 些 指 令 与 其 他
+ []
+
+[53] [54] [55]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[56] [57] [58] [59]
+
+LaTeX Warning: Reference `sec:PMA' on page 60 undefined on input line 4545.
+
+[60]
+Underfull \hbox (badness 1924) in paragraph at lines 4631--4633
+\TU/lmtt/m/it/10 RV64 \TU/STFangsong(0)/m/n/10 系 统 使 用 \TU/lmtt/m/n/10 pmpcfg2 
+\TU/STFangsong(0)/m/n/10 而 不 是 \TU/lmtt/m/n/10 pmpcfg1 \TU/STFangsong(0)/m/n/10
+ 来 保 存 \TU/lmtt/m/it/10 PMP \TU/STFangsong(0)/m/n/10 条 目 \TU/lmtt/m/it/10 8-15 
+\TU/STFangsong(0)/m/n/10 的 配 置。|  这 种 设 计 降 低
+ []
+
+
+Underfull \hbox (badness 1755) in paragraph at lines 4631--4633
+\TU/STFangsong(0)/m/n/10 了 支 持 多 个 \TU/lmtt/m/it/10 MXLEN \TU/STFangsong(0)/m/n
+/10 值 的 成 本，|  因 为 对 于 \TU/lmtt/m/it/10 RV32 \TU/STFangsong(0)/m/n/10 和 \TU/lmt
+t/m/it/10 RV64\TU/STFangsong(0)/m/n/10 ，| \TU/lmtt/m/it/10 PMP \TU/STFangsong(0
+)/m/n/10 条 目 \TU/lmtt/m/it/10 8-11 \TU/STFangsong(0)/m/n/10 的 配 置 都 出 现 在
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Overfull \hbox (2.32089pt too wide) in paragraph at lines 4689--4754
+ [] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: Reference `sec:Sv48' on page 61 undefined on input line 4783.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[61]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[62]
+Underfull \hbox (badness 4454) in paragraph at lines 4884--4888
+[]\TU/STFangsong(0)/m/it/10.95 如 果 更 改 了 \TU/lmtt/m/n/10.95 MXLEN\TU/STFangsong
+(0)/m/it/10.95 ，| \TU/lmtt/m/n/10.95 pmp\TU/lmtt/m/it/10.95 x\TU/lmtt/m/n/10.95
+ cfg \TU/STFangsong(0)/m/it/10.95 字 段 的 内 容 将 保 留，|  但 会 出 现 在 由 \TU/lmtt/m/n/1
+0.95 MXLEN \TU/STFangsong(0)/m/it/10.95 的 新 设 置 指 定 的
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4884--4888
+\TU/lmtt/m/n/10.95 pmpcfg1[7:0]\TU/STFangsong(0)/m/it/10.95 。| \TU/lmtt/m/n/10.
+95 pmpaddr CSRs follow the usual CSR width modulation rules described
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4920--4922
+[]\TU/lmtt/m/n/10.95 NAPOT ranges make use of the low-order bits of the associa
+ted address register to
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[63] [64] [65]) (../src/supervisor.tex [66]
+第四章
+[67
 
 ]
-第三章
-[17] [18] [19] [20] [21] [22]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[23] [24] [25] [26] [27] [28] [29]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[30] [31] [32]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[33] [34] [35] [36] [37]
+[68] [69] [70] [71] [72] [73]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[38] [39] [40]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[41] [42] [43]
-Underfull \hbox (badness 1558) in paragraph at lines 1904--1907
-[]\TU/lmr/m/n/10.95 The \TU/lmtt/m/n/10.95 mcycle \TU/lmr/m/n/10.95 CSR may be 
-shared between harts on the same core, in which case the
+[74] [75] [76] [77] [78]
+Underfull \hbox (badness 3701) in paragraph at lines 905--907
+[]\TU/lmtt/m/n/10 mcounteren \TU/SongtiSCLight(0)/m/it/10 中 位 的 设 置 不 影 响 \TU/l
+mtt/m/n/10 scounteren \TU/SongtiSCLight(0)/m/it/10 中 对 应 的 位 是 否 可 写。|  然 而，|  
+只 有 当
  []
 
-[44]
+[79]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-
-LaTeX Warning: Float too large for page by 23.06358pt on input line 2095.
-
-[45] [46] [47] [48] [49]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[50] [51] [52]
+[80]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[53]
+[81] [82] [83] [84]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[54] [55] [56] [57] [58] [59] [60] [61] [62] [63] [64] [65] [66] [67] [68]
-Overfull \hbox (2.32089pt too wide) in paragraph at lines 3470--3535
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[85]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[86] [87]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[88]
+Overfull \hbox (4.55539pt too wide) in paragraph at lines 1579--1590
  [] 
  []
 
-[69] [70] [71] [72] [73]) (../src/supervisor.tex [74]
-第四章
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[75
-
-] [76] [77] [78] [79] [80] [81] [82]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[83] [84]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[85] [86]
-Overfull \hbox (4.55539pt too wide) in paragraph at lines 975--986
+Overfull \hbox (4.55539pt too wide) in paragraph at lines 1603--1614
  [] 
  []
 
-[87]
+[89] [90]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[88] [89] [90] [91] [92] [93] [94] [95] [96] [97] [98] [99] [100] [101]
-Overfull \hbox (6.52151pt too wide) in paragraph at lines 1896--1931
- [] 
+[91] [92] [93] [94] [95] [96] [97] [98] [99] [100] [101] [102] [103] [104]
+Underfull \hbox (badness 1024) in paragraph at lines 2586--2588
+[]\TU/SongtiSCLight(0)/m/it/10 全 局 映 射 无 需 冗 余 存 储 在 多 个 \TU/lmr/m/it/10 ASID \
+TU/SongtiSCLight(0)/m/it/10 的 地 址 转 换 缓 存 中。|  此 外，|  当 执 行 \TU/lmr/m/n/10 rs2$
+\OMS/cmsy/m/n/10 6\OT1/cmr/m/n/10 =$\TU/lmtt/m/n/10 x0 \TU/SongtiSCLight(0)/m/i
+t/10 的
  []
 
-[102]
-Overfull \hbox (4.55318pt too wide) in paragraph at lines 2036--2051
- [] 
- []
-
-
-Overfull \hbox (12.76254pt too wide) in paragraph at lines 2061--2098
- [] 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[103]
-Overfull \hbox (4.55537pt too wide) in paragraph at lines 2150--2167
+[105] [106] [107] [108] [109] [110] [111] [112]
+Overfull \hbox (6.52151pt too wide) in paragraph at lines 3047--3082
  [] 
  []
 
@@ -1099,126 +1334,202 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
+Overfull \hbox (6.52151pt too wide) in paragraph at lines 3138--3173
+ [] 
+ []
+
+
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[104] [105] [106
+[113] [114] [115]
+Overfull \hbox (4.55318pt too wide) in paragraph at lines 3310--3325
+ [] 
+ []
+
+
+Overfull \hbox (12.76254pt too wide) in paragraph at lines 3335--3372
+ [] 
+ []
+
+
+Overfull \hbox (4.55318pt too wide) in paragraph at lines 3407--3422
+ [] 
+ []
+
+
+Overfull \hbox (12.76254pt too wide) in paragraph at lines 3432--3469
+ [] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[116] [117]
+Overfull \hbox (4.55537pt too wide) in paragraph at lines 3538--3555
+ [] 
+ []
+
+
+Overfull \hbox (4.55537pt too wide) in paragraph at lines 3649--3666
+ [] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[118] [119] [120
 
 ]
 第五章
-[107] [108] [109] [110
+[121] [122] [123] [124
 
 ]
 第六章
-[111] [112] [113] [114
+[125] [126] [127] [128
 
 ]
 第七章
 
-Underfull \hbox (badness 1515) in paragraph at lines 2515--2515
+Underfull \hbox (badness 1515) in paragraph at lines 4022--4022
  \TU/SongtiSCLight(0)/b/n/20.74 第 七 章 \TU/lmr/bx/n/20.74 “Svinval” Standard Ext
 ension for
  []
 
 
-Underfull \hbox (badness 2671) in paragraph at lines 2546--2551
+Underfull \hbox (badness 2671) in paragraph at lines 4053--4058
 []\TU/lmr/m/n/10.95 The SINVAL.VMA instruction invalidates any address-translat
 ion cache entries that an
  []
 
 
-Overfull \hbox (4.77458pt too wide) in paragraph at lines 2571--2571
+Overfull \hbox (4.77458pt too wide) in paragraph at lines 4078--4078
  []|\TU/lmr/m/n/10.95 SFENCE.W.INVAL| 
  []
 
 
-Overfull \hbox (5.53012pt too wide) in paragraph at lines 2594--2594
+Overfull \hbox (5.53012pt too wide) in paragraph at lines 4101--4101
  []|\TU/lmr/m/n/10.95 SFENCE.INVAL.IR| 
  []
 
-[115] [116]) (../src/hypervisor.tex [117] [118
+[129] [130]) (../src/hypervisor.tex [131] [132
 
 ]
 第八章
-[119]
-Overfull \hbox (1.82643pt too wide) in paragraph at lines 65--77
+[133] [134] [135] [136] [137]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[138] [139]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[140]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[141] [142] [143] [144]
+
+LaTeX Warning: Reference `sec: PMP' on page 145 undefined on input line 1308.
+
+[145]
+Underfull \hbox (badness 1270) in paragraph at lines 1384--1401
+[]\TU/lmtt/m/n/10.95 hgatp \TU/SongtiSCLight(0)/m/n/10.95 寄 存 器 是 一 个 \TU/lmr/m
+/n/10.95 HSXLEN \TU/SongtiSCLight(0)/m/n/10.95 位 读\TU/lmr/m/n/10.95 /\TU/Songti
+SCLight(0)/m/n/10.95 写 寄 存 器，|  其 \TU/lmr/m/n/10.95 HSXLEN=32 \TU/SongtiSCLight
+(0)/m/n/10.95 格 式 如 图 [][]\TU/lmr/m/n/10.95 8.19[][]\TU/SongtiSCLight(0)/m/n/10
+.95 所 示，|  其
+ []
+
+[146] [147] [148]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[149] [150] [151]
+Overfull \hbox (10.85367pt too wide) in paragraph at lines 2153--2164
  [] 
  []
 
-[120] [121] [122] [123]
+[152]
+Underfull \hbox (badness 1748) in paragraph at lines 2239--2257
+[]\TU/SongtiSCLight(0)/m/n/10.95 超 级 监 管 器 虚 拟 机 加 载 和 存 储 指 令 仅 在 \TU/lmr/m/n/
+10.95 M \TU/SongtiSCLight(0)/m/n/10.95 模 式 或 \TU/lmr/m/n/10.95 HS \TU/SongtiSCL
+ight(0)/m/n/10.95 模 式 下 有 效，|  或 在 \TU/lmr/m/n/10.95 U \TU/SongtiSCLight(0)/m/n
+/10.95 模 式 下 当
+ []
+
+[153] [154] [155] [156]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[124] [125] [126] [127] [128] [129]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[130] [131] [132]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[133] [134]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[135] [136]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[137] [138] [139]
-Overfull \hbox (10.85367pt too wide) in paragraph at lines 1790--1801
+[157] [158] [159] [160]
+Overfull \hbox (4.55318pt too wide) in paragraph at lines 3152--3167
  [] 
  []
 
-[140] [141] [142] [143]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[144] [145]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[146]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[147] [148] [149] [150]
-Overfull \hbox (4.55318pt too wide) in paragraph at lines 2612--2627
+[161] [162] [163]
+Overfull \hbox (31.00795pt too wide) in paragraph at lines 3416--3462
  [] 
  []
 
-[151] [152] [153]
 
-LaTeX Warning: Float too large for page by 128.53053pt on input line 2867.
+LaTeX Warning: Float too large for page by 111.70815pt on input line 3468.
 
-[154] [155] [156] [157] [158] [159]
+[164] [165] [166]
+Overfull \hbox (229.26862pt too wide) in paragraph at lines 3642--3678
+ [] 
+ []
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[160]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
+[167]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[161] [162]
+[168] [169]
+
+LaTeX Warning: Reference `tab:tinstt-values' on page 170 undefined on input lin
+e 3929.
+
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[163] [164]) (../src/priv-insns.tex [165] [166
+[170]
+
+LaTeX Warning: Reference `transformmedloadinst' on page 171 undefined on input 
+line 3999.
+
+
+LaTeX Warning: Reference `transformmedstoreinst' on page 171 undefined on input
+ line 4036.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: Reference `transformmetomicinst' on page 171 undefined on input 
+line 4072.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[171] [172] [173]) (../src/priv-insns.tex [174]
+第九章
+(../src/priv-instr-table.tex [175
 
 ]
-第九章
-(../src/priv-instr-table.tex [167]
 Overfull \hbox (4.8823pt too wide) in paragraph at lines 12--12
 []|[]| 
  []
@@ -1236,26 +1547,32 @@ Overfull \hbox (10.71071pt too wide) in paragraph at lines 7--332
 
 LaTeX Warning: Float too large for page by 39.50189pt on input line 335.
 
-)) (../src/priv-history.tex [168]
+)) (../src/priv-history.tex [176]
 第十章
-) (./riscv-privileged.bbl [169
+) (./riscv-privileged.bbl [177
 
-] [170
+] [178
 
-]) [171] (./riscv-privileged.aux)
+]) [179] (./riscv-privileged.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
 Package rerunfilecheck Info: File `riscv-privileged.out' has not changed.
-(rerunfilecheck)             Checksum: DCA5C237E2AF2AAD5DEF2FC65C5F668A;34119.
+(rerunfilecheck)             Checksum: 3B81DDC1418E06FCD6B1B1305FA861CE;32348.
  ) 
 Here is how much of TeX's memory you used:
- 19032 strings out of 476179
- 396078 string characters out of 5809545
- 841579 words of memory out of 5000000
- 39397 multiletter control sequences out of 15000+600000
- 478400 words of font info for 110 fonts, out of 8000000 for 9000
+ 19864 strings out of 476179
+ 450982 string characters out of 5809545
+ 840451 words of memory out of 5000000
+ 40220 multiletter control sequences out of 15000+600000
+ 478464 words of font info for 118 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 94i,14n,100p,604b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 94i,14n,100p,604b,753s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on riscv-privileged.pdf (189 pages).
+Output written on riscv-privileged.pdf (197 pages).

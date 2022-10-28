@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  11 OCT 2022 15:22
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  28 OCT 2022 14:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -976,38 +976,38 @@ LaTeX Font Warning: Font shape `TU/SongtiSCLight(0)/m/sc' undefined
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-LaTeX Warning: Reference `csrinsts' on page 15 undefined on input line 191.
+LaTeX Warning: Reference `csrinsts' on page 15 undefined on input line 196.
 
 [15]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [16] [17]
-Overfull \hbox (10.6104pt too wide) in paragraph at lines 414--414
+Overfull \hbox (10.6104pt too wide) in paragraph at lines 420--420
  []|\TU/lmr/m/n/10.95 ANDI/ORI/XORI| 
  []
 
 [18] [19] [20] [21] [22] [23] [24] [25] [26]
-Overfull \hbox (5.41927pt too wide) in paragraph at lines 921--954
+Overfull \hbox (5.41927pt too wide) in paragraph at lines 909--942
  [] 
  []
 
 [27]
 
-LaTeX Warning: Reference `csrinsts' on page 28 undefined on input line 1087.
+LaTeX Warning: Reference `csrinsts' on page 28 undefined on input line 1075.
 
 [28]
-Underfull \hbox (badness 1057) in paragraph at lines 1159--1169
+Underfull \hbox (badness 1057) in paragraph at lines 1148--1158
 []\TU/lmr/m/it/10 EBREAK \TU/SongtiSCLight(0)/m/it/10 的 另 一 个 用 处 是 支 持  |“半 宿 
 主” ，|  即，|  包 含 调 试 器 的 执 行 环 境 可 以 通 过 围 绕
  []
 
 
-LaTeX Warning: Reference `compressed' on page 29 undefined on input line 1174.
+LaTeX Warning: Reference `compressed' on page 29 undefined on input line 1163.
 
 [29]
 
-LaTeX Warning: Float too large for page by 103.44243pt on input line 1309.
+LaTeX Warning: Float too large for page by 103.44243pt on input line 1298.
 
 ) (../src/zifencei.tex [30] [31] [32
 
@@ -1100,451 +1100,355 @@ LaTeX Warning: Float too large for page by 260.3926pt on input line 375.
 [49]) (../src/m.tex [50]
 第九章
 
-Overfull \hbox (12.30765pt too wide) in paragraph at lines 37--37
+Overfull \hbox (12.30765pt too wide) in paragraph at lines 40--40
  []|\TU/lmr/m/n/10.95 MUL/MULH[[S]U]| 
  []
 
 [51
 
 ]
-Overfull \hbox (11.61833pt too wide) in paragraph at lines 95--95
+Overfull \hbox (11.61833pt too wide) in paragraph at lines 109--109
  []|\TU/lmr/m/n/10.95 DIV[U]W/REM[U]W| 
  []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
 
 [52]) (../src/a.tex [53] [54
 
 ]
 第十章
-[55] [56] [57] [58] [59] [60]
-Overfull \hbox (4.62128pt too wide) in paragraph at lines 421--421
+[55] [56] [57]
+Overfull \hbox (128.11487pt too wide) in paragraph at lines 333--333
+[]        \TU/lmtt/m/n/10.95 # a0  \TU/STFangsong(0)/m/n/10.95 持 有 返 回 值 ， 如 果 
+成 功 则 为 零 ， 否 则 为 非 零 。   \TU/lmtt/m/n/10.95 holds return value, 0 if successfu
+l, !0 otherwise[] 
+ []
+
+
+Overfull \hbox (64.87863pt too wide) in paragraph at lines 338--338
+[]        \TU/lmtt/m/n/10.95 bnez t0, cas         #  \TU/STFangsong(0)/m/n/10.9
+5 如 果 存 储 条 件 失 败 ， 那 么 重 试   \TU/lmtt/m/n/10.95 Retry if store-conditional fai
+led.[] 
+ []
+
+[58] [59]
+Overfull \hbox (4.62128pt too wide) in paragraph at lines 540--540
  []|\TU/lmr/m/n/10.95 AMOMAX[U].W/D| 
  []
 
-[61]
+[60]
 
-LaTeX Warning: Reference `sec:zam' on page 62 undefined on input line 444.
+LaTeX Warning: Reference `sec:zam' on page 61 undefined on input line 563.
 
-[62]) (../src/rvwmo.tex [63] [64]
+
+Overfull \hbox (1.64238pt too wide) in paragraph at lines 650--650
+[]        \TU/lmtt/m/n/10.95 amoswap.w.rl x0, x0, (a0) #  \TU/STFangsong(0)/m/n
+/10.95 通 过 存 储 \TU/lmtt/m/n/10.95 0 \TU/STFangsong(0)/m/n/10.95 来 释 放 锁 。  \TU/
+lmtt/m/n/10.95 Release lock by storing 0.[] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+) (../src/csr.tex [61] [62]
 第十一章
 
-Underfull \hbox (badness 2503) in paragraph at lines 1--1
- \TU/SongtiSCLight(0)/b/n/20.74 第 十 一 章 \TU/lmr/bx/n/20.74 RVWMO Memory Consist
-ency
+Underfull \hbox (badness 2088) in paragraph at lines 2--2
+ \TU/SongtiSCLight(0)/b/n/20.74 第 十 一 章 控 制 与 状 态 寄 存 器  |（\TU/lmr/bx/n/20.74 C
+SR\TU/SongtiSCLight(0)/b/n/20.74 ）|  指 令
  []
 
 
-LaTeX Warning: Reference `sec:zam' on page 65 undefined on input line 12.
+Overfull \hbox (1.12833pt too wide) in paragraph at lines 51--51
+ []|\TU/lmr/m/n/10.95 CSRRW| 
+ []
 
 
-LaTeX Warning: Reference `sec:ztso' on page 65 undefined on input line 12.
+Overfull \hbox (5.08127pt too wide) in paragraph at lines 54--54
+ []|\TU/lmr/m/n/10.95 CSRRWI| 
+ []
 
-[65
+
+Overfull \hbox (1.12833pt too wide) in paragraph at lines 55--55
+ []|\TU/lmr/m/n/10.95 CSRRSI| 
+ []
+
+
+Overfull \hbox (2.63942pt too wide) in paragraph at lines 56--56
+ []|\TU/lmr/m/n/10.95 CSRRCI| 
+ []
+
+[63
 
 ]
 
-LaTeX Warning: Reference `fld_fsd' on page 66 undefined on input line 42.
+LaTeX Warning: Reference `tab:csrsideeffects' on page 64 undefined on input lin
+e 161.
 
+[64] [65]) (../src/counters.tex [66]
+第十二章
+[67
 
-LaTeX Warning: Reference `sec:zam' on page 66 undefined on input line 52.
-
-[66]
-
-LaTeX Warning: Reference `sec:ztso' on page 67 undefined on input line 77.
-
-[67] [68] [69] [70] (../src/dep-table.tex [71]
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 42--131
-[][] 
+] [68]
+Underfull \hbox (badness 1400) in paragraph at lines 271--279
+\TU/SongtiSCLight(0)/m/n/10.95 当 \TU/lmr/m/n/10.95 XLEN \TU/SongtiSCLight(0)/m/
+n/10.95 ＝ \TU/lmr/m/n/10.95 32 \TU/SongtiSCLight(0)/m/n/10.95 时，|  这 些 性 能 计 数 
+器 的 高 \TU/lmr/m/n/10.95 32 \TU/SongtiSCLight(0)/m/n/10.95 位 可 以 通 过 额 外 的 \TU/l
+mr/m/n/10.95 CSR \TU/lmtt/m/n/10.95 hpmcounter3h \TU/lmr/m/n/10.95 -
  []
 
-[72]
-Overfull \vbox (121.99103pt too high) has occurred while \output is active []
+[69]) (../src/f.tex [70]
+第十三章
 
+LaTeX Warning: Reference `fprs' on page 71 undefined on input line 22.
 
-[73]
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 132--146
-[][] 
- []
+[71
 
+] [72]
 
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 147--161
-[][] 
- []
+LaTeX Warning: Reference `fcsr' on page 73 undefined on input line 115.
 
 
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 162--199
-[][] 
- []
+LaTeX Warning: Reference `rm' on page 73 undefined on input line 191.
 
 
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 200--223
-[][] 
- []
-
-[74]
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 224--241
-[][] 
- []
-
-
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 242--271
-[][] 
- []
-
-
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 272--301
-[][] 
- []
-
-[75]
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 302--361
-[][] 
- []
-
-[76]
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 362--377
-[][] 
- []
-
-
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 378--437
-[][] 
- []
-
-[77]))
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 438--98
-[][]
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 438--98
-
- []
-
-(../src/memory.tex [78] [79] [80
-
-]
-附录 A
-[81]
-Overfull \hbox (9.90086pt too wide) in paragraph at lines 71--87
-[]|[]| 
- []
-
-(../src/figs/litmus_sample.pdf_t
-File: figs/litmus_sample.pdf Graphic file (type pdf)
-<use figs/litmus_sample.pdf>
-)
-
-Package fontspec Info: Could not resolve font "PingFang SC/I" (it probably
-(fontspec)             doesn't exist).
-
-
-Package fontspec Info: Font family 'PingFangSC(0)' created for font 'PingFang
-(fontspec)             SC' with options [Script={CJK}].
-(fontspec)              
-(fontspec)              This font family consists of the following NFSS
-(fontspec)             series/shapes:
-(fontspec)              
-(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"PingFang
-(fontspec)             SC/OT:script=hani;language=dflt;"
-(fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
-(fontspec)             - 'bold' (b/n) with NFSS spec.: <->"PingFang
-(fontspec)             SC/B/OT:script=hani;language=dflt;"
-(fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
-(fontspec)             - 'bold italic' (b/it) with NFSS spec.: <->"PingFang
-(fontspec)             SC/BI/OT:script=hani;language=dflt;"
-(fontspec)             - 'bold italic small caps'  (b/scit) with NFSS spec.: 
-
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[82]
-Underfull \hbox (badness 10000) in paragraph at lines 154--156
-[]\TU/SongtiSCLight(0)/m/n/10.95 除 了 在 这 个 附 录 中 描 述 的 内 容，|  在[][]$[][][][][] 
-[] [] [] [][][][][][] [] [][][] [] [][][][][][][][][][][][][] []
- []
-
-[83]
-Overfull \hbox (9.90086pt too wide) in paragraph at lines 223--235
-[]|[]| 
- []
-
-(../src/figs/litmus_sb_fwd.pdf_t
-File: figs/litmus_sb_fwd.pdf Graphic file (type pdf)
-<use figs/litmus_sb_fwd.pdf>
-)
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[84] [85]
-Overfull \hbox (20.40086pt too wide) in paragraph at lines 295--311
-[]|[]| 
- []
-
-(../src/figs/litmus_ppoca.pdf_t
-File: figs/litmus_ppoca.pdf Graphic file (type pdf)
-<use figs/litmus_ppoca.pdf>
-)
-Overfull \hbox (46.14082pt too wide) in paragraph at lines 3--313
-[]|[][]| 
- []
-
-[86] [87] [88]
-Overfull \hbox (15.15086pt too wide) in paragraph at lines 436--450
-[]|[]| 
- []
-
-(../src/figs/litmus_mp_fenceww_fri_rfi_addr.pdf_t
-File: figs/litmus_mp_fenceww_fri_rfi_addr.pdf Graphic file (type pdf)
-<use figs/litmus_mp_fenceww_fri_rfi_addr.pdf>
-)
-Overfull \hbox (36.56482pt too wide) in paragraph at lines 3--452
-[]|[][]| 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[89]
-Overfull \hbox (15.15086pt too wide) in paragraph at lines 481--496
-[]|[]| 
- []
-
-(../src/figs/litmus_rsw.pdf_t
-File: figs/litmus_rsw.pdf Graphic file (type pdf)
-<use figs/litmus_rsw.pdf>
-)
-Overfull \hbox (44.84998pt too wide) in paragraph at lines 478--499
- [][] 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[90] [91] [92]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[93] [94] [95] [96]
-Overfull \hbox (25.65086pt too wide) in paragraph at lines 747--760
-[]|[]| 
- []
-
-(../src/figs/litmus_lb_lrsc.pdf_t
-File: figs/litmus_lb_lrsc.pdf Graphic file (type pdf)
-<use figs/litmus_lb_lrsc.pdf>
-) [97]
-Overfull \hbox (15.15086pt too wide) in paragraph at lines 792--804
-[]|[]| 
- []
-
-(../src/figs/litmus_datarfi.pdf_t
-File: figs/litmus_datarfi.pdf Graphic file (type pdf)
-<use figs/litmus_datarfi.pdf>
-)
-Overfull \hbox (46.14082pt too wide) in paragraph at lines 3--806
-[]|[][]| 
- []
-
-[98]
-Overfull \hbox (15.15086pt too wide) in paragraph at lines 823--838
-[]|[]| 
- []
-
-(../src/figs/litmus_datacoirfi.pdf_t
-File: figs/litmus_datacoirfi.pdf Graphic file (type pdf)
-<use figs/litmus_datacoirfi.pdf>
-)
-Overfull \hbox (19.70142pt too wide) in paragraph at lines 3--840
-[]|[][]| 
- []
-
-
-Overfull \hbox (15.15086pt too wide) in paragraph at lines 856--866
-[]|[]| 
- []
-
-(../src/figs/litmus_addrpo.pdf_t
-File: figs/litmus_addrpo.pdf Graphic file (type pdf)
-<use figs/litmus_addrpo.pdf>
-)
-Overfull \hbox (30.6024pt too wide) in paragraph at lines 3--868
-[]|[][]| 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[99] [100] [101] [102]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[103] [104] [105]
-Overfull \hbox (3.8474pt too wide) in paragraph at lines 1162--1232
- [][] 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[106] [107] [108] [109] [110]
-Underfull \hbox (badness 4266) in paragraph at lines 1355--1356
-[]\TU/lmr/m/n/10.95 implement all fences with PW and SR as if they were FENCE R
-W,RW (or
- []
-
-
-Overfull \hbox (9.90086pt too wide) in paragraph at lines 1382--1391
-[]|[]| 
- []
-
-(../src/figs/litmus_subsumption.pdf_t
-File: figs/litmus_subsumption.pdf Graphic file (type pdf)
-<use figs/litmus_subsumption.pdf>
-)
-Overfull \hbox (19.70142pt too wide) in paragraph at lines 3--1393
-[]|[][]| 
- []
-
-[111] [112]
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[113] [114]
-附录 B
-[115
-
-] (../src/memory-model-alloy.tex
-Underfull \hbox (badness 1412) in paragraph at lines 17--19
-[][][][][] [] [][][] [] [][][]$[][]\TU/lmr/m/n/10.95 ). This model is available
- online at [][]$[][][][][] [] [] [] [][][][][][] [] [][][] [] [][][][][][][][][
-][][][] []
- []
-
-LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 24.
-LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <9> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 24.
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: Float too large for page by 119.29922pt on input line 155.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: Float too large for page by 147.89929pt on input line 268.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-) [116
-
-] [117] [118] [119] [120] (../src/memory-model-herd.tex
-
-LaTeX Warning: Float too large for page by 247.99953pt on input line 77.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-) [121
-
-] [122] [123] [124] (../src/memory-model-operational.tex [125
-
-] [126]
-[127] [128] [129]
-Underfull \hbox (badness 1005) in paragraph at lines 232--233
-[]\TU/lmr/m/n/10.95 the continuations describe how the instruction instance wil
-l continue for each value
- []
-
-[130]
-Overfull \hbox (5.18898pt too wide) in paragraph at lines 272--281
+Overfull \hbox (67.34499pt too wide) in paragraph at lines 213--255
  [] 
  []
 
-[131] [132] [133] [134] [135] [136]
-Underfull \hbox (badness 10000) in paragraph at lines 453--455
-\TU/lmr/bx/n/10.95 Complete load operations[] \TU/lmr/m/n/10.95 A load instruct
-ion instance $\OML/cmm/m/it/10.95 i$ \TU/lmr/m/n/10.95 in state \TU/lmr/m/sc/10
-.95 Pend-
- []
+[73
 
-[137]
-Underfull \hbox (badness 4859) in paragraph at lines 468--471
-\TU/lmr/bx/n/10.95 Initiate memory store operation footprints[] \TU/lmr/m/n/10.
-95 An instruction instance $\OML/cmm/m/it/10.95 i$ \TU/lmr/m/n/10.95 in state
- []
+]
+
+LaTeX Warning: Reference `bitdef' on page 74 undefined on input line 284.
+
+[74] [75]
+
+LaTeX Warning: Reference `tab:fmt' on page 76 undefined on input line 472.
 
 
-Underfull \hbox (badness 5189) in paragraph at lines 487--490
-\TU/lmr/bx/n/10.95 Instantiate memory store operation values[] \TU/lmr/m/n/10.9
-5 An instruction instance $\OML/cmm/m/it/10.95 i$ \TU/lmr/m/n/10.95 in state
- []
+LaTeX Warning: Reference `rm' on page 76 undefined on input line 500.
 
-[138]
-Underfull \hbox (badness 2409) in paragraph at lines 508--509
-[]\TU/lmr/m/n/10.95 all program-order-previous load instructions have initiated
- and so have non-empty
+
+Overfull \hbox (0.51508pt too wide) in paragraph at lines 547--547
+ []|\TU/lmr/m/n/10.95 FADD/FSUB| 
  []
 
 
-Underfull \hbox (badness 2376) in paragraph at lines 520--522
-\TU/lmr/bx/n/10.95 Propagate store operation[] \TU/lmr/m/n/10.95 For a committe
-d instruction instance $\OML/cmm/m/it/10.95 i$ \TU/lmr/m/n/10.95 in state \TU/l
-mr/m/sc/10.95 Pend-
+Overfull \hbox (15.12242pt too wide) in paragraph at lines 550--550
+ []|\TU/lmr/m/n/10.95 MIN/MAX| 
  []
 
-[139] [140]
-Underfull \hbox (badness 10000) in paragraph at lines 569--571
-\TU/lmr/bx/n/10.95 Complete store operations[] \TU/lmr/m/n/10.95 A store instru
-ction instance $\OML/cmm/m/it/10.95 i$ \TU/lmr/m/n/10.95 in state \TU/lmr/m/sc/
-10.95 Pend-
+[76]
+Overfull \hbox (24.39697pt too wide) in paragraph at lines 620--621
+ []|\TU/lmr/m/n/10.95 F[N]MADD/F[N]MSUB| 
+ []
+
+[77]
+
+LaTeX Warning: Reference `tab:int_conv' on page 78 undefined on input line 659.
+
+
+
+Overfull \hbox (1.01877pt too wide) in paragraph at lines 735--735
+ []|\TU/lmr/m/n/10.95 FCVT.\TU/lmr/m/it/10.95 int\TU/lmr/m/n/10.95 .\TU/lmr/m/i
+t/10.95 fmt| 
  []
 
 
-Underfull \hbox (badness 5359) in paragraph at lines 569--571
-\TU/lmr/m/sc/10.95 ing_mem_stores\TU/lmr/m/n/10.95 (\TU/lmr/m/it/10.95 store_co
-ntinuation\TU/lmr/m/n/10.95 ), for which all the memory store operations in
+Overfull \hbox (1.01877pt too wide) in paragraph at lines 736--736
+ []|\TU/lmr/m/n/10.95 FCVT.\TU/lmr/m/it/10.95 fmt\TU/lmr/m/n/10.95 .\TU/lmr/m/i
+t/10.95 int| 
+ []
+
+[78] [79]
+Overfull \hbox (16.04222pt too wide) in paragraph at lines 921--921
+ []|\TU/lmr/m/n/10.95 EQ/LT/LE| 
  []
 
 
-Underfull \hbox (badness 1062) in paragraph at lines 569--571
-\OML/cmm/m/it/10.95 i:[]$ \TU/lmr/m/n/10.95 have been propagated, can always be
- completed (not to be confused with
+LaTeX Warning: Reference `tab:fclass' on page 80 undefined on input line 938.
+
+[80]) (../src/d.tex [81] [82
+
+]
+第十四章
+
+LaTeX Warning: Reference `fprs' on page 83 undefined on input line 16.
+
+
+LaTeX Warning: Reference `nanboxing' on page 83 undefined on input line 17.
+
+[83] [84]
+Overfull \hbox (0.51508pt too wide) in paragraph at lines 217--217
+ []|\TU/lmr/m/n/10.95 FADD/FSUB| 
  []
 
-[141] [142] [143] [144])) (./riscv-spec.bbl [145] [146
 
-] [147]) [148]
-(./riscv-spec.aux)
-
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+Overfull \hbox (15.12242pt too wide) in paragraph at lines 219--219
+ []|\TU/lmr/m/n/10.95 MIN/MAX| 
+ []
 
 
-LaTeX Warning: There were undefined references.
+Overfull \hbox (24.39697pt too wide) in paragraph at lines 245--246
+ []|\TU/lmr/m/n/10.95 F[N]MADD/F[N]MSUB| 
+ []
 
-Package rerunfilecheck Info: File `riscv-spec.out' has not changed.
-(rerunfilecheck)             Checksum: 220353EC626413784A55A7E28C54D782;12724.
- ) 
+[85] [86]
+Overfull \hbox (16.04222pt too wide) in paragraph at lines 473--473
+ []|\TU/lmr/m/n/10.95 EQ/LT/LE| 
+ []
+
+) (../src/q.tex [87] [88
+
+]
+第十五章
+
+LaTeX Warning: Reference `nanboxing' on page 89 undefined on input line 8.
+
+
+LaTeX Warning: Reference `tab:fpextfmt' on page 89 undefined on input line 84.
+
+[89]
+Overfull \hbox (0.51508pt too wide) in paragraph at lines 133--133
+ []|\TU/lmr/m/n/10.95 FADD/FSUB| 
+ []
+
+
+Overfull \hbox (15.12242pt too wide) in paragraph at lines 135--135
+ []|\TU/lmr/m/n/10.95 MIN/MAX| 
+ []
+
+
+Overfull \hbox (24.39697pt too wide) in paragraph at lines 161--162
+ []|\TU/lmr/m/n/10.95 F[N]MADD/F[N]MSUB| 
+ []
+
+[90]
+Overfull \hbox (16.04222pt too wide) in paragraph at lines 318--318
+ []|\TU/lmr/m/n/10.95 EQ/LT/LE| 
+ []
+
+[91]) (../src/zfh.tex [92]
+第十六章
+[93
+
+]
+
+LaTeX Warning: Reference `tab:fpextfmth' on page 94 undefined on input line 97.
+
+
+
+Overfull \hbox (0.51508pt too wide) in paragraph at lines 146--146
+ []|\TU/lmr/m/n/10.95 FADD/FSUB| 
+ []
+
+
+Overfull \hbox (15.12242pt too wide) in paragraph at lines 148--148
+ []|\TU/lmr/m/n/10.95 MIN/MAX| 
+ []
+
+
+Overfull \hbox (24.39697pt too wide) in paragraph at lines 174--175
+ []|\TU/lmr/m/n/10.95 F[N]MADD/F[N]MSUB| 
+ []
+
+[94] [95]
+Overfull \hbox (16.04222pt too wide) in paragraph at lines 372--372
+ []|\TU/lmr/m/n/10.95 EQ/LT/LE| 
+ []
+
+[96]
+
+LaTeX Warning: Citation `roux:hal-01091186' on page 97 undefined on input line 
+442.
+
+) (../src/rvwmo.tex [97] [98
+
+]
+第十七章
+
+LaTeX Warning: Reference `sec:zam' on page 99 undefined on input line 18.
+
+
+LaTeX Warning: Reference `sec:ztso' on page 99 undefined on input line 18.
+
+[99]
+
+LaTeX Warning: Reference `fld_fsd' on page 100 undefined on input line 58.
+
+
+LaTeX Warning: Reference `sec:zam' on page 100 undefined on input line 71.
+
+[100]
+
+LaTeX Warning: Reference `sec:ztso' on page 101 undefined on input line 112.
+
+[101] [102] [103] (../src/dep-table.tex [104]
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 51--140
+[][] 
+ []
+
+[105]
+Overfull \vbox (121.99103pt too high) has occurred while \output is active []
+
+
+[106]
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 141--155
+[][] 
+ []
+
+
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 156--170
+[][] 
+ []
+
+
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 171--208
+[][] 
+ []
+
+
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 209--232
+[][] 
+ []
+
+[107]
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 233--250
+[][] 
+ []
+
+
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 251--280
+[][] 
+ []
+
+
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 281--310
+[][] 
+ []
+
+[108]
+Overfull \hbox (68.98904pt too wide) in paragraph at lines 311--370
+[][] 
+ []
+
+[109])
+Runaway argument?
+{\bf RV64F 标准扩展 \\ \cline {2-4} & 源 & 目的 & 累积 \\ & \ETC.
+! File ended while scanning use of \multicolumn.
+<inserted text> 
+                \par 
+l.274 \input{dep-table}
+                        
 Here is how much of TeX's memory you used:
- 20381 strings out of 476179
- 469278 string characters out of 5809545
- 996549 words of memory out of 5000000
- 40681 multiletter control sequences out of 15000+600000
- 478456 words of font info for 117 fonts, out of 8000000 for 9000
+ 20109 strings out of 476179
+ 470616 string characters out of 5809545
+ 792172 words of memory out of 5000000
+ 40459 multiletter control sequences out of 15000+600000
+ 478384 words of font info for 108 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 94i,21n,100p,727b,1203s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 94i,15n,100p,601b,618s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on riscv-spec.pdf (164 pages).
+Output written on riscv-spec.pdf (125 pages).

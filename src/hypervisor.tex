@@ -4,9 +4,9 @@
 
 这章描述了RISC-V超级监管级拓展。为了支持运行在type-1或type-2超级监管器之上的宾客（guest）操作系统的efficient hosting，
 超级监管器虚拟化了监管级架构。
-This chapter describes the RISC-V hypervisor extension, which virtualizes the
-supervisor-level architecture to support the efficient hosting of guest
-operating systems atop a type-1 or type-2 hypervisor.
+% This chapter describes the RISC-V hypervisor extension, which virtualizes the
+% supervisor-level architecture to support the efficient hosting of guest
+% operating systems atop a type-1 or type-2 hypervisor.
 超级监管级拓展把监管模式修改成了{\em 超级监管器拓展的监管模式（hypervisor-extended supervisor mode）}（HS-模式, 或简称 {\em 监管级
 模式}）。一个超级监管器或一个兼容宿主机的操作系统运行在这个HS-模式上。
 % The hypervisor extension changes supervisor mode into
@@ -21,9 +21,9 @@ operating systems atop a type-1 or type-2 hypervisor.
 % memory and memory-mapped I/O subsystems for a guest operating system.  
 HS-模式的行为很像S-模式，但是多了额外的指令和在虚拟S-模式（VS-mode）上，控制地址翻译新阶段和支持host一个宾客OS的控制状态寄存器。
 HS-mode
-acts the same as S-mode, but with additional instructions and CSRs that control
-the new stage of address translation and support hosting a guest OS in virtual
-S-mode (VS-mode).
+% acts the same as S-mode, but with additional instructions and CSRs that control
+% the new stage of address translation and support hosting a guest OS in virtual
+% S-mode (VS-mode).
 
 常规的S-模式操作系统能够在HS-模式或在VS-模式下作为宾客操作系统不加修改的运行。
 % Regular S-mode operating systems can execute without modification either in
@@ -55,9 +55,9 @@ CSR的{\tt mtval}寄存器不可以是只读的零，并且标准的基于页面
 \begin{commentary}
 
 这个基线特权架构被设计用来简化经典的虚拟技术的使用，一个宾客操作系统在用户级别运行在其上，因为很少的特权指令可以被很容易的检测到和陷入。
-The baseline privileged architecture is designed to simplify the use of classic
-virtualization techniques, where a guest OS is run at user-level, as
-the few privileged instructions can be easily detected and trapped.
+% The baseline privileged architecture is designed to simplify the use of classic
+% virtualization techniques, where a guest OS is run at user-level, as
+% the few privileged instructions can be easily detected and trapped.
 
 这个超级监管器通过减少这种陷入的频率提升了虚拟化的性能。
 % The hypervisor extension improves virtualization performance by
@@ -65,10 +65,10 @@ the few privileged instructions can be easily detected and trapped.
 
 在没有实现超级管理器拓展的平台上，通过在S-模式运行超级监管器和为了超级监管器CSR访问而陷入到M-模式和为了维持阴影页表（shadow page table）而陷入到M-模式，
 超级监管器已经被设计去高效地模拟.
-The hypervisor extension has been designed to be efficiently
-emulable on platforms that do not implement the extension, by running
-the hypervisor in S-mode and trapping into M-mode for hypervisor CSR accesses
-and to maintain shadow page tables.  
+% The hypervisor extension has been designed to be efficiently
+% emulable on platforms that do not implement the extension, by running
+% the hypervisor in S-mode and trapping into M-mode for hypervisor CSR accesses
+% and to maintain shadow page tables.  
 
 大部分type-2类型的超级监管器CSR访问是有效的S-模式访问，所以不需要被陷入。
 超级监管器可以类似地支持嵌套虚拟化。
@@ -157,9 +157,9 @@ HS-模式比VS-模式有更高的权限，VS-模式比VU-模式有更高的权�
 % {\tt sstatus} CSR.
 
 当V=1时，VS控制状态寄存器
-When V=1, the VS CSRs substitute for the corresponding supervisor CSRs,
-taking over all functions of the usual supervisor CSRs except as specified
-otherwise.
+% When V=1, the VS CSRs substitute for the corresponding supervisor CSRs,
+% taking over all functions of the usual supervisor CSRs except as specified
+% otherwise.
 一般的读或修改一个监管级CSR的指令应该访问相应的VS控制状态寄存器。
 % Instructions that normally read or modify a supervisor CSR shall instead
 % access the corresponding VS CSR.
@@ -172,10 +172,10 @@ VS控制状态寄存器只能从M-模式或HS-模式访问它们。
 % The VS CSRs can be accessed as themselves only from M-mode or HS-mode.
 
 当V=1时，一般被VS级CSR代替的HS级监管级CSR保持它们的值，但是不影响这个机器的行为，除非具体的文件声明不这么做。
-While V=1, the normal HS-level supervisor CSRs that are replaced by
-VS CSRs retain their values but do
-not affect the behavior of the machine unless specifically documented to
-do so.
+% While V=1, the normal HS-level supervisor CSRs that are replaced by
+% VS CSRs retain their values but do
+% not affect the behavior of the machine unless specifically documented to
+% do so.
 相反的，当V=0时，VS级控制状态寄存器通常不影响这个机器的行为，除非被CSR指令读或写。
 % Conversely, when V=0, the VS CSRs do not ordinarily affect the behavior of
 % the machine other than being readable and writable by CSR instructions.
@@ -992,16 +992,17 @@ HSXLEN-1 & 1 \\
 % The enable bits in {\tt hgeie} do not affect the VS-level external
 % interrupt signal selected from {\tt hgeip} by {\tt hstatus}.VGEIN.
 
-\subsection{超级监管器环境配置寄存器（{\tt henvcfg} and {\tt henvcfgh}）
+\subsection{超级监管器环境配置寄存器（{\tt henvcfg} 和 {\tt henvcfgh}）
  %Hypervisor Environment Configuration Registers
  %({\tt henvcfg} and {\tt henvcfgh})%
 }
 
-The {\tt henvcfg} CSR is an HSXLEN-bit read/write register,
-formatted for HSXLEN=64 as shown in Figure~\ref{fig:henvcfg},
-that controls certain
-characteristics of the execution environment when virtualization mode
-V=1.
+{\tt henvcfg} CSR是一个HSXLEN-bit读/写寄存器，格式化为HSXLEN=64，如图~\ref{fig:henvcfg}所示，它控制虚拟模式V=1时执行环境的某些特征。
+% The {\tt henvcfg} CSR is an HSXLEN-bit read/write register,
+% formatted for HSXLEN=64 as shown in Figure~\ref{fig:henvcfg},
+% that controls certain
+% characteristics of the execution environment when virtualization mode
+% V=1.
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1030,21 +1031,25 @@ V=1.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Hypervisor environment configuration register ({\tt henvcfg}) for HSXLEN=64.}
+\caption{HSXLEN=64下，超级监管器环境配置寄存器 （{\tt henvcfg}）。}
 \label{fig:henvcfg}
 \end{figure}
 
-If bit FIOM (Fence of I/O implies Memory) is set to one in
-{\tt henvcfg}, FENCE instructions executed when V=1 are modified
-so the requirement to order accesses to device I/O implies also the
-requirement to order main memory accesses.
-Table~\ref{tab:henvcfg-FIOM} details the modified interpretation of
-FENCE instruction bits PI, PO, SI, and SO when FIOM=1 and V=1.
+如果在{\tt henvcfg}中将位FIOM (I/O的Fence意味着内存)设置为1，那么当V=1时执行的Fence指令将被修改，
+因此对设备I/O的访问顺序要求也意味着对主存访问顺序的要求。表~\ref{tab:henvcfg-FIOM}详细描述了FIOM=1和V=1时FENCE指令位PI、PO、SI和SO的修改解释。
+% If bit FIOM (Fence of I/O implies Memory) is set to one in
+% {\tt henvcfg}, FENCE instructions executed when V=1 are modified
+% so the requirement to order accesses to device I/O implies also the
+% requirement to order main memory accesses.
+% Table~\ref{tab:henvcfg-FIOM} details the modified interpretation of
+% FENCE instruction bits PI, PO, SI, and SO when FIOM=1 and V=1.
 
-Similarly, when FIOM=1 and V=1,
-if an atomic instruction that accesses a region ordered as device I/O
-has its {\em aq} and/or {\em rl} bit set, then that instruction is ordered
-as though it accesses both device I/O and memory.
+类似地，当FIOM=1和V=1时，如果访问作为设备I/O排序的区域的原子指令有它的{\em aq}和/或{\em rl}位设置，
+那么该指令的排序就像它访问设备I/O和内存一样。
+% Similarly, when FIOM=1 and V=1,
+% if an atomic instruction that accesses a region ordered as device I/O
+% has its {\em aq} and/or {\em rl} bit set, then that instruction is ordered
+% as though it accesses both device I/O and memory.
 
 \begin{table}[h!]
 \begin{center}
@@ -1062,48 +1067,58 @@ SO & Successor device output and memory writes   (SW implied) \\
 \end{center}
 \vspace{-0.1in}
 \caption{%
-Modified interpretation of FENCE predecessor and successor sets when
-FIOM=1 and virtualization mode V=1.%
+修改了FIOM=1和虚拟模式V=1时的FENCE前集合和后集合的解释。
+% Modified interpretation of FENCE predecessor and successor sets when
+% FIOM=1 and virtualization mode V=1.%
 }
 \label{tab:henvcfg-FIOM}
 \end{table}
 
-The PBMTE bit controls whether the Svpbmt extension is available for use in
-VS-stage address translation.
-When PBMTE=1, Svpbmt is available for VS-stage address translation.
-When PBMTE=0, the implementation behaves as though Svpbmt were not implemented
-for VS-stage address translation.
-If Svpbmt is not implemented, PBMTE is read-only zero.
+PBMTE位控制Svpbmt扩展是否可用于VS级地址转换。当PBMTE=1时，Svpbmt可用于VS级地址转换。
+当PBMTE=0时，实现行为就好像Svpbmt没有实现VS阶段地址转换。如果没有实现Svpbmt，则PBMTE为只读零。
+% The PBMTE bit controls whether the Svpbmt extension is available for use in
+% VS-stage address translation.
+% When PBMTE=1, Svpbmt is available for VS-stage address translation.
+% When PBMTE=0, the implementation behaves as though Svpbmt were not implemented
+% for VS-stage address translation.
+% If Svpbmt is not implemented, PBMTE is read-only zero.
 
-The definition of the STCE field will be furnished by the
-forthcoming Sstc extension.
-Its allocation within {\tt henvcfg} may change prior to the ratification
-of that extension.
+STCE字段的定义将由即将到来的Sstc扩展提供。它在{\tt henvcfg}中的分配可能在该扩展批准之前发生变化。
+% The definition of the STCE field will be furnished by the
+% forthcoming Sstc extension.
+% Its allocation within {\tt henvcfg} may change prior to the ratification
+% of that extension.
 
-The definition of the CBZE field will be furnished by the
-forthcoming Zicboz extension.
-Its allocation within {\tt henvcfg} may change prior to the ratification
-of that extension.
+CBZE字段的定义将由即将到来的Zicboz扩展提供。它在{\tt henvcfg}中的分配可能在该扩展批准之前发生变化。
+% The definition of the CBZE field will be furnished by the
+% forthcoming Zicboz extension.
+% Its allocation within {\tt henvcfg} may change prior to the ratification
+% of that extension.
 
-The definitions of the CBCFE and CBIE fields will be furnished by the
-forthcoming Zicbom extension.
-Their allocations within {\tt henvcfg} may change prior to the ratification
-of that extension.
+CBCFE和CBIE字段的定义将由即将到来的Zicbom扩展提供。它们在{\tt henvcfg}内的分配可能在批准该扩展之前发生变化。
+% The definitions of the CBCFE and CBIE fields will be furnished by the
+% forthcoming Zicbom extension.
+% Their allocations within {\tt henvcfg} may change prior to the ratification
+% of that extension.
 
-When HSXLEN=32, {\tt henvcfg} contains the same fields as bits 31:0
-of {\tt henvcfg} when HSXLEN=64.
-Additionally, when HSXLEN=32, {\tt henvcfgh} is a 32-bit read/write register that
-contains the same fields as bits 63:32 of {\tt henvcfg} when
-HSXLEN=64.
-Register {\tt henvcfgh} does not exist when HSXLEN=64.
+当HSXLEN=32时，{\tt henvcfg}包含与HSXLEN=64时{\tt henvcfg}的31:0位相同的字段。
+此外，当HSXLEN=32时，{\tt henvcfgh}是一个32位的读/写寄存器，它包含与HSXLEN=64时{\tt henvcfg}的63:32位相同的字段。
+HSXLEN=64时，寄存器{\tt henvcfgh}不存在。
+% When HSXLEN=32, {\tt henvcfg} contains the same fields as bits 31:0
+% of {\tt henvcfg} when HSXLEN=64.
+% Additionally, when HSXLEN=32, {\tt henvcfgh} is a 32-bit read/write register that
+% contains the same fields as bits 63:32 of {\tt henvcfg} when
+% HSXLEN=64.
+% Register {\tt henvcfgh} does not exist when HSXLEN=64.
 
 \subsection{超级监管器计数器使能寄存器 （{\tt hcounteren}）
 %Hypervisor Counter-Enable Register ({\tt hcounteren})
 }
 
-The counter-enable register {\tt hcounteren} is a 32-bit register that
-controls the availability of the hardware performance monitoring counters
-to the guest virtual machine.
+计数器使能寄存器{\tt hcounteren}是一个32位寄存器，它控制硬件性能监视计数器对宾客虚拟机的可用性。
+% The counter-enable register {\tt hcounteren} is a 32-bit register that
+% controls the availability of the hardware performance monitoring counters
+% to the guest virtual machine.
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -1137,37 +1152,49 @@ to the guest virtual machine.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Hypervisor counter-enable register ({\tt hcounteren}).}
+\caption{超级监管器计数器使能寄存器（{\tt hcounteren}）
+% Hypervisor counter-enable register ({\tt hcounteren}).
+}
 \label{hcounteren}
 \end{figure*}
 
-When the CY, TM, IR, or HPM{\em n} bit in the {\tt hcounteren} register
-is clear, attempts to read the {\tt cycle}, {\tt time}, {\tt instret}, or
-{\tt hpmcounter}{\em n} register while V=1 will cause a virtual
-instruction exception if the same bit in {\tt mcounteren} is~1.
-When one of these bits is set, access to the corresponding register is
-permitted when V=1, unless prevented for some other reason.
-In VU-mode, a counter is not readable unless the applicable bits are set
-in both {\tt hcounteren} and {\tt scounteren}.
+当{\tt hcounteren}寄存器中的CY、TM、IR或HPM{\em n}位为空时，当V=1时试图读取{\tt cycle}、{\tt time}、{\tt instret}或{\tt hpmcounter}{\em n}寄存器时，
+如果{\tt mcounteren}中的同一位为1，则将导致虚拟指令异常。当这些位中的一个被设置，当V=1时，访问相应的寄存器是被允许的，
+除非有其他原因阻止。在VU模式下，除非在{\tt hcounteren}和{\tt scounteren}中同时设置了适用的位，否则计数器是不可读的。
+% When the CY, TM, IR, or HPM{\em n} bit in the {\tt hcounteren} register
+% is clear, attempts to read the {\tt cycle}, {\tt time}, {\tt instret}, or
+% {\tt hpmcounter}{\em n} register while V=1 will cause a virtual
+% instruction exception if the same bit in {\tt mcounteren} is~1.
+% When one of these bits is set, access to the corresponding register is
+% permitted when V=1, unless prevented for some other reason.
+% In VU-mode, a counter is not readable unless the applicable bits are set
+% in both {\tt hcounteren} and {\tt scounteren}.
 
-{\tt hcounteren} must be implemented.
-However, any of the bits may be read-only zero,
-indicating reads to the corresponding counter will cause an exception
-when V=1.
-Hence, they are effectively \warl\ fields.
+{\tt hcounteren}必须执行。然而，任何位都可能是只读零，这表明当V=1时，对相应计数器的读取将导致异常。
+因此，它们是有效的\warl\ 字段。
+% {\tt hcounteren} must be implemented.
+% However, any of the bits may be read-only zero,
+% indicating reads to the corresponding counter will cause an exception
+% when V=1.
+% Hence, they are effectively \warl\ fields.
 
-\subsection{超级监管器时间偏移（Delta）寄存器（{\tt htimedelta}, {\tt htimedeltah}）  Hypervisor Time Delta Registers ({\tt htimedelta}, {\tt htimedeltah})}
+\subsection{超级监管器时间偏移（Delta）寄存器（{\tt htimedelta}， {\tt htimedeltah}）
+  % Hypervisor Time Delta Registers ({\tt htimedelta}, {\tt htimedeltah})
+  }
 
-The {\tt htimedelta} CSR is a read/write register that contains the delta
-between the value of the {\tt time} CSR and the value returned in VS-mode or
-VU-mode.
-That is, reading the {\tt time} CSR in VS or VU mode returns the sum of the
-contents of {\tt htimedelta} and the actual value of {\tt time}.
+{\tt htimedelta} CSR是一个读/写寄存器，它包含{\tt time} CSR的值与vs模式或vu模式下返回值之间的差值。
+也就是说，在VS或VU模式下读取{\tt time} CSR将返回{\tt htimedelta}的内容和{\tt time}的实际值之和。
+% The {\tt htimedelta} CSR is a read/write register that contains the delta
+% between the value of the {\tt time} CSR and the value returned in VS-mode or
+% VU-mode.
+% That is, reading the {\tt time} CSR in VS or VU mode returns the sum of the
+% contents of {\tt htimedelta} and the actual value of {\tt time}.
 
 \begin{commentary}
-Because overflow is ignored when summing {\tt htimedelta} and {\tt time},
-large values of {\tt htimedelta} may be used to represent negative time
-offsets.
+  因为在计算{\tt htimedelta}和{\tt time}时，会忽略overflow，所以可以使用{\tt htimedelta}的大值来表示负的时间偏移量。
+% Because overflow is ignored when summing {\tt htimedelta} and {\tt time},
+% large values of {\tt htimedelta} may be used to represent negative time
+% offsets.
 \end{commentary}
 
 \begin{figure*}[h!]
@@ -1183,12 +1210,15 @@ offsets.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Hypervisor time delta register, HSXLEN=64.}
+\caption{ 超级监管器时间偏移（Delta）寄存器，HSXLEN=64
+% Hypervisor time delta register, HSXLEN=64.
+}
 \label{hdeltareg}
 \end{figure*}
 
-For HSXLEN=32 only, {\tt htimedelta} holds the lower 32 bits of the
-delta, and {\tt htimedeltah} holds the upper 32 bits of the delta.
+仅对于HSXLEN=32， {\tt htimedelta}保存增量的下32位，{\tt htimedeltah}保存增量的上32位。
+% For HSXLEN=32 only, {\tt htimedelta} holds the lower 32 bits of the
+% delta, and {\tt htimedeltah} holds the upper 32 bits of the delta.
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -1205,7 +1235,9 @@ delta, and {\tt htimedeltah} holds the upper 32 bits of the delta.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Hypervisor time delta registers, HSXLEN=32.}
+\caption{超级监管器时间偏移寄存器，HSXLEN=32。
+% Hypervisor time delta registers, HSXLEN=32.
+}
 \label{hdeltahreg}
 \end{figure*}
 

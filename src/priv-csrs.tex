@@ -10,6 +10,10 @@ The privileged architecture requires the Zicsr extension; which other
 privileged instructions are required depends on the privileged-architecture
 feature set.
 
+在RISC-V指令集中，系统主操作码编码所有特权指令。这些特权指令可以分为两类，
+一类为Zicsr扩展中定义的可以自动读-修改-写的控制和状态寄存器；另一类为之外的
+其它特权指令。特权架构需要Zicsr扩展支持，其它特权指令依赖于特权架构特征集。
+
 In addition to the unprivileged
 state described in Volume I of this manual, an implementation may
 contain additional CSRs, accessible by some subset of the privilege
@@ -22,8 +26,16 @@ Note that although CSRs and instructions are associated with one
 privilege level, they are also accessible at all higher privilege
 levels.
 
+除了在本手册第一卷中描述的非特权指令集外，具体实现可能包含一些额外的控制
+状态寄存器，这些控制和状态寄存器可通过本手册第一卷所描述的控制状态寄存器指令所
+规定的特权级别进行访问。本章主要描述控制寄存器的地址空间，后续章节根据特权级别
+描述每个状态控制寄存器的功能，以及与某个具体的特权级别相关的一些特权指令。(注：
+虽然控制寄存器与指令通过特权级别关联，但是它们可以被更高的特权级别访问)
+
 Standard CSRs do not have side effects on reads but may have side effects
 on writes.
+
+标准的控制寄存器在读写操作时需要注意，读操作是没有副作用的，而写操作是有副作用的。
 
 \section{CSR Address Mapping Conventions}
 
@@ -36,16 +48,30 @@ the register is read/write ({\tt 00}, {\tt 01}, or {\tt 10}) or
 read-only ({\tt 11}).  The next two bits (csr[9:8]) encode the lowest
 privilege level that can access the CSR.
 
+标准RISC-V指令集预置了12比特的编码空间(csr[11:0])，可以编码4096个控制寄存器。
+通常，高4位(csr[11:8]) 用于对表格\ref{csrrwpriv}中所示的特权级别访问控制寄存器的
+读写操作进行编码。其中的高两位 (csr[11:10])指示寄存器是读/写({\tt 00}, {\tt 01}, or {\tt 10}
+或只读 ({\tt 11})。低2位(csr[9:8]) 对访问控制寄存器的最低特权级别进行编码。
+
+
 \begin{commentary}
 The CSR address convention uses the upper bits of the CSR address to
 encode default access privileges.  This simplifies error checking in
 the hardware and provides a larger CSR space, but does constrain the
 mapping of CSRs into the address space.
 
+CSR地址约定使用CSR的高位比特编码默认的访问权限。这种方式简化了硬件
+的错误检测并提供了更大的CSR空间，但是限制了CSR地址空间的映射方式。
+
 Implementations might allow a more-privileged level to trap otherwise
 permitted CSR accesses by a less-privileged level to allow these
 accesses to be intercepted.  This change should be transparent to the
 less-privileged software.
+
+在具体的实现中，可能允许一个更高特权级别捕获低级别对应的信号。这些改变
+对低特权级别的软件应该透明。
+
+
 \end{commentary}
 
 \begin{table*}[h!]
@@ -117,16 +143,27 @@ level or to write a read-only register also raise illegal instruction
 exceptions.  A read/write register might also contain some bits that
 are read-only, in which case writes to the read-only bits are ignored.
 
+试图访问一个不存在CSR会引发一个不合法的指令异常。以不适应的特权
+级别访问CSR或写一个只读寄存器也会导致合法的指令异常。一个读/写寄存器
+中的某些位可能是只读的，在这种情况下，写操作针对只读的位忽略。
+
 Table~\ref{csrrwpriv} also indicates the convention to allocate CSR
 addresses between standard and custom uses.  The CSR addresses
 designated for custom uses will not be redefined by future
 standard extensions.
+
+表~\ref{csrrwpriv}约定了CSR地址空间的标准用法和自定义用法。分配给自定义
+使用的CSR空间在将来的标准中将不再重新定义。
 
 Machine-mode standard read-write CSRs {\tt 0x7A0}--{\tt 0x7BF} are reserved
 for use by the debug system.  Of these CSRs, {\tt 0x7A0}--{\tt 0x7AF} are
 accessible to machine mode, whereas {\tt 0x7B0}--{\tt 0x7BF} are only visible
 to debug mode.  Implementations should raise illegal instruction exceptions on
 machine-mode access to the latter set of registers.
+
+机器模式标准读-写CSR {\tt 0x7A0}--{\tt 0x7BF}是为系统调试预留的。在这些CSR中，
+ {\tt 0x7A0}--{\tt 0x7AF}在机器模式中访问， {\tt 0x7B0}--{\tt 0x7BF} 只在调试模式中
+ 可见。 具体的实现中，机器模式访问后者的寄存器时，应该报指令异常错误。
 
 \begin{commentary}
 Effective virtualization requires that as many instructions run natively as
@@ -136,6 +173,13 @@ some lower privilege level are shadowed into separate CSR addresses if they
 are made read-write at a higher privilege level.  This avoids trapping
 permitted lower-privilege accesses while still causing traps on illegal
 accesses.  Currently, the counters are the only shadowed CSRs.
+
+在一个虚拟机环境中，需要尽可能多的指令在本地运行，然而任何特权访问都会陷入
+到虚拟监视器中~\cite{goldbergvm}。如果在低特权级别只读的CSR在高特权级别是可
+读-写的，可以将低特权级别的CSR隐藏在单独的CSR空间中。这样可以避免捕获低级别
+的访问，但是依然会捕获一些不合法的访问。当前，计数器是唯一的隐藏CSR。
+
+
 \end{commentary}
 
 \section{CSR Listing}
@@ -147,6 +191,10 @@ The other
 registers are used by privileged code, as described in the following
 chapters.  Note that not all registers are required on all
 implementations.
+
+表~\ref{ucsrnames}--\ref{mcsrnames1}列出了当前已被分配的CSR地址。
+计时器，计数器和浮点CSR都是非特权CSR。其它寄存器都是特权编码，
+后续章节会详细描述。注：并非所有的寄存器在实现时都是必须的。
 
 \begin{table}[htb!]
 \begin{center}
@@ -410,6 +458,8 @@ Number    & Privilege & Name & Description \\
 The following definitions and abbreviations are used in specifying the
 behavior of fields within the CSRs.
 
+下面的定义和简称说明CSR中各字段的行为。
+
 \subsection*{Reserved Writes Preserve Values, Reads Ignore Values (WPRI)}
 
 Some whole read/write fields are reserved for future use.  Software
@@ -420,14 +470,26 @@ For forward compatibility, implementations that do not furnish these fields
 must make them read-only zero.
 These fields are labeled \wpri\ in the register descriptions.
 
+某些读/写整个字段都保留为将来使用。软件应该忽略从这些字段中读出的值，同时，
+在写这些字段时，应该保留这些字段的值。为了前向兼容，具体的实现必须将这些字段
+置为只读的零。在寄存器说明中，这些字段标记为 \wpri\ 。
+
 \begin{commentary}
 To simplify the software model, any backward-compatible future
 definition of previously reserved fields within a CSR must cope with
 the possibility that a non-atomic read/modify/write sequence is used
-to update other fields in the CSR.  Alternatively, the original CSR
+to update other fields in the CSR. 
+
+ Alternatively, the original CSR
 definition must specify that subfields can only be updated atomically,
 which may require a two-instruction clear bit/set bit sequence in
 general that can be problematic if intermediate values are not legal.
+
+为了简化软件模型，在后向兼容时，CSR中的预留字段在将来的定义中，
+在更新CSR其它字段时必须处理非原子的读/修改/写顺序。或者，原始的CSR定义
+必须说明哪些子字段只能以原子步的形式更新，这通常需要两指令清除位/设置位，
+从而导致中间值不合法。
+
 \end{commentary}
 
 \subsection*{Write/Read Only Legal Values (WLRL)}
@@ -440,10 +502,18 @@ write was of a legal value, or the register has not been written since
 another operation (e.g., reset) set the register to a legal value.
 These fields are labeled \wlrl\ in the register descriptions.
 
+某些读/写CSR字段描述部分位编码的行为，其它编码保留。针对这些字段，
+软件应该只写入合法的值，并且不能假设一个读操作会得到一个合法的值，
+除非最后的写操作是一个合法的值，或者寄存器在被置为一个合法值之后没有
+其它的写操作。这些字段在寄存器描述中标记为 \wlrl\
+
 \begin{commentary}
 Hardware implementations need only implement enough state bits to
 differentiate between the supported values, but must always return the
 complete specified bit-encoding of any supported value when read.
+
+硬件实现只需实现足够的状态位区分支持的值，但是必须读操作返回时，必须
+返回完整的任何支持值的指定位编码。
 \end{commentary}
 
 Implementations are permitted but not required to raise an illegal
@@ -453,6 +523,11 @@ return arbitrary bit patterns on the read of a \wlrl\ field when the last
 write was of an illegal value, but the value returned should
 deterministically depend on the illegal written value and
 the value of the field prior to the write.
+
+如果指令试图向 \wlrl\ 字段写一个不支持的值，实现可以抛出一个非法
+指令异常。在读 \wlrl\ 字段时，如果最后的写操作是一个不合法的值，
+实现可以返回任意的位模式，但是返回值应该明确依赖于不合法的写入
+值和写入之前的值。
 
 \subsection*{Write Any Values, Reads Legal Values (WARL)}
 
@@ -464,12 +539,20 @@ by attempting to write a desired setting then reading to see if the
 value was retained.  These fields are labeled \warl\ in the register
 descriptions.
 
+某些读/写操作CSR段只定义部分编码，在能够保证读操作返回合法值的前提下，
+允许写入任何值。假设写入CSR没有副作用，支持值的范围可以通过写入预期的值
+然后查看是否保留。这些字段在寄存器描述中标记为 \warl\
+
 Implementations will not raise an exception on writes of unsupported
 values to a \warl\ field.  Implementations can
 return any legal value on the read of a \warl\ field when the last
 write was of an illegal value, but the legal value returned should
 deterministically depend on the illegal written value and
 the architectural state of the hart.
+
+针对\warl\ 字段，写入不支持的值时，系统不会抛出异常。在读一个 \warl\ 字段
+时，当最后的写入是一个非法的值时，系统可以返回一个合法的值，但是返回的
+值应该由非法写入的值和hart的架构状态确定。
 
 \section{CSR Field Modulation}
 
@@ -482,6 +565,8 @@ after the write;
 the value of the field may be changed in consequence of the write to
 the controlling CSR.
 
+
+
 \begin{commentary}
 As a special case of this rule, the value written to one CSR may
 control whether a field of a second CSR is writable (with multiple
@@ -490,6 +575,10 @@ When a write to the controlling CSR causes the second CSR's field
 to change from previously read-only to now writable, that field
 immediately gets an \unspecified\ but legal value, unless specified
 otherwise.
+
+作为这种规则的特例，写入CSR的值可能控制另一个CSR的字段为可写或只读。
+控制CSR的一个写操作导致另一个CSR的字段从之前的只读状态变为当前的可写，
+这个字段将变为\unspecified\ 的合法值，除非指定特定的值。
 \end{commentary}
 
 \begin{commentary}
@@ -501,11 +590,19 @@ If a write to a controlling CSR causes field $x$ to change from
 previously read-only to now writable, the new value of $x$ is not
 \unspecified\ but instead immediately reflects the existing value of its
 alias~$y$, as required.
+
+某些CSR可写字段被定义为其它CSR字段的别名。若$x$是一个这样的CSR字段，
+ $y$是$x$的别名，如果控制CSR上的一个写操作导致$x$从之前的只读状态
+ 变为当前的可写状态，则 $x$的最新值不是\unspecified\ ，而是立即映射到
+ 已有别名$y$的值。
 \end{commentary}
 
 A change to the value of a CSR for this reason is not a write to the
 affected CSR and thus does not trigger any side effects specified for
 that CSR.
+
+出于这种原因对CSR值的改变，不是受此影响CSR上的一个写操作，因此不会
+针对这个CSR产生特定的副作用。
 
 \section{Implicit Reads of CSRs}
 
@@ -516,6 +613,10 @@ Unless otherwise specified, the value returned by an implicit read of a CSR
 is the same value that would have been returned by an explicit read of the
 CSR, using a CSR-access instruction in a sufficient privilege mode.
 
+具体实现有时候采用 {\em 隐式}读CSR，例如，所有的S-mode指令隐式获取
+读{\tt satp}CSR的结果。如果没有特殊说明，特权模式下的CSR访问指令，
+在CSR上的隐式读操作返回的值与在其上显示读操作返回的值式一致的，
+
 \section{CSR Width Modulation}
 \label{sec:csrwidthmodulation}
 
@@ -524,13 +625,20 @@ described in Section~\ref{xlen-control}), the values of the {\em writable}
 fields and bits of the new-width CSR are, unless specified otherwise,
 determined from the previous-width CSR as though by this algorithm:
 
+如果CSR的宽度发生了改变（比如，通过修改在~\ref{xlen-control}描述的长度控制），
+在没有特殊说明的情况下CSR中{\em writable}字段的值和具有新宽度的CSR依然由之
+前的宽度确定。
 \begin{enumerate}
 
 \item The value of the previous-width CSR is copied to a temporary register of
 the same width.
 
+\item 前宽度的CSR值拷贝到具有同样宽度的临时寄存器中
+
 \item For the read-only bits of the previous-width CSR, the bits at the same
 positions in the temporary register are set to zeros.
+
+\item 对于前宽度CSR中的只读位，临时寄存器中的相应位置为0
 
 \item The width of the temporary register is changed to the new width. If the
 new width $W$ is narrower than the previous width, the least-significant $W$
@@ -538,10 +646,18 @@ bits of the temporary register are retained and the more-significant bits are
 discarded. If the new width is wider than the previous width, the temporary
 register is zero-extended to the wider width.
 
+\item 临时寄存器的宽度根据新的宽度进行调整。如果新的宽度比之前的宽度要小，则
+临时寄存器中的低位比特被保留，而高位比特则被丢弃。如果新的宽度比之前的宽度大，
+则临时寄存器需要按照补零方式扩展至指定宽度。
+
 \item Each writable field of the new-width CSR takes the value of the bits at
 the same positions in the temporary register.
+
+\item 对于新宽度CSR中的每个可写字段，都采用临时寄存器中同样比特位作为其值。
 
 \end{enumerate}
 
 Changing the width of a CSR is not a read or write of the CSR and thus
 does not trigger any side effects.
+
+改变CSR的宽度不是CSR的读或写操作，不会产生副作用。

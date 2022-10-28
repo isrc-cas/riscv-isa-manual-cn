@@ -1,6 +1,7 @@
-\chapter{Machine-Level ISA, Version 1.12}
+%\chapter{Machine-Level ISA, Version 1.12}
+\chapter{机器级 ISA, 1.12版本}
 \label{machine}
-
+\iffalse
 This chapter describes the machine-level operations available in
 machine-mode (M-mode), which is the highest privilege mode in a RISC-V
 system.  M-mode is used for low-level access to a
@@ -10,21 +11,38 @@ to implement in hardware directly.  The RISC-V machine-level ISA
 contains a common core that is extended depending on which other
 privilege levels are supported and other details of the hardware
 implementation.
+\fi
+本章介绍了机器模式(M模式)下可用的机器级操作，这是RISC-V系统中权限最高的模式。
+M模式用于对硬件平台的底层（低级？）访问，是重启时进入的第一个模式。M模式还可以
+用于完成那些难以直接用硬件实现或成本昂贵的功能。RISC-V的机器级ISA包含一个共
+同核心，其根据所支持的其它特权等级和硬件实现中的其它细节来进行扩展。
 
-\section{Machine-Level CSRs}
+%\section{Machine-Level CSRs}
+\section{机器级 CSRs}
 
+\iffalse
 In addition to the machine-level CSRs described in this section,
 M-mode code can access all CSRs at lower privilege levels.
+\fi
+除了本节所介绍的机器级CSRs，M模式的代码能够在低特权级别访问所有
+的CSRs。 
 
-\subsection{Machine ISA Register {\tt misa}}
+%\subsection{Machine ISA Register {\tt misa}}
+\subsection{机器ISA 寄存器 {\tt misa}}
 \label{sec:misa}
 
+\iffalse
 The {\tt misa} CSR is a \warl\ read-write register
 reporting the ISA supported by the hart.  This register must be
 readable in any implementation, but a value of zero can be returned to
 indicate the {\tt misa} register has not been implemented, requiring
 that CPU capabilities be determined through a separate non-standard
 mechanism.
+\fi
+{\tt misa} CSR是一个\warl\ 读写寄存器，
+用于报告hart所支持的ISA。该寄存器在任何实现当中都必须是可读的，
+但是可以返回一个0值来表示没有实现{\tt misa}寄存器，这时需要通过
+独立的非标准机制来确定CPU的能力。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -47,12 +65,18 @@ mechanism.
 \label{misareg}
 \end{figure*}
 
+\iffalse
 The MXL (Machine XLEN) field encodes the native base integer ISA width
 as shown in Table~\ref{misabase}.  The MXL field may be writable in
 implementations that support multiple base ISAs.  The effective
 XLEN in M-mode, {\em MXLEN}, is given by the setting of MXL, or has a
 fixed value if {\tt misa} is zero.  The MXL field is always set to the
 widest supported ISA variant at reset.
+\fi
+MXL字段表示（编码？）本机基础整数型ISA宽度，如图~\ref{misabase}所示。
+在支持多个基础ISA的实现中，MXL字段能够是可写的。M模式下的有效
+XLEN是MXLEN，由MXL的设置给出，如果{\tt misa}为零，则其为一个固定值。
+在复位时，总是将MXL字段设为所支持的最宽的ISA变体。
 
 \begin{table*}[h!]
 \begin{center}
@@ -66,15 +90,22 @@ MXL  & XLEN \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Encoding of MXL field in {\tt misa}}
+%\caption{Encoding of MXL field in {\tt misa}}
+\caption{{\tt misa}中的MXL字段编码}
 \label{misabase}
 \end{table*}
 
+\iffalse
 The {\tt misa} CSR is MXLEN bits wide.  If the value read from {\tt misa} is
 nonzero, field MXL of that value always denotes the current MXLEN. If a write
 to {\tt misa} causes MXLEN to change, the position of MXL moves to the
 most-significant two bits of {\tt misa} at the new width.
+\fi
+{\tt misa} CSR 的位宽是 MXLEN bits。如果从{\tt misa}中读取到的是非零值，
+那这个值中的MXL字段总是表示当前的MXLEN。如果对{\tt misa}的写入
+造成了MXLEN的改变，MXL的位置将变化到在新位宽下{\tt misa}的最高有效2bits。
 
+\iffalse
 \begin{commentary}
 The base width can be quickly ascertained using branches on the sign
 of the returned {\tt misa} value, and possibly a shift left by one and
@@ -87,7 +118,20 @@ immediate 4 in a register then shifting the register left by 31 bits
 at a time.  If zero after one shift, then the machine is RV32.  If
 zero after two shifts, then the machine is RV64, else RV128.
 \end{commentary}
+\fi
 
+\begin{commentary}
+基本宽度可以通过{\tt misa}返回值的符号的分支来快速确定，
+也可以通过符号左移一位和第二个分支来确定。可以在不知道机器的寄
+存器位宽（XLEN）的情况下用汇编语言来编写这些检查。基础宽度由
+$\mbox{XLEN}=2^{\mbox{MXL+4}}$给出。
+
+当{\tt misa}为零时，基础宽度可以通过将立即数4放入一个寄存器，
+然后将其左移32bits来得到。如果移位一次之后是零，则机器是RV32的；如
+果是两次移位后得到零，则机器是RV64的；否则就是RV128。
+\end{commentary}
+
+\iffalse
 The Extensions field encodes the presence of the standard extensions,
 with a single bit per letter of the alphabet (bit 0 encodes presence
 of extension ``A'' , bit 1 encodes presence of extension ``B'',
@@ -97,46 +141,40 @@ RV32E.  The Extensions field is a \warl\ field that can contain writable bits
 where the implementation allows the supported ISA to be modified.  At
 reset, the Extensions field shall contain the maximal set of supported
 extensions, and I shall be selected over E if both are available.
+\fi
 
+Extensions字段编码了目前存有的标准扩展，其每一位都对应了
+字母表中的一个字母（bit 0对扩展``A''编码，bit 1对扩
+展``B''编码，以此类推，直至bit 25编码``Z''）。如果基础ISA是
+RV32I、RV64I或RV128I，则置位``I'' bit，如果基础ISA是RV32E，则置位``E''bit。
+Extensions字段是一个能包含可写位的WARL字段，需要（where?）实现
+允许修改所支持的ISA。复位时，Extensions字段应包含所支持的最大扩展
+集，如果E和I都可以，那么优先选择I。
+
+\iffalse
 When a standard extension is disabled by clearing its bit in {\tt misa}, the instructions and CSRs defined or modified by the extension revert to their defined or reserved behaviors as if the extension is not implemented.
+\fi
 
-\begin{commentary}
-For a given \mbox{RISC-V} execution environment, an instruction,
-extension, or other feature of the \mbox{RISC-V} ISA
-is ordinarily judged to be \emph{implemented} or not
-by the observable execution behavior in that environment.
-For example, the F extension is said to be implemented for
-an execution environment if and only if the instructions that the
-\mbox{RISC-V} Unprivileged ISA defines for F execute as specified.
+当通过清除 {\tt misa}中相应位（bit）来禁止一个标准扩展时，经扩展定义或修改的指令和CSRs会恢复到它们定义或保留的行为，就像扩展没有实现一样。
 
-With this definition of \emph{implemented}, disabling an
-extension by clearing its bit in {\tt misa} results in the
-extension being considered \emph{not implemented} in M-mode.
-For example, setting {\tt misa}.F=0 results in the F extension
-being not implemented for M-mode, because the F extension's
-instructions will not act as the Unprivileged ISA requires
-but may instead raise an illegal instruction exception.
-
-Defining the term \emph{implemented}
-based strictly on the observable behavior might conflict
-with other common understandings of the same word.
-In particular, although common usage may allow
-for the combination ``implemented but disabled,''
-in this document it is considered a contradiction of terms,
-because \emph{disabled} implies execution will not behave
-as required for the feature to be considered \emph{implemented}.
-In the same vein, ``implemented and enabled'' is redundant here;
-``implemented'' suffices.
-\end{commentary}
-
+\iffalse
 The design of the RV128I base ISA is not yet complete, and while much of the remainder of this
 specification is expected to apply to RV128, this version of the document
 focuses only on RV32 and RV64.
+\fi
 
+RV128 基础ISA的设计还没有完成，尽管本规格中剩余的大部分都期望适用于RV128，但本版本的文档仅关注RV32和RV64。
+
+\iffalse
 The ``U'' and ``S'' bits will be set if there is support for user and
 supervisor modes respectively.
 
 The ``X'' bit will be set if there are any non-standard extensions.
+\fi
+
+如果支持用户模式（user mode），则将“U”bit置位；如果支持特权模式（supervisor mode），则将“S ”bit置位。
+
+如果存在任何非标准扩展（non-standard extensions），则将“X”bit置位。
 
 \begin{table*}
 \begin{center}
@@ -145,7 +183,7 @@ The ``X'' bit will be set if there are any non-standard extensions.
 Bit & Character  & Description \\
 \hline
   0 & A & Atomic extension \\
-  1 & B & {\em Reserved} \\
+  1 & B & {\em Tentatively reserved for Bit-Manipulation extension} \\
   2 & C & Compressed extension \\
   3 & D & Double-precision floating-point extension \\
   4 & E & RV32E base ISA \\
@@ -153,7 +191,7 @@ Bit & Character  & Description \\
   6 & G & {\em Reserved} \\
   7 & H & Hypervisor extension \\
   8 & I & RV32I/64I/128I base ISA \\
-  9 & J & {\em Reserved} \\
+  9 & J & {\em Tentatively reserved for Dynamically Translated Languages extension} \\
  10 & K & {\em Reserved} \\
  11 & L & {\em Reserved} \\
  12 & M & Integer Multiply/Divide extension \\
@@ -165,7 +203,7 @@ Bit & Character  & Description \\
  18 & S & Supervisor mode implemented \\
  19 & T & {\em Reserved} \\
  20 & U & User mode implemented \\
- 21 & V & ``V'' Vector extension implemented \\
+ 21 & V & {\em Tentatively reserved for Vector extension} \\
  22 & W & {\em Reserved} \\
  23 & X & Non-standard extensions present \\
  24 & Y & {\em Reserved} \\
@@ -178,7 +216,7 @@ Bit & Character  & Description \\
 \label{misaletters}
 \end{table*}
 
-
+\iffalse
 \begin{commentary}
 The {\tt misa} CSR exposes a rudimentary catalog of CPU features
 to machine-mode code.  More extensive information can be obtained in
@@ -191,39 +229,66 @@ each privilege level. This enables virtualization layers to alter the
 ISA observed at any level, and supports a much richer command
 interface without burdening hardware designs.
 \end{commentary}
+\fi
 
+{\tt misa} CSR向机器模式的代码展示了CPU的基本功能目录。在机器模式下，可以通过探测其它机器寄存器，并且作为启动程序（boot process）的一部分，检查系统中其他的ROM存储器，来获得更广泛的信息。
+
+我们要求较低特权级使用环境调用来确定每个特权级别的可用功能，而不是直接读取CPU寄存器。这使得虚拟层能够改变在任何级别上可观察到的ISA，并支持更加丰富的命令接口，且不会带来额外的硬件设计的负担。
+
+\iffalse
 The ``E'' bit is read-only.  Unless {\tt misa} is all read-only zero, the ``E''
-bit always reads as the complement of the ``I'' bit.
-If an execution environment supports both RV32E and RV32I,
-software can select RV32E by clearing the ``I'' bit.
+bit always reads as the complement of the ``I'' bit.  An implementation that
+supports both RV32E and RV32I can select RV32E by clearing the ``I'' bit.
+\fi
 
+bit E是只读的。除非{\tt misa}是只读全零，否则``E'' bit总是``I'' bit的补码。对于同时支持RV32E和RV32I的实现，可通过清除“I”bit来选择RV32E。
+
+\iffalse
 If an ISA feature {\em x} depends on an ISA feature {\em y}, then attempting
 to enable feature {\em x} but disable feature {\em y} results in both features
 being disabled.  For example, setting ``F''=0 and ``D''=1 results in both
 ``F'' and ``D'' being cleared.
+\fi
+如果ISA功能{\em x} 依赖于ISA功能{\em y}，那么尝试在启用功能{\em x}的同时禁用功能{\em y}，会导致两个功能都被禁用。例如，设置``F''=0和``D''=1会导致``F''和``D''都被清除。
 
+\iffalse
 An implementation may impose additional constraints on the collective setting
 of two or more {\tt misa} fields, in which case they function collectively as
 a single \warl\ field.  An attempt to write an unsupported combination causes
 those bits to be set to some supported combination.
+\fi
 
+一个实现可能会对两个或多个{\tt misa}字段的集合设置施加额外的限制，在这种情况下，它们共同作为一个单独的\warl\ 字段发挥作用。尝试写入不受支持的组合会导致这些位被设置成一些受支持的组合。
+
+\iffalse
 Writing {\tt misa} may increase IALIGN, e.g., by disabling the ``C''
 extension.
 If an instruction that would write {\tt misa} increases IALIGN, and
 the subsequent instruction's address is not IALIGN-bit aligned, the
 write to {\tt misa} is suppressed, leaving {\tt misa} unchanged.
+\fi
 
+写入{\tt misa}可能会增加IALIGN，例如，通过禁用'' C "扩展。如果要写入{\tt misa}的指令增加IALIGN，而后续指令的地址不是IALIGN-bit对齐的，则抑制对{\tt misa}的写入，保持{\tt misa}不变。
+
+\iffalse
 When software enables an extension that was previously disabled, then all
 state uniquely associated with that extension is \unspecified, unless
 otherwise specified by that extension.
+\fi
 
-\subsection{Machine Vendor ID Register {\tt mvendorid}}
+当软件启用以前禁用的扩展时，所有与该扩展唯一关联的状态都是\unspecified，除非该扩展另有指定。
 
+%\subsection{Machine Vendor ID Register {\tt mvendorid}}
+\subsection{机器厂商ID寄存器 {\tt mvendorid}}
+
+\iffalse
 The {\tt mvendorid} CSR is a 32-bit read-only register providing
 the JEDEC manufacturer ID of the provider of the core.  This register
 must be readable in any implementation, but a value of 0 can be
 returned to indicate the field is not implemented or that this is a
 non-commercial implementation.
+\fi
+{\tt mvendorid} CSR是一个32位只读寄存器，提供核心提供者的JEDEC制造商ID。该寄存器在任何实现中都必须是可读的，但是可以返回0值，表示该字段没有实现，或者这是一个非商业实现。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -244,6 +309,7 @@ non-commercial implementation.
 \label{mvendorreg}
 \end{figure*}
 
+\iffalse
 JEDEC manufacturer IDs are ordinarily encoded as a sequence of one-byte
 continuation codes {\tt 0x7f}, terminated by a one-byte ID not equal to
 {\tt 0x7f}, with an odd parity bit in the most-significant bit of each byte.
@@ -253,28 +319,47 @@ discarding the parity bit.  For example, the JEDEC manufacturer ID
 {\tt 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x8a}
 (twelve continuation codes followed by {\tt 0x8a}) would be encoded in the
 {\tt mvendorid} CSR as {\tt 0x60a}.
+\fi
 
+JEDEC制造商ID通常被编码为一个单字节延续码序列{\tt 0x7f}，由一个不等于{\tt 0x7f}的单字节ID终止，每个字节的最高有效位有一个奇偶校验位。{\tt mvendorid}编码Bank字段中单字节延续码的数量，并编码Offset字段中的最后一个字节，丢弃校验位。例如，JEDEC制造商ID {\tt 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x8a}(十二个延续码，后面跟着{\tt 0x8a})将被编码为{\tt 0x60a}。
+
+\iffalse
 \begin{commentary}
 In JEDEC's parlance, the bank number is one greater than the number of
 continuation codes; hence, the {\tt mvendorid} Bank field encodes a value
 that is one less than the JEDEC bank number.
 \end{commentary}
+\fi
 
+\begin{commentary}
+按照JEDEC的说法，银行号比延续代码的数量大1;因此，{\tt mvendorid} Bank字段编码一个比JEDEC银行号小1的值。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 Previously the vendor ID was to be a number allocated by RISC-V
 International, but this duplicates the work of JEDEC in maintaining a
 manufacturer ID standard.  At time of writing, registering a
 manufacturer ID with JEDEC has a one-time cost of \$500.
 \end{commentary}
+\fi
 
-\subsection{Machine Architecture ID Register {\tt marchid}}
+\begin{commentary}
+以前，供应商ID是由RISC-V International分配的号码，但这重复了JEDEC维持制造商ID标准的工作。在撰写本文时，向JEDEC注册一个制造商ID的一次性成本为\$500。
+\end{commentary}
 
+\subsection{机器架构ID寄存器{\tt marchid}}
+
+\iffalse
 The {\tt marchid} CSR is an MXLEN-bit read-only register encoding the
 base microarchitecture of the hart.  This register must be readable in
 any implementation, but a value of 0 can be returned to indicate the
 field is not implemented.  The combination of {\tt mvendorid} and {\tt
   marchid} should uniquely identify the type of hart microarchitecture
 that is implemented.
+\fi
+
+CSR是一个mxlen位只读寄存器，编码hart的基本微架构。该寄存器在任何实现中都必须是可读的，但是可以返回0值表示未实现该字段。{\tt mvendorid}和{\tt marchid}的组合应该唯一地标识所实现的hart微架构的类型。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -293,12 +378,17 @@ MXLEN \\
 \label{marchreg}
 \end{figure*}
 
+\iffalse
 Open-source project architecture IDs are allocated globally by
 RISC-V International, and have non-zero architecture IDs with a zero
 most-significant-bit (MSB).  Commercial architecture IDs are allocated
 by each commercial vendor independently, but must have the MSB set and
 cannot contain zero in the remaining MXLEN-1 bits.
+\fi
 
+开源项目架构id由RISC-V International全局分配，并且具有非零架构id，其中最有效位(MSB)为零。商业体系结构id由每个商业供应商独立分配，但必须设置MSB，并且不能在剩余的MXLEN-1位中包含零。
+
+\iffalse
 \begin{commentary}
 The intent is for the architecture ID to represent the
 microarchitecture associated with the repo around which development
@@ -319,14 +409,25 @@ be used to segregate branches of the same architecture design,
 including by organization.  The {\tt misa} register also helps
 distinguish different variants of a design.
 \end{commentary}
+\fi
 
-\subsection{Machine Implementation ID Register {\tt mimpid}}
+\begin{commentary}
+架构ID用于代表与开发repo相关的微架构，而非特定组织。开源设计的商业制造商应（并且可能被lisense要求）保留原始架构ID。有助于减少碎片化和工具支持成本，并提供归属。开源架构ID由RISC-V International管理，只分配给已发布且正在运行的开源项目。商业架构ID可由任何注册过的厂商独自管理，但诺厂商希望同时使用闭源和开源的微架构，则要拥有与开源架构不相干的ID（MSB set），以防冲突。
 
+接下来的实现字段中所采用的协定可用于区分同一架构设计的分支，包括按组织结构划分。{\tt misa}寄存器还有助于区分不同设计变体。
+\end{commentary}
+
+\subsection{机器实现ID寄存器 {\tt mimpid}}
+
+\iffalse
 The {\tt mimpid} CSR provides a unique encoding of the version of the
 processor implementation.  This register must be readable in any
 implementation, but a value of 0 can be returned to indicate that the
 field is not implemented.  The Implementation value should reflect the
 design of the RISC-V processor itself and not any surrounding system.
+\fi
+
+{\tt mimid} CSR提供处理器实现版本的唯一编码。该寄存器在任何实现中都必须是可读的，但是可以返回0值以指示未实现该字段。实现值应该反映RISC-V处理器本身的设计，而不是任何周边系统。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -344,7 +445,7 @@ MXLEN \\
 \caption{Machine Implementation ID register ({\tt mimpid}).}
 \label{mimpidreg}
 \end{figure*}
-
+\iffalse
 \begin{commentary}
 The format of this field is left to the provider of the architecture
 source code, but will often be printed by standard tools as a
@@ -353,15 +454,22 @@ Implementation value can be left-justified (i.e., filled in from
 most-significant nibble down) with subfields aligned on nibble
 boundaries to ease human readability.
 \end{commentary}
+\fi
 
-\subsection{Hart ID Register {\tt mhartid}}
+该字段的格式留给体系结构源代码的提供者，但通常由标准工具打印为没有前导或后置零的十六进制字符串，因此可以对Implementation值进行左对齐(即从最有效的啃入开始填充)，子字段按照啃入边界对齐，以方便人类的可读性。
 
+%\subsection{Hart ID Register {\tt mhartid}}
+\subsection{硬件线程ID寄存器 {\tt mhartid}}
+\iffalse
 The {\tt mhartid} CSR is an MXLEN-bit read-only register
 containing the integer ID of the hardware thread running the code.
 This register must be readable in any implementation.  Hart IDs might
 not necessarily be numbered contiguously in a multiprocessor system,
 but at least one hart must have a hart ID of zero.  Hart IDs must be
 unique within the execution environment.
+\fi
+
+ {\tt mhartid} CSR是一个MXLEN位只读寄存器，包含运行代码的硬件线程的整数ID。这个寄存器在任何实现中都必须是可读的。在多处理器系统中，哈特ID不一定是连续编号的，但至少有一个哈特ID必须为0。Hart id在执行环境中必须是唯一的。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -380,7 +488,7 @@ MXLEN \\
 \label{mhartidreg}
 \end{figure*}
 
-
+\iffalse
 \begin{commentary}
 In certain cases, we must ensure exactly one hart runs some code
 (e.g., at reset), and so require one hart to have a known hart ID of
@@ -389,15 +497,26 @@ zero.
 For efficiency, system implementers should aim to reduce the magnitude
 of the largest hart ID used in a system.
 \end{commentary}
+\fi
 
-\subsection{Machine Status Registers ({\tt mstatus} and {\tt mstatush})}
+\begin{commentary}
+在某些情况下，我们必须确保只有一个hart运行某些代码(例如，在reset时)，因此要求一个hart的已知hart ID为0。
 
+为了提高效率，系统实现者应该致力于减少系统中使用的最大hart ID的大小
+\end{commentary}
+
+\subsection{机器状态寄存器 ({\tt mstatus} and {\tt mstatush})}
+
+\iffalse
 The {\tt mstatus} register is an MXLEN-bit read/write register
 formatted as shown in Figure~\ref{mstatusreg-rv32} for RV32 and
 Figure~\ref{mstatusreg} for RV64.  The {\tt mstatus}
 register keeps track of and controls the hart's current operating
 state.  A restricted view of {\tt mstatus} appears as the
 {\tt sstatus} register in the S-level ISA.
+\fi
+
+{\tt mstatus}寄存器是一个MXLEN-bit的读/写寄存器，格式如图~\ref{mstatusreg- RV32}和图~\ref{mstatusreg}所示。{\tt mstatus}寄存器跟踪和控制hart的当前操作状态。{\tt mstatus}的受限视图作为{\tt sstatus}寄存器出现在s级ISA中。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -549,11 +668,15 @@ state.  A restricted view of {\tt mstatus} appears as the
 \label{mstatusreg}
 \end{figure*}
 
+\iffalse
 For RV32 only, {\tt mstatush} is a 32-bit read/write register formatted
 as shown in Figure~\ref{mstatushreg}.
 Bits 30:4 of {\tt mstatush} generally contain the same fields found in
 bits 62:36 of {\tt mstatus} for RV64.
 Fields SD, SXL, and UXL do not exist in {\tt mstatush}.
+\fi
+
+仅对于RV32， {\tt mstatush}是一个32位的读/写寄存器，格式如图~\ref{mstatushreg}所示。{\tt mstatus}的第30:4位通常包含与RV64的{\tt mstatus}第62:36位相同的字段。{\tt mstatush}中不存在SD、SXL和UXL字段。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -580,20 +703,32 @@ Fields SD, SXL, and UXL do not exist in {\tt mstatush}.
 \label{mstatushreg}
 \end{figure*}
 
-\subsubsection{Privilege and Global Interrupt-Enable Stack in {\tt mstatus} register}
+%\subsubsection{Privilege and Global Interrupt-Enable Stack in {\tt mstatus} register}
+\subsubsection{ {\tt mstatus} 寄存器中的特权和全局中断允许栈}
 \label{privstack}
 
+\iffalse
 Global interrupt-enable bits, MIE and SIE, are provided for M-mode and
 S-mode respectively.
 These bits are primarily used to guarantee atomicity
 with respect to interrupt handlers in the current privilege mode.
+\fi
 
+对m模式和s模式分别提供了全局中断使能位MIE和SIE。这些位主要用于保证与当前特权模式下的中断处理程序相关的原子性。
+
+\iffalse
 \begin{commentary}
 The global {\em x}\/IE bits are located in the low-order bits of {\tt mstatus},
 allowing them to be atomically set or cleared with a single CSR
 instruction.
 \end{commentary}
+\fi
 
+\begin{commentary}
+全局{\em x}\/IE位位于{\tt mstatus}的低阶位中，允许通过单个CSR指令原子地设置或清除它们
+\end{commentary}
+
+\iffalse
 When a hart is executing in privilege mode {\em x}, interrupts are
 globally enabled when {\em x}\/IE=1 and globally disabled when {\em
   x}\/IE=0.  Interrupts for lower-privilege modes, {\em w}$<${\em x},
@@ -606,14 +741,24 @@ higher-privilege mode.
 Higher-privilege-level code can use separate
 per-interrupt enable bits to disable selected higher-privilege-mode
 interrupts before ceding control to a lower-privilege mode.
+\fi
 
+当hart以特权模式{\em x}执行时，当{\em x}\/IE=1时全局启用中断，当{\em x}\/IE=0时全局禁用中断。低特权模式的中断，{\em w}$<${\em x}，总是全局禁用的，不管低特权模式的任何全局{\em w}\/IE位的设置。高特权模式的中断，{\em y}$>${\em x}总是全局启用的，而不管高特权模式的全局{\em y}\/IE位的设置如何。高特权级别的代码可以使用单独的每个中断启用位，在将控制割让给低特权模式之前禁用选定的高特权模式中断。
+
+\iffalse
 \begin{commentary}
   A higher-privilege mode {\em y} could disable all of its interrupts
   before ceding control to a lower-privilege mode but this would be
   unusual as it would leave only a synchronous trap, non-maskable
   interrupt, or reset as means to regain control of the hart.
 \end{commentary}
+\fi
 
+\begin{commentary}
+高特权模式{\em y}可以在把控制权让给低特权模式之前禁用所有的中断，但这是不寻常的，因为它只会留下同步陷阱、不可屏蔽中断或重置作为重获hart控制的手段。
+\end{commentary}
+
+\iffalse
 To support nested traps, each privilege mode {\em x} that can respond to
 interrupts has a two-level
 stack of interrupt-enable bits and privilege modes.  {\em x}\/PIE
@@ -624,7 +769,11 @@ two bits wide and SPP is one bit wide.  When
 a trap is taken from privilege mode {\em y} into privilege mode {\em
   x}, {\em x}\/PIE is set to the value of {\em x}\/IE; {\em x}\/IE is set to
 0; and {\em x}\/PP is set to {\em y}.
+\fi
 
+为了支持嵌套陷阱，每个可以响应中断的特权模式{\em x}都有一个两级的支持中断的位和特权模式堆栈。{\em x}\/PIE保存在trap之前激活的中断使能位的值，{\em x}\/PP保存之前的特权模式。{\em x}\/PP字段只能持有不超过{\em x}的特权模式，因此MPP是两个比特宽，而SPP是一个比特宽。当一个trap从特权模式{\em y}进入特权模式{\em x}时，{\em x}\/PIE被设置为{\em x}\/IE;{\em x}\/IE设置为0;
+
+\iffalse
 \begin{commentary}
 For lower privilege modes, any trap (synchronous or asynchronous) is
 usually taken at a higher privilege mode with interrupts disabled upon entry.
@@ -633,7 +782,13 @@ using the stacked information, or, if not returning immediately to the
 interrupted context, will save the privilege stack before re-enabling
 interrupts, so only one entry per stack is required.
 \end{commentary}
+\fi
 
+\begin{commentary}
+对于较低的特权模式，任何trap(同步或异步)通常在较高的特权模式下执行，并在进入时禁用中断。高级的trap处理程序将服务于trap并使用堆叠的信息返回，或者，如果不立即返回到中断的上下文，则在重新启用中断之前保存特权堆栈，因此每个堆栈只需要一个条目。
+\end{commentary}
+
+\iffalse
 An MRET or SRET instruction is used to return from
 a trap in M-mode or S-mode respectively.  When
 executing an {\em x}\/RET instruction, supposing {\em x}\/PP holds the
@@ -641,17 +796,31 @@ value {\em y}, {\em x}\/IE is set to {\em x}\/PIE; the privilege mode
 is changed to {\em y}; {\em x}\/PIE is set to 1; and {\em x}\/PP is
 set to the least-privileged supported mode (U if U-mode is implemented, else M).
 If {\em x}\/PP$\neq$M, {\em x}\/RET also sets MPRV=0.
+\fi
 
+MRET或SRET指令分别用于从m模式或s模式的trap返回。当执行{\em x}\/RET指令时，假设{\em x}\/PP持有值{\em y}， {\em x}\/IE被设为{\em x}\/PIE;权限模式更改为{\em y};{\em x}\/PIE设置为1;{\em x}\/PP设置为最不受特权支持的模式(如果实现U模式则为U，否则为M)。如果{\em x}\/PP$\neq$M， {\em x}\/RET也设置MPRV=0。
+
+\iffalse
 \begin{commentary}
 Setting {\em x}\/PP to the least-privileged supported mode on an {\em x}\/RET
 helps identify software bugs in the management of the two-level privilege-mode
 stack.
 \end{commentary}
+\fi
 
+\begin{commentary}
+将{\em x}\/PP设置为{\em x}\/RET上支持的特权最少的模式，有助于在两级特权模式堆栈的管理中识别软件错误
+\end{commentary}
+
+\iffalse
 {\em x}\/PP fields are \warl\ fields that can hold only privilege mode {\em x}
 and any implemented privilege mode lower than {\em x}.  If privilege mode {\em
 x} is not implemented, then {\em x}\/PP must be read-only~0.
+\fi
 
+{\em x}\/PP字段是\warl \ 字段，只能持有权限模式{\em x}和任何低于{\em x}的实现的权限模式。如果特权模式{\em x}没有实现，那么{\em x}\/PP必须是只读的~0。
+
+\iffalse
 \begin{commentary}
 M-mode software can determine whether a privilege mode is implemented
 by writing that mode to MPP then reading it back.
@@ -659,10 +828,16 @@ by writing that mode to MPP then reading it back.
 If the machine provides only U and M modes, then only a single
 hardware storage bit is required to represent either 00 or 11 in MPP.
 \end{commentary}
+\fi
+
+M模式软件可以通过将特权模式写入MPP，然后再将其读取回来，来确定是否实现了特权模式。
+
+如果机器只提供U和M模式，那么只需要一个硬件存储位来表示MPP中的00或11
 
 \subsubsection{Base ISA Control in {\tt mstatus} Register}
 \label{xlen-control}
 
+\iffalse
 For RV64 systems, the SXL and UXL fields are \warl\ fields
 that control the value of XLEN for S-mode and U-mode,
 respectively. The encoding of these fields is the same as the MXL
@@ -689,6 +864,19 @@ bits above the configured XLEN, and must sign-extend results to fill
 the entire widest supported XLEN in the destination register.
 Similarly, {\tt pc} bits above XLEN are ignored, and when the {\tt pc}
 is written, it is sign-extended to fill the widest supported XLEN.
+\fi
+
+对于RV64系统，SXL和UXL字段是分别控制s模式和u模式的XLEN值的\warl\ 字段。这些字段的编码与表~\ref{misabase}中{\tt misa}的MXL字段相同。s模式和u模式下的有效XLEN分别称为{\em SXLEN}和{\em UXLEN}。
+
+对于RV32系统，SXL和UXL字段不存在，SXLEN=32和UXLEN=32。
+
+对于RV64系统，如果不支持s模式，则SXL为只读零。否则，它是一个编码SXLEN当前值的\warl\ 字段。具体来说，实现可以使SXL为只读字段，其值总是确保SXLEN=MXLEN。
+
+对于RV64系统，如果不支持u模式，则UXL为只读零。否则，它是一个编码UXLEN当前值的\warl\ 字段。具体来说，实现可以使UXL为只读字段，其值总是确保UXLEN=MXLEN或UXLEN=SXLEN。
+
+每当将任何模式下的XLEN设置为小于最广支持的XLEN的值时，所有操作都必须忽略配置的XLEN之上的源操作数寄存器位，并且必须对结果进行符号扩展以填充目标寄存器中整个最广支持的XLEN。类似地，XLEN上面的{\tt pc}位被忽略，当{\tt pc}被写入时，它被符号扩展以填充支持最广的XLEN
+
+\iffalse
 \begin{commentary}
 We require that operations always fill the entire underlying hardware
 registers with defined values to avoid implementation-defined
@@ -700,13 +888,27 @@ next-higher privilege mode.  In practice, such settings would almost
 always be a software bug, but machine operation is well-defined even in this
 case.
 \end{commentary}
+\fi
 
+
+\begin{commentary}
+我们要求操作总是用定义的值填充整个底层硬件寄存器，以避免实现定义的行为
+
+为了降低硬件复杂性，该体系结构不检查低特权模式的XLEN设置是否小于或等于下一个更高的特权模式。在实践中，这样的设置几乎总是软件错误，但即使在这种情况下，机器操作也是定义良好的
+\end{commentary}
+
+\iffalse
 If MXLEN is changed from 32 to a wider width, each of {\tt mstatus} fields SXL and
 UXL, if not restricted to a single value, gets the value corresponding to the
 widest supported width not wider than the new MXLEN.
+\fi
 
-\subsubsection{Memory Privilege in {\tt mstatus} Register}
+如果MXLEN从32更改为更宽的宽度，{\tt mstatus}字段SXL和UXL，如果不限制为单个值，则得到对应于支持的最宽宽度的值，但不比新的MXLEN宽。
 
+%\subsubsection{Memory Privilege in {\tt mstatus} Register}
+\subsubsection{{\tt mstatus}寄存器中的内存特权}
+
+\iffalse
 The MPRV (Modify PRiVilege) bit modifies the {\em effective privilege mode},
 i.e., the privilege level at which loads
 and stores execute.  When MPRV=0, loads and stores
@@ -726,7 +928,16 @@ in Figure~\ref{sv32pte}) will succeed.  When MXR=1, loads from pages marked
 either readable or executable (R=1 or X=1) will succeed.  MXR has no effect
 when page-based virtual memory is not in effect.  MXR is read-only 0 if
 S-mode is not supported.
+\fi
 
+MPRV(修改特权)位修改{\em 有效特权模式}，即加载和存储执行时的特权级别。当MPRV=0时，加载和存储正常，使用当前特权模式的转换和保护机制。
+当MPRV=1时，加载和存储内存地址被转换和保护，并应用端序，就好像当前特权模式被设置为MPP一样。指令地址转换和保护不受MPRV设置的影响。如果不支持u模式，则MPRV为只读0。
+
+如果MRET或SRET指令将特权模式更改为特权低于M的模式，也会将MPRV设置为0。
+
+MXR(使可执行文件可读)位修改负载访问虚拟内存的特权。当MXR=0时，只有从标记为可读的页面加载(图~\ref{sv32pte}中的R=1)才会成功。当MXR=1时，从标记为可读或可执行(R=1或X=1)的页面加载将成功。当基于页面的虚拟内存不生效时，MXR没有作用。如果不支持s模式，则MXR为只读0。
+
+\iffalse
 \begin{commentary}
 The MPRV and MXR mechanisms were conceived to improve the efficiency of M-mode
 routines that emulate missing hardware features, e.g., misaligned loads and
@@ -738,7 +949,15 @@ different XLEN settings.  When MPRV=1, load and store memory addresses are
 treated as though the current XLEN were set to MPP's XLEN, following the rules
 in Section~\ref{xlen-control}.
 \end{commentary}
+\fi
 
+\begin{commentary}
+MPRV和MXR机制的构想是为了提高m模式例程的效率，这些例程模拟了缺失的硬件特征，例如，错位的负载和存储。MPRV消除了在软件中执行地址转换的需要。MXR允许从标记为“仅执行”的页面加载指令字。
+
+当前特权模式和MPP指定的特权模式可能具有不同的XLEN设置。当MPRV=1时，加载和存储内存地址就像当前的XLEN被设置为MPP的XLEN一样，遵循Section~\ref{XLEN -control}中的规则。
+\end{commentary}
+
+\iffalse
 The SUM (permit Supervisor User Memory access) bit modifies the privilege with
 which S-mode loads and stores access virtual memory.
 When SUM=0, S-mode memory accesses to pages that are accessible by U-mode (U=1
@@ -751,9 +970,16 @@ not supported or if {\tt satp}.MODE is read-only~0.
 The MXR and SUM mechanisms only affect the interpretation of permissions
 encoded in page-table entries.  In particular, they have no impact on whether
 access-fault exceptions are raised due to PMAs or PMP.
+\fi
 
-\subsubsection{Endianness Control in {\tt mstatus} and {\tt mstatush} Registers}
+SUM(允许Supervisor User Memory访问)位修改s模式加载和存储访问虚拟内存的特权。当SUM=0时，s模式内存访问可通过U模式访问的页面(图~\ref{sv32pte}中的U=1)将出错。当SUM=1时，允许这些访问。当基于页面的虚拟内存无效时，SUM将不起作用。注意，当不以S模式执行时，SUM通常被忽略，但当MPRV=1和MPP=S时，SUM {\em is}有效。如果不支持s模式或者{\tt satp}. SUM为只读0。模式是只读~ 0。
 
+MXR和SUM机制只影响对页表项中编码的权限的解释。特别是，它们对由于pma或PMP引发的访问故障异常没有影响。
+
+%\subsubsection{Endianness Control in {\tt mstatus} and {\tt mstatush} Registers}
+\subsubsection{{\tt mstatus}和{\tt mstatush}寄存器中的端序控制}
+
+\iffalse
 The MBE, SBE, and UBE bits in {\tt mstatus} and {\tt mstatush} are
 \warl\ fields that control the endianness of memory accesses other than
 instruction fetches.
@@ -777,7 +1003,19 @@ Since changing SBE alters the implementation's interpretation of these data
 structures, if any such data structures remain in use across a change to SBE,
 M-mode software must follow such a change to SBE by executing an
 SFENCE.VMA instruction with {\em rs1}={\tt x0} and {\em rs2}={\tt x0}.
+\fi
 
+{\tt mstatus}和{\tt mstatush}中的MBE, SBE和UBE位是\warl\ 字段，控制内存访问的端序，而不是指令获取。指令获取总是小端式的。
+
+MBE控制从m模式(假设{\tt mstatus}. mprv =0)进行的非指令获取内存访问是小端式(MBE=0)还是大端式(MBE=1)。
+
+如果不支持s模式，则SBE只读~0。否则，SBE控制从s模式进行的显式加载和存储内存访问是小端(SBE=0)还是大端(SBE=1)。
+
+如果不支持u模式，则UBE为只读~0。否则，UBE控制从u模式进行的显式加载和存储内存访问是小端(UBE=0)还是大端(UBE=1)。
+
+对于{\em 隐式}访问管理器级内存管理数据结构(如页表)，字节顺序总是由SBE控制。由于更改SBE会改变对这些数据结构的实现解释，如果在更改到SBE期间仍在使用任何这样的数据结构，m模式软件必须通过执行SFENCE来遵循此更改到SBE。VMA指令，{\em rs1}={\tt x0}和{\em rs2}={\tt x0}。
+
+\iffalse
 \begin{commentary}
 Only in contrived scenarios will a given memory-management data structure be
 interpreted as both little-endian and big-endian.
@@ -787,12 +1025,23 @@ reinterpreted in a different endianness.
 In this case, no additional SFENCE.VMA is necessary, beyond what would
 ordinarily be required for a world switch.
 \end{commentary}
+\fi
 
+\begin{commentary}
+只有在人为设计的场景中，给定的内存管理数据结构才会被解释为小端和大端。在实践中，SBE只会在运行时在世界交换机上更改，在这种情况下，新旧内存管理数据结构都不会以不同的端序重新解释。在本例中，不需要附加SFENCE。VMA是必要的，超出了世界切换的通常要求。
+\end{commentary}
+
+\iffalse
 If S-mode is supported, an implementation may make SBE be a read-only
 copy of MBE.
 If U-mode is supported, an implementation may make UBE be a read-only
 copy of either MBE or SBE.
+\fi
 
+如果支持s模式，则实现可以使SBE成为MBE的只读副本。
+如果支持u模式，则实现可以使UBE成为MBE或SBE的只读副本。
+
+\iffalse
 \begin{commentary}
 An implementation supports only little-endian memory accesses if fields
 MBE, SBE, and UBE are all read-only~0.
@@ -800,7 +1049,13 @@ An implementation supports only big-endian memory accesses (aside from
 instruction fetches) if MBE is read-only 1 and SBE and UBE are each
 read-only 1 when S-mode and U-mode are supported.
 \end{commentary}
+\fi
 
+\begin{commentary}
+如果字段MBE、SBE和UBE都是只读的~0，则实现只支持小端内存访问。如果MBE为只读1，且SBE和UBE在支持s模式和u模式时都为只读1，则实现只支持大端存储器访问(不包括指令获取)。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 Volume I defines a hart's address space as a circular sequence of
 $2^{\text{XLEN}}$ bytes at consecutive addresses.
@@ -809,18 +1064,30 @@ affected by any endianness mode.
 Rather, the applicable endianness mode determines the order of mapping
 between memory bytes and a multibyte quantity (halfword, word, etc.).
 \end{commentary}
+\fi
 
+\begin{commentary}
+卷I将hart的地址空间定义为在连续地址上由$2^{\text{XLEN}}$字节组成的循环序列。地址和字节位置之间的通信是固定的，不受任何端序模式的影响。相反，适用的端序模式决定了内存字节和多字节数量(半字、字等)之间的映射顺序。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 Standard RISC-V ABIs are expected to be purely little-endian-only or
 big-endian-only, with no accommodation for mixing endianness.
 Nevertheless, endianness control has been defined so as to permit, for
 instance, an OS of one endianness to execute user-mode programs of the
 opposite endianness.
-Consideration has been given also to the possibility of non-standard
+Consideration has been given also to the possibility of nonstandard
 usages whereby software flips the endianness of memory accesses as
 needed.
 \end{commentary}
+\fi
 
+\begin{commentary}
+标准的RISC-V abi被期望为纯粹的小端only或大端only，不允许混合端数。然而，已经定义了端序控制以允许，例如，具有一个端序的操作系统可以执行相反端序的用户模式程序。还考虑了非标准使用的可能性，软件可以根据需要翻转内存访问的端序。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 RISC-V instructions are uniformly little-endian to decouple instruction
 encoding from the current endianness settings, for the benefit of both
@@ -839,17 +1106,30 @@ In big-endian mode, such software must account for the fact that explicit
 loads and stores have endianness opposite that of instructions, for
 example by swapping byte order after loads and before stores.
 \end{commentary}
+\fi
 
-\subsubsection{Virtualization Support in {\tt mstatus} Register}
+\begin{commentary}
+RISC-V指令是统一的小端序，以将指令编码与当前的端序设置解耦，这对硬件和软件都有好处。否则，例如，RISC-V汇编器或反汇编器将始终需要知道预期的活动端序，尽管端序模式可能在执行过程中动态更改。相反，通过给指令一个固定的端序，有时精心编写的软件即使在二进制形式中也可能是端序不可知的，就像位置无关的代码一样。
+
+然而，对于编码或解码机器指令的RISC-V软件来说，只让指令具有小端序的选择确实会产生影响。在大端模式下，这样的软件必须考虑到显式加载和存储的端序与指令的端序相反，例如通过在加载后和存储前交换字节顺序。
+\end{commentary}
+
+%\subsubsection{Virtualization Support in {\tt mstatus} Register}
+\subsubsection{{\tt mstatus}寄存器中的虚拟化支持}
 \label{virt-control}
 
+\iffalse
 The TVM (Trap Virtual Memory) bit is a \warl\ field that supports intercepting
 supervisor virtual-memory management operations.  When TVM=1,
 attempts to read or write the {\tt satp} CSR or execute an SFENCE.VMA or
 SINVAL.VMA instruction while executing in S-mode will raise an illegal instruction
 exception.  When TVM=0, these operations are permitted in S-mode.
 TVM is read-only 0 when S-mode is not supported.
+\fi
 
+TVM (Trap虚拟内存)位是一个支持拦截主管虚拟内存管理操作的\warl\ 字段。当TVM=1时，尝试读或写{\tt satp} CSR或执行SFENCE。影响或SINVAL。VMA指令在s模式下执行时会引发非法指令异常。当TVM=0时，在s模式下允许这些操作。当不支持s模式时，TVM只读为0。
+
+\iffalse
 \begin{commentary}
 The TVM mechanism improves virtualization efficiency by permitting guest
 operating systems to execute in S-mode, rather than classically virtualizing
@@ -859,7 +1139,15 @@ S-mode CSRs.
 Trapping {\tt satp} accesses and the SFENCE.VMA and SINVAL.VMA instructions
 provides the hooks necessary to lazily populate shadow page tables.
 \end{commentary}
+\fi
 
+\begin{commentary}
+TVM机制允许客户操作系统以s模式执行，而不是传统的以u模式虚拟化它们，从而提高了虚拟化效率。这种方法不需要捕获对大多数s模式csr的访问。
+
+捕获{\tt satp}访问和SFENCE。VMA和SINVAL。VMA指令提供了延迟填充影子页表所需的挂钩。
+\end{commentary}
+
+\iffalse
 The TW (Timeout Wait) bit is a \warl\ field that supports intercepting the WFI
 instruction (see Section~\ref{wfi}).
 When TW=0, the WFI instruction may execute in lower
@@ -870,13 +1158,23 @@ causes an illegal instruction exception.  The time limit may always be 0, in whi
 case WFI always causes an illegal instruction exception in less-privileged modes
 when TW=1.  TW is read-only 0 when there are no modes less privileged than
 M.
+\fi
 
+TW(超时等待)位是一个支持拦截WFI指令的\warl\ 字段(参见~\ref{WFI}小节)。当TW=0时，WFI指令可能以较低的特权模式执行，如果没有因其他原因而被阻止。当TW=1时，如果WFI以任何特权较低的模式执行，并且它没有在特定于实现的有限时间限制内完成，那么WFI指令将导致一个非法指令异常。时间限制可能总是0，在这种情况下，当TW=1时，WFI总是在特权较低的模式下引起非法指令异常。当没有低于M的模式时，TW为只读0。
+
+\iffalse
 \begin{commentary}
 Trapping the WFI
 instruction can trigger a world switch to another guest OS, rather than
 wastefully idling in the current guest.
 \end{commentary}
+\fi
 
+\begin{commentary}
+捕获WFI指令可以触发世界切换到另一个客户操作系统，而不是浪费地在当前客户系统中闲置。
+\end{commentary}
+
+\iffalse
 When S-mode is implemented, then executing WFI in U-mode causes an illegal
 instruction exception, unless it completes within an implementation-specific,
 bounded time limit.  A future revision of this specification might add
@@ -889,24 +1187,46 @@ instruction, SRET.  When TSR=1, attempts to execute SRET while executing in
 S-mode will raise an illegal instruction exception.  When TSR=0, this
 operation is permitted in S-mode.  TSR is read-only 0 when S-mode is not
 supported.
+\fi
 
+当实现s模式时，以u模式执行WFI会导致非法指令异常，除非它在特定于实现的有限时间内完成。该规范的未来修订版可能会添加一个特性，允许s模式有选择地允许u模式下的WFI。这样的功能只有在TW=0时才会被激活。
+
+TSR (Trap SRET)位是一个支持拦截管理异常返回指令SRET的\warl\ 字段。当TSR=1时，试图在s模式下执行SRET将引发非法指令异常。当TSR=0时，s模式下允许该操作。当不支持s模式时，TSR为只读0。
+\iffalse
 \begin{commentary}
 Trapping SRET is necessary to emulate the hypervisor extension
 (see Chapter~\ref{hypervisor}) on implementations that do not provide it.
 \end{commentary}
+\fi
+
+\begin{commentary}
+捕获SRET对于在没有提供SRET的实现上模拟hypervisor扩展(参见第~\ref{hypervisor}章)是必要的。
+\end{commentary}
+
 
 \subsubsection{Extension Context Status in {\tt mstatus} Register}
 
+\iffalse
 Supporting substantial extensions is one of the primary goals of
 RISC-V, and hence we define a standard interface to allow unchanged
 privileged-mode code, particularly a supervisor-level OS, to support
 arbitrary user-mode state extensions.
+\fi
 
+支持大量的扩展是RISC-V的主要目标之一，因此我们定义了一个标准接口，以允许未更改的特权模式代码(特别是管理员级操作系统)支持任意的用户模式状态扩展。
+
+\iffalse
 \begin{commentary}
   To date, the V extension is the only standard extension that defines
   additional state beyond the floating-point CSR and data registers.
 \end{commentary}
+\fi
 
+\begin{commentary}
+到目前为止，V扩展是唯一定义了浮点CSR和数据寄存器之外的附加状态的标准扩展。
+\end{commentary}
+
+\iffalse
 The FS[1:0] and VS[1:0] \warl\ fields and the XS[1:0] read-only field are used
 to reduce the cost of context save and restore by setting and tracking
 the current state of the floating-point unit and any other user-mode
@@ -924,16 +1244,32 @@ These fields can be checked by a context switch routine to quickly
 determine whether a state save or restore is required.  If a save or
 restore is required, additional instructions and CSRs are typically
 required to effect and optimize the process.
+\fi
 
+FS[1:0]和VS[1:0] \warl\ 字段和XS[1:0]只读字段分别用于通过设置和跟踪浮点单元和任何其他用户模式扩展的当前状态来减少上下文保存和恢复的成本。
+FS字段编码浮点单元状态的状态，包括浮点寄存器{\tt f0}——{\tt f31}和csr {\tt fcsr}， {\tt frm}和{\tt fflag}。
+VS字段编码向量扩展状态的状态，包括向量寄存器{\tt v0}——{\tt v31}和 CSRs{\tt vcsr}, {\tt vxrm}, {\tt vxsat}, {\tt vstart}, {\tt vl}, {\tt vtype}和{\tt vlenb}.。
+XS字段编码其他用户模式扩展的状态和相关状态。上下文切换例程可以检查这些字段，以快速确定是否需要状态保存或恢复。如果需要保存或恢复，通常需要附加的指令和csr来实现和优化流程。
+
+\iffalse
 \begin{commentary}
   The design anticipates that most context switches will not need to
   save/restore state in either or both of the floating-point unit or
   other extensions, so provides a fast check via the SD bit.
 \end{commentary}
+\fi
 
+\begin{commentary}
+该设计预期大多数上下文开关不需要在浮点单元或其他扩展中的任何一个或两个中保存/恢复状态，因此通过SD位提供了快速检查。
+\end{commentary}
+
+\iffalse
 The FS, VS, and XS fields use the same status encoding as shown in
 Table~\ref{fsxsencoding}, with the four possible status values being
 Off, Initial, Clean, and Dirty.
+\fi
+
+FS、VS和XS字段使用相同的状态编码，如表~\ref{fsxsencoding}所示，四种可能的状态值分别为Off、Initial、Clean和Dirty。
 
 \begin{table*}[h!]
 \begin{center}
@@ -952,6 +1288,7 @@ Status  & FS and VS Meaning & XS Meaning\\
 \label{fsxsencoding}
 \end{table*}
 
+\iffalse
 If the F extension is implemented, the FS field shall not be
 read-only zero.
 
@@ -959,7 +1296,13 @@ If neither the F extension nor S-mode is implemented, then FS is
 read-only zero.
 If S-mode is implemented but the F extension is not, FS may optionally
 be read-only zero.
+\fi
 
+如果实现了F扩展，FS字段不能只读为零。
+
+如果既没有实现F扩展也没有实现s模式，则FS为只读0。如果实现了s模式，但F扩展没有实现，FS可以选择为只读零。
+
+\iffalse
 \begin{commentary}
 Implementations with S-mode but without the F extension are
 permitted, but not required, to make the FS field be read-only zero.
@@ -967,7 +1310,13 @@ Some such implementations will choose {\em not} to have the FS
 field be read-only zero, so as to enable emulation of the F extension for
 both S-mode and U-mode via invisible traps into M-mode.
 \end{commentary}
+\fi
 
+\begin{commentary}
+允许但不需要F扩展的s模式实现将FS字段设为只读零。一些这样的实现将选择{\em not}使FS字段为只读零，以便通过不可见的陷阱模拟s模式和u模式的F扩展到m模式。
+\end{commentary}
+
+\iffalse
 If the {\tt v} registers are implemented, the VS field shall not be
 read-only zero.
 
@@ -981,13 +1330,27 @@ XS field is read-only zero.  Every additional extension with state
 provides a CSR field that encodes the equivalent of the XS states.
 The XS field represents a summary of all
 extensions' status as shown in Table~\ref{fsxsencoding}.
+\fi
 
+如果实现了{\tt v}寄存器，VS字段不应该是只读零。
+
+如果既没有实现{\tt v}寄存器也没有实现s模式，那么VS只读为零。如果实现了s模式，但{\tt v}寄存器没有实现，VS可以有选择地为只读零。
+
+在没有需要新状态的额外用户扩展的系统中，XS字段为只读零。每个附加的带有状态的扩展都提供一个CSR字段，该字段编码与XS状态等价的内容。XS字段表示所有扩展状态的摘要，如表~\ref{fsxsencoding}所示。
+
+\iffalse
 \begin{commentary}
 The XS field effectively reports the maximum status value across all
 user-extension status fields, though individual extensions can use a
 different encoding than XS.
 \end{commentary}
+\fi
 
+\begin{commentary}
+XS字段有效地报告了所有用户扩展状态字段的最大状态值，尽管个别扩展可以使用与XS不同的编码。
+\end{commentary}
+
+\iffalse
 The SD bit is a read-only bit that summarizes whether either the FS,
 VS, or XS fields signal the presence of some dirty state that will
 require saving extended user context to memory.  If FS, XS, and VS are all
@@ -1058,12 +1421,39 @@ do not mutate the floating-point state may cause the state to transition from
 Initial or Clean to Dirty.  On other implementations, dirtiness might not be
 tracked at all, in which case the valid FS states are Off and Dirty, and an
 attempt to set FS to Initial or Clean causes it to be set to Dirty.
+\fi
+
+SD位是一个只读位，它总结FS、VS或XS字段是否表示存在某种脏状态，需要将扩展的用户上下文保存到内存中。如果FS、XS和VS都是只读零，那么SD也总是零。
+
+当一个扩展的状态被设置为Off时，任何试图读或写相应状态的指令都会导致一个非法指令异常。当状态为Initial时，对应的状态应该有一个初始常数值。当状态为Clean时，对应的状态可能与初始值不同，但与存储在上下文交换中的最后一个值匹配。当状态为Dirty时，自上一次保存上下文以来，相应的状态可能已被修改。
+
+在保存上下文期间，负责的特权代码只需要在状态为Dirty时写出相应的状态，然后可以将扩展的状态重置为Clean。在上下文恢复期间，只有状态为Clean时才需要从内存中加载上下文(在恢复时它不应该是Dirty)。如果状态为Initial，则必须在上下文恢复时将上下文设置为初始常量值，以避免安全漏洞，但这可以在不访问内存的情况下完成。例如，浮点寄存器都可以初始化为直接值0。
+
+FS和XS字段在保存上下文之前由特权代码读取。FS字段在恢复用户上下文时由特权代码直接设置，而XS字段则通过写入各个扩展的状态寄存器来间接设置。状态字段也将在指令执行期间更新，而不考虑特权模式。
+
+用户模式ISA的扩展通常包括额外的用户模式状态，并且该状态可能比基本整数寄存器大得多。扩展可能只用于某些应用程序，或者可能只用于单个应用程序中的较短阶段。为了提高性能，用户模式扩展可以定义额外的指令，以允许用户模式软件将单元返回到初始状态，甚至关闭单元。
+
+例如，协处理器可能需要在使用前进行配置，而在使用后可以“未配置”。未配置的状态将表示为用于上下文保存的Initial状态。如果同一个应用程序在unconfigure和下一个configure之间仍然在运行(这会将状态设置为Dirty)，那么实际上没有必要在unconfigure指令中重新初始化状态，因为所有的状态都是用户进程的本地状态，也就是说，Initial状态可能只会导致协处理器状态在上下文恢复时被初始化为一个恒定值，而不是在每个unconfigure时。
+
+执行一个用户模式指令来禁用一个单元并将其置于Off状态将导致一个非法指令异常，如果任何后续指令试图在单元被重新打开之前使用它。打开单元的用户模式指令还必须确保单元的状态已正确初始化，因为单元可能已被另一个上下文使用。
+
+更改FS的设置对浮点寄存器状态的内容没有影响。特别地，设置FS=Off不会破坏状态，设置FS=Initial也不会清除内容。类似地，VS的设置对向量寄存器状态的内容没有影响。但是，其他扩展在设置为Off时可能不会保存状态。
+
+实现可能会选择不精确地跟踪浮点寄存器状态的脏性，即使它没有被修改，也会报告该状态是脏性的。在某些实现中，一些不改变浮点状态的指令可能导致状态从Initial或Clean转换为Dirty。在其他实现中，脏程度可能根本不会被跟踪，在这种情况下，有效的FS状态是Off和Dirty，试图将FS设置为Initial或Clean会导致它被设置为Dirty。
+
+\iffalse
 \begin{commentary}
 This definition of FS does not disallow setting FS to Dirty as a result of
 errant speculation.  Some platforms may choose to disallow speculatively
 writing FS to close a potential side channel.
 \end{commentary}
+\fi
 
+\begin{commentary}
+FS的这个定义并不禁止由于错误的推测而将FS设置为Dirty。一些平台可能会选择不允许投机性写入FS来关闭潜在的侧通道。
+\end{commentary}
+
+\iffalse
 If an instruction explicitly or implicitly writes a floating-point register or
 the {\tt fcsr} but does not alter its contents, and FS=Initial or FS=Clean, it
 is implementation-defined whether FS transitions to Dirty.
@@ -1079,6 +1469,13 @@ Table~\ref{fsxsstates} shows all the possible state transitions for
 the FS, VS, or XS status bits.  Note that the standard floating-point
 and vector extensions do not support user-mode unconfigure or disable/enable
 instructions.
+\fi
+
+如果一条指令显式或隐式地写入浮点寄存器或{\tt fcsr}但不更改其内容，并且FS=Initial或FS=Clean，则FS是否转换为Dirty由实现定义。
+
+实现可以选择以类似的不精确的方式跟踪矢量寄存器状态的脏程度，包括可能在软件试图设置VS=Initial或VS=Clean时将VS设置为Dirty。当VS=Initial或VS=Clean时，写入向量寄存器或向量CSR但不改变其内容的指令是否导致VS过渡到Dirty是由实现定义的。
+
+表~\ref{fsxsstates}显示了FS、VS或XS状态位的所有可能的状态转换。注意，标准浮点和向量扩展不支持用户模式的取消配置或禁用/启用指令。
 
 \begin{table*}[h!]
 \begin{center}
@@ -1135,11 +1532,16 @@ Next state     & Initial   & Initial & Initial & Initial   \\
 \label{fsxsstates}
 \end{table*}
 
+\iffalse
 Standard privileged instructions to initialize, save, and restore
 extension state are provided to insulate privileged code from details
 of the added extension state by treating the state as an opaque
 object.
+\fi
 
+表~\ref{fsxsstates}显示了FS、VS或XS状态位的所有可能的状态转换。注意，标准浮点和向量扩展不支持用户模式的取消配置或禁用/启用指令。
+
+\iffalse
 \begin{commentary}
 Many coprocessor extensions are only used in limited contexts that
 allows software to safely unconfigure or even disable units when done.
@@ -1151,7 +1553,15 @@ when a floating-point unit is present the floating-point registers are
 part of the standard calling convention, and so user-mode software
 cannot know when it is safe to disable the floating-point unit.
 \end{commentary}
+\fi
 
+\begin{commentary}
+许多协处理器扩展仅在有限的上下文中使用，这些上下文允许软件在完成后安全地取消配置甚至禁用单元。这减少了大型有状态协处理器的上下文切换开销。
+
+我们将浮点状态与其他扩展状态分开，因为当浮点单元存在时，浮点寄存器是标准调用约定的一部分，因此用户模式软件无法知道何时禁用浮点单元是安全的。
+\end{commentary}
+
+\iffalse
 The XS field provides a summary of all added extension state, but
 additional microarchitectural bits might be maintained in the
 extension to further reduce context save and restore overhead.
@@ -1159,7 +1569,7 @@ extension to further reduce context save and restore overhead.
 The SD bit is read-only and is set when either the FS, VS, or XS bits
 encode a Dirty state (i.e., SD=((FS==11) OR (XS==11) OR (VS==11))).  This allows
 privileged code to quickly determine when no additional context save is
-required beyond the integer register set and {\tt pc}.
+required beyond the integer register set and PC.
 
 The floating-point unit state is always initialized, saved, and
 restored using standard instructions (F, D, and/or Q), and privileged
@@ -1172,7 +1582,17 @@ normally uses the FS, VS, and XS bits directly to record the status with
 respect to the supervisor-level saved context.
 Machine-level software must be more conservative in saving and restoring the
 extension state in their corresponding version of the context.
+\fi
 
+XS字段提供了所有添加的扩展状态的摘要，但是附加的微体系结构位可以被保持在扩展中，以进一步减少上下文保存和恢复开销。
+
+SD位为只读位，当FS、VS或XS位编码脏状态时置1(即SD= (FS==11)或(XS==11)或(VS==11))。这允许特权代码快速确定除整数寄存器组和PC之外何时不需要额外的上下文保存。
+
+浮点单元状态总是使用标准指令(F、D和/或Q)进行初始化、保存和恢复，特权代码必须知道FLEN，以确定为每个{\tt f}寄存器保留的适当空间。
+
+机器模式和管理模式共享FS、VS和XS位的单个副本。管理程序级软件通常直接使用FS、VS和XS位来记录与管理程序级保存的上下文相关的状态。机器级软件在相应版本的上下文中保存和恢复扩展状态时必须更加保守。
+
+\iffalse
 \begin{commentary}
 In any reasonable use case, the number of context switches between
 user and supervisor level should far outweigh the number of context
@@ -1180,12 +1600,21 @@ switches to other privilege levels.  Note that coprocessors should not
 require their context to be saved and restored to service asynchronous
 interrupts, unless the interrupt results in a user-level context swap.
 \end{commentary}
+\fi
+
+\begin{commentary}
+在任何合理的用例中，用户和管理员级别之间的上下文切换次数应该远远超过其他权限级别的上下文切换次数。注意，协处理器不应该要求保存和恢复它们的上下文来服务异步中断，除非中断导致用户级上下文交换。
+\end{commentary}
 
 \subsection{Machine Trap-Vector Base-Address Register ({\tt mtvec})}
 
+\iffalse
 The {\tt mtvec} register is an MXLEN-bit \warl\ read/write register that holds
 trap vector configuration, consisting of a vector base address (BASE) and a
 vector mode (MODE).
+\fi
+
+{\tt mtvec}寄存器是一个MXLEN位\warl\ 读/写寄存器，保存陷阱向量配置，包括向量基址(base)和向量模式(mode)。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -1206,17 +1635,27 @@ MXLEN-2 & 2 \\
 \label{mtvecreg}
 \end{figure*}
 
+\iffalse
 The {\tt mtvec} register must always be implemented, but can contain
 a read-only value.  If {\tt mtvec} is writable, the set of values
 the register may hold can vary by implementation.  The value in the BASE field
 must always be aligned on a 4-byte boundary, and the MODE setting may impose
 additional alignment constraints on the value in the BASE field.
+\fi
 
+{\tt mtvec}寄存器必须始终执行，但可以包含只读值。如果{\tt mtvec}是可写的，则寄存器可能保存的一组值可能因实施而异。基本字段中的值必须始终在4字节边界上对齐，并且模式设置可能会对基本字段中的值施加额外的对齐约束。
+
+\iffalse
 \begin{commentary}
 We allow for considerable flexibility in implementation of the trap
 vector base address.  On the one hand, we do not wish to burden low-end
 implementations with a large number of state bits, but on the other
 hand, we wish to allow flexibility for larger systems.
+\end{commentary}
+\fi
+
+\begin{commentary}
+我们允许在陷阱向量基地址的实现中有相当大的灵活性。一方面，我们不希望低端实现增加大量状态位的负担，但另一方面，我们希望允许更大系统的灵活性。
 \end{commentary}
 
 \begin{table*}[h!]
@@ -1235,6 +1674,7 @@ $\ge$2 & --- & {\em Reserved} \\
 \label{mtvec-mode}
 \end{table*}
 
+\iffalse
 The encoding of the MODE field is shown in Table~\ref{mtvec-mode}.  When
 MODE=Direct, all traps into machine mode cause the {\tt pc} to be set to the
 address in the BASE field.  When MODE=Vectored, all synchronous exceptions
@@ -1243,29 +1683,55 @@ field, whereas interrupts cause the {\tt pc} to be set to the address in
 the BASE field plus four times the interrupt cause number.  For example,
 a machine-mode timer interrupt (see Table~\ref{mcauses} on page~\pageref{mcauses}) causes the {\tt pc}
 to be set to BASE+{\tt 0x1c}.
+\fi
 
+模式字段的编码如表~\ref{mtvec-mode}所示。当MODE=Direct时，所有进入机器模式的陷阱会将{\tt pc}设置为基址字段中的地址。当MODE=Vectored时，进入机器模式的所有同步异常导致{\tt pc}被设置为基址域中的地址，而中断导致{\tt pc}被设置为基址域中的地址加上四倍的中断原因号。例如，机器模式定时器中断(参见第页的表~\ref{mcauses})导致{\tt pc}被设置为BASE+{\tt 0x1c}。
+
+\iffalse
 \begin{commentary}
 When vectored interrupts are enabled, interrupt cause 0, which corresponds to
 user-mode software interrupts, are vectored to the same location as
 synchronous exceptions.  This ambiguity does not arise in practice, since
 user-mode software interrupts are either disabled or delegated to user mode.
 \end{commentary}
+\fi
 
+\begin{commentary}
+当向量中断使能时，中断原因0(对应于用户模式软件中断)被向量化到与同步异常相同的位置。这种模糊性在实践中不会出现，因为用户模式软件中断要么被禁用，要么被委托给用户模式。
+\end{commentary}
+
+\iffalse
 An implementation may have different alignment constraints for
 different modes.  In particular, MODE=Vectored may have stricter
 alignment constraints than MODE=Direct.
+\fi
 
+对于不同的模式，实现可以具有不同的对准约束。特别是，MODE=Vectored可能比MODE=Direct具有更严格的对齐约束。
+
+\iffalse
 \begin{commentary}
   Allowing coarser alignments in Vectored mode enables vectoring to be
   implemented without a hardware adder circuit.
 \end{commentary}
+\fi
 
 \begin{commentary}
+  在矢量化模式中允许较粗略的对准使得矢量化能够在没有硬件加法器电路的情况下实现。
+\end{commentary}
+
+\iffalse
+\begin{commentary}
 Reset and NMI vector locations are given in a platform specification.
+\end{commentary}
+\fi
+
+\begin{commentary}
+平台规范中给出了复位和NMI向量的位置。
 \end{commentary}
 
 \subsection{Machine Trap Delegation Registers ({\tt medeleg} and {\tt mideleg})}
 
+\iffalse
 By default, all traps at any privilege level are handled in machine
 mode, though a machine-mode handler can redirect traps back to the
 appropriate level with the MRET instruction (Section~\ref{otherpriv}).
@@ -1282,15 +1748,24 @@ must exist, and setting a bit in
 occurring in S-mode or U-mode, to the S-mode trap handler.
 In systems without S-mode, the {\tt medeleg} and {\tt mideleg} registers
 should not exist.
+\fi
 
+默认情况下，任何特权级别的所有陷阱都在机器模式下处理，尽管机器模式处理程序可以使用MRET指令将陷阱重定向回适当级别(第~\ref{otherpriv}节)。为了提高性能，实现可以在{\tt medeleg}和{\tt-mideleg}中提供单独的读/写位，以指示某些异常和中断应该由较低的特权级别直接处理。机器异常委托寄存器({\tt medeleg})和机器中断委托寄存器({\tt mideleg})是MXLEN位读/写寄存器。
+
+\iffalse
 \begin{commentary}
   In versions 1.9.1 and earlier , these registers existed but were
   hardwired to zero in M-mode only, or M/U without N systems.  There
   is no reason to require they return zero in those cases, as the {\tt
     misa} register indicates whether they exist.
 \end{commentary}
+\fi
 
+\begin{commentary}
+ 在版本1.9.1及更早的版本中，这些寄存器存在，但仅在M模式或没有N个系统的M/U系统中硬连接到0。在这些情况下，没有理由要求它们返回零，因为{\tt misa}寄存器指示它们是否存在。
+\end{commentary}
 
+\iffalse
 When a trap is delegated to S-mode, the
 {\tt scause} register is written with the trap cause; the
 {\tt sepc} register is written with the virtual address of
@@ -1315,13 +1790,27 @@ any synchronous trap that can be delegated must support not being delegated.
 Similarly, an implementation shall not fix as read-only one any bits of
 {\tt mideleg} corresponding to machine-level interrupts (but may do so
 for lower-level interrupts).
+\fi
 
+当陷阱被委派到S模式时，将使用陷阱原因写入{\tt scause}寄存器；使用获取陷阱的指令的虚拟地址写入{\tt Sepc}寄存器；使用特定于异常的数据写入{\tt stval}寄存器；使用陷阱发生时的活动特权模式写入{\tt mstatus}的SPP字段；使用陷阱发生时的SIE字段的值写入{\tt matus}的SPIE字段；清除{\tt mStatus}的SIE字段。未写入{\tt mason}、{\tt mepc}和{\tt mtval}寄存器以及{\tt mstatus}的MPP和MPIE字段。
+
+实现可以选择将可委托陷阱设置为子集，通过向每个位位置写入一个来找到受支持的可委派位，然后读回{\tt medelig}或{\tt mideleg}中的值，以查看哪些位位置保存1。
+
+一个实现不应该有任何位的{\tt medelegg}是只读的，即任何可以委托的同步陷阱必须支持不委托。类似地，实现不应将对应于机器级中断的任何位的{\tt mideleg}固定为只读(但可以对较低级别的中断这样做)。
+
+\iffalse
 \begin{commentary}
 Version 1.11 and earlier prohibited having any bits of {\tt mideleg}
 be read-only one.
 Platform standards may always add such restrictions.
 \end{commentary}
+\fi
 
+\begin{commentary}
+版本1.11及更早版本禁止任何位的{\tt mideleg}为只读。平台标准可能总是会添加这样的限制。
+\end{commentary}
+
+\iffalse
 Traps never transition from a more-privileged mode to a less-privileged mode.
 For example, if M-mode has delegated illegal instruction exceptions to S-mode, and
 M-mode software later executes an illegal instruction, the trap is taken in
@@ -1336,6 +1825,9 @@ delegated to S-mode by setting {\tt mideleg}[5], STIs will not be taken when
 executing in M-mode.  By contrast, if {\tt mideleg}[5] is clear, STIs can
 be taken in any mode and regardless of current mode will transfer control to
 M-mode.
+\fi
+
+陷阱永远不会从特权较高的模式转换到特权较低的模式。 例如，如果M模式已将非法指令异常委托给S模式，而 M模式软件稍后执行了一条非法指令，则陷阱将在M模式中进行，而不是委托给S模式。相比之下，陷阱可以水平采取。使用相同的示例，如果M模式 已将非法指令异常委托给S模式，并且S模式软件稍后执行了非法指令，则在S模式中进行陷阱。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1354,11 +1846,15 @@ MXLEN \\
 \label{medelegreg}
 \end{figure}
 
+\iffalse
 {\tt medeleg} has a bit position allocated for every synchronous exception
 shown in Table~\ref{mcauses} on page~\pageref{mcauses}, with the index of the bit position equal to the
 value returned in the {\tt mcause} register (i.e., setting bit 8 allows
 user-mode environment calls to be delegated to a lower-privilege trap
 handler).
+\fi
+
+{\tt medeleg} 为页面~\pageref{mcause} 上的 Table~\ref{mcause} 中所示的每个同步异常分配了一个位位置，位位置的索引等于 {\tt mcause 中返回的值 } 寄存器（即，设置位 8 允许将用户模式环境调用委托给较低权限的陷阱处理程序）。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1377,6 +1873,7 @@ MXLEN \\
 \label{midelegreg}
 \end{figure}
 
+\iffalse
 {\tt mideleg} holds trap delegation bits for individual interrupts, with the
 layout of bits matching those in the {\tt mip} register (i.e., STIP interrupt
 delegation control is located in bit 5).
@@ -1384,9 +1881,15 @@ delegation control is located in bit 5).
 For exceptions that cannot occur in less privileged modes, the corresponding
 {\tt medeleg} bits should be read-only zero.  In particular,
 {\tt medeleg}[11] is read-only zero.
+\fi
+
+{\tt mideleg} 保存各个中断的陷阱委托位，位布局与 {\tt mip} 寄存器中的位布局相匹配(即，STIP 中断委托控制位于第 5 位)。
+
+对于在较低特权模式下不能发生的异常，相应的 {\tt medeleg} 位应为只读零。 特别是，{\tt medeleg}[11] 是只读零。
 
 \subsection{Machine Interrupt Registers ({\tt mip} and {\tt mie})}
 
+\iffalse
 The {\tt mip} register is an MXLEN-bit read/write register containing
 information on pending interrupts, while {\tt mie} is the
 corresponding MXLEN-bit read/write register containing interrupt enable
@@ -1396,6 +1899,9 @@ Section~\ref{sec:mcause}) corresponds with bit~\textit{i} in both
 {\tt mip} and {\tt mie}.
 Bits 15:0 are allocated to standard interrupt causes only, while bits 16
 and above are designated for platform or custom use.
+\fi
+
+{\tt mip} 寄存器是一个 MXLEN 位读/写寄存器，包含有关挂起中断的信息，而 {\tt mie} 是相应的 MXLEN 位读/写寄存器，包含中断使能位。 中断原因编号 \textit{i}（如 CSR {\tt mcause}，Section~\ref{sec:mcause} 中所述）与 {\tt mip} 和 {\tt mie 中的 bit~\textit{i} 对应 }。 位 15:0 仅分配给标准中断原因，而位 16 及更高位指定用于平台或自定义使用。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1431,6 +1937,7 @@ MXLEN \\
 \label{miereg}
 \end{figure}
 
+\iffalse
 An interrupt~\textit{i} will trap to M-mode (causing the privilege mode
 to change to M-mode) if all of the following are true:
 (a)~either the current privilege mode is M and the MIE bit in the
@@ -1466,6 +1973,12 @@ Bits of {\tt mie} that are not writable must be read-only zero.
 The standard portions (bits 15:0) of registers {\tt mip} and {\tt mie}
 are formatted as shown in Figures \ref{mipreg-standard} and
 \ref{miereg-standard} respectively.
+\fi
+
+如果满足以下所有条件，则中断~\textit{i} 将陷入 M 模式（导致特权模式更改为 M 模式）： (a)~当前特权模式为 M 且 MIE 位在 {\tt mstatus} 寄存器被设置，或者当前特权模式的特权低于 M-mode； (b)~bit~\textit{i} 在 {\tt mip} 和 {\tt mie} 中都设置； (c)~如果寄存器 {\tt mideleg} 存在，位~\textit{i} 在 {\tt mideleg} 中没有设置。
+
+中断陷阱发生的这些条件必须在中断在 {\tt mip} 中挂起或停止挂起时的有限时间内进行评估，并且还必须在执行 {\em x}\/RET 指令或对这些中断陷阱条件明确依赖的 CSR 的显式写入（包括 {\tt mip}、{\tt mie}、{\tt mstatus} 和 {\tt mideleg}）。
+
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -1551,6 +2064,7 @@ are formatted as shown in Figures \ref{mipreg-standard} and
 \label{miereg-standard}
 \end{figure*}
 
+\iffalse
 \begin{commentary}
   The machine-level interrupt registers handle a few root interrupt
   sources which are assigned a fixed service priority for simplicity,
@@ -1558,13 +2072,25 @@ are formatted as shown in Figures \ref{mipreg-standard} and
   complex prioritization scheme over a much larger set of interrupts
   that are then muxed into the machine-level interrupt sources.
 \end{commentary}
+\fi
 
+\begin{commentary}
+机器级中断寄存器处理一些根中断源，为简单起见，这些中断源被分配了固定的服务优先级，而单独的外部中断控制器可以在更大的一组中断上实现更复杂的优先级方案，然后将这些中断多路复用到机器级中断源。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 The non-maskable interrupt is not made visible via the {\tt mip}
 register as its presence is implicitly known when executing the NMI
 trap handler.
 \end{commentary}
+\fi
 
+\begin{commentary}
+不可屏蔽中断通过 {\tt mip} 寄存器不可见，因为在执行 NMI 陷阱处理程序时隐式知道它的存在。
+\end{commentary}
+
+\iffalse
 Bits {\tt mip}.MEIP and {\tt mie}.MEIE are the interrupt-pending and
 interrupt-enable bits for machine-level external interrupts.
 MEIP is read-only in {\tt mip}, and is set and cleared by a
@@ -1607,7 +2133,25 @@ interrupt signal from the interrupt controller, but the signal from the
 interrupt controller is not used to calculate the value written to SEIP.
 Only the software-writable SEIP bit participates in the
 read-modify-write sequence of a CSRRS or CSRRC instruction.
+\fi
 
+位 {\tt mip}.MEIP 和 {\tt mie}.MEIE 是机器级外部中断的中断挂起和中断使能位。 MEIP 在 {\tt mip} 中是只读的，由特定于平台的中断控制器设置和清除。
+
+位 {\tt mip}.MTIP 和 {\tt mie}.MTIE 是机器定时器中断的中断挂起和中断启用位。
+MTIP 在 {\tt mip} 中是只读的，并通过写入内存映射机器模式定时器比较寄存器来清除。
+
+位 {\tt mip}.MSIP 和 {\tt mie}.MSIE 是机器级软件中断的中断挂起和中断启用位。 MSIP 在 {\tt mip} 中是只读的，并且通过访问内存映射控制寄存器来写入，远程 hart 使用这些控制寄存器来提供机器级处理器间中断。
+hart 可以使用相同的内存映射控制寄存器写入自己的 MSIP 位。 如果系统只有一个 hart，或者如果平台标准支持通过外部中断 (MEI) 传递机器级处理器间中断，则 {\tt mip}.MSIP 和 {\tt mie}.MSIE 都可以被只读零。
+
+如果未实现主管模式，则 {\tt mip} 的位 SEIP、STIP 和 SSIP 以及 {\tt mie} 的 SEIE、STIE 和 SSIE 为只读零。
+
+如果实现了监督模式，位 {\tt mip}.SEIP 和 {\tt mie}.SEIE 是监督级外部中断的中断挂起和中断使能位。
+SEIP 在 {\tt mip} 中是可写的，并且可以由 M-mode 软件写入以向 S-mode 指示外部中断正在挂起。此外，平台级中断控制器可以产生监督级外部中断。
+基于软件可写 SEIP 位的逻辑或和来自外部中断控制器的信号，使管理级外部中断处于待处理状态。
+当使用 CSR 指令读取 {\tt mip} 时，在 {\tt rd} 目标寄存器中返回的 SEIP 位的值是软件可写位与来自中断控制器的中断信号的逻辑或，但来自中断控制器的信号不用于计算写入 SEIP 的值。
+只有软件可写 SEIP 位参与 CSRRS 或 CSRRC 指令的读-修改-写序列。
+
+\iffalse
 \begin{commentary}
   For example, if we name the software-writable SEIP bit {\tt B} and the
   signal from the external interrupt controller {\tt E}, then if \mbox{\tt csrrs
@@ -1622,7 +2166,17 @@ read-modify-write sequence of a CSRRS or CSRRC instruction.
   external interrupts.  The behavior of the CSR instructions is
   slightly modified from regular CSR accesses as a result.
 \end{commentary}
+\fi
 
+\begin{commentary}
+  例如，如果我们将软件可写 SEIP 位 {\tt B} 和来自外部中断控制器的信号命名为 {\tt E}，那么如果执行 \mbox{\tt csrrs t0, mip, t1}，
+  {\ tt t0[9]} 用 \mbox{\tt B || 编写 E}，则 {\tt B} 写成 \mbox{\tt B || t1[9]}。 
+  如果 \mbox{\tt csrrw t0, mip, t1} 被执行，那么 {\tt t0[9]} 写成 \mbox{\tt B || E}，而 {\tt B} 简单地写成 {\tt t1[9]}。 
+  在这两种情况下，{\tt B} 都不依赖于 {\tt E}。 SEIP 字段行为旨在允许更高特权层干净地模仿外部中断，而不会丢失任何真正的外部中断。 
+  因此，CSR 指令的行为与常规 CSR 访问相比略有修改。
+\end{commentary}
+
+\iffalse
 If supervisor mode is implemented, bits {\tt mip}.STIP and {\tt mie}.STIE
 are the interrupt-pending and interrupt-enable bits for supervisor-level
 timer interrupts.
@@ -1638,7 +2192,16 @@ interrupt controller.
 Multiple simultaneous
 interrupts destined for M-mode are handled in the following
 decreasing priority order: MEI, MSI, MTI, SEI, SSI, STI.
+\fi
 
+如果实施监督模式，位 {\tt mip}.STIP 和 {\tt mie}.STIE 是监督级定时器中断的中断挂起和中断使能位。
+STIP 在 {\tt mip} 中是可写的，并且可以由 M 模式软件编写以将定时器中断传递到 S 模式。
+
+如果实现了监督模式，位 {\tt mip}.SSIP 和 {\tt mie}.SSIE 是监督级软件中断的中断挂起和中断使能位。 SSIP 在 {\tt mip} 中是可写的，也可以由特定于平台的中断控制器设置为 1。
+
+以 M 模式为目标的多个同时中断按以下优先级降序处理：MEI、MSI、MTI、SEI、SSI、STI。
+
+\iffalse
 \begin{commentary}
   The machine-level interrupt fixed-priority ordering rules were developed
   with the following rationale.
@@ -1665,7 +2228,22 @@ decreasing priority order: MEI, MSI, MTI, SEI, SSI, STI.
   as these are often written by software, and this position allows the
   use of a single CSR instruction with a five-bit immediate.
 \end{commentary}
+\fi
 
+\begin{commentary}
+
+机器级中断固定优先级排序规则是根据以下原理开发的。
+
+较高特权模式的中断必须在较低特权模式的中断之前服务以支持抢占。
+
+位 16 及以上的平台特定机器级中断源具有特定于平台的优先级，但通常选择具有最高服务优先级以支持非常快速的本地向量中断。
+
+外部中断在内部（定时器/软件）中断之前处理，因为外部中断通常由可能需要低中断服务时间的设备生成。
+
+软件中断在内部定时器中断之前处理，因为内部定时器中断通常用于时间片，其中时间精度不太重要，而软件中断用于处理器间消息传递。 当需要高精度定时时可以避免软件中断，或者可以通过不同的中断路径路由高精度定时器中断。 软件中断位于 {\tt mip} 的最低四位，因为它们通常由软件编写，并且该位置允许使用具有五位立即数的单个 CSR 指令。
+\end{commentary}
+
+\iffalse
 Restricted views of the {\tt mip} and {\tt mie} registers appear as
 the {\tt sip} and {\tt sie} registers for supervisor level.
 If an interrupt is delegated to
@@ -1674,9 +2252,13 @@ it becomes visible in the {\tt sip} register and is maskable
 using the {\tt sie} register.  Otherwise, the corresponding
 bits in {\tt sip} and {\tt sie} are read-only
 zero.
+\fi
+
+{\tt mip} 和 {\tt mie} 寄存器的受限视图显示为主管级别的 {\tt sip} 和 {\tt sie} 寄存器。 如果通过在 {\tt mideleg} 寄存器中设置一个位将中断委托给 S 模式，则它在 {\tt sip} 寄存器中变得可见，并且可以使用 {\tt sie} 寄存器进行屏蔽。 否则，{\tt sip} 和 {\tt sie} 中的对应位为只读零。
 
 \subsection{Hardware Performance Monitor}
 
+\iffalse
 M-mode includes a basic hardware performance-monitoring facility.  The
 {\tt mcycle} CSR counts the number of clock cycles executed by the
 processor core on which the hart is running.
@@ -1699,6 +2281,13 @@ causes the corresponding counter to increment.  The meaning of these events is
 defined by the platform, but event 0 is defined to mean ``no event.''
 All counters should be implemented, but a legal implementation is to make
 both the counter and its corresponding event selector be read-only~0.
+\fi
+
+M 模式包括一个基本的硬件性能监控工具。 {\tt mcycle} CSR 计算运行 hart 的处理器内核执行的时钟周期数。 {\tt minstret} CSR 计算 hart 已退出的指令数。 {\tt mcycle} 和 {\tt minstret} 寄存器在所有 RV32 和 RV64 系统上都具有 64 位精度。
+
+计数器寄存器在 hart 复位后具有任意值，并且可以写入给定值。 任何 CSR 写操作在写指令完成后才生效。 {\tt mcycle} CSR 可以在同一内核上的 harts 之间共享，在这种情况下，对 {\tt mcycle} 的写入将对这些 harts 可见。 平台应提供一种机制来指示哪些 harts 共享一个 {\tt mcycle} CSR。
+
+硬件性能监视器包括 29 个额外的 64 位事件计数器，{\tt mhpmcounter3}--{\tt mhpmcounter31}。 事件选择器 CSR，{\tt mhpmevent3}--{\tt mhpmevent31}，是 MXLEN 位 \warl\ 寄存器，用于控制哪个事件导致相应计数器递增。 这些事件的含义由平台定义，但事件 0 被定义为“无事件”。所有计数器都应该实现，但合法的实现是使计数器及其对应的事件选择器都是只读的~0。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1721,19 +2310,33 @@ both the counter and its corresponding event selector be read-only~0.
 \caption{Hardware performance monitor counters.}
 \end{figure}
 
+\iffalse
 The {\tt mhpmcounter}s are \warl\ registers that support up to 64 bits of
 precision on RV32 and RV64.
+\fi
 
+{\tt mhpmcounter} 是 \warl\ 寄存器，在 RV32 和 RV64 上支持高达 64 位精度。
+
+\iffalse
 \begin{commentary}
 A future revision of this specification will define a mechanism to generate an
 interrupt when a hardware performance monitor counter overflows.
 \end{commentary}
+\fi
 
+\begin{commentary}
+本规范的未来修订版将定义一种机制，以在硬件性能监视器计数器溢出时生成中断。
+\end{commentary}
+
+\iffalse
 When MXLEN=32, reads of the {\tt mcycle}, {\tt minstret}, and {\tt
 mhpmcounter{\em n}} CSRs return bits 31--0 of the corresponding counter, and
 writes change only bits 31--0; reads of the {\tt mcycleh}, {\tt minstreth},
 and {\tt mhpmcounter{\em n}h} CSRs return bits 63--32 of the corresponding
 counter, and writes change only bits 63--32.
+\fi
+
+当 MXLEN=32 时，{\tt mcycle}、{\tt minstret} 和 {\tt mhpmcounter{\em n}} CSR 的读取返回相应计数器的位 31--0，而写入仅更改位 31- -0; {\tt mcycleh}、{\tt minstreth} 和 {\tt mhpmcounter{\em n}h} CSR 的读取返回相应计数器的位 63--32，而写入仅更改位 63--32。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1771,9 +2374,13 @@ counter, and writes change only bits 63--32.
 \subsection{Machine Counter-Enable Register ({\tt mcounteren})}
 \label{sec:mcounteren}
 
+\iffalse
 The counter-enable register {\tt mcounteren} is a 32-bit register that
 controls the availability of the hardware performance-monitoring counters to
 the next-lowest privileged mode.
+\fi
+
+计数器启用寄存器 {\tt mcounteren} 是一个 32 位寄存器，用于控制硬件性能监视计数器在下一个最低特权模式下的可用性。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -1811,6 +2418,7 @@ the next-lowest privileged mode.
 \label{mcounteren}
 \end{figure*}
 
+\iffalse
 The settings in this register only control accessibility.  The act
 of reading or writing this register does not affect the underlying
 counters, which continue to increment even when not accessible.
@@ -1822,7 +2430,13 @@ S-mode or U-mode will cause an illegal instruction exception.  When
 one of these bits is set, access to the corresponding register is
 permitted in the next implemented privilege mode (S-mode if
 implemented, otherwise U-mode).
+\fi
 
+此寄存器中的设置仅控制可访问性。 读取或写入此寄存器的行为不会影响底层计数器，即使在不可访问时也会继续递增。
+
+当 {\tt mcounteren} 寄存器中的 CY、TM、IR 或 HPM{\em n} 位清零时，尝试读取 {\tt cycle}、{\tt time}、{\tt instret} 或 {\tt hpmcounter{\em n}} 寄存器在 S-mode 或 U-mode 执行时会导致非法指令异常。 当这些位中的一个被设置时，允许在下一个实现的特权模式下访问相应的寄存器（如果实现了 S-mode，否则为 U-mode）。
+
+\iffalse
 \begin{commentary}
 The counter-enable bits support two common use cases with minimal hardware.
 For systems that do not need high-performance timers and counters,
@@ -1831,7 +2445,13 @@ software.  For systems that need high-performance timers and counters
 but are not concerned with obfuscating the underlying hardware
 counters, the counters can be directly exposed to lower privilege modes.
 \end{commentary}
+\fi
 
+\begin{commentary}
+计数器启用位以最少的硬件支持两种常见用例。 对于不需要高性能计时器和计数器的系统，机器模式软件可以捕获访问并在软件中实现所有功能。 对于需要高性能计时器和计数器但不关心混淆底层硬件计数器的系统，计数器可以直接暴露于较低特权模式。
+\end{commentary}
+
+\iffalse
 The {\tt cycle}, {\tt instret}, and {\tt hpmcounter{\em n}} CSRs are
 read-only shadows of {\tt mcycle}, {\tt minstret}, and {\tt mhpmcounter{\em
 n}}, respectively.  The {\tt time} CSR is a read-only shadow of the
@@ -1841,17 +2461,31 @@ memory-mapped {\tt mtime} register.  Analogously, on RV32I the {\tt cycleh},
 On RV32I the {\tt timeh} CSR is a read-only shadow of the upper 32 bits of
 the memory-mapped {\tt mtime} register, while {\tt time} shadows only the
 lower 32 bits of {\tt mtime}.
+\fi
+
+{\tt cycle}、{\tt instret}和{\tt hpmcounter{\em n}} CSR 是 {\tt mcycle}、{\tt minstret}和{\tt mhpmcounter{\ em n}}，分别。{\tt time} CSR 是内存映射 {\tt mtime} 寄存器的只读影子。 类似地，在 RV32I 上，{\tt cycleh}、{\tt instreth} 和 {\tt hpmcounter{\em n}h} CSR 是 {\tt mcycleh}、{\tt minstreth} 和 {\tt mhpmcounter{\em n}h}，分别。 在 RV32I 上，{\tt timeh} CSR 是内存映射 {\tt mtime} 寄存器的高 32 位的只读遮蔽，而 {\tt time} 仅隐藏 {\tt mtime} 的低 32 位 .
+
+\iffalse
 \begin{commentary}
 Implementations can convert reads of the {\tt time} and {\tt timeh} CSRs
 into loads to the memory-mapped {\tt mtime} register, or emulate this
 functionality in M-mode software.
 \end{commentary}
+\fi
 
+\begin{commentary}
+实现可以将 {\tt time} 和 {\tt timeh} CSR 的读取转换为对内存映射 {\tt mtime} 寄存器的加载，或在 M 模式软件中模拟此功能。
+\end{commentary}
+
+\iffalse
 In systems with U-mode, the {\tt mcounteren} must be implemented, but all
 fields are \warl\ and may be read-only zero,
 indicating reads to the corresponding counter will
 cause an illegal instruction exception when executing in a less-privileged mode.
 In systems without U-mode, the {\tt mcounteren} register should not exist.
+\fi
+
+在具有 U 模式的系统中，必须实现 {\tt mcounteren}，但所有字段都是 \warl\ ，并且可能是只读零，表示读取相应计数器会导致在 less- 中执行时出现非法指令异常 特权模式。 在没有 U 模式的系统中，{\tt mcounteren} 寄存器不应该存在。
 
 \subsection{Machine Counter-Inhibit CSR ({\tt mcountinhibit})}
 
@@ -1891,6 +2525,7 @@ In systems without U-mode, the {\tt mcounteren} register should not exist.
 \label{mcountinhibit}
 \end{figure*}
 
+\iffalse
 The counter-inhibit register {\tt mcountinhibit} is a 32-bit \warl\ register
 that controls which of the hardware performance-monitoring counters increment.
 The settings in this register only control whether the counters increment;
@@ -1907,7 +2542,17 @@ and so writes to {\tt mcountinhibit}.CY will be visible to those harts.
 
 If the {\tt mcountinhibit} register is not implemented, the implementation
 behaves as though the register were set to zero.
+\fi
 
+计数器禁止寄存器 {\tt mcountinhibit} 是一个 32 位 \warl\ 寄存器，用于控制哪些硬件性能监控计数器递增。 该寄存器中的设置仅控制计数器是否递增； 它们的可访问性不受此寄存器设置的影响。
+
+当 {\tt mcountinhibit} 寄存器中的 CY、IR 或 HPM{\em n} 位清零时，{\tt cycle}、{\tt instret} 或 {\tt hpmcounter{\em n}} 寄存器 像往常一样递增。 当 CY、IR 或 HPM{\em n} 位置位时，相应的计数器不会增加。
+
+{\tt mcycle} CSR 可以在同一内核上的 harts 之间共享，在这种情况下 {\tt mcountinhibit}.CY 字段也在这些 harts 之间共享，因此对 {\tt mcountinhibit}.CY 的写入将是可见的 对那些小鹿。
+
+如果未实现 {\tt mcountinhibit} 寄存器，则实现的行为就像寄存器设置为零一样。
+
+\iffalse
 \begin{commentary}
 When the {\tt cycle} and {\tt instret} counters are not needed, it is
 desirable to conditionally inhibit them to reduce energy consumption.
@@ -1917,13 +2562,24 @@ atomically sampled.
 Because the {\tt time} counter can be shared between multiple cores, it
 cannot be inhibited with the {\tt mcountinhibit} mechanism.
 \end{commentary}
+\fi
+
+\begin{commentary}
+当不需要 {\tt cycle} 和 {\tt instret} 计数器时，最好有条件地禁止它们以减少能量消耗。 提供单个 CSR 来禁止所有计数器还允许对计数器进行原子采样。
+
+因为 {\tt time} 计数器可以在多个内核之间共享，所以不能用 {\tt mcountinhibit} 机制来禁止它。
+\end{commentary}
+
 
 \subsection{Machine Scratch Register ({\tt mscratch})}
 
+\iffalse
 The {\tt mscratch} register is an MXLEN-bit read/write register
 dedicated for use by machine mode.  Typically, it is used to hold a
 pointer to a machine-mode hart-local context space and swapped with a
 user register upon entry to an M-mode trap handler.
+\fi
+{\tt mscratch} 寄存器是一个 MXLEN 位读/写寄存器，专用于机器模式。 通常，它用于保存指向机器模式 hart-local 上下文空间的指针，并在进入 M 模式陷阱处理程序时与用户寄存器交换。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -1942,6 +2598,7 @@ MXLEN \\
 \label{mscratchreg}
 \end{figure}
 
+\iffalse
 \begin{commentary}
 The MIPS ISA allocated two user registers ({\tt k0}/{\tt k1}) for use
 by the operating system.  Although the MIPS scheme provides a fast and
@@ -1958,9 +2615,18 @@ can quickly save/restore values to the {\tt mscratch} register.
 Unlike the MIPS design, the OS can rely on holding a value in the {\tt
   mscratch} register while the user context is running.
 \end{commentary}
+\fi
+
+\begin{commentary}
+MIPS ISA 分配了两个用户寄存器 ({\tt k0}/{\tt k1}) 供操作系统使用。 尽管 MIPS 方案提供了快速和简单的实现，但它也减少了可用的用户寄存器，并且无法扩展到更高的特权级别或嵌套陷阱。 它还可以要求在返回用户级别之前清除两个寄存器，以避免潜在的安全漏洞并提供确定性的调试行为。
+
+RISC-V 用户 ISA 旨在支持许多可能的特权系统环境，因此我们不想用任何依赖于操作系统的功能感染用户级 ISA。 RISC-V CSR 交换指令可以快速将值保存/恢复到 {\tt mscratch} 寄存器。 与 MIPS 设计不同，操作系统可以依赖于在用户上下文运行时在 {\tt mscratch} 寄存器中保存一个值。
+\end{commentary}
+
 
 \subsection{Machine Exception Program Counter ({\tt mepc})}
 
+\iffalse
 {\tt mepc} is an MXLEN-bit read/write register formatted as shown in
 Figure~\ref{mepcreg}.  The low bit of {\tt mepc} ({\tt mepc[0]}) is
 always zero.  On implementations that support only IALIGN=32, the two low bits
@@ -1977,7 +2643,15 @@ virtual addresses.  It need not be capable of holding all possible invalid
 addresses.
 Prior to writing {\tt mepc}, implementations may convert an invalid address
 into some other invalid address that {\tt mepc} is capable of holding.
+\fi
 
+{\tt mepc}是一个MXLEN位读/写寄存器，格式如图~\ref{mepcreg}。 {\tt mepc} ({\tt mepc[0]}) 的低位始终为零。在仅支持 IALIGN=32 的实现上，两个低位 ({\tt mepc[1:0]}) 始终为零。
+
+如果实现允许 IALIGN 为 16 或 32（例如，通过更改 CSR {\tt misa}），则每当 IALIGN=32 时，位 {\tt mepc[1]} 在读取时被屏蔽，因此它看起来 为 0。此屏蔽也发生在 MRET 指令的隐式读取中。 尽管被屏蔽，但当 IALIGN=32 时，{\tt mepc[1]} 仍然是可写的。
+
+{\tt mepc} 是一个 \warl\ 寄存器，它必须能够保存所有有效的虚拟地址。 它不需要能够保存所有可能的无效地址。 在写入 {\tt mepc} 之前，实现可能会将无效地址转换为 {\tt mepc} 能够保存的其他一些无效地址。
+
+\iffalse
 \begin{commentary}
 When address translation is not in effect, virtual addresses and physical
 addresses are equal.
@@ -1985,11 +2659,19 @@ Hence, the set of addresses {\tt mepc} must be able to represent includes the
 set of physical addresses that can be used as a valid {\tt pc} or effective
 address.
 \end{commentary}
+\fi
+\begin{commentary}
+当地址转换无效时，虚拟地址和物理地址是相等的。 因此，地址集合 {\tt mepc} 必须能够表示包括可以用作有效 {\tt pc} 或有效地址的物理地址集合。
+\end{commentary}
 
+\iffalse
 When a trap is taken into M-mode, {\tt mepc} is written with the
 virtual address of the instruction that was interrupted or that
 encountered the exception.  Otherwise, {\tt mepc} is never written by
 the implementation, though it may be explicitly written by software.
+\fi
+
+当陷阱进入 M 模式时，{\tt mepc} 被写入被中断或遇到异常的指令的虚拟地址。 否则，{\tt mepc} 永远不会由实现编写，尽管它可能由软件显式编写。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2011,6 +2693,7 @@ MXLEN \\
 \subsection{Machine Cause Register ({\tt mcause})}
 \label{sec:mcause}
 
+\iffalse
 The {\tt mcause} register is an MXLEN-bit read-write register formatted as
 shown in Figure~\ref{mcausereg}.  When a trap is taken into M-mode, {\tt
 mcause} is written with a code indicating the event that caused the trap.
@@ -2023,7 +2706,11 @@ trap was caused by an interrupt. The Exception Code field
 lists the possible machine-level exception codes.  The Exception Code
 is a \wlrl\ field, so is only guaranteed to hold supported exception
 codes.
+\fi
 
+{\tt mcause} 寄存器是一个MXLEN 位读写寄存器，其格式如图~\ref{mcausereg} 所示。 当陷阱进入 M 模式时，会写入 {\tt mcause} 代码，指示导致陷阱的事件。 否则，{\tt mcause} 永远不会由实现编写，尽管它可能由软件显式编写。
+
+如果陷阱是由中断引起的，则设置 {\tt mcause} 寄存器中的中断位。 异常代码字段包含标识最后异常或中断的代码。 表~\ref{mcauses} 列出了可能的机器级异常代码。 异常代码是一个 \wlrl\ 字段，因此只能保证包含支持的异常代码。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2094,17 +2781,27 @@ codes.
 \label{mcauses}
 \end{table*}
 
+\iffalse
 Note that load and load-reserved instructions generate load exceptions,
 whereas store, store-conditional, and AMO instructions generate store/AMO
 exceptions.
+\fi
+请注意，加载和保留加载指令会生成加载异常，而存储、条件存储和 AMO 指令会生成存储/AMO 异常。
 
+\iffalse
 \begin{commentary}
 Interrupts can be separated from other traps with a single branch on the sign of
 the {\tt mcause} register value.  A shift left can remove the
 interrupt bit and scale the exception codes to index into a trap
 vector table.
 \end{commentary}
+\fi
 
+\begin{commentary}
+可以通过 {\tt mcause} 寄存器值的符号上的单个分支将中断与其他陷阱分开。 左移可以移除中断位并缩放异常代码以索引到陷阱向量表中。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 We do not distinguish privileged instruction exceptions from illegal
 opcode exceptions.  This simplifies the architecture and also hides
@@ -2113,11 +2810,19 @@ implementation.  The privilege level servicing the trap can implement
 a policy on whether these need to be distinguished, and if so, whether
 a given opcode should be treated as illegal or privileged.
 \end{commentary}
+\fi
 
+\begin{commentary}
+我们不区分特权指令异常和非法操作码异常。 这简化了架构并隐藏了实现支持哪些更高权限指令的细节。 为陷阱服务的特权级别可以实施关于是否需要区分这些的策略，如果需要，给定的操作码是否应该被视为非法或特权。
+\end{commentary}
+
+\iffalse
 If an instruction may raise multiple synchronous exceptions, the
 decreasing priority order of Table~\ref{exception-priority}
 indicates which exception is taken and reported in {\tt mcause}.
 The priority of any custom synchronous exceptions is implementation-defined.
+\fi
+如果一条指令可能引发多个同步异常，则 Table~\ref{exception-priority} 的优先级递减顺序指示在 {\tt mcause} 中采取和报告哪个异常。 任何自定义同步异常的优先级是实现定义的。
 
 \begin{table*}[htbp]
 \begin{center}
@@ -2163,6 +2868,7 @@ The priority of any custom synchronous exceptions is implementation-defined.
 \label{exception-priority}
 \end{table*}
 
+\iffalse
 When a virtual address is translated into
 a physical address, the address translation
 algorithm determines what specific exception may be raised.
@@ -2170,6 +2876,11 @@ algorithm determines what specific exception may be raised.
 Load/store/AMO address-misaligned exceptions may have
 either higher or lower priority than load/store/AMO page-fault and
 access-fault exceptions.
+\fi
+当一个虚拟地址被翻译成一个物理地址时，地址翻译算法决定了可能引发什么特定的异常。
+
+加载/存储/AMO 地址未对齐异常的优先级可能高于或低于加载/存储/AMO 页面错误和访问错误异常。
+\iffalse
 \begin{commentary}
 The relative priority of load/store/AMO address-misaligned and page-fault
 exceptions is implementation-defined to flexibly cater to two design points.
@@ -2181,23 +2892,37 @@ addresses must translate and check the address before determining whether the
 misaligned access may proceed, in which case raising the page-fault exception
 or access is more appropriate.
 \end{commentary}
-
+\fi
+\begin{commentary}
+加载/存储/AMO 地址未对齐和页面错误异常的相对优先级是实现定义的，以灵活地满足两个设计点。 从不支持未对齐访问的实现可以无条件地引发未对齐地址异常，而无需执行地址转换或保护检查。 仅支持对某些物理地址的未对齐访问的实现必须在确定未对齐访问是否可以继续之前转换并检查地址，在这种情况下引发页面错误异常或访问更合适。
+\end{commentary}
+\iffalse
 \begin{commentary}
 Instruction address breakpoints have the same cause value as, but
 different priority than, data address breakpoints (a.k.a. watchpoints)
 and environment break exceptions (which are raised by the EBREAK instruction).
 \end{commentary}
+\fi
+\begin{commentary}
+指令地址断点与数据地址断点（也称为观察点）和环境中断异常（由 EBREAK 指令引发）具有相同的原因值，但优先级不同。
+\end{commentary}
 
+\iffalse
 \begin{commentary}
 Instruction address misaligned exceptions are raised by control-flow
 instructions with misaligned targets, rather than by the act of fetching an
 instruction.  Therefore, these exceptions have lower priority than other
 instruction address exceptions.
 \end{commentary}
+\fi
+\begin{commentary}
+指令地址未对齐异常是由具有未对齐目标的控制流指令引发的，而不是通过获取指令的行为。 因此，这些异常的优先级低于其他指令地址异常。
+\end{commentary}
 
 \FloatBarrier
 \subsection{Machine Trap Value Register ({\tt mtval})}
 
+\iffalse
 The {\tt mtval} register is an MXLEN-bit read-write register formatted as shown
 in Figure~\ref{mtvalreg}.  When a trap is taken into M-mode, {\tt mtval} is
 either set to zero or written with exception-specific information to assist
@@ -2212,12 +2937,22 @@ If {\tt mtval} is written with a nonzero value when a breakpoint,
 address-misaligned, access-fault, or page-fault exception occurs on an
 instruction fetch, load, or store, then {\tt mtval} will contain the faulting
 virtual address.
+\fi
+{\tt mtval}寄存器是一个MXLEN位的读写寄存器，格式如图~\ref{mtvalreg}。 当陷阱进入 M 模式时，{\tt mtval} 要么设置为零，要么写入特定于异常的信息，以帮助软件处理陷阱。 否则，{\tt mtval} 永远不会由实现编写，尽管它可能由软件显式编写。 硬件平台将指定哪些异常必须设置 {\tt mtval} 以提供信息，哪些可以无条件地将其设置为零。 如果硬件平台指定没有异常将 {\tt mtval} 设置为非零值，则 {\tt mtval} 为只读零。
 
+如果在指令获取、加载或存储时发生断点、地址未对齐、访问错误或页面错误异常时，使用非零值写入 {\tt mtval}，则 {\tt mtval} 将包含错误 虚拟地址。
+
+\iffalse
 \begin{commentary}
   When page-based virtual memory is enabled, {\tt mtval} is written with
   the faulting virtual address, even for physical-memory access-fault exceptions.
   This design reduces datapath cost for most implementations, particularly
   those with hardware page-table walkers.
+\end{commentary}
+\fi
+
+\begin{commentary}
+当启用基于页面的虚拟内存时，会使用错误的虚拟地址写入 {\tt mtval}，即使对于物理内存访问错误异常也是如此。 这种设计降低了大多数实现的数据路径成本，尤其是那些具有硬件页表遍历器的实现。
 \end{commentary}
 
 \begin{figure}[h!]
@@ -2237,6 +2972,7 @@ MXLEN \\
 \label{mtvalreg}
 \end{figure}
 
+\iffalse
 If {\tt mtval} is written with a nonzero value when a misaligned load or store
 causes an access-fault or page-fault exception, then {\tt mtval} will contain
 the virtual address of the portion of the access that caused the fault.
@@ -2252,14 +2988,28 @@ instruction bits on an illegal instruction exception ({\tt mepc} points to the
 faulting instruction in memory).
 If {\tt mtval} is written with a nonzero value when an illegal-instruction
 exception occurs, then {\tt mtval} will contain the shortest of:
+\fi
+如果在未对齐的加载或存储导致访问错误或页面错误异常时使用非零值写入 {\tt mtval}，则 {\tt mtval} 将包含导致错误的访问部分的虚拟地址。
+
+如果在具有可变长度指令的系统上发生指令访问错误或页面错误异常时，{\tt mtval}以非零值写入，则{\tt-mtval将包含导致错误的指令部分的虚拟地址，而{\tt mepc}将指向指令的开头。
+
+{\tt mtval}寄存器还可以可选地用于返回非法指令异常的错误指令位（{\tt mepc}指向内存中的错误指令）。
+如果{\tt mtval}在发生非法指令异常时使用非零值写入，则{\tt mtval}将包含以下最短值：
 \begin{compactitem}
-\item the actual faulting instruction
-\item the first ILEN bits of the faulting instruction
-\item the first MXLEN bits of the faulting instruction
+%\item the actual faulting instruction
+%\item the first ILEN bits of the faulting instruction
+%\item the first MXLEN bits of the faulting instruction
+\item 实际故障指令
+\item 故障指令的第一个ILEN位
+\item 故障指令的第一个MXLEN位
 \end{compactitem}
+\iffalse
 The value loaded into {\tt mtval} on an illegal-instruction exception is
 right-justified and all unused upper bits are cleared to zero.
+\fi
+在非法指令异常上加载到{\tt mtval}的值是右对齐的，所有未使用的上位都被清除为零。
 
+\iffalse
 \begin{commentary}
   Capturing the faulting instruction in {\tt mtval} reduces the
   overhead of instruction emulation, potentially avoiding several
@@ -2282,7 +3032,17 @@ right-justified and all unused upper bits are cleared to zero.
   configuration information can be interrogated to install the
   appropriate trap handling before runtime).
 \end{commentary}
+\fi
 
+\begin{commentary}
+捕获{\tt mtval}中的错误指令减少了指令模拟的开销，在指令未对齐时可能避免多次部分指令加载，并且在使用加载将指令取到数据寄存器时可能会丢失数据缓存或减慢非缓存访问。如果另一个代理正在操作指令内存，也会出现原子性问题，就像在动态翻译系统中可能发生的那样。
+
+一个要求是在捕获陷阱之前，将整个指令(或者至少是第一个MXLEN位)提取到{\tt mtval}中。这不应该约束实现，实现通常会在尝试解码指令之前获取整个指令，并避免使软件处理程序复杂化。
+
+{\tt mtval}中的值为零表示该特性不受支持，或者获取了非法的零指令。可以使用{\tt mepc}指向的指令内存中的负载来区分这两种情况(或者，可以查询系统配置信息，以便在运行时之前安装适当的trap处理)。
+\end{commentary}
+
+\iffalse
 For other traps, {\tt mtval} is set to zero, but a future standard may
 redefine {\tt mtval}'s setting for other traps.
 
@@ -2295,14 +3055,25 @@ into some other invalid address that {\tt mtval} is capable of holding.
 If the feature to return the faulting instruction bits is implemented, {\tt
 mtval} must also be able to hold all values less than $2^N$, where $N$ is the
 smaller of MXLEN and ILEN.
+\fi
+对于其他的陷阱，{\tt mtval}被设置为零，但是未来的标准可能会为其他的陷阱重新定义{\tt mtval}的设置。
+
+如果{\tt mtval}不是只读零，它是一个\warl\ 寄存器，必须能够保存所有有效的虚拟地址和值为零。它不需要能够保存所有可能的无效地址。
+在编写{\tt mtval}之前，实现可能会将无效地址转换为{\tt mtval}能够持有的其他一些无效地址。
+如果实现了返回错误指令位的特性，{\tt mtval}还必须能够保存所有小于$2^N$的值，其中$N$是MXLEN和ILEN中较小的一个。
 
 \subsection{Machine Configuration Pointer Register ({\tt mconfigptr})}
 
+\iffalse
 {\tt mconfigptr} is an MXLEN-bit read-only CSR, formatted as shown in
 Figure~\ref{mconfigptrreg}, that holds the physical address of a configuration
 data structure.
 Software can traverse this data structure to discover information about
 the harts, the platform, and their configuration.
+\fi
+{\tt mconfigptr}是一个mxlen位只读CSR，格式如图~\ref{mconfigptrreg}所示，它保存着配置数据结构的物理地址。
+软件可以遍历这个数据结构来发现关于hart、平台及其配置的信息。
+
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2321,6 +3092,7 @@ MXLEN \\
 \label{mconfigptrreg}
 \end{figure}
 
+\iffalse
 The pointer alignment in bits must be no smaller than the greatest supported
 MXLEN: i.e., if the greatest supported MXLEN is $8\times n$, then
 {\tt mconfigptr}[$\log_2n$-1:0] must be zero.
@@ -2328,11 +3100,21 @@ MXLEN: i.e., if the greatest supported MXLEN is $8\times n$, then
 {\tt mconfigptr} must be implemented, but it may be zero to
 indicate the configuration data structure does not exist or that an
 alternative mechanism must be used to locate it.
+\fi
+指针的位对齐必须不小于最大支持的MXLEN:例如，如果最大支持的MXLEN是$8\ * n$，那么{\tt mconfigptr}[$\ log_n $-1:0]必须为零。
 
+{\tt McOnfigptr}必须实现，但它可能为零，表示配置数据结构不存在，或者必须使用替代机制来定位它。
+
+\iffalse
 \begin{commentary}
 The format and schema of the configuration data structure have yet to be standardized.
 \end{commentary}
+\fi
+\begin{commentary}
+配置数据结构的格式和模式尚未标准化。
+\end{commentary}
 
+\iffalse
 \begin{commentary}
 While {\tt mconfigptr} will simply be hardwired in some implementations, other
 implementations may provide a means to configure the value returned on CSR
@@ -2341,16 +3123,23 @@ For example, {\tt mconfigptr} might present the value of a memory-mapped
 register that is programmed by the platform or by M-mode software towards the
 beginning of the boot process.
 \end{commentary}
+\fi
+\begin{commentary}
+虽然在某些实现中{\tt mconfigptr}将简单地硬连接，但其他实现可能提供一种方法来配置CSR读取时返回的值。例如，{\tt mconfigptr}可能表示由平台或m模式软件在引导过程开始时编写的内存映射寄存器的值。
+\end{commentary}
 
 \subsection{%
  Machine Environment Configuration Registers
  ({\tt menvcfg} and {\tt menvcfgh})%
 }
 
+\iffalse
 The {\tt menvcfg} CSR is an MXLEN-bit read/write register,
 formatted for MXLEN=64 as shown in Figure~\ref{fig:menvcfg},
 that controls certain characteristics of the execution environment
 for modes less privileged than M.
+\fi
+{\tt menvcfg} CSR是一个MXLEN位读/写寄存器，格式化为MXLEN=64，如图~\ref{fig:menvcfg}所示，它控制特权小于M模式的执行环境的某些特征。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2383,6 +3172,8 @@ for modes less privileged than M.
 \label{fig:menvcfg}
 \end{figure}
 
+
+\iffalse
 If bit FIOM (Fence of I/O implies Memory) is set to one in {\tt menvcfg},
 FENCE instructions executed in modes less privileged than M are modified so
 the requirement to order accesses to device I/O implies also the requirement
@@ -2398,6 +3189,13 @@ as though it accesses both device I/O and memory.
 
 If S-mode is not supported, or if {\tt satp}.MODE is read-only zero
 (always Bare), the implementation may make FIOM read-only zero.
+\fi
+如果在{\tt menvcfg}中将位FIOM (I/O的Fence意味着内存)设置为1，那么在特权小于M的模式下执行的Fence指令将被修改，因此对设备I/O的顺序访问要求也意味着对主存访问的顺序。
+表~\ref{tab:menvcfg-FIOM}详细描述了FIOM=1时，对于特权小于M的模式，FENCE指令位PI、PO、SI和SO的修改解释。
+
+类似地，对于FIOM=1时特权小于M的模式，如果访问作为设备I/O排序的区域的原子指令有它的{\em aq}和/或{\em rl}位设置，那么该指令的排序就像它访问设备I/O和内存一样。
+
+如果不支持s模式，或者如果{\tt satp}。MODE为只读零(总是Bare)，实现可以使FIOM为只读零。
 
 \begin{table}[h!]
 \begin{center}
@@ -2421,12 +3219,18 @@ for modes less privileged than M when FIOM=1.%
 \label{tab:menvcfg-FIOM}
 \end{table}
 
+\iffalse
 \begin{commentary}
 Bit FIOM is needed in {\tt menvcfg} so M-mode can emulate the
 hypervisor extension of Chapter~\ref{hypervisor}, which has an
 equivalent FIOM bit in the hypervisor CSR {\tt henvcfg}.
 \end{commentary}
+\fi
+\begin{commentary}
+{\tt menvcfg}中需要FIOM位，因此m模式可以模拟Chapter~\ref{hypervisor}的hypervisor扩展，它在hypervisor CSR {\tt henvcfg}中有一个等价的FIOM位。
+\end{commentary}
 
+\iffalse
 The PBMTE bit controls whether the Svpbmt extension is available for use in
 S-mode and G-stage address translation (i.e., for page tables pointed to by
 {\tt satp} or {\tt hgatp}).
@@ -2435,7 +3239,12 @@ When PBMTE=0, the implementation behaves as though Svpbmt were not implemented.
 If Svpbmt is not implemented, PBMTE is read-only zero.
 Furthermore, for implementations with the hypervisor extension,
 {\tt henvcfg}.PBMTE is read-only zero if {\tt menvcfg}.PBMTE is zero.
+\fi
+PBMTE位控制Svpbmt扩展是否可用于s模式和g级地址转换(例如，对于由{\tt satp}或{\tt hgatp}指向的页表)。
+当PBMTE=1时，Svpbmt可用于s模式和g级地址转换。当PBMTE=0时，实现的行为就像没有实现Svpbmt一样。如果没有实现Svpbmt，则PBMTE为只读零。
+此外，对于使用管理程序扩展{\tt henvcfg}的实现。{\tt menvcfg}时，PBMTE只读为零。PBMTE是零。
 
+\iffalse
 The definition of the STCE field will be furnished by the
 forthcoming Sstc extension.
 Its allocation within {\tt menvcfg} may change prior to the ratification
@@ -2445,7 +3254,14 @@ The definition of the CBZE field will be furnished by the
 forthcoming Zicboz extension.
 Its allocation within {\tt menvcfg} may change prior to the ratification
 of that extension.
+\fi
+STCE字段的定义将由即将到来的Sstc扩展提供。
+它在{\tt menvcfg}内的分配可能在批准该扩展之前发生变化。
 
+CBZE字段的定义将由即将到来的Zicboz扩展提供。
+它在{\tt menvcfg}内的分配可能在批准该扩展之前发生变化。
+
+\iffalse
 The definitions of the CBCFE and CBIE fields will be furnished by the
 forthcoming Zicbom extension.
 Their allocations within {\tt menvcfg} may change prior to the ratification
@@ -2460,15 +3276,29 @@ Register {\tt menvcfgh} does not exist when MXLEN=64.
 
 If U-mode is not supported, then registers {\tt menvcfg} and {\tt menvcfgh} do
 not exist.
+\fi
+CBCFE和CBIE字段的定义将由即将到来的Zicbom扩展提供。
+它们在{\tt menvcfg}内的分配可能在批准该扩展之前发生变化。
+
+当MXLEN=32时，{\tt menvcfg}包含与MXLEN=64时{\tt menvcfg}的bits 31:0相同的字段。
+此外，当MXLEN=32时，{\tt menvcfgh}是一个32位的读/写寄存器，它包含与MXLEN=64时{\tt menvcfg}的63:32位相同的字段。
+当MXLEN=64时寄存器{\tt menvcfgh}不存在。
+
+如果不支持u模式，则寄存器{\tt menvcfg}和{\tt menvcfgh}不存在。
 
 \subsection{Machine Security Configuration Register ({\tt mseccfg})}
 \label{sec:mseccfg}
 
+\iffalse
 {\tt mseccfg} is an optional MXLEN-bit read/write register, formatted as shown
 in Figure~\ref{fig:mseccfg}, that controls security features.
 
 When MXLEN=32 only, {\tt mseccfgh} is a 32-bit read/write register that
 contains the same fields as {\tt mseccfg} bits 63:32 when MXLEN=64.
+\fi
+{\tt mseccfg}是一个可选的MXLEN-bit读/写寄存器，格式如图~\ref{fig:mseccfg}所示，它控制安全特性。
+
+当MXLEN=32时，{\tt mseccfgh}是一个32位的读/写寄存器，当MXLEN=64时，它包含与{\tt mseccfg}位63:32相同的字段。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2500,6 +3330,7 @@ XLEN-10 & 1 & 1 & 5 & 1 & 1 & 1 \\
 \label{fig:mseccfg}
 \end{figure*}
 
+\iffalse
 The definitions of the SSEED and USEED fields will be furnished by the
 forthcoming entropy-source extension, Zkr.
 Their allocations within {\tt mseccfg} may change prior to the ratification
@@ -2509,11 +3340,16 @@ The definitions of the RLB, MMWP, and MML fields will be furnished by the
 forthcoming PMP-enhancement extension, Smepmp.
 Their allocations within {\tt mseccfg} may change prior to the ratification
 of that extension.
+\fi
+SSEED和USEED字段的定义将由即将到来的熵源扩展Zkr提供。它们在{\tt mseccfg}内的分配可能在批准该扩展之前发生变化。
+
+RLB、MMWP和MML字段的定义将由即将推出的pmp增强扩展Smepmp提供。它们在{\tt mseccfg}内的分配可能在批准该扩展之前发生变化。
 
 \section{Machine-Level Memory-Mapped Registers}
 
 \subsection{Machine Timer Registers ({\tt mtime} and {\tt mtimecmp})}
 
+\iffalse
 Platforms provide a real-time counter, exposed as a memory-mapped
 machine-mode read-write register, {\tt mtime}.  {\tt mtime} must
 increment at constant frequency, and the platform must provide a
@@ -2530,6 +3366,13 @@ The interrupt remains posted until {\tt mtimecmp} becomes greater than
 {\tt mtime} (typically as a result of writing {\tt mtimecmp}).
 The interrupt will only be taken if interrupts
 are enabled and the MTIE bit is set in the {\tt mie} register.
+\fi
+平台提供一个实时计数器，作为内存映射的机器模式读写寄存器{\tt mtime}公开。{\tt mtime}必须以恒定的频率递增，并且平台必须提供一种机制来确定{\tt mtime}滴答的周期。如果计数溢出，{\tt mtime}寄存器将换行。
+
+{\tt mtime}寄存器在所有RV32和RV64系统上都具有64位精度。平台提供64位内存映射的机器模式定时器比较寄存器({\tt mtimecmp})。
+当{\tt mtime}包含大于或等于{\tt mtimecmp}的值时，机器计时器中断将变为挂起状态，并将这些值视为无符号整数。
+在{\tt mtimecmp}大于{\tt mtime}(通常是写入{\tt mtimecmp}的结果)之前，中断一直被发送。
+只有当中断被启用并且在{\tt mie}寄存器中设置了MTIE位时，才会执行中断。
 
 \begin{figure}[h!]
 	{\footnotesize
@@ -2563,6 +3406,7 @@ are enabled and the MTIE bit is set in the {\tt mie} register.
 	\caption{Machine time compare register (memory-mapped control register).}
 \end{figure}
 
+\iffalse
 \begin{commentary}
 	The timer facility is defined to use wall-clock time rather than a
 	cycle counter to support modern processors that run with a highly
@@ -2586,10 +3430,22 @@ are enabled and the MTIE bit is set in the {\tt mie} register.
 	Simple fixed-frequency systems can use a single clock for both cycle
 	counting and wall-clock time.
 \end{commentary}
+\fi
+计时器设施被定义为使用挂钟时间而不是周期计数器来支持现代处理器，这些处理器具有高度可变的时钟频率，通过动态电压和频率缩放来节省能源。
 
+提供精确的实时时钟(rtc)是相对昂贵的(需要一个晶体或MEMS振荡器)，即使在系统的其余部分断电时也必须运行，因此在一个系统中通常只有一个位于与处理器不同的频率/电压域。因此，RTC必须由系统中的所有hart共享，对RTC的访问可能会导致电压电平移位和时钟域交叉的损失。因此，作为内存映射寄存器公开{\tt mtime}比作为CSR公开{\tt mtime}更自然。
+
+较低的特权级别没有自己的{\tt timecmp}寄存器。相反，机器模式软件可以通过将下一个计时器中断多路复用到{\tt mtimecmp}寄存器来实现任意数量的虚拟计时器。
+
+简单的固定频率系统可以使用单个时钟进行周期计数和挂钟计时。
+
+\iffalse
 Writes to {\tt mtime} and {\tt mtimecmp} are guaranteed to be reflected in
 MTIP eventually, but not necessarily immediately.
+\fi
+写入{\tt mtime}和{\tt mtimecmp}保证最终会反映到MTIP中，但不一定会立即反映出来。
 
+\iffalse
 \begin{commentary}
 	A spurious timer interrupt might occur if an interrupt handler increments {\tt
 		mtimecmp} then immediately returns, because MTIP might not yet have fallen in
@@ -2598,11 +3454,18 @@ MTIP eventually, but not necessarily immediately.
 	almost always more performant to incur an occasional spurious timer interrupt
 	than to poll MTIP until it falls.
 \end{commentary}
+\fi
+\begin{commentary}
+如果中断处理程序递增{\tt mtimecmp}，然后立即返回，则可能会发生假计时器中断，因为MTIP可能尚未在这段时间内下降。所有的软件都应该编写为假设此事件是可能的，但大多数软件都应该假设此事件极不可能发生。与轮询MTIP直到它下降相比，偶尔引发虚假计时器中断几乎总是更具性能。
+\end{commentary}
 
+\iffalse
 In RV32, memory-mapped writes to {\tt mtimecmp} modify only one 32-bit
 part of the register.  The following code sequence sets a 64-bit {\tt
 	mtimecmp} value without spuriously generating a timer interrupt due
 to the intermediate value of the comparand:
+\fi
+在RV32中，内存映射写入{\tt mtimecmp}只修改寄存器的一个32位部分。以下代码序列设置64位{\tt mtimecmp}值，而不会由于比较器的中间值而错误地生成计时器中断：
 
 \begin{figure}[h!]
 	\begin{center}
@@ -2623,8 +3486,11 @@ to the intermediate value of the comparand:
 	\label{mtimecmph}
 \end{figure}
 
+\iffalse
 For RV64, naturally aligned 64-bit memory accesses to the {\tt mtime} and {\tt
 	mtimecmp} registers are additionally supported and are atomic.
+\fi
+对于RV64，还支持对{\tt mtime}和{\tt-mtimecmp}寄存器的自然对齐64位内存访问，并且是原子的。
 
 \section{Machine-Mode Privileged Instructions}
 
@@ -2652,36 +3518,61 @@ EBREAK  & 0 & PRIV & 0 & SYSTEM \\
 \end{tabular}
 \end{center}
 
+\iffalse
 The ECALL instruction is used to make a request to the supporting execution
 environment.  When executed in U-mode, S-mode, or M-mode, it generates an
 environment-call-from-U-mode exception, environment-call-from-S-mode exception, or environment-call-from-M-mode exception, respectively, and performs no other operation.
+\fi
+ECALL指令用于向支持执行环境发出请求。当在U模式、S模式或M模式下执行时，它分别生成一个environment-call-from-U-mode异常、environmental-call-from-S-mode例外或environment-call-fom-mode异常，并且不执行其他操作。
+
+\iffalse
 \begin{commentary}
 ECALL generates a different exception for each originating privilege mode
 so that environment call exceptions can be selectively delegated.  A typical
 use case for Unix-like operating systems is to delegate to S-mode the
 environment-call-from-U-mode exception but not the others.
 \end{commentary}
+\fi
+\begin{commentary}
+ECALL 为每个原始特权模式生成不同的异常，以便可以有选择地委托环境调用异常。 类 Unix 操作系统的一个典型用例是将 environment-call-from-U-mode 异常委托给 S-mode，而不是其他异常。
+\end{commentary}
 
+\iffalse
 The EBREAK instruction is used by debuggers to cause control to be transferred
 back to a debugging environment.  It generates a breakpoint exception and
 performs no other operation.
+\fi
+调试器使用 EBREAK 指令将控制权转移回调试环境。 它生成断点异常并且不执行其他操作。
+
+\iffalse
 \begin{commentary}
 As described in the ``C'' Standard Extension for Compressed Instructions in
 Volume I of this manual, the C.EBREAK instruction performs the same operation
 as the EBREAK instruction.
 \end{commentary}
+\fi
+\begin{commentary}
+如本手册卷 I 中压缩指令的“C”标准扩展中所述，C.EBREAK 指令执行与 EBREAK 指令相同的操作。
+\end{commentary}
 
+\iffalse
 ECALL and EBREAK cause the receiving privilege mode's {\tt epc} register
 to be set to the address of the ECALL or EBREAK instruction itself, {\em not}
 the address of the following instruction.
 As ECALL and EBREAK cause synchronous exceptions, they are not considered to
 retire, and should not increment the {\tt minstret} CSR.
+\fi
+ECALL 和 EBREAK 导致接收特权模式的 {\tt epc} 寄存器被设置为 ECALL 或 EBREAK 指令本身的地址，{\em not} 是下一条指令的地址。
+由于 ECALL 和 EBREAK 导致同步异常，它们不被视为退休，并且不应增加 {\tt minstret} CSR。
 
 \subsection{Trap-Return Instructions}
 \label{otherpriv}
 
+\iffalse
 Instructions to return from trap are encoded under the PRIV
 minor opcode.
+\fi
+从陷阱返回的指令在 PRIV 次要操作码下编码。
 
 \vspace{-0.2in}
 \begin{center}
@@ -2704,6 +3595,7 @@ MRET/SRET & 0 & PRIV & 0 & SYSTEM \\
 \end{tabular}
 \end{center}
 
+\iffalse
 To return after handling a trap, there are separate trap return
 instructions per privilege level, MRET and SRET.  MRET is
 always provided. SRET must be provided if supervisor mode is
@@ -2721,16 +3613,27 @@ If the A extension is supported, the {\em x}\/RET instruction is
 allowed to clear any outstanding LR address reservation but is not
 required to.  Trap handlers should explicitly clear the reservation if
 required (e.g., by using a dummy SC) before executing the {\em x}\/RET.
+\fi
+要在处理陷阱后返回，每个权限级别有单独的陷阱返回指令，MRET 和 SRET。 始终提供 MRET。 如果支持管理员模式，则必须提供 SRET，否则应引发非法指令异常。 当 {\tt mstatus} 中的 TSR=1 时，SRET 也应该引发非法指令异常，如 Section~\ref{virt-control} 中所述。
+{\em x}\/RET指令可以在特权模式{\em x}或更高的模式下执行，在特权模式下执行较低的{\em x}\/RET指令将弹出相关的较低特权中断启用和特权模式堆栈。除了如第~\ref{privstack}节中所述操作特权堆栈之外， {\em x}\/RET还将{\tt epc}设置为存储在 {\em x}\/{\tt epc}寄存器中的值。
 
+如果支持 A 扩展，则允许 {\em x}\/RET 指令清除任何未完成的 LR 地址保留，但不是必需的。 如果需要，陷阱处理程序应在执行 {\em x}\/RET 之前显式清除保留（例如，通过使用虚拟 SC）。
+
+\iffalse
 \begin{commentary}
   If {\em x}\/RET instructions always cleared LR reservations, it would
   be impossible to single-step through LR/SC sequences using a
   debugger.
 \end{commentary}
+\fi
+\begin{commentary}
+ 如果 {\em x}\/RET 指令总是清除 LR 保留，则不可能使用调试器单步执行 LR/SC 序列。
+\end{commentary}
 
 \subsection{Wait for Interrupt}
 \label{wfi}
 
+\iffalse
 The Wait for Interrupt instruction (WFI) provides a hint to the
 implementation that the current hart can be stalled until an interrupt
 might need servicing.  Execution of the WFI instruction can also be
@@ -2739,6 +3642,10 @@ preferentially be routed to this hart.  WFI is available in all
 privileged modes, and optionally available to U-mode.  This instruction may
 raise an illegal instruction exception when TW=1 in {\tt mstatus}, as described
 in Section~\ref{virt-control}.
+\fi
+等待中断指令（WFI）向实现提供了一个提示，即当前hart可以暂停，直到中断可能需要维护。WFI指令的执行也可
+用于通知硬件平台，适当的中断应优先路由到此hart。WFI可用于所有特权模式，也可用
+于U模式。当{\tt mstatus}中的TW＝1时，此指令可能引发非法指令异常，如第~\ref{virt control}节所述。
 
 \vspace{-0.2in}
 \begin{center}
@@ -2766,22 +3673,36 @@ hart is stalled, the interrupt trap will be taken on the
 following instruction, i.e., execution resumes in the trap handler and
 {\tt mepc} = {\tt pc} + 4.
 
+\iffalse
 \begin{commentary}
 The following instruction takes the interrupt trap so
 that a simple return from the trap handler will execute code after the
 WFI instruction.
 \end{commentary}
+\fi
+\begin{commentary}
+下面的指令接受中断陷阱，以便陷阱处理程序的简单返回将在WFI指令之后执行代码。
+\end{commentary}
 
+\iffalse
 The purpose of the WFI instruction is to provide a hint to the implementation,
 and so a legal implementation is to simply implement WFI as a NOP.
+\fi
+WFI指令的目的是为实现提供提示，因此合法实现只是将WFI作为NOP实现。
 
+\iffalse
 \begin{commentary}
 If the implementation does not stall the hart on execution of the
 instruction, then the interrupt will be taken on some instruction in
 the idle loop containing the WFI, and on a simple return from the
 handler, the idle loop will resume execution.
 \end{commentary}
+\fi
+\begin{commentary}
+如果实现在执行指令时没有暂停hart，那么将对包含WFI的空闲循环中的某些指令执行中断，并且在处理程序的简单返回时，空闲循环将恢复执行。
+\end{commentary}
 
+\iffalse
 The WFI instruction can also be executed when interrupts are disabled.  The
 operation of WFI must be unaffected by the global interrupt bits in {\tt
 mstatus} (MIE and SIE) and the delegation register {\tt mideleg}
@@ -2797,7 +3718,12 @@ If the event that causes the hart to resume execution does not cause
 an interrupt to be taken, execution will resume at {\tt pc} + 4, and
 software must determine what action to take, including looping back to
 repeat the WFI if there was no actionable event.
+\fi
+当中断被禁用时，也可以执行WFI指令。WFI的操作必须不受全局中断位（MIE和SIE）和委托寄存器{\tt mideleg}的影响（即，如果本地启用的中断挂起，即使它被委托到较低特权模式，hart也必须恢复），但应遵守单独的中断启用（例如，MTIE）（即，如果中断挂起但未单独启用，则实现应避免恢复hart）。WFI还需要恢复在任何特权级别上挂起的本地启用中断的执行，而不管在每个特权级别上启用了全局中断。
 
+如果导致hart恢复执行的事件未导致中断，则执行将在{\tt pc}+4时恢复，并且软件必须确定要执行的操作，包括在没有可操作事件的情况下循环返回以重复WFI。
+
+\iffalse
 \begin{commentary}
 By allowing wakeup when interrupts are disabled, an alternate entry
 point to an interrupt handler can be called that does not require
@@ -2819,20 +3745,42 @@ privilege mode, either immediately on encountering the WFI or after
 some interval to initiate a machine-mode transition to a lower power
 state, for example.
 \end{commentary}
+\fi
+\begin{commentary}
+通过在中断被禁用时允许唤醒，可以调用不需要保存当前上下文的中断处理程序的备用入口点，因为在执行WFI之前可以保存或丢弃当前上下文。
 
+由于实现可以自由地将WFI实现为NOP，软件必须明确检查WFI之后的代码中是否存
+在任何相关的挂起但已禁用的中断，如果没有检测到合适的中断，则应循环回WFI。可以询
+问{\tt mip}或{\tt sip}寄存器，以分别确定机
+器或监控程序模式下是否存在任何中断。
+
+WFI的操作不受委派寄存器设置的影响。
+
+定义WFI是为了使一个实现可以在遇到WFI时立即或在某个时间间隔后，启动机器模式转换到较低功率状态，从而陷入较高特权模式。
+\end{commentary}
+
+\iffalse
 \begin{commentary}
 The same ``wait-for-event'' template might be used for possible future
 extensions that wait on memory locations changing, or message
 arrival.
 \end{commentary}
+\fi
+\begin{commentary}
+相同的“等待事件”模板可能用于等待内存位置更改或消息到达的未来扩展。
+\end{commentary}
 
 \subsection{Custom SYSTEM Instructions}
 \label{sec:customsys}
 
+\iffalse
 The subspace of the SYSTEM major opcode shown in Figure~\ref{fig:customsys}
 is designated for custom use.
 It is recommended that these instructions use bits 29:28 to designate the
 minimum required privilege mode, as do other SYSTEM instructions.
+\fi
+图~\ref{fig:customsys}中所示的SYSTEM主操作码的子空间被指定用于自定义用途。
+建议这些指令与其他SYSTEM指令一样，使用位29:28指定所需的最低特权模式。
 
 \begin{figure}[h!]
 \begin{center}
@@ -2869,6 +3817,7 @@ Recommended Purpose \\
 \section{Reset}
 \label{sec:reset}
 
+\iffalse
 Upon reset, a hart's privilege mode is set to M.  The {\tt mstatus} fields MIE
 and MPRV are reset to 0.
 If little-endian memory accesses are supported, the {\tt mstatus}/{\tt mstatush}
@@ -2892,7 +3841,20 @@ interpretation, but the value 0 should be returned on implementations
 that do not distinguish different reset conditions. Implementations
 that distinguish different reset conditions should only use 0 to
 indicate the most complete reset.
+\fi
+重置后，哈特的特权模式被设置为M。{\tt mstatus}字段MIE和MPRV被重置为0。
+如果支持小端内存访问，{\tt mstatus}/{\tt mstatush}字段MBE将重置为0。
+{\tt misa} 寄存器被重置，以启用最大支持扩展集和最宽的MXLEN，如第~\ref{sec:misa}节所述。
+对于使用“A”标准扩展名的实现，没有有效的加载保留。
+{\tt pc} 被设置为实现定义的重置向量。 {\tt mcause}寄存器被设置为指示复位原因的值。
+可写PMP寄存器的A和L字段设置为0，除非平台要求某些PMP寄存器A和L的字段具有不同的重置值。
+如果实现了虚拟机监控程序扩展。MODE和{\tt vsatp}。MODE字段重置为0。
+没有\warl\ 字段包含非法值。
+所有其他哈特状态都未指定。
 
+重置后的{\tt mcause}值具有特定于实现的解释，但对于不区分不同重置条件的实现，应返回值0。区分不同重置条件的实现应仅使用0表示最完整的重置。
+
+\iffalse
 \begin{commentary}
 Some designs may have multiple causes of reset (e.g., power-on reset,
 external hard reset, brownout detected, watchdog timer elapse,
@@ -2903,10 +3865,17 @@ to distinguish.
 exceptions.  There should be no ambiguity in this overlap, since on reset the
 {\tt pc} is typically set to a different value than on other traps.
 \end{commentary}
+\fi
+\begin{commentary}
+某些设计可能有多种重置原因（例如，开机重置、外部硬重置、检测到断电、看门狗定时器过期、睡眠模式唤醒），机器模式软件和调试器可能希望区分这些原因。
+
+{\tt mcause}重置值可能会在同步异常之后别名 {\tt mcause}值。此重叠中不应有歧义，因为重置时，{\tt pc}通常设置为与其他陷阱不同的值。
+\end{commentary}
 
 \section{Non-Maskable Interrupts}
 \label{sec:nmi}
 
+\iffalse
 Non-maskable interrupts (NMIs) are only used for hardware error
 conditions, and cause an immediate jump to an implementation-defined
 NMI vector running in M-mode regardless of the state of a hart's
@@ -2925,10 +3894,17 @@ return 0 in the Exception Code.
 
 Unlike resets, NMIs do not reset processor state, enabling diagnosis,
 reporting, and possible containment of the hardware error.
+\fi
+不可屏蔽中断（NMI）仅用于硬件错误情况，无论hart的中断启用位的状态如何，都会立即跳转到以M模式运行的实现定义的NMI向量。用中断的指令的虚拟地址写入{\tt mepc}寄存器，并将 {\tt mcause}设置为指示NMI源的值。因此，NMI可以覆盖活动机器模式中断处理程序中的状态。
+
+在NMI上写入 {\tt mcause}的值是实现定义的。 {\tt mcause}的高中断位应设置为指示这是一个中断。保留0的异常代码表示“未知原因”，并且不通过 {\tt mcause}寄存器区分NMI源的实现应在异常代码中返回0。
+
+与重置不同，NMI不会重置处理器状态，从而实现诊断、报告和可能的硬件错误遏制。
 
 \section{Physical Memory Attributes}
 \label{sec:pma}
 
+\iffalse
 The physical memory map for a complete system includes various address
 ranges, some corresponding to memory regions, some to memory-mapped
 control registers, and some to vacant holes in the address space.  Some
@@ -2942,7 +3918,10 @@ effects.  In RISC-V systems, these properties and capabilities of each
 region of the machine's physical address space are termed {\em
   physical memory attributes} (PMAs).  This section describes RISC-V
 PMA terminology and how RISC-V systems implement and check PMAs.
+\fi
+完整系统的物理内存映射包括各种地址范围，一些对应于内存区域，一些对应内存映射控制寄存器，一些对应地址空间中的空穴。某些内存区域可能不支持读、写或执行；有些可能不支持子字或子块访问；有些可能不支持原子操作；并且一些可能不支持高速缓存一致性或者可能具有不同的存储器模型。类似地，内存映射控制寄存器在其支持的访问宽度、对原子操作的支持以及读写访问是否具有相关的副作用方面也有所不同。在RISC-V系统中，机器物理地址空间的每个区域的这些属性和能力称为{\em 物理内存属性}（PMA）。本节介绍RISC-V PMA术语以及RISC-V系统如何实施和检查PMA。
 
+\iffalse
 PMAs are inherent properties of the underlying hardware and rarely
 change during system operation.  Unlike physical memory protection
 values described in Section~\ref{sec:pmp}, PMAs do not vary by
@@ -2956,7 +3935,10 @@ might be configurable at run time to support different uses that imply
 different PMAs---for example, an on-chip scratchpad RAM might be
 cached privately by one core in one end-application, or accessed as a
 shared non-cached memory in another end-application.
+\fi
+PMA是底层硬件的固有属性，在系统运行期间很少更改。与~\ref{sec:pmp}节中描述的物理内存保护值不同，PMA不会因执行上下文而变化。一些存储区域的PMA在芯片设计时是固定的，例如，对于片上ROM。其他存储区域在板上设计时固定，例如，取决于其他芯片连接到芯片外总线。芯片外总线还可能支持在每次电源周期（可冷插拔）或在系统运行时动态更改的设备（可热插拔）。某些设备可能在运行时可配置，以支持不同的使用，这意味着不同的PMA——例如，片上草稿行RAM可能由一个终端应用程序中的一个内核单独缓存，或作为另一个终端程序中的共享非缓存内存进行访问。
 
+\iffalse
 Most systems will require that at least some PMAs are dynamically
 checked in hardware later in the execution pipeline after the physical
 address is known, as some operations will not be supported at all
@@ -2970,7 +3952,10 @@ for each physical memory region.  In addition, the available
 page sizes might not be optimal for specifying attributes in the
 physical memory space, leading to address-space fragmentation and
 inefficient use of expensive TLB entries.
+\fi
+大多数系统将要求在知道物理地址之后，在执行管道中的硬件中动态检查至少一些PMA，因为某些操作在所有物理内存地址上都不受支持，有些操作需要知道可配置PMA属性的当前设置。虽然许多其他架构在虚拟内存页表中指定了一些PMA，并使用TLB通知管道这些属性，但这种方法将特定于平台的信息注入虚拟化层，并可能导致系统错误，除非在每个物理内存区域的每个页表条目中正确初始化了属性。此外，可用的页面大小可能不适合在物理内存空间中指定属性，从而导致地址空间碎片化和昂贵TLB条目的使用效率低下。
 
+\iffalse
 For RISC-V, we separate out specification and checking of PMAs into a
 separate hardware structure, the {\em PMA checker}.  In many cases,
 the attributes are known at system design time for each physical
@@ -2988,9 +3973,12 @@ as instruction, load, or store access-fault exceptions, distinct from
 virtual-memory page-fault exceptions. Precise PMA traps might not always be
 possible, for example, when probing a legacy bus architecture that
 uses access failures as part of the discovery mechanism.  In this
-case, error responses from peripheral devices will be reported as imprecise
+case, error responses from slave devices will be reported as imprecise
 bus-error interrupts.
+\fi
+对于RISC-V，我们将PMA的规范和检查分离到一个单独的硬件结构中，即{\em PMA checker}。在许多情况下，每个物理地址区域的属性在系统设计时都是已知的，并且可以硬连接到PMA检查器中。如果属性是运行时可配置的，则可以提供特定于平台的内存映射控制寄存器，以便以适合平台上每个区域的粒度指定这些属性（例如，对于可在可缓存和不可缓存用途之间灵活划分的片上SRAM）。检查PMA是否有任何对物理内存的访问，包括经过虚拟到物理内存转换的访问。为了帮助系统调试，我们强烈建议，在可能的情况下，RISC-V处理器精确捕获无法通过PMA检查的物理内存访问。精确捕获的PMA违规表现为指令、加载或存储访问错误异常，与虚拟内存页错误异常不同。精确的PMA陷阱可能并不总是可能的，例如，当探测使用访问失败作为发现机制一部分的遗留总线架构时。在这种情况下，从设备的错误响应将被报告为不精确的总线错误中断。
 
+\iffalse
 PMAs must also be readable by software to correctly access certain
 devices or to correctly configure other hardware components that
 access memory, such as DMA engines.  As PMAs are tightly tied to a
@@ -3002,16 +3990,22 @@ and so will give error responses or time out if an unsupported access
 is attempted.  Typically, platform-specific machine-mode code will
 extract PMAs and ultimately present this information to higher-level
 less-privileged software using some standard representation.
+\fi
+PMA还必须是软件可读的，以正确访问某些设备或正确配置访问内存的其他硬件组件，如DMA引擎。由于PMA与给定物理平台的组织紧密相连，许多细节本质上是特定于平台的，软件可以通过这些方法学习平台的PMA值。某些设备（尤其是传统总线）不支持PMA的发现，因此如果尝试不受支持的访问，将给出错误响应或超时。通常，特定于平台的机器模式代码将提取PMA，并最终使用一些标准表示将此信息呈现给较高级的特权较低的软件。
 
+\iffalse
 Where platforms support dynamic reconfiguration of PMAs, an interface
 will be provided to set the attributes by passing requests to a
 machine-mode driver that can correctly reconfigure the platform.  For
 example, switching cacheability attributes on some memory regions
 might involve platform-specific operations, such as cache flushes,
 that are available only to machine-mode.
+\fi
+如果平台支持PMA的动态重新配置，将提供一个接口，通过将请求传递给能够正确重新配置平台的机器模式驱动程序来设置属性。例如，在某些内存区域上切换可缓存性属性可能涉及特定于平台的操作，例如仅对机器模式可用的缓存刷新。
 
 \subsection{Main Memory versus I/O versus Vacant Regions}
 
+\iffalse
 The most important characterization of a given memory address range is
 whether it holds regular main memory, or I/O devices, or is vacant.
 Regular main memory is required to have a number of properties,
@@ -3020,63 +4014,107 @@ attributes.  Memory regions that do not fit into regular main
 memory, for example, device scratchpad RAMs, are categorized as I/O
 regions.  Vacant regions are also classified as I/O regions but with
 attributes specifying that no accesses are supported.
+\fi
+给定内存地址范围的最重要特征是它是否持有常规主内存、I/O设备或空闲。常规主内存需要具有以下指定的许多属性，而I/O设备可以具有更广泛的属性范围。不适合常规主存储器的存储器区域，例如，设备草稿RAM，被归类为I/O区域。空闲区域也被分类为I/O区域，但其属性指定不支持访问。
 
 \subsection{Supported Access Type PMAs}
 
+\iffalse
 Access types specify which access widths, from 8-bit byte to long
 multi-word burst, are supported, and also whether misaligned accesses
 are supported for each access width.
+\fi
+访问类型指定支持哪些访问宽度，从8位字节到长多字突发，以及每个访问宽度是否支持未对齐的访问。
 
+\iffalse
 \begin{commentary}
 Although software running on a RISC-V hart cannot directly generate
 bursts to memory, software might have to program DMA engines to access
 I/O devices and might therefore need to know which access sizes are
 supported.
 \end{commentary}
+\fi
+\begin{commentary}
+尽管在RISC-Vhart上运行的软件无法直接生成内存突发，但软件可能必须对DMA引擎进行编程以访问I/O设备，因此可能需要知道支持哪些访问大小。
+\end{commentary}
 
+\iffalse
 Main memory regions always support read and write of all
 access widths required by the attached devices, and can
 specify whether instruction fetch is supported.
+\fi
+主内存区域始终支持所连接设备所需的所有访问宽度的读写，并可以指定是否支持指令获取。
 
+\iffalse
 \begin{commentary}
 Some platforms might mandate that all of main memory support instruction
 fetch.
 Other platforms might prohibit instruction fetch from some main memory
 regions.
 \end{commentary}
+\fi
+\begin{commentary}
+一些平台可能会要求所有主内存都支持指令获取。
+其他平台可能禁止从某些主内存区域获取指令。
+\end{commentary}
 
+\iffalse
 \begin{commentary}
 In some cases, the design of a processor or device accessing main
 memory might support other widths, but must be able to function with
 the types supported by the main memory.
 \end{commentary}
+\fi
+\begin{commentary}
+在某些情况下，访问主内存的处理器或设备的设计可能支持其他宽度，但必须能够与主内存支持的类型一起工作。
+\end{commentary}
 
+\iffalse
 I/O regions can specify which combinations of read, write, or execute
 accesses to which data widths are supported.
 
 For systems with page-based virtual memory, I/O and memory regions can
 specify which combinations of hardware page-table reads and hardware
 page-table writes are supported.
+\fi
+I/O区域可以指定支持哪些数据宽度的读、写或执行访问组合。
 
+对于具有基于页的虚拟内存的系统，I/O和内存区域可以指定支持硬件页表读取和硬件页表写入的组合。
+
+\iffalse
 \begin{commentary}
 Unix-like operating systems generally require that all of cacheable main
 memory supports page-table walks.
 \end{commentary}
+\fi
+\begin{commentary}
+类Unix操作系统通常要求所有可缓存主内存都支持页表遍历。
+\end{commentary}
 
 \subsection{Atomicity PMAs}
 
+\iffalse
 Atomicity PMAs describes which atomic instructions are supported in
 this address region.
 Support for atomic instructions is divided into two
 categories: {\em LR/SC} and {\em AMOs}.
+\fi
+原子性PMA描述此地址区域中支持哪些原子指令。
+对原子指令的支持分为两类：{\em LR/SC}和{\em AMO}。
 
+\iffalse
 \begin{commentary}
 Some platforms might mandate that all of cacheable main memory support
 all atomic operations required by the attached processors.
 \end{commentary}
+\fi
+\begin{commentary}
+一些平台可能会要求所有可缓存主内存支持所连接处理器所需的所有原子操作。
+\end{commentary}
 
 \subsubsection{AMO PMA}
 
+\iffalse
   Within AMOs, there are four levels of
 support: {\em AMONone}, {\em AMOSwap}, {\em AMOLogical}, and {\em
   AMOArithmetic}.  AMONone indicates that no AMO operations are
@@ -3089,6 +4127,11 @@ of a given width are supported if the underlying memory region
 supports reads and writes of that width.
 Main memory and I/O regions may only support a subset or none of the
 processor-supported atomic operations.
+\fi
+在AMO中，有四个级别的支持： {\em AMONone}, {\em AMOSwap}, {\em AMOLogical}, and {\em
+AMOArithmetic}。AMONone表示不支持任何AMO操作。AMOSwap表示此地址范围内仅支持 {\em AMOSwap}指令。AMOLogical表示支持交换指令加上所有逻辑AMO({\tt amoand}, {\tt amoor},
+{\tt amoxor})。AMOArithmetic表示支持所有RISC-V AMO。对于每个支持级别，如果底层内存区域支持给定宽度的读写，则支持该宽度的自然对齐AMO。
+主内存和I/O区域可能只支持处理器支持的原子操作的一个子集或不支持。
 
 \begin{table*}[h!]
 \begin{center}
@@ -3107,13 +4150,19 @@ processor-supported atomic operations.
 \label{amoclasses}
 \end{table*}
 
+\iffalse
 \begin{commentary}
 We recommend providing at least AMOLogical support for I/O regions
 where possible.
 \end{commentary}
+\fi
+\begin{commentary}
+我们建议尽可能为I/O区域提供至少AMOLogical支持。
+\end{commentary}
 
 \subsubsection{Reservability PMA}
 
+\iffalse
 For {\em LR/SC}, there are three levels of support indicating combinations of
 the reservability and eventuality properties:  {\em RsrvNone},
 {\em RsrvNonEventual}, and {\em RsrvEventual}.
@@ -3122,28 +4171,46 @@ non-reservable).  RsrvNonEventual indicates that the operations are supported
 (the location is reservable), but without the eventual success guarantee
 described in the unprivileged ISA specification.  RsrvEventual indicates that
 the operations are supported and provide the eventual success guarantee.
+\fi
+对于{\em LR/SC}，有三个级别的支持表示可保留性和偶然性属性的组合：{\em RsrvNone},
+{\em RsrvNonEventual}, and {\em RsrvEventual}。RsrvNone表示不支持LR/SC操作（该位置不可保留）。RsrvNonEventual表示支持操作（位置是可保留的），但没有特权ISA规范中描述的最终成功保证。RsrvEventual表示支持这些操作，并提供最终的成功保证。
 
+\iffalse
 \begin{commentary}
 We recommend providing RsrvEventual support for main memory regions
 where possible.  Most I/O regions will not support LR/SC accesses, as
 these are most conveniently built on top of a cache-coherence scheme, but some
 may support RsrvNonEventual or RsrvEventual.
 \end{commentary}
+\fi
+\begin{commentary}
+我们建议尽可能为主内存区域提供RsrvEventual支持。大多数I/O区域将不支持LR/SC访问，因为它们最方便地构建在缓存一致性方案之上，但有些可能支持RsrvNonEventual或RsrvEventual。
+\end{commentary}
 
+\iffalse
 \begin{commentary}
 When LR/SC is used for memory locations marked RsrvNonEventual, software should
 provide alternative fall-back mechanisms used when lack of progress is
 detected.
 \end{commentary}
+\fi
+\begin{commentary}
+当LR/SC用于标记为RsrvNonEventual的内存位置时，软件应提供在检测到进度不足时使用的备用回退机制。
+\end{commentary}
 
 \subsubsection{Alignment}
 
+\iffalse
 Memory regions that support aligned LR/SC or aligned AMOs might also support
 misaligned LR/SC or misaligned AMOs for some addresses and access widths.  If,
 for a given address and access width, a misaligned LR/SC or AMO generates
 an address-misaligned exception, then {\em all} loads, stores, LRs/SCs, and
 AMOs using that address and access width must generate address-misaligned
 exceptions.
+\fi
+对于某些地址和访问宽度，支持对齐LR/SC或对齐AMO的内存区域也可能支持未对齐LR/S或未对齐AMO。如果对于给定地址和访问宽度，未对齐的LR/SC或AMO生成地址未对齐异常，则{\em 所有}使用该地址和访问带宽的加载、存储、LR/SC和AMO必须生成地址未对准异常。
+
+\iffalse
 \begin{commentary}
 The standard ``A'' extension does not support misaligned AMOs or LR/SC pairs.
 Support for misaligned AMOs is provided by the standard ``Zam'' extension.
@@ -3158,29 +4225,47 @@ within the critical section.  Provided that the handler for misaligned loads
 and stores uses the same mutex, all accesses to a given address that use the
 same word size will be mutually atomic.
 \end{commentary}
+\fi
+\begin{commentary}
+标准“A”扩展不支持未对齐的AMO或LR/SC对。标准“Zam”扩展提供了对未对齐AMO的支持。对未对齐LR/SC序列的支持目前还没有标准化，因此LR和SC对未对齐地址的支持必须引发异常。
 
+强制未对齐的加载和存储在未对齐的AMO引发地址未对齐异常的地方引发地址未对准异常，这允许在M模式陷阱处理程序中模拟未对齐的AM。处理程序通过获取全局互斥体并模拟关键部分中的访问来保证原子性。如果未对齐加载和存储的处理程序使用相同的互斥体，则对使用相同字长的给定地址的所有访问都将是相互原子的。
+\end{commentary}
+
+\iffalse
 Implementations may raise access-fault exceptions instead of address-misaligned
 exceptions for some misaligned accesses, indicating the instruction should not
 be emulated by a trap handler.  If, for a given address and access width, all
 misaligned LRs/SCs and AMOs generate access-fault exceptions, then regular
 misaligned loads and stores using the same address and access width are not
 required to execute atomically.
+\fi
+对于某些未对齐的访问，实现可能会引发访问错误异常，而不是地址未对齐异常，这表明陷阱处理程序不应模拟该指令。如果对于给定的地址和访问宽度，所有未对齐的LR/SC和AMO都会生成访问故障异常，则使用相同地址和访问带宽的常规未对齐加载和存储不需要自动执行。
+
 
 \subsection{Memory-Ordering PMAs}
 
+\iffalse
 Regions of the address space are classified as either {\em main
   memory} or {\em I/O} for the purposes of ordering by the FENCE
 instruction and atomic-instruction ordering bits.
+\fi
+为了通过FENCE指令和原子指令排序位进行排序，地址空间的区域被分类为{\em main
+memory}或 {\em I/O}。
 
+\iffalse
 Accesses by one hart to main memory regions are observable not only by
 other harts but also by other devices with the capability to initiate
 requests in the main memory system (e.g., DMA engines).
 Coherent main memory regions always have either the RVWMO or RVTSO memory
 model.
 Incoherent main memory regions have an implementation-defined memory model.
+\fi
+一个hart对主存储器区域的访问不仅可由其他hart观察到，而且可由具有在主存储器系统中发起请求的能力的其他设备（例如DMA引擎）观察到。相干主存储器区域总是具有RVWMO或RVTSO存储器模型。不相干的主存储器区域具有实现定义的存储器模型。
 
+\iffalse
 Accesses by one hart to an I/O region are observable not only by other harts
-and bus mastering devices but also by the targeted I/O devices, and I/O
+and bus mastering devices but also by targeted slave I/O devices, and I/O
 regions may be accessed with either {\em relaxed} or {\em strong} ordering.
 Accesses to an I/O region with relaxed ordering are generally observed by
 other harts and bus mastering devices in a manner similar to the ordering of
@@ -3188,13 +4273,21 @@ accesses to an RVWMO memory region, as discussed in Section A.4.2 in Volume
 I of this specification.
 By contrast, accesses to an I/O region with strong ordering are generally
 observed by other harts and bus mastering devices in program order.
+\fi
+一个hart对I/O区域的访问不仅可以被其他hart和总线主控设备观察到，也可以被目标从I/O设备观察到。I/O区域可以通过{\em relaxed} or {\em strong} 顺序进行访问。
+对具有宽松顺序的I/O区域的访问通常由其他hart和总线主控设备以类似于对RVWMO存储器区域的访问顺序的方式观察，如本规范第一卷第a.4.2节所述。
+相比之下，对具有强顺序的I/O区域的访问通常由其他hart和总线主控设备按程序顺序观察。
 
+\iffalse
 Each strongly ordered I/O region specifies a numbered ordering
 channel, which is a mechanism by which ordering guarantees can be
 provided between different I/O regions.  Channel 0 is used to indicate
 point-to-point strong ordering only, where only accesses by the hart to the
 single associated I/O region are strongly ordered.
+\fi
+每个强排序I/O区域都指定一个编号的排序通道，这是一种机制，可以在不同的I/O区域之间提供排序保证。通道0仅用于指示点对点强排序，其中只有hart对单个关联I/O区域的访问是强排序的。
 
+\iffalse
 Channel 1 is used to provide global strong ordering across all I/O
 regions.  Any accesses by a hart to any I/O region associated with
 channel 1 can only be observed to have occurred in program order by all
@@ -3203,13 +4296,21 @@ that hart to relaxed I/O regions or strongly ordered I/O regions with
 different channel numbers.  In other words, any access to a region in
 channel 1 is equivalent to executing a {\tt fence io,io}
 instruction before and after the instruction.
+\fi
+通道1用于跨所有I/O区域提供全局强排序。哈特对与通道1关联的任何I/O区域的任何访问只能被所有其他哈特和I/O设备按程序顺序观察到，包括相对于哈特对具有不同通道号的宽松I/O区域或强有序I/O区域的访问。换言之，对通道1中的区域的任何访问都等同于在指令之前和之后执行{\tt fence io,io}指令。
 
+\iffalse
 Other larger channel numbers provide program ordering to accesses by
 that hart across any regions with the same channel number.
 
 Systems might support dynamic configuration of ordering properties on
 each memory region.
+\fi
+其他较大的频道号为具有相同频道号的任何区域上的哈特访问提供节目顺序。
 
+系统可能支持对每个内存区域的排序属性进行动态配置。
+
+\iffalse
 \begin{commentary}
 Strong ordering can be used to improve compatibility with legacy
 device driver code, or to enable increased performance compared to
@@ -3225,9 +4326,18 @@ Generally, different strongly ordered I/O regions can share the same
 ordering channel without additional ordering hardware if they share
 the same interconnect path and the path does not reorder requests.
 \end{commentary}
+\fi
+\begin{commentary}
+强排序可用于提高与传统设备驱动程序代码的兼容性，或在已知实现不重新排序访问时，与插入显式排序指令相比，提高性能。
+
+本地强排序（通道0）是强排序的默认形式，因为如果hart和I/O设备之间只有一条有序的通信路径，通常很容易提供。
+
+通常，如果不同的强排序I/O区域共享相同的互连路径且路径不重新排序请求，则它们可以共享相同的排序通道，而无需额外的排序硬件。
+\end{commentary}
 
 \subsection{Coherence and Cacheability PMAs}
 
+\iffalse
 Coherence is a property defined for a single physical address, and
 indicates that writes to that address by one agent will eventually be
 made visible to other agents in the system.  Coherence is not to be
@@ -3236,21 +4346,45 @@ what values a memory read can return given the previous history of
 reads and writes to the entire memory system.  In RISC-V platforms,
 the use of hardware-incoherent regions is discouraged due to software
 complexity, performance, and energy impacts.
+\fi
+一致性是为单个物理地址定义的属性，表示一个代理对该地址的写入最终将对系统中的其他代理可见。一致性不应与系统的内存一致性模型混淆，该模型定义了在给定整个内存系统的读写历史的情况下，内存读取可以返回的值。在RISC-V平台中，由于软件复杂性、性能和能量影响，不鼓励使用硬件不一致区域。
 
+\iffalse
 The cacheability of a memory region should not affect the software
 view of the region except for differences reflected in other PMAs,
 such as main memory versus I/O classification, memory ordering,
 supported accesses and atomic operations, and coherence.  For this
 reason, we treat cacheability as a platform-level setting managed by
 machine-mode software only.
+\fi
+内存区域的可缓存性不应影响该区域的软件视图，但其他PMA中反映的差异除外，如主内存与I/O分类、内存排序、支持的访问和原子操作以及一致性。因此，我们将可缓存性视为仅由机器模式软件管理的平台级设置。
 
+\iffalse
 Where a platform supports configurable cacheability settings for a
 memory region, a platform-specific machine-mode routine will change
 the settings and flush caches if necessary, so the system is only
 incoherent during the transition between cacheability settings.  This
 transitory state should not be visible to lower privilege levels.
+\fi
+如果平台支持内存区域的可配置缓存能力设置，则特定于平台的机器模式例程将更改设置并在必要时刷新缓存，因此系统仅在缓存能力设置之间的转换期间不一致。较低权限级别不应看到此临时状态。
 
+\iffalse
 \begin{commentary}
+We categorize RISC-V caches into three types: {\em master-private},
+{\em shared}, and {\em slave-private}.  Master-private caches are
+attached to a single master agent, i.e., one that issues read/write
+requests to the memory system.  Shared caches are located between
+masters and slaves and may be hierarchically organized.  Slave-private
+caches do not impact coherence, as they are local to a single slave
+and do not affect other PMAs at a master, so are not considered
+further here.  We use {\em private cache} to mean a master-private
+cache in the following section, unless explicitly stated otherwise.
+\fi
+\begin{commentary}
+我们将RISC-V缓存分为三种类型：{\em master-private},
+{\em shared}, and {\em slave-private}。主专用缓存连接到单个主代理，即向内存系统发出读/写请求的代理。共享缓存位于主缓存和从缓存之间，可以分层组织。从机专用缓存不会影响一致性，因为它们是单个从机的本地缓存，不会影响主机上的其他PMA，因此这里不再进一步讨论。除非另有明确说明，否则在下一节中，我们使用{\em private cache} 表示主专用缓存。
+
+\iffalse
 Coherence is straightforward to provide for a shared memory region
 that is not cached by any agent.  The PMA for such a region would
 simply indicate it should not be cached in a private or shared cache.
@@ -3259,13 +4393,21 @@ Coherence is also straightforward for read-only regions, which can be
 safely cached by multiple agents without requiring a cache-coherence
 scheme.  The PMA for this region would indicate that it can be cached,
 but that writes are not supported.
+\fi
+一致性可以直接提供不被任何代理缓存的共享内存区域。这样一个区域的PMA将简单地指示它不应该缓存在私有或共享缓存中。
 
+对于只读区域，一致性也很简单，可以由多个代理安全地缓存，而不需要缓存一致性方案。此区域的PMA将指示它可以缓存，但不支持写入。
+
+\iffalse
 Some read-write regions might only be accessed by a single agent, in
 which case they can be cached privately by that agent without
 requiring a coherence scheme.  The PMA for such regions would indicate
 they can be cached.  The data can also be cached in a shared cache, as
 other agents should not access the region.
+\fi
+某些读写区域可能只能由单个代理访问，在这种情况下，它们可以由该代理单独缓存，而不需要一致性方案。这些区域的PMA将指示它们可以被缓存。数据也可以缓存在共享缓存中，因为其他代理不应该访问该区域。
 
+\iffalse
 If an agent can cache a read-write region that is accessible by other
 agents, whether caching or non-caching, a cache-coherence scheme is
 required to avoid use of stale values.  In regions lacking hardware
@@ -3276,22 +4418,35 @@ performance impacts due to the need for conservative software-directed
 cache-flushing.  Hardware cache-coherence schemes require more complex
 hardware and can impact performance due to the cache-coherence probes,
 but are otherwise invisible to software.
+\fi
+如果代理可以缓存其他代理（无论是缓存还是非缓存）可以访问的读写区域，则需要缓存一致性方案以避免使用过时值。在缺乏硬件缓存一致性的区域（硬件不一致区域）中，缓存一致性可以完全在软件中实现，但软件一致性方案很难正确实现，并且由于需要保守的软件定向缓存刷新，通常会对性能产生严重影响。硬件缓存一致性方案需要更复杂的硬件，并且由于缓存一致性探测可能会影响性能，但在其他方面对软件是不可见的。
 
+\iffalse
 For each hardware cache-coherent region, the PMA would indicate that
 the region is coherent and which hardware coherence controller to use
 if the system has multiple coherence controllers.  For some systems,
 the coherence controller might be an outer-level shared cache, which
 might itself access further outer-level cache-coherence controllers
 hierarchically.
+\fi
+对于每个硬件缓存相干区域，PMA将指示该区域是相干的，以及如果系统具有多个相干控制器，则使用哪个硬件相干控制器。对于某些系统，一致性控制器可能是一个外部级共享缓存，它本身可能会分层访问更多的外部级缓存一致性控制器。
 
+\iffalse
 Most memory regions within a platform will be coherent to software,
 because they will be fixed as either uncached, read-only, hardware
 cache-coherent, or only accessed by one agent.
 \end{commentary}
+\fi
+平台内的大多数内存区域将与软件保持一致，因为它们将被固定为未缓存、只读、硬件缓存一致或仅由一个代理访问。
+\end{commentary}
 
+\iffalse
 If a PMA indicates non-cacheability, then accesses to that region must
 be satisfied by the memory itself, not by any caches.
+\fi
+如果PMA指示不可缓存，那么对该区域的访问必须由内存本身来满足，而不是由任何缓存来满足。
 
+\iffalse
 \begin{commentary}
 For implementations with a cacheability-control mechanism, the situation
 may arise that a program uncacheably accesses a memory location that is
@@ -3301,9 +4456,16 @@ This constraint is necessary to prevent more-privileged modes' speculative
 cache refills from affecting the behavior of less-privileged modes'
 uncacheable accesses.
 \end{commentary}
+\fi
+\begin{commentary}
+对于具有可缓存性控制机制的实现，可能会出现程序无法缓存地访问当前驻留的内存位置的情况。
+在这种情况下，必须忽略缓存副本。
+此约束对于防止特权模式的推测性缓存重新填充影响特权模式的不可缓存访问行为是必要的。
+\end{commentary}
 
 \subsection{Idempotency PMAs}
 
+\iffalse
 Idempotency PMAs describe whether reads and writes to an address
 region are idempotent.  Main memory regions are assumed to be
 idempotent.  For I/O regions, idempotency on reads and writes can be
@@ -3311,18 +4473,30 @@ specified separately (e.g., reads are idempotent but writes are not).
 If accesses are non-idempotent, i.e., there is potentially a side
 effect on any read or write access, then speculative or redundant
 accesses must be avoided.
+\fi
+幂等PMA描述对地址区域的读和写是否为幂等。假设主存储器区域是幂等的。对于I/O区域，读取和写入的幂等性可以单独指定（例如，读取是幂等的，但写入不是）。
+如果访问是非幂等的，即对任何读或写访问都有潜在的副作用，那么必须避免推测性或冗余访问。
 
+\iffalse
 For the purposes of defining the idempotency PMAs, changes in observed
 memory ordering created by redundant accesses are not considered a
 side effect.
+\fi
+为了定义幂等性PMA，由冗余访问创建的观察到的内存顺序变化不被视为副作用。
 
+\iffalse
 \begin{commentary}
 While hardware should always be designed to avoid speculative or
 redundant accesses to memory regions marked as non-idempotent, it is
 also necessary to ensure software or compiler optimizations do not
 generate spurious accesses to non-idempotent memory regions.
 \end{commentary}
+\fi
+\begin{commentary}
+虽然硬件的设计应始终避免对标记为非幂等的内存区域进行推测性或冗余访问，但也有必要确保软件或编译器优化不会产生对非幂等内存区域的虚假访问。
+\end{commentary}
 
+\iffalse
 \begin{commentary}
 Non-idempotent regions might not support misaligned accesses.  Misaligned
 accesses to such regions should raise access-fault exceptions rather than
@@ -3330,7 +4504,12 @@ address-misaligned exceptions, indicating that software should not emulate the
 misaligned access using multiple smaller accesses, which could cause
 unexpected side effects.
 \end{commentary}
+\fi
+\begin{commentary}
+非幂等区域可能不支持未对齐的访问。对这些区域的未对齐访问应引发访问错误异常，而不是解决未对齐异常，这表明软件不应使用多个较小的访问来模拟未对齐的访问，这可能会导致意外的副作用。
+\end{commentary}
 
+\iffalse
 For non-idempotent regions, implicit reads and writes must not be performed
 early or speculatively, with the following exceptions.
 When a non-speculative implicit read is performed, an implementation is
@@ -3345,10 +4524,15 @@ or speculative implicit reads.
 The size of these naturally aligned power-of-2 regions is
 implementation-defined, but, for systems with page-based virtual memory, must
 not exceed the smallest supported page size.
+\fi
+对于非幂等区域，隐式读取和写入不能过早或推测性地执行，以下例外情况除外。当执行非推测性隐式读取时，允许实现额外读取包含非推测性隐含读取地址的自然对齐的2次幂区域内的任何字节。此外，当执行非推测性指令获取时，允许实现额外读取相同大小的{\em next}自然对齐的power-of-2区域内的任何字节（该区域的地址取模$2^{\text{XLEN}}$）。
+这些额外读取的结果可用于满足后续的早期或推测性隐式读取。
+这些自然对齐的power-of-2区域的大小由实现定义，但对于具有基于页面的虚拟内存的系统，其大小不得超过支持的最小页面大小。
 
 \section{Physical Memory Protection}
 \label{sec:pmp}
 
+\iffalse
 To support secure processing and contain faults, it is desirable to
 limit the physical addresses accessible by software running on a hart.
 An optional physical memory protection (PMP) unit provides
@@ -3356,22 +4540,35 @@ per-hart machine-mode control registers to allow
 physical memory access privileges (read, write, execute) to be
 specified for each physical memory region.  The PMP values are checked
 in parallel with the PMA checks described in Section~\ref{sec:pma}.
+\fi
+为了支持安全处理并包含错误，最好限制运行在hart上的软件可访问的物理地址。
+可选的物理内存保护（PMP）单元提供每哈特机器模式控制寄存器，以允许为每个物理内存区域指定物理内存访问权限（读、写、执行）。PMP值与第~\ref{sec:PMA}节中描述的PMA检查并行检查。
 
+\iffalse
 The granularity of PMP access control settings are platform-specific,
 but the standard PMP
 encoding supports regions as small as four bytes.  Certain regions' privileges
 can be hardwired---for example, some regions might only ever be visible in
 machine mode but in no lower-privilege layers.
+\fi
+PMP访问控制设置的粒度是特定于平台的，但标准PMP编码支持小到四个字节的区域。某些区域的权限可以是硬连接的——例如，某些区域可能只在机器模式下可见，但在较低的权限层中不可见。
 
+\iffalse
 \begin{commentary}
 Platforms vary widely in demands for physical memory protection, and
 some platforms may provide other PMP structures in addition to or
 instead of the scheme described in this section.
 \end{commentary}
+\fi
+\begin{commentary}
+平台对物理内存保护的需求差异很大，一些平台可能提供其他PMP结构，以补充或替代本节中描述的方案。
+\end{commentary}
 
+\iffalse
 PMP checks are applied to all accesses whose effective privilege mode is S or
-U, including instruction fetches and data accesses in S and U mode, and data
-accesses in M-mode when the MPRV bit in {\tt mstatus} is set and the MPP
+U, including instruction fetches in S and U mode, data accesses in S and
+U mode when the MPRV bit in the {\tt mstatus} register is clear, and data
+accesses in any mode when the MPRV bit in {\tt mstatus} is set and the MPP
 field in {\tt mstatus} contains S or U.
 PMP checks are also applied to page-table
 accesses for virtual-address translation, for which the effective
@@ -3383,9 +4580,15 @@ modes, which by default have none, and can {\em revoke} permissions
 from M-mode, which by default has full permissions.
 
 PMP violations are always trapped precisely at the processor.
+\fi
+PMP检查适用于有效特权模式为S或U的所有访问，包括在S和U模式下的指令获取，当寄存器中的MPRV位为空时在S和U模式下的数据访问，以及当设置了mstatus中的MPRV位且{\tt mstatus}中的MPP字段包含S或U时在任何模式下进行的数据访问。
+PMP检查也适用于虚拟地址转换的页表访问，有效特权模式为S。可选地，PMP检查还可适用于M模式访问，在这种情况下，PMP寄存器本身被锁定，因此即使是M模式软件也无法更改它们，直到hart被重置。实际上，PMP可以{\em 授予}S和U模式的权限（默认情况下没有），并且可以{\em 撤销}M模式的权限，默认情况下M模式具有完全权限。
+
+PMP违规总是在处理器处被精确捕获。
 
 \subsection{Physical Memory Protection CSRs}
 
+\iffalse
 PMP entries are described by an 8-bit configuration register and one MXLEN-bit
 address register.  Some PMP settings additionally use the address register
 associated with the preceding PMP entry.
@@ -3394,7 +4597,13 @@ Implementations may implement zero, 16, or 64 PMP CSRs; the lowest-numbered
 PMP CSRs must be implemented first.
 All PMP CSR fields are \warl\ and may be read-only zero.
 PMP CSRs are only accessible to M-mode.
+\fi
+PMP条目由8位配置寄存器和一个MXLEN位地址寄存器描述。一些PMP设置还使用与前面的PMP条目相关联的地址寄存器。最多支持64个PMP条目。
+实现可以实现零、16或64个PMP CSR；必须首先实现最低编号的PMP CSR。
+所有PMP CSR字段均为\warl\ ，并且可能为只读零。
+PMP CSR仅可用于M模式。
 
+\iffalse
 The PMP configuration registers are densely packed into CSRs to minimize
 context-switch time.
 For RV32, sixteen CSRs, {\tt pmpcfg0}--{\tt pmpcfg15}, hold the configurations
@@ -3405,12 +4614,22 @@ For RV64, eight even-numbered CSRs,
 for the 64 PMP entries, as shown in Figure~\ref{pmpcfg-rv64}.
 For RV64, the odd-numbered configuration registers,
 {\tt pmpcfg1}, {\tt pmpcfg3}, \ldots, {\tt pmpcfg15}, are illegal.
+\fi
+PMP配置寄存器被密集地封装到CSR中，以最小化上下文切换时间。
+对于RV32，十六个CSR，{\tt pmpcfg0}--{\tt pmpcfg15}，保持64个PMP条目的配置{\tt pmp0cfg}--{\tt pmp63cfg}，如图~\ref{pmpcfg-rv32}所示。
+对于RV64，八个偶数编号的CSR，{\tt pmpcfg0}, {\tt pmpcfg2}、\ldots、{\tt pmpcfg14}，保存64个PMP条目的配置，如图~\ref{pmpcfg-rv64}所示。
+对于RV64，奇数编号的配置寄存器{\tt pmpcfg1}, {\tt pmpcfg3}、\ldots、 {\tt pmpcfg15}是非法的。
 
+\iffalse
 \begin{commentary}
 RV64 systems use {\tt pmpcfg2}, rather than {\tt pmpcfg1}, to hold
 configurations for PMP entries 8--15.  This design reduces the cost of
 supporting multiple MXLEN values, since the configurations for PMP
 entries 8--11 appear in {\tt pmpcfg2}[31:0] for both RV32 and RV64.
+\end{commentary}
+\fi
+\begin{commentary}
+RV64系统使用{\tt pmpcfg2}而不是{\tt pmpcfg1}来保存PMP条目8-15的配置。这种设计降低了支持多个MXLEN值的成本，因为对于RV32和RV64，PMP条目8-11的配置都出现在{\tt pmpcfg2}[31:0]中。
 \end{commentary}
 
 \begin{figure}[h!]
@@ -3539,13 +4758,17 @@ entries 8--11 appear in {\tt pmpcfg2}[31:0] for both RV32 and RV64.
 \label{pmpcfg-rv64}
 \end{figure}
 
+\iffalse
 The PMP address registers are CSRs named {\tt pmpaddr0}--{\tt pmpaddr63}.
 Each PMP address register encodes bits 33--2 of a 34-bit physical address for
 RV32, as shown in Figure~\ref{pmpaddr-rv32}.  For RV64, each PMP address
 register encodes bits 55--2 of a 56-bit physical address, as shown in
 Figure~\ref{pmpaddr-rv64}.  Not all physical address bits may be implemented,
 and so the {\tt pmpaddr} registers are \warl.
+\fi
+PMP地址寄存器是名为{\tt pmpaddr0}--{\tt pmpaddr63}的CSR。每个PMP地址寄存器对RV32的34位物理地址的位33-2进行编码，如图~\ref{pmpaddr-rv32}所示。对于RV64，每个PMP地址寄存器对56位物理地址的55-2位进行编码，如图~\ref{pmpaddr-rv64}所示。并非所有物理地址位都可以实现，因此{\tt pmpaddr}寄存器都是\warl\ 。
 
+\iffalse
 \begin{commentary}
 The Sv32 page-based virtual-memory scheme described in Section~\ref{sec:sv32}
 supports 34-bit physical addresses for RV32, so the PMP scheme must support
@@ -3553,6 +4776,11 @@ addresses wider than XLEN for RV32.
 The Sv39 and Sv48 page-based virtual-memory schemes described in
 Sections~\ref{sec:sv39} and~\ref{sec:sv48} support a 56-bit physical address
 space, so the RV64 PMP address registers impose the same limit.
+\end{commentary}
+\fi
+\begin{commentary}
+第~\ref{sec:sv32}节中描述的基于Sv32页的虚拟内存方案支持RV32的34位物理地址，因此PMP方案必须支持比RV32的XLEN宽的地址。
+第~\ref{sec:sv39}节和第~\ref{sec:Sv48}节中描述的基于Sv39和Sv48页的虚拟内存方案支持56位物理地址空间，因此RV64 PMP地址寄存器施加了相同的限制。
 \end{commentary}
 
 \begin{figure}[h!]
@@ -3591,6 +4819,7 @@ space, so the RV64 PMP address registers impose the same limit.
 \label{pmpaddr-rv64}
 \end{figure}
 
+\iffalse
 Figure~\ref{pmpcfg} shows the layout of a PMP configuration register.  The R,
 W, and X bits, when set, indicate that the PMP entry permits read, write, and
 instruction execution, respectively.  When one of these bits is clear, the
@@ -3598,6 +4827,11 @@ corresponding access type is denied.
 The R, W, and X fields form a collective \warl\ field for which the
 combinations with R=0 and W=1 are reserved.
 The remaining two fields, A and L, are described in the following sections.
+\fi
+图~\ref{pmpcfg}显示了PMP配置寄存器的布局。设置后，R、W和X位分别表示PMP条目允许读、写和指令执行。当其中一个位被清除时，相应的访问类型被拒绝。
+R、W和X字段形成一个集合\warl\ 字段，其中保留了R=0和W=1的组合。
+剩下的两个字段A和L将在下面的部分中介绍。
+
 
 \begin{figure}[h!]
 {\footnotesize
@@ -3627,6 +4861,7 @@ The remaining two fields, A and L, are described in the following sections.
 \label{pmpcfg}
 \end{figure}
 
+\iffalse
 Attempting to fetch an instruction from a PMP region that does not have execute
 permissions raises an instruction access-fault exception.  Attempting to execute
 a load or load-reserved instruction which accesses a physical address within
@@ -3634,16 +4869,26 @@ a PMP region without read permissions raises a load access-fault exception.
 Attempting to execute a store, store-conditional,
 or AMO instruction which accesses a physical address within a PMP region without
 write permissions raises a store access-fault exception.
+\fi
+尝试从没有执行权限的PMP区域获取指令会引发指令访问错误异常。尝试执行加载或加载保留指令，该指令在没有读取权限的情况下访问PMP区域内的物理地址，会引发加载访问错误异常。
+尝试执行存储、存储条件或AMO指令，该指令在没有写入权限的情况下访问PMP区域内的物理地址，会引发存储访问错误异常。
 
+\iffalse
 If MXLEN is changed, the contents of the {\tt pmp{\em x}cfg} fields are
 preserved, but appear in the {\tt pmpcfg{\em y}} CSR prescribed by the new
 setting of MXLEN.  For example, when MXLEN is changed from 64 to 32, {\tt
 pmp4cfg} moves from {\tt pmpcfg0}[39:32] to {\tt pmpcfg1}[7:0].  The {\tt
 pmpaddr} CSRs follow the usual CSR width modulation rules described in
 Section~\ref{sec:csrwidthmodulation}.
+\fi
+如果更改了MXLEN，{\tt pmp{\em x}cfg}字段的内容将保留，但会出现在由MXLEN的新设置指定的 {\tt pmpcfg{\em y}}CSR中。例如，当MXLEN从6
+4更改为32时，{\tt pmp4cfg}从{\tt pmpcfg0}[39:32]移动到{\tt pmpcfg1}[7:0]。{\tt
+pmpaddr} CSRs follow the usual CSR width modulation rules described in
+Section~\ref{sec:csrwidthmodulation}.节中描述的常见CSR宽度调制规则。
 
 \subsubsection*{Address Matching}
 
+\iffalse
 The A field in a PMP entry's configuration register encodes the
 address-matching mode of the associated PMP address register.  The encoding of
 this field is shown in Table~\ref{pmpcfg-a}.  When A=0, this PMP entry is
@@ -3651,6 +4896,9 @@ disabled and matches no addresses.  Two other address-matching modes are
 supported: naturally aligned power-of-2 regions (NAPOT), including the special
 case of naturally aligned four-byte regions (NA4); and the top boundary of an
 arbitrary range (TOR).  These modes support four-byte granularity.
+\fi
+PMP条目的配置寄存器中的A字段对相关PMP地址寄存器的地址匹配模式进行编码。该字段的编码如表~\ref{pmpcfg-a}所示。当A＝0时，此PMP条目被禁用，并且不匹配任何地址。支持其他两种地址匹配模式：自然对齐的2区断电（NAPOT），包括自然对齐的4字节区的特殊情况（NA4）；以及任意范围（TOR）的顶部边界。这些模式支持四字节粒度。
+
 
 \begin{table*}[h!]
 \begin{center}
@@ -3694,6 +4942,7 @@ to encode the size of the range, as shown in Table~\ref{pmpcfg-napot}.
 \label{pmpcfg-napot}
 \end{table*}
 
+\iffalse
 If TOR is selected, the associated address register forms the top of the
 address range, and the preceding PMP address register forms the bottom of the
 address range.  If PMP entry $i$'s A field is set to TOR, the entry matches
@@ -3702,12 +4951,22 @@ any address $y$ such that ${\tt pmpaddr}_{i-1}\leq y < {\tt pmpaddr}_i$
 If
 PMP entry 0's A field is set to TOR, zero is used for the lower bound, and so
 it matches any address $y < {\tt pmpaddr}_0$.
+\fi
+如果选择了TOR，则相关的地址寄存器构成地址范围的顶部，而前面的PMP地址寄存器构成了地址范围的底部。
+如果PMP条目$i$的A字段设置为TOR，则该条目与任何地址$y$匹配，使得${\tt pmpaddr}_{i-1}\leq y < {\tt pmpaddr}_i$（与${\tt pmpcfg}_{i-1}$的值无关）。
+如果PMP条目0的A字段设置为TOR，则下限使用零，因此它与任何地址$ y < {\tt pmpaddr}_0$。
 
+\iffalse
 \begin{commentary}
 If ${\tt pmpaddr}_{i-1}\geq {\tt pmpaddr}_i$ and ${\tt pmpcfg_i.A}$=TOR,
 then PMP entry $i$ matches no addresses.
 \end{commentary}
+\fi
+\begin{commentary}
+如果${\tt pmpaddr}_{i-1}\geq {\tt pmpaddr}_i$和${\tt pmpcfg_i.A}$=TOR，则PMP条目$i$不匹配任何地址。
+\end{commentary}
 
+\iffalse
 Although the PMP mechanism supports regions as small as four bytes, platforms
 may specify coarser PMP regions. In general, the PMP grain is $2^{G+2}$ bytes
 and must be the same across all PMP regions.  When $G \geq 1$, the NA4 mode
@@ -3720,38 +4979,70 @@ Although changing ${\tt pmpcfg}_i$.A[1] affects the value read from
 ${\tt pmpaddr}_i$, it does not affect the underlying value stored in that
 register---in particular, ${\tt pmpaddr}_i$[G-1] retains its original value
 when ${\tt pmpcfg}_i$.A is changed from NAPOT to TOR/OFF then back to NAPOT.
+\fi
+虽然PMP机制支持小到四个字节的区域，但平台可以指
+定更粗的PMP区域。通常，PMP粒度为$2^{G+2}$字节，并且在所有PMP区域中
+必须相同。当$G\geq 1$时，NA4模式不可选择。当$G\geq 2$和${\tt-pmpcfg}_i$时。设置了[1]，即模
+式为NAPOT，然后将位${\tt pmpaddr}_i$[G-2:0]读取为
+所有1。当$G\geq 1$和${\tt-pmpcfg}_i$时。A[1]为空，即模
+式为OFF或TOR，则位${\tt pmpaddr}_i$[G-1:0]读取为全零。位${\tt pmpaddr}_i$[G-1:0]不影响TOR地址匹
+配逻辑。尽管正在更改${\tt-pmpcfg}_i$。[1]影响从${\tt pmpaddr}_i$读取的值，它不影响存储在该
+寄存器中的基础值——特别是，当${\ tt pmpcfg}_i$时，${\tt pmpaddr}_i$[G-1]保留其原
+始值。A从NAPOT变为TOR/OFF，然后变回NAPOT。
 
+\iffalse
 \begin{commentary}
 Software may determine the PMP granularity by writing zero to {\tt pmp0cfg},
 then writing all ones to {\tt pmpaddr0}, then reading back {\tt pmpaddr0}.
 If $G$ is the index of the least-significant bit set,
 the PMP granularity is $2^{G+2}$ bytes.
 \end{commentary}
+\fi
+\begin{commentary}
+软件可以通过将0写入{\tt-pmp0cfg}，然后将所有1写入{\tt pmpaddr0}，再读回{\tt pmpaddr 0}来确定PMP粒度。如果$G$是最
+低有效位集的索引，则PMP粒度为$2^{G+2}$字节。
+\end{commentary}
 
+\iffalse
 If the current XLEN is greater than MXLEN, the PMP address registers are
 zero-extended from MXLEN to XLEN bits for the purposes of address matching.
+\fi
+如果当前的XLEN大于MXLEN，则为了地址匹配，PMP地址寄存器将从MXLEN位零扩展到XLEN位。
 
 \subsubsection*{Locking and Privilege Mode}
 
+\iffalse
 The L bit indicates that the PMP entry is locked, i.e., writes to the
 configuration register and associated address registers are ignored.  Locked
 PMP entries remain locked until the hart is reset.  If PMP entry $i$ is
 locked, writes to {\tt pmp}$i${\tt cfg} and {\tt pmpaddr}$i$ are ignored.
 Additionally, if PMP entry~$i$ is locked and {\tt pmp}$i${\tt cfg}.A is set
 to TOR, writes to {\tt pmpaddr}$i$-1 are ignored.
+\fi
+L位表示PMP条目被锁定，即对配置寄存
+器和相关地址寄存器的写入被忽略。锁定的PMP条目将
+保持锁定，直到图表重置。如果PMP条目$i$被锁定，将
+忽略对{\tt-PMP}$i${\tt cfg}和{\tt pmpaddr}$i$的写入。
+此外，如果PMP条目~$i$被锁定并且{\tt-PMP}$i${\tt cfg}。A设置为TOR，写入{\tt pmpaddr}$i$-1将被忽略。
 
 \begin{commentary}
 Setting the L bit locks the PMP entry even when the A field is set to OFF.
 \end{commentary}
 
+
+\iffalse
 In addition to locking the PMP entry, the L bit indicates whether the R/W/X
 permissions are enforced on M-mode accesses.  When the L bit is set, these
 permissions are enforced for all privilege modes.  When the L bit is clear,
 any M-mode access matching the PMP entry will succeed; the R/W/X
 permissions apply only to S and U modes.
+\fi
+除了锁定PMP条目外，L位还指示是否对M模式访问强制R/W/X权限。当设置了L位时，将对所有特权模式强制执行这些权限。当L位清除时，任何与PMP条目匹配的M模式访问都将成功；R/W/X权限仅适用于S和U模式。
+
 
 \subsubsection*{Priority and Matching Logic}
 
+\iffalse
 PMP entries are statically prioritized.  The lowest-numbered PMP entry that
 matches any byte of an access determines whether that access succeeds or
 fails.  The matching PMP entry must match all bytes of an access, or the
@@ -3759,29 +5050,42 @@ access fails, irrespective of the L, R, W, and X bits.  For example, if a PMP
 entry is configured to match the four-byte range {\tt 0xC}--{\tt 0xF}, then an
 8-byte access to the range {\tt 0x8}--{\tt 0xF} will fail, assuming that
 PMP entry is the highest-priority entry that matches those addresses.
+\fi
+PMP条目按静态优先级排序。与访问的任何字节相匹配的编号最低的PMP条目确定该访问是成功还是失败。匹配的PMP条目必须匹配访问的所有字节，否则无论L、R、W和X位如何，访问都会失败。例如，如果PMP条目被配置为匹配四字节范围{\tt 0xC}--{\tt0xF}，则假设PMP条目是匹配这些地址的最高优先级条目，则对范围{\tt 0x8}--}的8字节访问将失败。
 
+\iffalse
 If a PMP entry matches all bytes of an access, then the L, R, W, and X bits
 determine whether the access succeeds or fails.  If the L bit is clear and the
 privilege mode of the access is M, the access succeeds.  Otherwise, if the
 L bit is set or the privilege mode of the access is S or U, then the access
 succeeds only if the R, W, or X bit corresponding to the access type is set.
+\fi
+如果PMP条目与访问的所有字节相匹配，则L、R、W和X位确定访问是成功还是失败。如果L位为空且访问的特权模式为M，则访问成功。否则，如果设置了L位或访问的特权模式为S或U，则仅当设置了与访问类型对应的R、W或X位时，访问才成功。
 
+\iffalse
 If no PMP entry matches an M-mode access, the access succeeds.  If no PMP
 entry matches an S-mode or U-mode access, but at least one PMP entry is
 implemented, the access fails.
+\fi
+如果没有PMP条目匹配M模式访问，则访问成功。如果没有PMP条目匹配S模式或U模式访问，但至少实现了一个PMP条目，则访问失败。
+
 
 \begin{commentary}
 If at least one PMP entry is implemented, but all PMP entries' A fields are
 set to OFF, then all S-mode and U-mode memory accesses will fail.
 \end{commentary}
 
+\iffalse
 Failed accesses generate an instruction, load, or store access-fault exception.  Note
 that a single instruction may generate multiple accesses, which may not be
 mutually atomic.  An access-fault exception is generated if at least one access
 generated by an instruction fails, though other accesses generated by that
 instruction may succeed with visible side effects.  Notably, instructions that
 reference virtual memory are decomposed into multiple accesses.
+\fi
+失败的访问生成指令、加载或存储访问错误异常。请注意，单个指令可能生成多个访问，这些访问可能不是相互原子的。如果指令生成的至少一个访问失败，则会生成访问错误异常，尽管该指令生成的其他访问可能会成功，但会产生明显的副作用。值得注意的是，引用虚拟内存的指令被分解为多次访问。
 
+\iffalse
 On some implementations, misaligned loads, stores, and instruction fetches may
 also be decomposed into multiple accesses, some of which may succeed before an
 access-fault exception occurs.  In particular, a portion of a misaligned store
@@ -3789,17 +5093,23 @@ that passes the PMP check may become visible, even if another portion fails
 the PMP check.  The same behavior may manifest for floating-point stores wider
 than XLEN bits (e.g., the FSD instruction in RV32D), even when the store
 address is naturally aligned.
+\fi
+在某些实现中，未对齐的加载、存储和指令获取也可能分解为多个访问，其中一些访问可能在发生访问错误异常之前成功。特别是，通过PMP检查的未对齐存储的一部分可能会变得可见，即使另一部分未通过PMP检测。对于宽于XLEN位的浮点存储（例如，RV32D中的FSD指令），即使存储地址是自然对齐的，也可能出现相同的行为。
 
 \subsection{Physical Memory Protection and Paging}
 \label{pmp-vmem}
 
+\iffalse
 The Physical Memory Protection mechanism is designed to compose with the
 page-based virtual memory systems described in Chapter~\ref{supervisor}.  When
 paging is enabled, instructions that access virtual memory may result in
 multiple physical-memory accesses, including implicit references to the page
 tables.  The PMP checks apply to all of these accesses.  The effective
 privilege mode for implicit page-table accesses is S.
+\fi
+物理内存保护机制设计为与第~\ref{supervisor}章中描述的基于页面的虚拟内存系统组成。启用分页时，访问虚拟内存的指令可能会导致多次物理内存访问，包括对分页表的隐式引用。PMP检查适用于所有这些访问。隐式页表访问的有效特权模式是S。
 
+\iffalse
 Implementations with virtual memory are permitted to perform address
 translations speculatively and earlier than required by an explicit memory
 access, and are permitted to cache them in address translation cache
@@ -3814,6 +5124,13 @@ any PMP or address-translation caches.
 This is
 accomplished by executing an SFENCE.VMA instruction with {\em rs1}={\tt x0}
 and {\em rs2}={\tt x0}, after the PMP CSRs are written.
+\fi
+使用虚拟内存的实现被允许投机性地执行地址转换，并且比显式内存访问所需的时间更早，并且被允许在地址转换缓存结构中缓存它们——包括可能缓存在裸转换模式和m模式中使用的从有效地址到物理地址的身份映射。结果物理地址的PMP设置可以在地址转换和显式内存访问之间的任何点被检查(也可能被缓存)。
+因此，当PMP设置被修改时，m模式软件必须将PMP设置与虚拟内存系统和任何PMP或地址转换缓存同步。
+这是通过执行SFENCE来完成的。在写入PMP csr之后，VMA指令{\em rs1}={\tt x0}和{\em rs2}={\tt x0}。
 
+\iffalse
 If page-based virtual memory is not implemented,
 memory accesses check the PMP settings synchronously, so no SFENCE.VMA is needed.
+\fi
+如果没有实现基于页面的虚拟内存，内存访问会同步检查PMP设置，因此不需要SFENCE.VMA。

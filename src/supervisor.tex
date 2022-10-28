@@ -1,46 +1,66 @@
-\chapter{Supervisor-Level ISA, Version 1.12}
+\chapter{Supervisor-Level ISA, Version 1.12 监管者级指令集， 版本1.12}
 \label{supervisor}
 
 This chapter describes the RISC-V supervisor-level architecture, which
 contains a common core that is used with various supervisor-level
 address translation and protection schemes.
 
+本章描述了RISC-V监管者级体系结构 ，它包含一个公共核心，
+可与各种监管者级别地址转换和保护方案一起使用。
+
 \begin{commentary}
-Supervisor mode is deliberately restricted in terms of interactions
-with underlying physical hardware, such as physical memory and device
-interrupts, to support clean virtualization.
-In this spirit, certain supervisor-level facilities, including requests for
-timer and interprocessor interrupts, are provided by implementation-specific
-mechanisms.  In some systems, a supervisor execution environment (SEE)
-provides these facilities in a manner specified by a supervisor binary
-interface (SBI).  Other systems supply these facilities directly, through some
-other implementation-defined mechanism.
+  Supervisor mode is deliberately restricted in terms of interactions
+  with underlying physical hardware, such as physical memory and device
+  interrupts, to support clean virtualization.
+  In this spirit, certain supervisor-level facilities, including requests for
+  timer and interprocessor interrupts, are provided by implementation-specific
+  mechanisms.  In some systems, a supervisor execution environment (SEE)
+  provides these facilities in a manner specified by a supervisor binary
+  interface (SBI).  Other systems supply these facilities directly, through some
+  other implementation-defined mechanism.
+
+  为实现干净的虚拟化，监管者模式在与底层物理硬件的交互方面被有意地限制了，
+  如物理内存和设备中断。本着这种精神，某些监管者级的特殊操作，包括对计时器和处理器间中断的请求，
+  都是由特定于实现的机制提供的。
+  在某些系统中，监管器执行环境（SEE）以监管者二进制接口（SBI）指定的方式提供这些特殊操作。
+  其他系统通过其他一些实现定义的机制直接提供这些特殊操作。
 \end{commentary}
 
-\section{Supervisor CSRs}
+\section{Supervisor CSRs 监管者CSR}
 
 A number of CSRs are provided for the supervisor.
 
+一些CSR被提供给监管者模式使用。
+
 \begin{commentary}
-The supervisor should only view CSR state that should be visible to a
-supervisor-level operating system.  In particular, there is no
-information about the existence (or non-existence) of higher privilege
-levels (machine level or other) visible in the CSRs accessible by the
-supervisor.
+  The supervisor should only view CSR state that should be visible to a
+  supervisor-level operating system.  In particular, there is no
+  information about the existence (or non-existence) of higher privilege
+  levels (machine level or other) visible in the CSRs accessible by the
+  supervisor.
+
+监管者模式应只查看应该对监管者级操作系统可见的CSR状态。
+特别是，在监管者模式可访问的CSR中，没有关于更高的特权级别（机器级或其他）的存在（或不存在）信息。
 
 Many supervisor CSRs are a subset of the equivalent machine-mode CSR,
 and the machine-mode chapter should be read first to help understand
 the supervisor-level CSR descriptions.
+
+许多监管者级CSR都是等效的机器模式CSR的一个子集，因此应该首先阅读机器模式章节，
+以帮助理解监管者级CSR的描述。
 \end{commentary}
 
-\subsection{Supervisor Status Register (\tt sstatus)}
+\subsection{Supervisor Status Register (\tt sstatus) 监管者级状态寄存器 (\tt sstatus)}
 \label{sstatus}
-
 
 The {\tt sstatus} register is an SXLEN-bit read/write register
 formatted as shown in Figure~\ref{sstatusreg-rv32} when SXLEN=32 and
 Figure~\ref{sstatusreg} when SXLEN=64.  The {\tt sstatus}
 register keeps track of the processor's current operating state.
+
+{\tt sstatus}寄存器是一个SXLEN位读/写寄存器，
+SXLEN=32时格式如图\ref{sstatusreg-rv32} 所示，SXLEN=64时格式如图\ref{sstatusreg}所示。
+{\tt sstatus}寄存器会跟踪处理器的当前运行状态。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -97,7 +117,7 @@ register keeps track of the processor's current operating state.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Supervisor-mode status register ({\tt sstatus}) when SXLEN=32.}
+\caption{Supervisor-mode status register ({\tt sstatus}) when SXLEN=32. SXLEN=32时的监管者模式状态寄存器({\tt sstatus})}
 \label{sstatusreg-rv32}
 \end{figure*}
 
@@ -160,7 +180,7 @@ register keeps track of the processor's current operating state.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Supervisor-mode status register ({\tt sstatus}) when SXLEN=64.}
+\caption{Supervisor-mode status register ({\tt sstatus}) when SXLEN=64. SXLEN=64时的监管者模式状态寄存器({\tt sstatus})}
 \label{sstatusreg}
 \end{figure*}
 
@@ -171,47 +191,80 @@ originated from user mode, or 1 otherwise.  When an SRET instruction
 privilege level is set to user mode if the SPP bit is 0, or supervisor mode if
 the SPP bit is 1; SPP is then set to 0.
 
+SPP位表示硬件线程在进入监管者模式之前执行的特权级别。
+当陷阱触发时，如果陷阱来自用户模式，则SPP设置为0，否则设置为1。
+当执行SRET指令（见第\ref{otherpriv}节）从陷阱处理程序返回时，如果SPP位为0，则将权限级别设置为用户模式；
+如果SPP位为1，则设置为监管者模式；然后将SPP设置为0。
+
 The SIE bit enables or disables all interrupts in supervisor mode.
 When SIE is clear, interrupts are not taken while in supervisor mode.
 When the hart is running in user-mode, the value in SIE is ignored, and
 supervisor-level interrupts are enabled.  The supervisor can disable
 individual interrupt sources using the {\tt sie} CSR.
 
+
+SIE位在监管者模式下用于启用或禁用所有中断。
+当SIE被清除时，在监管者模式下禁止中断。
+当硬件线程在用户模式运行时，则忽略SIE中的值，并开启监管者级中断。
+监管者者可以使用{\tt sie} CSR禁用单个中断源。
+
 The SPIE bit indicates whether supervisor interrupts were enabled prior to
 trapping into supervisor mode.  When a trap is taken into supervisor
 mode, SPIE is set to SIE, and SIE is set to 0.  When an SRET instruction is
 executed, SIE is set to SPIE, then SPIE is set to 1.
 
+SPIE位指示在陷入监管者模式之前是否启用了监管者中断。
+当陷阱触发进入监管者模式时，SPIE设置为SIE，SIE设置为0。
+当执行SRET指令时，SIE设置为SPIE，然后SPIE设置为1。
+
 The {\tt sstatus} register is a subset of the {\tt mstatus} register.
 
+{\tt sstatus}寄存器是{\tt mstatus}寄存器的一个子集。
+
 \begin{commentary}
-In a straightforward implementation, reading or writing any field in
-{\tt sstatus} is equivalent to reading or writing the homonymous field
-in {\tt mstatus}.
+
+  In a straightforward implementation, reading or writing any field in
+  {\tt sstatus} is equivalent to reading or writing the homonymous field
+  in {\tt mstatus}.
+
+在一种简单的实现中，在{\tt sstatus}中读或写任何字段都相当于在{\tt mstatus}中读或写同名字段。
 \end{commentary}
 
-\subsubsection{Base ISA Control in {\tt sstatus} Register}
+\subsubsection{Base ISA Control in {\tt sstatus} Register {\tt sstatus}寄存器中的基本控制}
 
 The UXL field controls the value of XLEN for U-mode, termed {\em UXLEN},
 which may differ from the value of XLEN for S-mode, termed {\em SXLEN}.  The
 encoding of UXL is the same as that of the MXL field of {\tt misa}, shown in
 Table~\ref{misabase}.
 
+UXL字段控制U模式下的XLEN值，称为{\em UXLEN}，这可能与S模式的XLEN值不同，称为{\em SXLEN}。
+UXL的编码与{\tt misa}的MXL域相同，如表\ref{misabase}所示。
+
 When SXLEN=32, the UXL field does not exist, and UXLEN=32.  When
 SXLEN=64, it is a \warl\ field that encodes the current value of UXLEN.
 In particular, an implementation may make UXL be a read-only field whose
 value always ensures that UXLEN=SXLEN.
 
+当SXLEN=32时，UXL字段不存在，而UXLEN=32。
+当SXLEN=64时，它是一个编码UXLEN当前值的\warl\ 字段。
+特别是，一种实现可能使UXL成为一个只读字段，其值总是确保UXLEN=SXLEN。
+
 If UXLEN~$\ne$~SXLEN, instructions executed in the narrower mode must ignore
 source register operand bits above the configured XLEN, and must sign-extend
 results to fill the widest supported XLEN in the destination register.
+
+如果UXLEN~$\ne$~SXLEN，在较窄模式下执行的指令必须忽略高于配置XLEN的源寄存器操作数位，
+并且必须对结果进行符号扩展，以填充目标寄存器中支持的最宽的XLEN。
 
 If UXLEN~$<$~SXLEN, user-mode instruction-fetch addresses and load and store
 effective addresses are taken modulo $2^{\text{UXLEN}}$.  For example, when UXLEN=32
 and SXLEN=64, user-mode memory accesses reference the lowest \wunits{4}{GiB}
 of the address space.
 
-\subsubsection{Memory Privilege in {\tt sstatus} Register}
+如果UXLEN~$<$~SXLEN，用户模式的指令获取地址和加载和存储有效地址需要对 $2^{\text{UXLEN}}$取模。
+例如，当UXLEN=32而SXLEN=64时，用户模式内存访问只引用地址空间的最低的\wunits{4}{GiB}。
+
+\subsubsection{Memory Privilege in {\tt sstatus} Register {\tt sstatus}寄存器中的内存权限}
 \label{sec:sum}
 
 The MXR (Make eXecutable Readable) bit modifies the privilege with which loads
@@ -219,6 +272,11 @@ access virtual memory.  When MXR=0, only loads from pages marked readable (R=1
 in Figure~\ref{sv32pte}) will succeed.  When MXR=1, loads from pages marked
 either readable or executable (R=1 or X=1) will succeed.  MXR has no effect
 when page-based virtual memory is not in effect.
+
+MXR（Make eXecutable Readable）位修改了加载访问虚拟内存的权限。
+当MXR=0时，只从标记为可读的页面（图\ref{sv32pte}中的R=1）加载。
+当MXR=1时，从标记为可读或可执行的页面（R=1或X=1）加载。
+当基于页面的虚拟内存无效时，MXR没有影响。
 
 The SUM (permit Supervisor User Memory access) bit modifies the privilege with
 which S-mode loads and stores access virtual memory.
@@ -228,13 +286,25 @@ SUM has no effect when page-based virtual memory is not in effect, nor when
 executing in U-mode.  Note that S-mode can never execute instructions from user
 pages, regardless of the state of SUM.
 
+SUM（permit Supervisor User Memory access）位修改S模式加载和存储指令访问虚拟内存的权限。
+当SUM=0时，S模式访问U模式可访问的页面（图\ref{sv32pte}中的U=1）将出现错误。
+当使用SUM=1时，则允许访问这些内容。当基于页面的虚拟内存不生效时，或者运行在U模式下时，SUM都没有影响。
+请注意，S模式永远不能执行来自用户页面的指令，无论SUM的状态如何。
+
 SUM is read-only 0 if {\tt satp}.MODE is read-only~0.
 
+如果{\tt satp}.MODE为只读0，则SUM也是只读0。
+
 \begin{commentary}
-The SUM mechanism prevents supervisor software from inadvertently accessing
-user memory.  Operating systems can execute the majority of code with SUM clear;
-the few code segments that should access user memory can temporarily set
-SUM.
+
+  The SUM mechanism prevents supervisor software from inadvertently accessing
+  user memory.  Operating systems can execute the majority of code with SUM clear;
+  the few code segments that should access user memory can temporarily set
+  SUM.
+
+SUM机制可以防止监管者级软件无意中访问用户内存。
+操作系统可以在SUM清0的情况下执行大部分代码；
+需要访问用户内存的少数代码段可以临时设置SUM。
 
 The SUM mechanism does not avail S-mode software of permission to execute
 instructions in user code pages.  Legitimate uses cases for execution from
@@ -243,6 +313,11 @@ environments.  However, bugs in supervisors that lead to arbitrary code
 execution are much easier to exploit if the supervisor exploit code can be
 stored in a user buffer at a virtual address chosen by an attacker.
 
+SUM机制不利用S模式软件的权限执行用户代码页中的指令。
+在监管者模式上下文中从用户内存中执行的合法用例通常很少见，而且在POSIX环境中也不存在。
+但是，如果监管者模式利用的代码可以存储在攻击者选定的用户缓冲区虚拟地址中，
+那么主管中可以执行任意代码的错误就更容易被利用。
+
 Some non-POSIX single address space operating systems do allow certain
 privileged software to partially execute in supervisor mode, while most
 programs run in user mode, all in a shared address space.  This use case can
@@ -250,9 +325,14 @@ be realized by mapping the physical code pages at multiple virtual addresses
 with different permissions, possibly with the assistance of the
 instruction page-fault handler to direct supervisor software to use the
 alternate mapping.
+
+一些非POSIX单地址空间操作系统确实允许某些特权软件在共享地址空间中，监管者模式下执行部分程序，
+而大多数程序在用户模式下运行。这个用例可以通过将物理代码页映射到多个具有不同权限的虚拟地址上来实现，
+这可能需要在指令页错误处理程序的帮助下实现，以指导监管者软件使用备用映射。
+
 \end{commentary}
 
-\subsubsection{Endianness Control in {\tt sstatus} Register}
+\subsubsection{Endianness Control in {\tt sstatus} Register {\tt sstatus}寄存器中的字节序控制}
 
 The UBE bit is a \warl\ field that controls the endianness of explicit
 memory accesses made from U-mode, which may differ from the endianness of
@@ -260,30 +340,47 @@ memory accesses in S-mode.
 An implementation may make UBE be a read-only field that always specifies
 the same endianness as for S-mode.
 
+UBE位是一个\warl\ 字段，它控制在U模式下进行的显式内存访问的字节序，
+这可能不同于S模式下的内存访问的字节序。一种实现可以使UBE成为一个只读字段，它总是指定与S模式相同的字节序。
+
 UBE controls whether explicit
 load and store memory accesses made from U-mode are little-endian (UBE=0)
 or big-endian (UBE=1).
 
+UBE控制在U模式中进行的显式加载和存储内存访问是小端字节序（UBE=0）还是大端字节序（UBE=1）。
+
 UBE has no effect on instruction fetches, which are {\em implicit} memory
 accesses that are always little-endian.
+
+UBE对指令获取没有影响，指令获取是一种隐式内存访问，总是小段字节序。
 
 For {\em implicit} accesses to supervisor-level memory management data
 structures, such as page tables, S-mode endianness always applies and UBE
 is ignored.
 
+对监管者级内存管理数据结构的隐式访问，如页表，始终使用S模式的字节序，而忽略UBE。
+
 \begin{commentary}
-Standard RISC-V ABIs are expected to be purely little-endian-only or
-big-endian-only, with no accommodation for mixing endianness.
-Nevertheless, endianness control has been defined so as to permit an
-OS of one endianness to execute user-mode programs of the opposite
-endianness.
+
+  Standard RISC-V ABIs are expected to be purely little-endian-only or
+  big-endian-only, with no accommodation for mixing endianness.
+  Nevertheless, endianness control has been defined so as to permit an
+  OS of one endianness to execute user-mode programs of the opposite
+  endianness.
+
+标准的RISC-V ABI被应该采用纯粹的大端字节序或者小端字节序，而不是两者混合。
+定义字节序控制是为了允许使用一种字节序的操作系统执行使用了相反字节序的用户模式程序。
+
 \end{commentary}
 
-\subsection{Supervisor Trap Vector Base Address Register ({\tt stvec})}
+\subsection{Supervisor Trap Vector Base Address Register ({\tt stvec}) 监管者级陷阱矢量基地址寄存器（{\tt stvec}）}
 
 The {\tt stvec} register is an SXLEN-bit read/write register that holds
 trap vector configuration, consisting of a vector base address (BASE) and a
 vector mode (MODE).
+
+{\tt stvec}寄存器是一个SXLEN位读/写寄存器，它保存陷阱向量配置，
+由一个向量基地址（BASE）和一个向量模式（MODE）组成。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -300,7 +397,7 @@ SXLEN-2 & 2 \\
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Supervisor trap vector base address register ({\tt stvec}).}
+\caption{Supervisor trap vector base address register ({\tt stvec}). 监管者级陷阱矢量基地址寄存器（{\tt stvec}）}
 \label{stvecreg}
 \end{figure*}
 
@@ -308,6 +405,9 @@ The BASE field in {\tt stvec} is a \warl\ field that can hold any valid
 virtual or physical address, subject to the following alignment constraints:
 the address must be 4-byte aligned, and MODE settings other than Direct might
 impose additional alignment constraints on the value in the BASE field.
+
+{\tt stvec}中的BASE字段是一个\warl\ 字段，可以填充任何有效的虚拟或物理地址，受以下对齐约束：
+地址必须是4字节对齐，除Direct以外的MODE设置外，可能对BASE字段中的值施加额外的对齐约束。
 
 \begin{table*}[h!]
 \begin{center}
@@ -325,6 +425,22 @@ $\ge$2 & --- & {\em Reserved} \\
 \label{stvec-mode}
 \end{table*}
 
+\begin{table*}[h!]
+\begin{center}
+\begin{tabular}{|r|c|l|}
+\hline
+值 & 名称 & 描述 \\
+\hline
+0      & Direct   & 所有的异常都将{\tt pc}设置为BASE。 \\
+1      & Vectored & 异步中断将{\tt pc}设置为 BASE+4$\times$cause. \\
+$\ge$2 & --- & {\em 保留} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{{\tt stvec} MODE 域的编码}
+\label{stvec-mode}
+\end{table*}
+
 The encoding of the MODE field is shown in Table~\ref{stvec-mode}.  When
 MODE=Direct, all traps into supervisor mode cause the {\tt pc} to be set to the
 address in the BASE field.  When MODE=Vectored, all synchronous exceptions
@@ -335,7 +451,13 @@ a supervisor-mode timer interrupt (see Table~\ref{scauses}) causes the {\tt pc}
 to be set to BASE+{\tt 0x14}.
 Setting MODE=Vectored may impose a stricter alignment constraint on BASE.
 
-\subsection{Supervisor Interrupt Registers ({\tt sip} and {\tt sie})}
+MODE字段的编码如表\ref{stvec-mode}所示。当MODE=Direct时，所有进入监管者模式的陷阱会导致{\tt pc}被设置为BASE字段中的地址。
+当MODE=Vectored时，所有进入监控模式的同步异常会导致 {\tt pc}设置为BASE字段中的地址，
+而中断会导致 {\tt pc}设置为BASE字段中的地址加上中断原因数的四倍。
+例如，一个监管者模式的计时器中断（见表\ref{scauses}）会导致{\tt pc}被设置为BASE+{\tt 0x14}。
+设置MODE=Vectored可能会对BASE字段施加更严格的对齐约束。
+
+\subsection{Supervisor Interrupt Registers ({\tt sip} and {\tt sie}) 监管者级中断寄存器（{\tt sip}和{\tt sie}）}
 
 The {\tt sip} register is an SXLEN-bit read/write register containing
 information on pending interrupts, while {\tt sie} is the corresponding
@@ -345,6 +467,10 @@ Section~\ref{sec:scause}) corresponds with bit~\textit{i} in both
 {\tt sip} and {\tt sie}.
 Bits 15:0 are allocated to standard interrupt causes only, while bits 16
 and above are designated for platform or custom use.
+
+{\tt sip}寄存器是一个包含待决中断信息的SXLEN位读/写寄存器，而{\tt sie}是相应的包含中断启用位的SXLEN位读/写寄存器。
+中断原因编号\textit{i}（如CSR {\tt scause}，第\ref{sec:scause}节所述）与{\tt sip}和{\tt sie}中的第\textit{i}位对应。
+位15：0仅被分配给标准的中断原因，而位16位及以上被指定为平台或自定义使用。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -376,7 +502,41 @@ SXLEN \\
 \end{center}
 }
 \vspace{-0.1in}
+\caption{监管者级中断寄存器（{\tt sip}）}
+\label{sipreg}
+\end{figure}
+
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
+\hline
+\multicolumn{1}{|c|}{Interrupts (\warl)} \\
+\hline
+SXLEN \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
 \caption{Supervisor interrupt-enable register ({\tt sie}).}
+\label{siereg}
+\end{figure}
+
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
+\hline
+\multicolumn{1}{|c|}{Interrupts (\warl)} \\
+\hline
+SXLEN \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{监管者级中断寄存器（{\tt sie}）}
 \label{siereg}
 \end{figure}
 
@@ -387,6 +547,10 @@ following are true:
 privilege than S-mode; and
 (b)~bit~\textit{i} is set in both {\tt sip} and {\tt sie}.
 
+如果同时满足以下两个条件，中断\textit{i}将陷入到S模式： 
+(a)要么当前特权模式为S，{\tt sstatus}寄存器中的SIE位被设置为1，或者当前特权模式比S模式拥有更少的特权；
+(b)第\textit{i}位在{\tt sip}和{\tt sie}中都被设置。
+
 These conditions for an interrupt trap to occur must be evaluated in a bounded
 amount of time from when an interrupt becomes, or ceases to be,
 pending in {\tt sip}, and must
@@ -394,8 +558,13 @@ also be evaluated immediately following the execution of an SRET instruction
 or an explicit write to a CSR on which these interrupt trap conditions
 expressly depend (including {\tt sip}, {\tt sie} and {\tt sstatus}).
 
+上述发生中断陷阱的条件必须在一定的时间内进行评估，这个时间从中断在{\tt sip}中变为挂起或停止挂起时算起，
+还必须在执行SRET指令或显式写入CSR后立即对这些中断陷阱条件明确依赖的寄存器（包括{\tt sip}、{\tt sie}和{\tt sstatus}）进行评估。
+
 Interrupts to S-mode take priority over any interrupts to lower privilege
 modes.
+
+陷入到S模式的中断优先于任何陷入到较低特权模式的中断。
 
 Each individual bit in register {\tt sip} may be writable or may be
 read-only.
@@ -406,13 +575,22 @@ If interrupt \textit{i} can become pending but bit~\textit{i} in
 mechanism for clearing the pending interrupt (which may involve a call to
 the execution environment).
 
+寄存器{\tt sip}中的每个单独的位可以是可写的，也可以是只读的。
+当{\tt sip}中的第\textit{i}位是可写的，一个挂起的中断\textit{i}可以通过给这一位写0来清除。
+如果中断\textit{i}可以挂起，但{\tt sip}中的第\textit{i}位是只读的，
+那么具体实现必须提供一些其他机制来清除待决的中断（这可能涉及对执行环境的调用）。
+
 A bit in {\tt sie} must be writable if the corresponding interrupt can
 ever become pending.
 Bits of {\tt sie} that are not writable are read-only zero.
 
+如果相应的中断可以挂起，{\tt sie}中的一个位必须是可写的。{\tt sie}中不可写的位是只读零。
+
 The standard portions (bits 15:0) of registers {\tt sip} and {\tt sie}
 are formatted as shown in Figures \ref{sipreg-standard} and
 \ref{siereg-standard} respectively.
+
+寄存器{\tt sip}和{\tt sie}的标准部分（位15：0）的格式分别如图\ref{sipreg-standard}和\ref{siereg-standard}所示。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -474,28 +652,99 @@ are formatted as shown in Figures \ref{sipreg-standard} and
 \label{siereg-standard}
 \end{figure*}
 
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ScFcFcc}
+\instbitrange{15}{10} &
+\instbit{9} &
+\instbitrange{8}{6} &
+\instbit{5} &
+\instbitrange{4}{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{0} &
+\multicolumn{1}{c|}{SEIP} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{STIP} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{SSIP} &
+\multicolumn{1}{c|}{0} \\
+\hline
+6 & 1 & 3 & 1 & 3 & 1 & 1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{寄存器{\tt sip}的标准部分（位15:0）}
+\label{sipreg-standard}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ScFcFcc}
+\instbitrange{15}{10} &
+\instbit{9} &
+\instbitrange{8}{6} &
+\instbit{5} &
+\instbitrange{4}{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{0} &
+\multicolumn{1}{c|}{SEIE} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{STIE} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{SSIE} &
+\multicolumn{1}{c|}{0} \\
+\hline
+6 & 1 & 3 & 1 & 3 & 1 & 1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{寄存器{\tt sie}的标准部分（位15:0）}
+\label{siereg-standard}
+\end{figure*}
+
 Bits {\tt sip}.SEIP and {\tt sie}.SEIE are the interrupt-pending and
 interrupt-enable bits for supervisor-level external interrupts.
 If implemented, SEIP is read-only in {\tt sip}, and is set and cleared by
 the execution environment, typically through a platform-specific
 interrupt controller.
 
+位{\tt sip}.SEIP和{\tt sie}.SEIE是监管者级外部中断的中断挂起位和中断启用位。
+如果实现，SEIP在{\tt sip}中是只读的，并由执行环境设置和清除，这个过程通常通过一个特定于平台的中断控制器。
+
 Bits {\tt sip}.STIP and {\tt sie}.STIE are the interrupt-pending and
 interrupt-enable bits for supervisor-level timer interrupts.
 If implemented, STIP is read-only in {\tt sip}, and is set and cleared by
 the execution environment.
+
+位{\tt sip}.STIP和{\tt sie}.STIE是监管者级计时器中断的中断挂起位和中断启用位。
+如果实现，STIP在{\tt sip}中是只读的，并由执行环境设置和清除。
 
 Bits {\tt sip}.SSIP and {\tt sie}.SSIE are the interrupt-pending and
 interrupt-enable bits for supervisor-level software interrupts.
 If implemented, SSIP is writable in {\tt sip} and may also be set
 to 1 by a platform-specific interrupt controller.
 
+位{\tt sip}.SSIP和{\tt sie}.SSIE是监管者级软件中断的中断挂起位和中断启用位。
+如果实现，SSIP在{\tt sip}中是可写的，也可以被特定于平台的中断控制器设置为1。
+
 \begin{commentary}
 Interprocessor interrupts are sent to other harts by implementation-specific
 means, which will ultimately cause the SSIP bit to be set in the recipient
 hart's {\tt sip} register.
-\end{commentary}
 
+处理器间中断通过特定于具体实现的方式被发送到其他端口，
+这将最终导致在接收中断的hart的{\tt sip}寄存器中的SSIP位被设置。
+\end{commentary}
 Each standard interrupt type (SEI, STI, or SSI) may not be implemented,
 in which case the corresponding interrupt-pending and interrupt-enable
 bits are read-only zeros.
@@ -504,34 +753,52 @@ The implemented interrupts may be found by writing one to every bit
 location in {\tt sie}, then reading back to see which bit positions hold
 a one.
 
+每个标准中断类型（SEI、STI或SSI）可能未被实现，在这种情况下，相应的中断挂起位和中断启用位都是只读零。
+{\tt sip}和{\tt sie}中的所有位都是\warl\ 字段。实现的中断可以通过在{\tt sie}中的每个位位置写入1，然后回读查看哪个位保持1来找到。
+
 \begin{commentary}
+
 The {\tt sip} and {\tt sie} registers are subsets of the {\tt mip} and {\tt
 mie} registers.  Reading any implemented field,
 or writing any writable field, of {\tt sip}/{\tt sie}
 effects a read or write of the homonymous field of {\tt mip}/{\tt mie}.
+
+{\tt sip}和{\tt sie}寄存器是{\tt mip}和{\tt mie}寄存器的子集。
+读取{\tt sip}/{\tt sie}的任何已实现字段，或写入任何可写字段，都会影响{\tt mip}/{\tt mie}的同名字段的读写。
 
 Bits 3, 7, and 11 of {\tt sip} and {\tt sie} correspond to the machine-mode
 software, timer, and external interrupts, respectively.  Since most platforms
 will choose not to make these interrupts delegatable from M-mode to S-mode,
 they are shown as 0 in Figures~\ref{sipreg-standard} and
 \ref{siereg-standard}.
+
+{\tt sip}和{\tt sie}的第3、7和11位分别对应于机器模式软件、计时器和外部中断。
+由于大多数平台选择不将这些中断从M模式委托给S模式，因此它们在图\ref{sipreg-standard}和\ref{siereg-standard}中展示为0。
+
 \end{commentary}
 
 Multiple simultaneous
 interrupts destined for supervisor mode are handled in the following
 decreasing priority order: SEI, SSI, STI.
 
-\subsection{Supervisor Timers and Performance Counters}
+多个分配给监管者模式的并发中断将按照以下优先级顺序处理：SEI、SSI、STI。
+
+\subsection{Supervisor Timers and Performance Counters 监管者级计时器和性能计数器}
 
 Supervisor software uses the same hardware performance monitoring facility
 as user-mode software, including the {\tt time}, {\tt cycle}, and {\tt instret}
 CSRs.  The implementation should provide a mechanism to modify the
 counter values.
 
+监管者级软件使用与用户模式软件相同的硬件性能监控工具，包括{\tt time}、{\tt cycle}和{\tt instret} CSRs。
+具体实现应该提供一种修改计数器值的机制。
+
 The implementation must provide a facility for scheduling timer interrupts in
 terms of the real-time counter, {\tt time}.
 
-\subsection{Counter-Enable Register ({\tt scounteren})}
+具体实现必须提供一个根据实时计数器、{\tt time}来安排计时器中断的工具。
+
+\subsection{Counter-Enable Register ({\tt scounteren}) 计数器启用寄存器（{\tt scounteren}）}
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -569,9 +836,47 @@ terms of the real-time counter, {\tt time}.
 \label{scounteren}
 \end{figure*}
 
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{cccMcccccc}
+\instbit{31} &
+\instbit{30} &
+\instbit{29} &
+\instbitrange{28}{6} &
+\instbit{5} &
+\instbit{4} &
+\instbit{3} &
+\instbit{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{HPM31} &
+\multicolumn{1}{c|}{HPM30} &
+\multicolumn{1}{c|}{HPM29} &
+\multicolumn{1}{c|}{...} &
+\multicolumn{1}{c|}{HPM5} &
+\multicolumn{1}{c|}{HPM4} &
+\multicolumn{1}{c|}{HPM3} &
+\multicolumn{1}{c|}{IR} &
+\multicolumn{1}{c|}{TM} &
+\multicolumn{1}{c|}{CY} \\
+\hline
+1 & 1 & 1 & 23 & 1 & 1 & 1 & 1 & 1 & 1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{计数器启用寄存器（{\tt scounteren}）}
+\label{scounteren}
+\end{figure*}
+
 The counter-enable register {\tt scounteren} is a 32-bit register that
 controls the availability of the hardware performance monitoring counters to
 U-mode.
+
+计数器启用寄存器{\tt scounteren}是一个32位寄存器，它控制U模式下硬件性能监控计数器的可用性。
 
 When the CY, TM, IR, or HPM{\em n} bit in the {\tt scounteren} register is
 clear, attempts to read the {\tt cycle}, {\tt time}, {\tt instret}, or
@@ -579,26 +884,39 @@ clear, attempts to read the {\tt cycle}, {\tt time}, {\tt instret}, or
 will cause an illegal instruction exception.  When one of these bits is set,
 access to the corresponding register is permitted.
 
+当{\tt scounteren}寄存器中的CY、TM、IR或HPM{\em n}位清0时，
+在U模式下执行尝试读取{\tt cycle}、{\tt time}、{\tt instret}或{\tt hpmcounter{\em n}}寄存器将导致非法指令异常。
+当这些位的其中一个被设置时，就允许访问相应的寄存器。
+
 {\tt scounteren} must be implemented.  However, any of the bits may be
 read-only zero, indicating reads to the corresponding counter will
 cause an exception when executing in U-mode.
 Hence, they are effectively \warl\ fields.
+
+必须实现{\tt scounteren}。然而，任何任意一位都可能是只读零，这表明在U模式下读取相应的计数器将导致异常。
+因此，它们实际上是\warl\ 字段。
 
 \begin{commentary}
 The setting of a bit in {\tt mcounteren} does not affect whether the
 corresponding bit in {\tt scounteren} is writable.
 However, U-mode may only access a counter if the corresponding bits in {\tt
 scounteren} and {\tt mcounteren} are both set.
+
+{\tt mcounteren}中位的设置不影响{\tt scounteren}中对应的位是否可写。
+然而，只有当{\tt scounteren}和{\tt mcounteren}中的相应的位都被设置时，U型模式才能访问计数器。
 \end{commentary}
 
-\subsection{Supervisor Scratch Register ({\tt sscratch})}
-
+\subsection{Supervisor Scratch Register ({\tt sscratch}) 监管者级Scratch寄存器（{\tt sscratch}）}
 The {\tt sscratch} register is an SXLEN-bit read/write register,
 dedicated for use by the supervisor.  Typically, {\tt sscratch} is
 used to hold a pointer to the hart-local supervisor context while the
 hart is executing user code.  At the beginning of a trap handler, {\tt
   sscratch} is swapped with a user register to provide an initial
 working register.
+
+{\tt sscratch}寄存器是一个SXLEN位读/写寄存器，专门供监管者模式使用。
+通常，{\tt sscratch}用于hart执行用户代码时保存指向本地硬件线程监管者模式上下文的指针。
+在陷阱处理程序的开始，{\tt sscratch}与用户寄存器交换，以提供一个初始的工作寄存器。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -617,12 +935,33 @@ SXLEN \\
 \label{kregs}
 \end{figure}
 
-\subsection{Supervisor Exception Program Counter ({\tt sepc})}
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
+\hline
+\multicolumn{1}{|c|}{\tt sscratch} \\
+\hline
+SXLEN \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{监管者级Scratch寄存器}
+\label{kregs}
+\end{figure}
+
+\subsection{Supervisor Exception Program Counter ({\tt sepc}) 监管者级异常程序计数器（{\tt sepc}）}
 
 {\tt sepc} is an SXLEN-bit read/write register formatted as shown in
 Figure~\ref{epcreg}.  The low bit of {\tt sepc} ({\tt sepc[0]}) is
 always zero.  On implementations that support only IALIGN=32, the two low bits
 ({\tt sepc[1:0]}) are always zero.
+
+{\tt sepc}是一个SXLEN位读/写寄存器，其格式如图\ref{epcreg}所示。
+{\tt sepc}的最低位（{\tt sepc[0]}）始终为零。
+在仅支持IALIGN=32的实现中，最低两位（{\tt sepc[1:0]}）始终为零。
 
 If an implementation allows IALIGN to be either 16 or 32 (by
 changing CSR {\tt misa}, for example), then, whenever IALIGN=32, bit
@@ -630,16 +969,26 @@ changing CSR {\tt misa}, for example), then, whenever IALIGN=32, bit
 masking occurs also for the implicit read by the SRET instruction.
 Though masked, {\tt sepc[1]} remains writable when IALIGN=32.
 
+如果一种实现允许IALIGN是16或32（比如，通过改变CSR {\tt misa}），
+那么，每当IALIGN=32时，{\tt sepc[1]}在读取时将被屏蔽，使其看起来是0。
+这种屏蔽也发生在SRET指令的隐式读取中。虽然读取被屏蔽了，但{\tt sepc[1]}在IALIGN=32时仍然可写。
+
 {\tt sepc} is a \warl\ register that must be able to hold all valid
 virtual addresses.  It need not be capable of holding all possible invalid
 addresses.
 Prior to writing {\tt sepc}, implementations may convert an invalid address
 into some other invalid address that {\tt sepc} is capable of holding.
 
+{\tt sepc}是一个\warl\ 寄存器，它必须能够保存所有有效的虚拟地址。它不需要能够保存所有可能的无效地址。
+在写入{\tt sepc}之前，具体实现可以将一个无效地址转换为{\tt sepc}能够保存的其他无效地址。
+
 When a trap is taken into S-mode, {\tt sepc} is written with the
 virtual address of the instruction that was interrupted or that
 encountered the exception.  Otherwise, {\tt sepc} is never written by
 the implementation, though it may be explicitly written by software.
+
+当陷阱触发进入S模式时，被中断或遇到异常的指令的虚拟地址被写入{\tt sepc}。
+否则，{\tt sepc}永远不会由具体实现写入，尽管它可能由软件显式地写入。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -658,7 +1007,24 @@ SXLEN \\
 \label{epcreg}
 \end{figure}
 
-\subsection{Supervisor Cause Register ({\tt scause})}
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
+\hline
+\multicolumn{1}{|c|}{\tt sepc} \\
+\hline
+SXLEN \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{监管者级异常程序计数器}
+\label{epcreg}
+\end{figure}
+
+\subsection{Supervisor Cause Register ({\tt scause}) 监管者级原因寄存器（{\tt scause}）}
 \label{sec:scause}
 
 The {\tt scause} register is an SXLEN-bit read-write register formatted as
@@ -667,6 +1033,10 @@ scause} is written with a code indicating the event that caused the trap.
 Otherwise, {\tt scause} is never written by the implementation, though it may be
 explicitly written by software.
 
+{\tt scause}寄存器是一个SXLEN位读写寄存器，其格式如图\ref{scausereg}所示。
+当陷阱触发进入S模式时，{\tt scause}会被写入指示导致陷阱的事件的代码。
+否则，{\tt scause}永远不会由具体实现写入，尽管它可能由软件显式地写入。
+
 The Interrupt bit in the {\tt scause} register is set if the
 trap was caused by an interrupt. The Exception Code field
 contains a code identifying the last exception or interrupt.  Table~\ref{scauses}
@@ -674,6 +1044,12 @@ lists the possible exception codes for the current supervisor ISAs.
 The Exception Code is a \wlrl\ field.  It is required to hold
 the values 0--31 (i.e., bits 4--0 must be implemented), but otherwise
 it is only guaranteed to hold supported exception codes.
+
+如果陷阱是由中断引起的，则会设置{\tt scause}寄存器中的中断位。
+异常代码字段包含一个标识最后一次异常或中断的代码。
+表\ref{scauses}列出了当前监管者级ISAs可能出现的异常代码。
+异常代码是一个\wlrl\ 字段。
+需要保留值0--31（即，必须实现第4--0位），否则仅保证保留受支持的异常代码。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -737,7 +1113,69 @@ Synchronous exception priorities are given by Table~\ref{exception-priority}.}
 \label{scauses}
 \end{table*}
 
-\subsection{Supervisor Trap Value ({\tt stval}) Register}
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{c@{}U}
+\instbit{SXLEN-1} &
+\instbitrange{SXLEN-2}{0} \\
+\hline
+\multicolumn{1}{|c|}{Interrupt} &
+\multicolumn{1}{c|}{Exception Code (\wlrl)} \\
+\hline
+1 & SXLEN-1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{监管者级原因寄存器 {\tt scause}}
+\label{scausereg}
+\end{figure*}
+
+\begin{table*}[h!]
+\begin{center}
+\begin{tabular}{|r|r|l|l|}
+
+  \hline
+  中断 & 异常编号  & 描述 \\
+  \hline
+  1         & 0               & {\em 保留} \\
+  1         & 1               & 监管者软件中断 \\
+  1         & 2--4            & {\em 保留} \\
+  1         & 5               & 监管者计时器中断 \\
+  1         & 6--8            & {\em 保留} \\
+  1         & 9               & 监管者外部中断 \\
+  1         & 10--15          & {\em 保留} \\
+  1         & $\ge$16         & {\em 设计为平台使用} \\ \hline
+  0         & 0               & 指令地址为对齐 \\
+  0         & 1               & 指令访问故障 \\
+  0         & 2               & 非法指令 \\
+  0         & 3               & 断点 \\
+  0         & 4               & 加载地址未对齐 \\
+  0         & 5               & 加载访问故障 \\
+  0         & 6               & Store/AMO地址未对齐 \\
+  0         & 7               & Store/AMO访问故障 \\
+  0         & 8               & 来自U模式的环境调用 \\
+  0         & 9               & 来自S模式的环境调用 \\
+  0         & 10--11          & {\em 保留} \\
+  0         & 12              & 指令页错误 \\
+  0         & 13              & 加载页错误 \\
+  0         & 14              & {\em 保留} \\
+  0         & 15              & Store/AMO页错误 \\
+  0         & 16--23          & {\em 保留} \\
+  0         & 24--31          & {\em 指定用于自定义用途} \\
+  0         & 32--47          & {\em 保留} \\
+  0         & 48--63          & {\em 指定用于自定义用途} \\
+  0         & $\ge$64         & {\em 保留} \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{陷入后监管者级原因寄存器 {\tt scause}的值，
+表\ref{exception-priority}中给出了同步异常优先级}
+\label{scauses}
+\end{table*}
+
+\subsection{Supervisor Trap Value ({\tt stval}) Register 监管者级陷阱值（{\tt stval}）寄存器}
 
 The {\tt stval} register is an SXLEN-bit read-write register formatted as shown
 in Figure~\ref{stvalreg}.  When a trap is taken into S-mode, {\tt stval} is
@@ -747,11 +1185,18 @@ it may be explicitly written by software.  The hardware platform will specify
 which exceptions must set {\tt stval} informatively and which may
 unconditionally set it to zero.
 
+{\tt stval}寄存器是一个SXLEN位读写寄存器，其格式如图\ref{stvalreg}所示。
+当陷阱触发进入S模式时，{\tt stval}会写入特定于异常的信息，以帮助软件处理陷阱。
+否则，{\tt stval}永远不会由具体实现写入，尽管它可能由软件显式地写入。
+硬件平台将指定哪些异常必须有信息含义地设置{\tt stval}，哪些可以无条件地将其设置为零。
 
 If {\tt stval} is written with a nonzero value when a breakpoint,
 address-misaligned, access-fault, or page-fault exception occurs on an
 instruction fetch, load, or store, then {\tt stval} will contain the faulting
 virtual address.
+
+如果在指令获取、加载或存储时发生断点、地址错位、访问错误或缺页异常时{\tt stval}被写入非零值，
+则{\tt stval}中将包含错误的虚拟地址。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -770,9 +1215,29 @@ SXLEN \\
 \label{stvalreg}
 \end{figure}
 
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
+\hline
+\multicolumn{1}{|c|}{\tt stval} \\
+\hline
+SXLEN \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{监管者级陷阱值寄存器}
+\label{stvalreg}
+\end{figure}
+
 If {\tt stval} is written with a nonzero value when a misaligned load or store
 causes an access-fault or page-fault exception, then {\tt stval} will contain
 the virtual address of the portion of the access that caused the fault.
+
+如果在不对齐的加载或存储导致访问故障或缺页异常时{\tt stval}被写入非零值，
+则{\tt stval}将包含导致故障的访问部分的虚拟地址。
 
 If {\tt stval} is written with a nonzero value when an instruction access-fault
 or page-fault exception occurs on a system with variable-length instructions,
@@ -780,21 +1245,35 @@ then {\tt stval} will contain the virtual address of the portion of the
 instruction that caused the fault, while {\tt sepc} will point to the beginning
 of the instruction.
 
+如果在支持可变长指令的系统上出现指令访问故障或缺页异常时{\tt stval}被写入非零值，
+则{\tt stval}将包含导致错误的指令部分的虚拟地址，而{\tt sepc}将指向指令的开头。
+
 The {\tt stval} register can optionally also be used to return the faulting
 instruction bits on an illegal instruction exception ({\tt sepc} points to the
 faulting instruction in memory).
 If {\tt stval} is written with a nonzero value when an illegal-instruction
 exception occurs, then {\tt stval} will contain the shortest of:
+
+{\tt stval}寄存器还可以选择性地用于返回非法指令异常上的故障指令位（{\tt sepc}指向内存中的故障指令）。
+如果在发生非法指令异常时，{\tt stval}是用非零值写入的，则{\tt stval}将包含以下各项最短者：
 \begin{compactitem}
 \item the actual faulting instruction
 \item the first ILEN bits of the faulting instruction
 \item the first SXLEN bits of the faulting instruction
+
+\item 实际故障指令
+\item 故障指令的第一个ILEN位
+\item 故障指令的第一个SXLEN位
 \end{compactitem}
 The value loaded into {\tt stval} on an illegal-instruction exception is
 right-justified and all unused upper bits are cleared to zero.
 
+在非法指令异常上加载到{\tt stval}的值是右对齐的，并且所有未使用的高位都被清零。
+
 For other traps, {\tt stval} is set to zero, but a future standard may
 redefine {\tt stval}'s setting for other traps.
+
+对于其他陷阱，{\tt stval}被设置为零，但是未来的标准可能会为其他陷阱重新定义{\tt stval}的设置。
 
 {\tt stval} is a \warl\ register that must be able to hold all valid
 virtual addresses and the value 0.  It need not be capable of holding all
@@ -805,11 +1284,18 @@ If the feature to return the faulting instruction bits is implemented, {\tt
 stval} must also be able to hold all values less than $2^N$, where $N$ is the
 smaller of SXLEN and ILEN.
 
-\subsection{Supervisor Environment Configuration Register ({\tt senvcfg})}
+{\tt stval}是一个\warl\ 寄存器，它必须能够保存所有有效的虚拟地址和值0。
+它不需要能够保存所有可能的无效地址。
+在写入{\tt stval}之前，具体实现可能会将一个无效地址转换为{\tt stval}能够保存的其他无效地址。
+如果实现了返回故障指令位的特性，那么{\tt stval}还必须能够保存所有小于$2^N$的值，其中$N$是SXLEN和ILEN的较小值。
+
+\subsection{Supervisor Environment Configuration Register ({\tt senvcfg}) 监管者级环境配置寄存器（{\tt senvcfg}）}
 
 The {\tt senvcfg} CSR is an SXLEN-bit read/write register,
 formatted as shown in Figure~\ref{fig:senvcfg},
 that controls certain characteristics of the U-mode execution environment.
+
+{\tt senvcfg} CSR是一个SXLEN位读/写寄存器，格式如图\ref{fig:senvcfg}所示，它控制U模式执行环境的一些特性。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -838,6 +1324,33 @@ SXLEN-8 & 1 & 1 & 2 & 3 & 1 \\
 \label{fig:senvcfg}
 \end{figure}
 
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}Kcc@{}W@{}Wc}
+\instbitrange{SXLEN-1}{8} &
+\instbit{7} &
+\instbit{6} &
+\instbitrange{5}{4} &
+\instbitrange{3}{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{\wpri} &
+\multicolumn{1}{c|}{CBZE} &
+\multicolumn{1}{c|}{CBCFE} &
+\multicolumn{1}{c|}{CBIE} &
+\multicolumn{1}{c|}{\wpri} &
+\multicolumn{1}{c|}{FIOM} \\
+\hline
+SXLEN-8 & 1 & 1 & 2 & 3 & 1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{监管者级环境配置寄存器（{\tt senvcfg}）}
+\label{fig:senvcfg}
+\end{figure}
+
 If bit FIOM (Fence of I/O implies Memory) is set to one in {\tt senvcfg},
 FENCE instructions executed in U-mode are modified so
 the requirement to order accesses to device I/O implies also the requirement
@@ -845,12 +1358,22 @@ to order main memory accesses.
 Table~\ref{tab:senvcfg-FIOM} details the modified interpretation of
 FENCE instruction bits PI, PO, SI, and SO in U-mode when FIOM=1.
 
+如果在{\tt senvcfg}中，位FIOM（Fence of I/O implies Memory ）被设置为1，
+那么在U模式下执行的FENCE指令将会被修改，
+因此对设备I/O进行顺序访问的要求也意味着对主存进行顺序访问的要求。
+表\ref{tab:senvcfg-FIOM}详细说明了在FIOM=1时，在U模式下的FENCE指令位PI、PO、SI和SO的修改解释。
+
 Similarly, for U-mode when FIOM=1,
 if an atomic instruction that accesses a region ordered as device I/O
 has its {\em aq} and/or {\em rl} bit set, then that instruction is ordered
 as though it accesses both device I/O and memory.
 
+类似地，对于U模式，当FIOM=1时，如果原子指令访问按设备I/O顺序排列的区域，
+且指令设置了{\em aq}或{\em rl}位，那么该指令的顺序就好像它同时访问设备I/O和内存一样。
+
 If {\tt satp}.MODE is read-only zero (always Bare), the implementation may make FIOM read-only zero.
+
+如果{\tt satp}.MODE为只读零（总为Bare），实现中可能使FIOM为只读零。
 
 \begin{table}[h!]
 \begin{center}
@@ -872,13 +1395,38 @@ Modified interpretation of FENCE predecessor and successor sets in U-mode when F
 \label{tab:senvcfg-FIOM}
 \end{table}
 
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+指令位 & 设置该位时的含义 \\
+\hline
+PI & 前置设备输入和存储器读取（隐含PR） \\
+PO & 前置设备输出和存储器写入（隐含PW） \\
+\hline
+SI & 后续设备输入和存储器读取（隐含SR） \\
+SO & 后续设备输出和存储器写入（隐含SW） \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{-0.1in}
+\caption{%
+当FIOM=1时，对U模式下FENCE前置集和后继集修改的解释}
+\label{tab:senvcfg-FIOM}
+\end{table}
+
 \begin{commentary}
-Bit FIOM exists for a specific circumstance when an I/O device is
-being emulated for U-mode and both of the following are true:
-(a)~the emulated device has a memory buffer that should be I/O space
-but is actually mapped to main memory via address translation, and
-(b)~multiple physical harts are involved in accessing this emulated
-device from U-mode.
+
+  Bit FIOM exists for a specific circumstance when an I/O device is
+  being emulated for U-mode and both of the following are true:
+  (a)~the emulated device has a memory buffer that should be I/O space
+  but is actually mapped to main memory via address translation, and
+  (b)~multiple physical harts are involved in accessing this emulated
+  device from U-mode.
+
+当正在为U模式模拟I/O设备，并且以下两个条件都成立时，位FIOM用于特殊情况：
+（a）模拟设备有一个内存缓冲区，它本应是I/O空间，但实际上是通过地址转换映射到主存；
+（b）从U模式访问此模拟设备时涉及多个物理硬件线程。
 
 A hypervisor running in S-mode without the benefit of the hypervisor
 extension of Chapter~\ref{hypervisor} may need to emulate a device for
@@ -901,6 +1449,19 @@ But those I/O fences may not be sufficient if some of the device
 Setting FIOM=1 modifies those fences (and all other I/O fences executed
 in U-mode) to include main memory, too.
 
+运行在S模式下并且没有第\ref{hypervisor}章的虚拟机管理器扩展的虚拟机管理器，
+如果不能使用平行虚拟化，可能需要为U模式模拟设备。
+如果同一个虚拟机管理器提供了具有多个虚拟硬件线程的虚拟机（VM），
+并一对一地映射到真实的硬件线程，那么多个硬件线程可能并发地访问模拟设备，
+这可能是因为：（a）虚拟机中的宾客操作系统将设备中断处理分配给一个硬件线程，
+而设备也被中断处理程序之外的另一个硬件线程访问，
+或者（b）设备的控制（或部分控制）正在从一个硬件线程迁移到另一个硬件线程，
+例如在虚拟机内的中断负载平衡。对于这种情况，
+虚拟机内的客户软件应该像往常一样使用互斥锁以及处理器间中断正确地协调跨多个硬件线程的对（模拟）设备的访问，
+这在一定程度上使执行I/O屏障成为必要。
+但是，如果某些设备“I/O”实际上是在主存进行的，那么这些I/O屏障可能是不够的，
+而客户并不知道这些。设置FIOM=1还会将这些屏障（以及U模式下执行的所有其他I/O屏障）修改为包含主存。
+
 Software can always avoid the need to set FIOM by never using main
 memory to emulate a device memory buffer that should be I/O space.
 However, this choice usually requires trapping all U-mode accesses
@@ -908,20 +1469,28 @@ to the emulated buffer, which might have a noticeable impact on
 performance.
 The alternative offered by FIOM is sufficiently inexpensive to implement that
 we consider it worth supporting even if only rarely enabled.
-\end{commentary}
 
+软件总是可以通过从不使用主存来模拟一个本应该是I/O空间的设备内存缓冲区来避免设置FIOM的需要。
+然而，这种选择通常需要捕获U模式下所有对模拟缓冲区的访问，这可能会对性能产生显著的影响。
+FIOM提供的替代方案足够便宜，即使很少启用，我们也认为它值得支持。
+
+\end{commentary}
 
 The definition of the CBZE field will be furnished by the
 forthcoming Zicboz extension.
 Its allocation within {\tt senvcfg} may change prior to the ratification
 of that extension.
 
+CBZE字段的定义将由即将到来的Zicboz扩展提供。在批准该拓展之前，其在{\tt senvcfg}内的分配可能会改变。
+
 The definitions of the CBCFE and CBIE fields will be furnished by the
 forthcoming Zicbom extension.
 Their allocations within {\tt senvcfg} may change prior to the ratification
 of that extension.
 
-\subsection{Supervisor Address Translation and Protection ({\tt satp}) Register}
+CBCFE和CBIE字段的定义将由即将到来的Zicbom扩展来提供。在批准该拓展之前，它们在{\tt senvcfg}内的分配可能会改变。
+
+\subsection{Supervisor Address Translation and Protection ({\tt satp}) Register 监管者地址转换和保护（{\tt satp}）寄存器}
 \label{sec:satp}
 
 The {\tt satp} register is an SXLEN-bit read/write register, formatted as shown
@@ -933,6 +1502,11 @@ an address space identifier (ASID), which facilitates address-translation
 fences on a per-address-space basis; and the MODE field, which selects the
 current address-translation scheme. Further details on the access to this
 register are described in Section~\ref{virt-control}.
+
+{\tt satp}寄存器是一个SXLEN位读/写寄存器，格式如SXLEN=32的图\ref{rv32satp}和SXLEN=64的图\ref{rv64satp}所示，
+它控制监管者模式的地址转换和保护。该寄存器保存根页表的物理页号（PPN），
+即其监管者物理地址除以\wunits{4}{KiB}；地址空间标识符（ASID）,方便在每个地址空间的基础上进行地址转换；
+和MODE字段，它选择当前的地址转换方案。关于访问该寄存器的进一步细节见第\ref{virt-control}节。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -958,15 +1532,45 @@ when SXLEN=32.%
 \label{rv32satp}
 \end{figure}
 
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{c@{}E@{}K}
+\instbit{31} &
+\instbitrange{30}{22} &
+\instbitrange{21}{0} \\
+\hline
+\multicolumn{1}{|c|}{{\tt MODE} (\warl)} &
+\multicolumn{1}{|c|}{{\tt ASID} (\warl)} &
+\multicolumn{1}{|c|}{{\tt PPN}  (\warl)} \\
+\hline
+1 & 9 & 22 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{%
+SXLEN=32时的监管者地址转换和保护寄存器{\tt satp}
+%
+}
+\label{rv32satp}
+\end{figure}
+
 \begin{commentary}
+
 Storing a PPN in {\tt satp}, rather than a physical address, supports
 a physical address space larger than \wunits{4}{GiB} for RV32.
+
+在{\tt satp}中存储PPN，而不是物理地址，使RV32支持大于\wunits{4}{GiB}的物理地址空间。  
 
 The {\tt satp}.PPN field might not be capable of holding all physical page
 numbers.
 Some platform standards might place constraints on the values {\tt satp}.PPN
 may assume, e.g., by requiring that all physical page numbers corresponding to
 main memory be representable.
+
+{\tt satp}.PPN字段可能无法表示所有的物理页码。
+一些平台标准可能会对{\tt satp}.PPN的值施加限制，例如，通过要求与主存对应的所有物理页号都是可表示的。
 \end{commentary}
 
 \begin{figure}[h!]
@@ -993,14 +1597,42 @@ when SXLEN=64, for MODE values Bare, Sv39, Sv48, and Sv57.%
 \label{rv64satp}
 \end{figure}
 
-\begin{commentary}
-We store the ASID and the page table base address in the same CSR to allow the
-pair to be changed atomically on a context switch.  Swapping them
-non-atomically could pollute the old virtual address space with new
-translations, or vice-versa.  This approach also slightly reduces the cost of
-a context switch.
-\end{commentary}
+\begin{figure}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}S@{}T@{}U}
+\instbitrange{63}{60} &
+\instbitrange{59}{44} &
+\instbitrange{43}{0} \\
+\hline
+\multicolumn{1}{|c|}{{\tt MODE} (\warl)} &
+\multicolumn{1}{|c|}{{\tt ASID} (\warl)} &
+\multicolumn{1}{|c|}{{\tt PPN}  (\warl)} \\
+\hline
+4 & 16 & 44 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{%
+对于MODE值为Bare、Sv39、Sv48以及Sv57，SXLEN=64时的监管者地址转换和保护寄存器{\tt satp}
+%
+}
+\label{rv64satp}
+\end{figure}
 
+\begin{commentary}
+  We store the ASID and the page table base address in the same CSR to allow the
+  pair to be changed atomically on a context switch.  Swapping them
+  non-atomically could pollute the old virtual address space with new
+  translations, or vice-versa.  This approach also slightly reduces the cost of
+  a context switch.
+
+我们将ASID和页表基地址存储在同一个CSR中，
+以允许在上下文切换时原子地更改这对数据对。
+以非原子的方式修改它们可能会使新的转换地址污染旧的虚拟地址空间，
+反之亦然。这种方法还略微降低了上下文切换的成本。
+\end{commentary}
 Table~\ref{tab:satp-mode} shows the encodings of the MODE field when SXLEN=32 and
 SXLEN=64.  When MODE=Bare, supervisor virtual addresses are equal to
 supervisor physical addresses, and there is no additional memory protection
@@ -1012,11 +1644,22 @@ Attempting to select MODE=Bare with a nonzero pattern in the remaining fields
 has an \unspecified\ effect on the value that the remaining fields assume
 and an \unspecified\ effect on address translation and protection behavior.
 
+表\ref{tab:satp-mode}显示了当SXLEN=32和SXLEN=64时，MODE字段的编码。
+当MODE=Bare时，监管者虚拟地址等于监管者物理地址，
+并且除了第\ref{sec:pmp}节中描述的物理内存保护方案之外，没有额外的内存保护。
+要选择MODE=Bare，软件必须将零写入{\tt satp}的其余字段（SXLEN=32时为第30--0位，或SXLEN=64时为第59--0位）。
+在其余字段非零模式下尝试选择MODE=Bare会对其余字段假定的值产生一个未指定的（\unspecified\ ）影响，
+并对地址转换和保护行为产生未指定的（\unspecified\ ）影响。
+
 When SXLEN=32, the {\tt satp} encodings corresponding to MODE=Bare and ASID[8:7]=3 are designated
 for custom use, whereas the encodings corresponding to MODE=Bare and ASID[8:7]$\ne$3 are
 reserved for future standard use.
 When SXLEN=64, all {\tt satp} encodings corresponding to MODE=Bare are reserved for future
 standard use.
+
+当SXLEN=32时，MODE=Bare和ASID[8:7]=3对应的{\tt satp}编码被指定为自定义使用，
+而MODE=Bare和ASID[8:7]$\ne$3对应的编码被保留以供将来的标准使用。
+当SXLEN=64时，所有与MODE=Bare对应的{\tt satp}编码都被保留，以供未来的标准使用。
 
 \begin{commentary}
 Version 1.11 of this standard stated that the remaining fields in {\tt satp}
@@ -1024,10 +1667,16 @@ had no effect when MODE=Bare.
 Making these fields reserved facilitates future definition of
 additional translation and protection modes, particularly in RV32, for which
 all patterns of the existing MODE field have already been allocated.
-\end{commentary}
 
+本标准的1.11版本指出，当MODE=Bare时，{\tt satp}中的其余字段没有效果。
+保留这些字段有助于未来定义额外的转换和保护模式，特别是在RV32中，
+因为存在的MODE字段的所有模式已经被分配。  
+
+\end{commentary}
 When SXLEN=32, the only other valid setting for MODE is Sv32, a paged
 virtual-memory scheme described in Section~\ref{sec:sv32}.
+
+当SXLEN=32时，MODE的唯一其他有效设置是Sv32，这是第\ref{sec:sv32}节中描述的一种分页虚拟内存方案。
 
 When SXLEN=64, three paged virtual-memory schemes are defined: Sv39, Sv48, and Sv57,
 described in Sections~\ref{sec:sv39}, \ref{sec:sv48}, and \ref{sec:sv57}, respectively.
@@ -1036,9 +1685,17 @@ of this specification.  The remaining MODE settings are reserved
 for future use and may define different interpretations of the other fields in
 {\tt satp}.
 
+当SXLEN=64时，定义了三种分页虚拟内存方案：
+Sv39、Sv48和Sv57，分别在第\ref{sec:sv39}、\ref{sec:sv48}和\ref{sec:sv57}节中描述。
+另外一个方案Sv64将在本规范的后续版本中定义。
+其余的MODE设置被保留以供将来使用，并可能定义{\tt satp}中其他字段的不同解释。
+
 Implementations are not required to support all MODE settings,
 and if {\tt satp} is written with an unsupported MODE, the entire write has
 no effect; no fields in {\tt satp} are modified.
+
+具体实现中不需要支持所有的MODE设置，如果{\tt satp}中写入了不支持的MODE，
+则将不会有任何效果；{\tt satp}中的任何字段都不会被修改。
 
 \begin{table}[h]
 \begin{center}
@@ -1070,6 +1727,36 @@ Value  & Name & Description \\
 \label{tab:satp-mode}
 \end{table}
 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|c|c|l|}
+\hline
+\multicolumn{3}{|c|}{SXLEN=32} \\
+\hline
+值  & 名称 & 描述 \\
+\hline
+0       & Bare  & 没有转换或保护。 \\
+1       & Sv32  & 基于页面的32位虚拟寻址（见第\ref{sec:sv32}节）。 \\
+\hline \hline
+\multicolumn{3}{|c|}{SXLEN=64} \\
+\hline
+值  & 名称 & 描述 \\
+\hline
+0       & Bare  & 没有转换或保护。 \\
+1--7    & ---   & {\em 保留用于标准用途} \\
+8       & Sv39  & 基于页面的39位虚拟寻址（见第\ref{sec:sv39}节）。 \\
+9       & Sv48  & 基于页面的48位虚拟寻址（见第\ref{sec:sv48}节）。 \\
+10      & Sv57  & 基于页面的57位虚拟寻址（见第\ref{sec:sv57}节）。 \\
+11      & {\em Sv64} & {\em 保留用于基于页面的64位虚拟寻址。} \\
+12--13  & ---   & {\em 保留用于标准用途} \\
+14--15  & ---   & {\em 指定用于自定义用途} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{{\tt satp} MODE域的编码}
+\label{tab:satp-mode}
+\end{table}
+
 The number of ASID bits is \unspecified\ and may be zero.  The
 number of implemented ASID bits, termed {\mbox {\em ASIDLEN}}, may be
 determined by writing one to every bit position in the ASID field, then
@@ -1078,12 +1765,23 @@ field hold a one.  The least-significant bits of ASID are implemented first:
 that is, if ASIDLEN~$>$~0, ASID[ASIDLEN-1:0] is writable.  The maximal value
 of ASIDLEN, termed ASIDMAX, is 9 for Sv32 or 16 for Sv39, Sv48, and Sv57.
 
+ASID位数是未指定（\unspecified\ ）的话，可能为零。
+实现的ASID位的数量，称为{\mbox {\em ASIDLEN}}，可以通过向ASID字段中的每个位写入1，然后读取{\tt satp}中的值，
+查看ASID字段中的哪些位保持1来确定。ASID的最低有效位首先被实现：也就是说，
+如果ASIDLEN~$>$~0， ASID[ASIDLEN-1:0]是可写的。
+ASIDLEN的最大值称为ASIDMAX，对于Sv32为9，Sv39、Sv48和Sv57为16。
+
 \begin{commentary}
 For many applications, the choice of page size has a substantial
 performance impact.  A large page size increases TLB reach and loosens
 the associativity constraints on virtually indexed, physically tagged
 caches.  At the same time, large pages exacerbate internal
 fragmentation, wasting physical memory and possibly cache capacity.
+
+对于许多应用程序而言，页面大小的选择对性能有实质性的影响。
+一个大的页面大小增加了TLB的覆盖范围，
+并放松了对用虚拟地址中部分位域作为索引、物理地址中部分位域作为标记的物理高速缓存的关联约束。
+与此同时，大的页面加剧了内部碎片化，浪费了物理内存和可能的缓存容量。
 
 After much deliberation, we have settled on a conventional page size
 of 4 KiB for both RV32 and RV64.  We expect this decision to ease the
@@ -1092,13 +1790,20 @@ reach problem is ameliorated by transparent superpage support in
 modern operating systems~\cite{transparent-superpages}.  Additionally,
 multi-level TLB hierarchies are quite inexpensive relative to the
 multi-level cache hierarchies whose address space they map.
-\end{commentary}
 
+经过深思熟虑，我们已经确定了RV32和RV64的常规页面大小为4 KiB。
+我们希望这个决定可以简化低级运行时软件和设备驱动程序的移植。
+现代操作系统~\cite{transparent-superpages}中对透明的超级页的支持改善了TLB覆盖范围的问题。
+此外，相比于映射地址空间的多级高速缓存层次结构，多级TLB层次结构非常便宜。
+\end{commentary}
 The {\tt satp} register is considered {\em active} when the effective
 privilege mode is S-mode or U-mode.
 Executions of the
 address-translation algorithm may only begin using a given value of {\tt satp}
 when {\tt satp} is active.
+
+当有效特权模式为S模式或U模式时，{\tt satp}寄存器被认为是活动的（{\em active}）。
+只有当{\tt satp}处于活动状态时，地址转换算法才能开始使用给定的{\tt satp}值执行。
 
 \begin{commentary}
 Translations that began while {\tt satp} was active are not required to
@@ -1107,6 +1812,10 @@ SFENCE.VMA instruction matching the address and ASID is executed.  The
 SFENCE.VMA instruction must be used to ensure that updates to the
 address-translation data structures are observed by subsequent implicit reads
 to those structures by a hart.
+
+除非执行与地址和ASID匹配的SFENCE.VMA指令，否则当{\tt satp}不再处于活动状态时，
+在{\tt satp}处于活动状态期间开始的转换不需要完成或终止。
+SFENCE.VMA指令必须被用来确保对地址转换数据结构的更新可以被随后隐式读取这些结构的硬件线程观察到。 
 \end{commentary}
 
 Note that writing {\tt satp} does not imply any ordering constraints
@@ -1117,19 +1826,27 @@ ASID is reused, it may be necessary to execute an SFENCE.VMA instruction
 (see Section~\ref{sec:sfence.vma}) after, or in some cases before,
 writing {\tt satp}.
 
+请注意，写入{\tt satp}并不意味着页表更新和后续的地址转换之间有任何顺序约束，
+也不意味着地址转换缓存的无效。如果新地址空间的页表已被修改，
+或者如果 ASID 被重用，则可能需要在写入{\tt satp}之后，
+或在某些情况下在写入之前执行SFENCE.VMA 指令（见第\ref{sec:sfence.vma}节）。
+
 \begin{commentary}
 Not imposing upon implementations to flush address-translation caches
 upon {\tt satp} writes reduces the cost of context switches, provided
 a sufficiently large ASID space.
+
+如果有足够大的ASID空间，不强制实现在{\tt satp}写入时刷新地址转换缓存可降低上下文切换的成本。
 \end{commentary}
 
-\section{Supervisor Instructions}
-
+\section{Supervisor Instructions 监管者指令}
 In addition to the SRET instruction defined in
 Section~\ref{otherpriv}, one new supervisor-level instruction is
 provided.
 
-\subsection{Supervisor Memory-Management Fence Instruction}
+除了在第\ref{otherpriv}节中定义的SRET指令外，还提供了一个新的监管者级指令。
+
+\subsection{Supervisor Memory-Management Fence Instruction 监管者内存管理屏障指令}
 \label{sec:sfence.vma}
 
 \vspace{-0.2in}
@@ -1171,6 +1888,14 @@ Section~\ref{sv32algorithm}).
 Further details on the behavior of this instruction are
 described in Section~\ref{virt-control} and Section~\ref{pmp-vmem}.
 
+监管者内存管理屏障指令SFENCE.VMA用于将内存中内存管理数据结构的更新与当前运行同步。
+指令执行会引起对这些数据结构的隐式读写；然而，这些隐式的引用通常不会根据显式加载和存储进行排序。
+SFENCE.VMA指令的执行可保证任何之前的、对当前的硬件线程可视的存储动作，
+在来自那个硬件线程中的后续指令的对内存管理数据结构的某些隐式引用之前进行排序。
+SFENCE.VMA规定的特定操作由{\em rs1}和{\em rs2}确定，如下所述。
+SFENCE.VMA还用于使与hart相关联的地址转换缓存中的条目无效（见第\ref{sv32algorithm}节）。
+关于本指令行为的进一步细节见第\ref{virt-control}节和第\ref{pmp-vmem}节。
+
 \begin{commentary}
 The SFENCE.VMA is used to flush any local hardware caches related to
 address translation.  It is specified as a fence rather than a TLB
@@ -1179,10 +1904,16 @@ are affected by the flush operation and to support a wider variety of
 dynamic caching structures and memory-management schemes.  SFENCE.VMA
 is also used by higher privilege levels to synchronize page table
 writes and the address translation hardware.
-\end{commentary}
 
+SFENCE.VMA用于刷新所有与地址转换相关的本地硬件缓存。
+它被指定为一个屏障而不是TLB刷新，是为了提供关于哪些指令受刷新操作影响的更清晰的语义，
+并支持更广泛的动态缓存结构和内存管理方案。
+更高权限级别也使用SFENCE.VMA来同步页表写入和地址转换硬件。
+\end{commentary}
 SFENCE.VMA orders only the local hart's implicit references to the
 memory-management data structures.
+
+SFENCE.VMA只对本地hart对内存管理数据结构的隐式引用进行排序。
 
 \begin{commentary}
 Consequently, other harts must be notified separately when the
@@ -1193,6 +1924,13 @@ a local data fence to ensure local writes are visible globally, then
 SFENCE.VMA in the interrupt handler of the remote thread, and finally
 4) signal back to originating thread that operation is complete.  This
 is, of course, the RISC-V analog to a TLB shootdown.
+
+因此，当内存管理数据结构被修改时，必须分别通知其他硬件线程。
+一种方法是：首先1)使用本地数据围栏，以确保本地写入在全局内可见，
+然后2)将一个处理器间中断发送到其他线程，
+随后3)在远程线程的中断处理程序中使用本地SFENCE.VMA，
+最后4)重新向原始线程发出信号，表明操作已完成。当然，这是RISC-V模拟TLB被击落。  
+
 \end{commentary}
 
 For the common case that the translation data structures have only been
@@ -1203,37 +1941,58 @@ translation data structures have only been modified for a single address-space
 identifier, {\em rs2} can specify the address space.  The behavior of
 SFENCE.VMA depends on {\em rs1} and {\em rs2} as follows:
 
+对于转换数据结构仅为单个地址映射（即一页或超级页）进行了修改的常见情况，
+{\em rs1}可以在该映射中指定一个虚拟地址，以仅为该映射实现转换屏障。
+此外，对于转换数据结构仅为单个地址空间标识符进行了修改的常见情况，{\em rs2}可以指定地址空间。
+SFENCE.VMA的行为取决于{\em rs1}和{\em rs2}，如下所示：
+
 \begin{itemize}
-\item If {\em rs1}={\tt x0} and {\em rs2}={\tt x0}, the fence orders all
-      reads and writes made to any level of the page tables, for all
-      address spaces.  The fence also invalidates all address-translation
-      cache entries, for all address spaces.
+  \item If {\em rs1}={\tt x0} and {\em rs2}={\tt x0}, the fence orders all
+  reads and writes made to any level of the page tables, for all
+  address spaces.  The fence also invalidates all address-translation
+  cache entries, for all address spaces.
 \item If {\em rs1}={\tt x0} and {\em rs2}$\neq${\tt x0}, the fence orders
-      all reads and writes made to any level of the page tables, but only
-      for the address space identified by integer register {\em rs2}.
-      Accesses to {\em global} mappings (see Section~\ref{sec:translation})
-      are not ordered.  The fence also invalidates all address-translation
-      cache entries matching the address space identified by integer register
-      {\em rs2}, except for entries containing global mappings.
+  all reads and writes made to any level of the page tables, but only
+  for the address space identified by integer register {\em rs2}.
+  Accesses to {\em global} mappings (see Section~\ref{sec:translation})
+  are not ordered.  The fence also invalidates all address-translation
+  cache entries matching the address space identified by integer register
+  {\em rs2}, except for entries containing global mappings.
 \item If {\em rs1}$\neq${\tt x0} and {\em rs2}={\tt x0}, the fence orders
-      only reads and writes made to leaf page table entries corresponding
-      to the virtual address in {\em rs1}, for all address spaces.
-      The fence also invalidates all address-translation cache entries that
-      contain leaf page table entries corresponding to the virtual address
-      in {\em rs1}, for all address spaces.
+  only reads and writes made to leaf page table entries corresponding
+  to the virtual address in {\em rs1}, for all address spaces.
+  The fence also invalidates all address-translation cache entries that
+  contain leaf page table entries corresponding to the virtual address
+  in {\em rs1}, for all address spaces.
 \item If {\em rs1}$\neq${\tt x0} and {\em rs2}$\neq${\tt x0}, the fence
-      orders only reads and writes made to leaf page table entries
-      corresponding to the virtual address in {\em rs1}, for the address
-      space identified by integer register {\em rs2}.
-      Accesses to global mappings are not ordered.  The fence also
-      invalidates all address-translation cache entries that contain leaf
-      page table entries corresponding to the virtual address in {\em rs1}
-      and that match the address space identified by integer register {\em
-      rs2}, except for entries containing global mappings.
+  orders only reads and writes made to leaf page table entries
+  corresponding to the virtual address in {\em rs1}, for the address
+  space identified by integer register {\em rs2}.
+  Accesses to global mappings are not ordered.  The fence also
+  invalidates all address-translation cache entries that contain leaf
+  page table entries corresponding to the virtual address in {\em rs1}
+  and that match the address space identified by integer register {\em
+  rs2}, except for entries containing global mappings.
+
+\item 如果{\em rs1}={\tt x0}且{\em rs2}={\tt x0}，则屏障指令将对所有地址空间的页表的全部级别的所有读取和写入进行排序。
+屏障指令还将使所有地址空间中，包含与rs1中的虚拟地址对应的叶页表条目的所有地址转换缓存条目无效。
+\item 如果{\em rs1}={\tt x0}且{\em rs2}$\neq${\tt x0}，屏障指令将对所有页表的读取和写入进行排序，
+但仅对整数寄存器{\em rs2}标识的地址空间进行排序。对全局映射的访问（见第\ref{sec:translation}节）不进行排序。
+除去包含全局映射的条目外，该屏障指令还将使包含与整数寄存器{\em rs2}标识的地址空间匹配的所有地址转换缓存条目无效。
+\item 如果{\em rs1}$\neq${\tt x0}且{\em rs2}={\tt x0}，则对于所有地址空间，
+屏障指令仅对与{\em rs1}中的虚拟地址相对应的叶页表条目进行读取和写入。
+对于所有地址空间，该屏障指令还使包含与{\em rs1}中的虚拟地址相对应的叶页表条目的所有地址转换缓存条目无效。
+\item 如果{\em rs1}$\neq${\tt x0}且{\em rs2}$\neq${\tt x0}，则，屏障指令将仅对整数寄存器{\em rs2}标识的地址空间中，
+作用于与{\em rs1}中的虚拟地址相对应的叶页表条目的读取和写入进行排序。
+对全局映射的访问不进行排序。除去包含全局映射的条目外，
+该屏障指令还将使包含与{\em rs1}中的虚拟地址对应的叶页表条目以及
+与整数寄存器{\em rs2}标识的地址空间匹配的所有地址转换缓存条目无效。
 \end{itemize}
 
 If the value held in {\em rs1} is not a valid virtual address, then the
 SFENCE.VMA instruction has no effect.  No exception is raised in this case.
+
+如果在{\em rs1}中保存的值不是一个有效的虚拟地址，则SFENCE.VMA指令没有效果。在这种情况下，不会出现任何异常。
 
 When {\em rs2}$\neq${\tt x0}, bits SXLEN-1:ASIDMAX of the value held in {\em
 rs2} are reserved for future standard use.  Until their use is defined by a
@@ -1241,6 +2000,10 @@ standard extension, they should be zeroed by software and ignored
 by current implementations.  Furthermore, if ASIDLEN~$<$~ASIDMAX, the
 implementation shall ignore bits ASIDMAX-1:ASIDLEN of the value held in {\em
 rs2}.
+
+当{\em rs2}$\neq${\tt x0}时，{\em rs2}保持的位SXLEN-1:ASIDMAX被保留，以供将来的标准使用。
+在它们的使用被标准扩展定义之前，它们应该被软件归零，并且被当前的具体实现忽略。
+此外，如果ASIDLEN~$<$~ASIDMAX，则具体实现应忽略{\em rs2}中保持的值的位ASIDMAX-1:ASIDLEN。
 
 \begin{commentary}
 It is always legal to over-fence, e.g., by fencing only based on a subset
@@ -1250,6 +2013,13 @@ SFENCE.VMA instructions as having {\em rs1}={\tt x0} and/or
 virtual address in {\em rs1} and the ASID value in {\em rs2} and always perform
 a global fence.  The choice not to raise an exception when an invalid virtual
 address is held in {\em rs1} facilitates this type of simplification.
+
+越过屏障总是合法的，例如，仅基于{\em rs1}以及{\em rs2}中的一个子集进行屏障跨越，
+以及简单地将所有SFENCE.VMA指令视为{\em rs1}={\tt x0}以及{\em rs2}={\tt x0}。
+例如，一种更简单的实现可以是忽略{\em rs1}中的虚拟地址和{\em rs2}中的ASID值，
+并且始终执行一个全局的屏障指令。当在{\em rs1}中保存了一个无效的虚拟地址时，
+选择不引发异常促进了这种类型的简化。
+
 \end{commentary}
 
 An implicit read of the memory-management data structures may return any
@@ -1265,7 +2035,17 @@ accesses before subsequent explicit accesses in the global memory order.  These
 implicit loads also need not otherwise obey normal program order semantics with
 respect to prior loads or stores to the same address.
 
+内存管理数据结构的隐式读取可能会返回对一个地址的全部转换，
+此地址自将它的包含的最近的SFENCE.VMA指令以来，任何时候都有效。
+SFENCE.VMA暗示的顺序将与标准RVWMO顺序规则清晰地交互，
+不会以将对内存管理数据结构的隐式读取和写入置于全局内存顺序中。
+特别是，即使SFENCE.VMA在后续隐式访问之前先对显式访问进行排序，
+并且这些隐式访问在相关显式访问之前进行排序，
+SFENCE.VMA也不一定在全局内存顺序中将先前显式访问置于后续显式访问之后。
+这些隐式加载也不需要遵守与先前加载或存储到同一地址相关的正常程序顺序语义。
+
 \begin{commentary}
+
 A consequence of this specification is that an implementation may use any
 translation for an address that was valid at any time since the most recent
 SFENCE.VMA that subsumes that address.
@@ -1273,6 +2053,11 @@ In particular, if a leaf PTE is modified but a subsuming SFENCE.VMA is not
 executed, either the old translation or the new translation will be used, but
 the choice is unpredictable.
 The behavior is otherwise well-defined.
+
+该规范的一个结果是，具体实现可以使用一个地址的任意转换，
+该地址自最近包含它的最新SFENCE.VMA执行以来，任何时候都是有效的。
+特别是，如果修改了叶PTE，但未执行包含SFENCE.VMA，则将使用旧转换或新转换，
+但选择是不可预测的。除此以外，该行为是被明确定义的。
 
 In a conventional TLB design, it is possible for multiple entries to match a
 single address if, for example, a page is upgraded to a superpage without first
@@ -1282,17 +2067,29 @@ In this case, a similar remark applies: it is unpredictable whether the old
 non-leaf PTE or the new leaf PTE is used, but the behavior is otherwise well
 defined.
 
+在传统TLB设计中，如果页面升级为超级页，
+而不首先清除原始非叶PTE的有效位并执行{\em rs1}={\tt x0}的SFENCE.VMA，
+则可能会有多个条目匹配单个地址。在这种情况下，类似的话也适用：
+使用旧的非叶PTE还是新的叶PTE是不可预测的，但行为在其他方面定义得很好。
+
 Another consequence of this specification is that it is generally unsafe to
 update a PTE using a set of stores of a width less than the width of the PTE,
 as it is legal for the implementation to read the PTE at any time, including
 when only some of the partial stores have taken effect.
+
+该规范的另一个后果是，使用一组宽度小于PTE宽度的存储更新PTE通常是不安全的，
+因为实现在任何时候读取PTE都是合法的，包括只有部分存储生效时。
 \end{commentary}
 
 \begin{commentary}
+
 This specification permits the caching of PTEs whose V (Valid) bit is clear.
 Operating systems must be written to cope with this possibility, but implementers
 are reminded that eagerly caching invalid PTEs will reduce performance by causing
 additional page faults.
+
+此规范允许缓存V（有效）位被清除的PTE。必须编写操作系统来处理这种可能性，
+但要提醒实现者，急切地缓存无效的PTE会导致额外的页面错误，从而降低性能。  
 \end{commentary}
 
 Implementations must only perform implicit reads of the translation
@@ -1302,6 +2099,9 @@ and must only raise exceptions for implicit accesses that are
 generated as a result of instruction execution, not those that are
 performed speculatively.
 
+实现只能对{\tt satp}寄存器的当前内容或后续有效（V=1）翻译数据结构条目所指向的翻译数据结构执行隐式读取，
+并且只能对指令执行而非推测性执行的隐式访问引发异常。
+
 Changes to the {\tt sstatus} fields SUM and MXR take effect immediately,
 without the need to execute an SFENCE.VMA instruction.
 Changing {\tt satp}.MODE from Bare to other modes and vice versa also
@@ -1309,9 +2109,16 @@ takes effect immediately, without the need to execute an SFENCE.VMA
 instruction.
 Likewise, changes to {\tt satp}.ASID take effect immediately.
 
+对{\tt sstatus}字段SUM和MXR的更改将立即生效，而不需要执行SFENCE.VMA指令。
+将{\tt satp}.MODE从Bare模式更改为其他模式，也会立即生效，而无需执行SFENCE.VMA指令，
+反之亦然。同样，对{\tt satp}.ASID的改变也立即生效。
+
 \begin{commentary}
+
 The following common situations typically require executing an
-SFENCE.VMA instruction:
+SFENCE.VMA instruction:  
+
+以下常见的情况通常需要执行一个SFENCE.VMA指令：
 
 \vspace{-0.1in}
 \begin{itemize}
@@ -1349,12 +2156,41 @@ case, a page-fault exception might occur, at which point software should
 execute SFENCE.VMA in accordance with the previous bullet point.
 
 \end{itemize}
+
+\vspace{-0.1in}
+\begin{itemize}
+
+\item 当软件回收ASID（即，将其与其他页表重新关联）时，应{\em 首先}更改{\tt satp}以使用回收的ASID指向新页表，
+{\em 然后}执行SFENCE.VMA，其{\em rs1}={\tt x0}，{\em rs2}设置为回收的ASID。或者，软件可以在将不同的ASID加载到{\tt satp}时，
+执行相同的SFENCE.VMA指令，前提是下次将{\tt satp}加载到回收的ASID时，它将与新的页表同时加载。
+
+\item 如果实现不提供ASIDs，或者软件选择始终使用ASID 0，
+则在每次{\tt satp}写入后，软件应执行{\em rs1}={\tt x0}的SFENCE.VMA。
+在未修改全局转换的常见情况下，{\em rs2}应设置为除{\tt x0}以外的寄存器，
+该寄存器包含值零，以便不刷新全局转换。
+
+\item 如果软件修改了非叶PTE，则应执行{\em rs1}={\tt x0}的SFENCE.VMA。
+如果沿遍历路径的任何PTE设置了G位，则{\em rs2}必须为{\tt x0}；否则，{\em rs2}应设置为要修改其转换的ASID。
+
+\item 如果软件修改了叶PTE，则应执行SFENCE.VMA，
+并将{\em rs1}设置为页面内的虚拟地址。如果遍历路径上有任何PTE设置了G位，
+则{\em rs2}必须为{\tt x0}；否则，{\em rs2}应设置为要修改其转换的ASID。
+
+\item 对于增加叶PTE的权限并将无效PTE更改为有效叶的特殊情况，
+软件可能会选择延迟执行SFENCE.VMA 。修改PTE后、执行SFENCE.VMA之前，
+将使用新权限或旧权限。在后一种情况下，可能会出现缺页异常，
+此时软件应根据前面的要点执行SFENCE.VMA。
+
+\end{itemize}
 \end{commentary}
 
 If a hart employs an address-translation cache, that cache must appear to be
 private to that hart.
 In particular, the meaning of an ASID is local to a hart; software may choose
 to use the same ASID to refer to different address spaces on different harts.
+
+如果硬件线程使用地址转换缓存，则该缓存必须为该硬件线程的专用缓存。
+特别是，ASID的含义是硬件线程特有的；软件可以选择使用相同的ASID来引用不同硬件线程上的不同地址空间。
 
 \begin{commentary}
 A future extension could redefine ASIDs to be global across the SEE, enabling
@@ -1364,13 +2200,20 @@ However, as OSes have evolved to significantly reduce the scope of TLB
 shootdowns using novel ASID-management techniques, we expect the local-ASID
 scheme to remain attractive for its simplicity and possibly better
 scalability.
+
+未来的扩展可能会将ASID重新定义为整个SEE的全局ASID，
+从而实现共享转换缓存和广播TLB击落的硬件支持等选项。
+然而，随着操作系统的发展，使用新型ASID管理技术大大减少了TLB击落的可能，
+我们预计本ASID方案 将因其简单性和更好的可扩展性而保持吸引力。
 \end{commentary}
 
 For implementations that make {\tt satp}.MODE read-only zero (always Bare), attempts to
 execute an SFENCE.VMA instruction might raise an illegal instruction
 exception.
 
-\section{Sv32: Page-Based 32-bit Virtual-Memory Systems}
+对于使{\tt satp}.MODE为只读零（始终为Bare）的具体实现，尝试执行SFENCE.VMA指令可能会引发非法指令异常。
+
+\section{Sv32: Page-Based 32-bit Virtual-Memory Systems Sv32：基于页面的32位虚拟内存系统}
 \label{sec:sv32}
 
 When Sv32 is written to the MODE field in the {\tt satp} register (see
@@ -1379,6 +2222,11 @@ virtual-memory system.  In this mode, supervisor and user virtual addresses
 are translated into supervisor physical addresses by traversing a radix-tree
 page table.  Sv32 is supported when SXLEN=32 and is designed to include
 mechanisms sufficient for supporting modern Unix-based operating systems.
+
+当Sv32写入{\tt satp}寄存器中的MODE字段时（参见第\ref{sec:satp}节），
+监管程序在32位分页虚拟内存系统中运行。在这种模式下，
+通过遍历基数树页表，将监管者和用户的虚拟地址转换为监管者的物理地址。
+当SXLEN=32时支持Sv32，并且它被设计为包含足以支持现代基于unix的操作系统的机制。
 
 \begin{commentary}
 The initial RISC-V paged virtual-memory architectures have been
@@ -1389,18 +2237,28 @@ bottleneck on high-performance systems, and are especially troublesome
 with decoupled specialized coprocessors.  An implementation can choose
 to implement software TLB refills using a machine-mode trap handler as
 an extension to M-mode.
+
+最初的RISC-V分页虚拟内存体系结构被设计为支持现有操作系统的直接实现。
+我们已经设计了页表布局以支持硬件页表查找。
+软件TLB再填充是高性能系统上的一个性能瓶颈，在解耦的专门协处理器中尤其麻烦。
+具体实现可以选择使用机器模式陷阱处理程序作为M模式的扩展来实现软件TLB重新填充。
 \end{commentary}
 
 \begin{commentary}
+
 Some ISAs architecturally expose \emph{virtually indexed, physically tagged}
 caches, in that accesses to the same physical address via different virtual
 addresses might not be coherent unless the virtual addresses lie within the
 same cache set.
 Implicitly, this specification does not permit such behavior to be
 architecturally exposed.
+
+一些ISA在体系结构上公开了\emph{虚拟索引、物理标记}的缓存，
+因为通过不同的虚拟地址访问同一物理地址可能不一致，除非虚拟地址位于同一缓存集中。
+这也就是在暗示，此规范不允许在架构上公开此类行为。
 \end{commentary}
 
-\subsection{Addressing and Memory Protection}
+\subsection{Addressing and Memory Protection 寻址和内存保护}
 \label{sec:translation}
 
 Sv32 implementations support a 32-bit virtual address space, divided
@@ -1417,7 +2275,16 @@ before being directly converted to machine-level physical addresses.
 If necessary, supervisor-level physical addresses are zero-extended
 to the number of physical address bits found in the implementation.
 
+
+Sv32具体实现支持一个32位的虚拟地址空间，分为\wunits{4}{KiB}页面。
+Sv32虚拟地址被划分为虚拟页号（VPN）和页内偏移量，如图\ref{sv32va}所示。
+当在{\tt satp}寄存器的MODE字段中选择Sv32虚拟内存模式时，监管者虚拟地址通过一个两级页表转换为监管者物理地址。
+20位VPN被转换为22位物理页码（PPN），而12位页内偏移量则不被转换。
+然后，产生的监管者级物理地址在被直接转换为机器级物理地址之前，使用任何物理内存保护结构（第\ref{sec:pmp}节）进行检查。
+如果有必要，监管者级物理地址将零扩展到具体实现中找到的物理地址位数。
+
 \begin{commentary}
+
 For example, consider an RV32 system supporting 34 bits of physical
 address.  When the value of {\tt satp}.MODE is Sv32, a 34-bit physical
 address is produced directly, and therefore no zero-extension is needed.
@@ -1425,6 +2292,10 @@ When the value of {\tt satp}.MODE is Bare, the 32-bit virtual address is
 translated (unmodified) into a 32-bit physical address, and then that
 physical address is zero-extended into a 34-bit machine-level physical
 address.
+
+例如，考虑一个支持34位物理地址的RV32系统。
+当{\tt satp}.MODE的值为Sv32时，可以直接生成34位物理地址，因此不需要零扩展。
+当{\tt satp}.MODE的值为Bare时，32位虚拟地址被转换（未修改）为32位物理地址，然后该物理地址被零扩展为34位机器级物理地址。
 \end{commentary}
 
 \begin{figure*}[h!]
@@ -1506,10 +2377,92 @@ address.
 \label{sv32pte}
 \end{figure*}
 
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}O@{}O@{}E}
+\instbitrange{31}{22} &
+\instbitrange{21}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{VPN[1]} &
+\multicolumn{1}{c|}{VPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+10 & 10 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv32 虚拟地址}
+\label{sv32va}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}E@{}O@{}E}
+\instbitrange{33}{22} &
+\instbitrange{21}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+12 & 10 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv32 物理地址}
+\label{rv32va}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}E@{}O@{}Fcccccccc}
+\instbitrange{31}{20} &
+\instbitrange{19}{10} &
+\instbitrange{9}{8} &
+\instbit{7} &
+\instbit{6} &
+\instbit{5} &
+\instbit{4} &
+\instbit{3} &
+\instbit{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{RSW} &
+\multicolumn{1}{c|}{D} &
+\multicolumn{1}{c|}{A} &
+\multicolumn{1}{c|}{G} &
+\multicolumn{1}{c|}{U} &
+\multicolumn{1}{c|}{X} &
+\multicolumn{1}{c|}{W} &
+\multicolumn{1}{c|}{R} &
+\multicolumn{1}{c|}{V} \\
+\hline
+12 & 10 & 2 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv32 页表项}
+\label{sv32pte}
+\end{figure*}
+
 Sv32 page tables consist of $2^{10}$ page-table entries (PTEs), each
 of four bytes.  A page table is exactly the size of a page and must
 always be aligned to a page boundary.  The physical page number of the
 root page table is stored in the {\tt satp} register.
+
+Sv32页表由$2^{10}$个页表条目（PTEs）组成，每条有4个字节。
+页表与页面的大小完全一致，并且必须始终与页面边界对齐。根页表的物理页号存储在{\tt satp}寄存器中。
 
 The PTE format for Sv32 is shown in Figures~\ref{sv32pte}.  The V bit
 indicates whether the PTE is valid; if it is 0, all other bits in the PTE are
@@ -1519,6 +2472,12 @@ respectively.  When all three are zero, the PTE is a pointer to the next level
 of the page table; otherwise, it is a leaf PTE.  Writable pages must also be
 marked readable; the contrary combinations are reserved for future use.
 Table~\ref{pteperm} summarizes the encoding of the permission bits.
+
+Sv32的PTE格式如图\ref{sv32pte}所示。
+V位表示PTE是否有效；如果是0，PTE中的所有其他位都不被关心，可以被软件自由使用。
+权限位R、W和X分别指示页面是否可读、可写和可执行。
+当这三个都为零时，PTE是指向页表下一级的指针；否则，它是一个叶PTE。
+可写的页面也必须被标记为可读的；相反的组合留作将来使用。表\ref{pteperm}总结了权限位的编码情况。
 
 \begin{table*}[h!]
 \begin{center}
@@ -1541,6 +2500,27 @@ X & W & R & Meaning \\
 \label{pteperm}
 \end{table*}
 
+\begin{table*}[h!]
+\begin{center}
+\begin{tabular}{|c|c|c||l|}
+\hline
+X & W & R & 含义 \\
+\hline
+0 & 0 & 0 & 下一级页表的指针 \\
+0 & 0 & 1 & 只读页 \\
+0 & 1 & 0 & {\em 保留供将来使用} \\
+0 & 1 & 1 & 读取-写入页 \\
+1 & 0 & 0 & 仅执行页 \\
+1 & 0 & 1 & 读取-执行页 \\
+1 & 1 & 0 & {\em 保留供将来使用} \\
+1 & 1 & 1 & 读取-写入-执行页 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{PTE R/W/X域的编码}
+\label{pteperm}
+\end{table*}
+
 Attempting to fetch an instruction from a page that does not have execute
 permissions raises a fetch page-fault exception.  Attempting to execute
 a load or load-reserved instruction whose effective address lies within
@@ -1548,10 +2528,17 @@ a page without read permissions raises a load page-fault exception.
 Attempting to execute a store, store-conditional,
 or AMO instruction whose effective address lies within a page without
 write permissions raises a store page-fault exception.
+
+试图从没有执行权限的页面中获取指令，会引发取指缺页异常。
+尝试执行的加载或加载保留指令的有效地址位于没有读取权限的页面内，会引发加载缺页异常。
+试图执行有效地址位于没有写权限的页面内的存储、条件存储或AMO指令，会引发存储缺页异常。
 \begin{commentary}
 AMOs never raise load page-fault exceptions.  Since any unreadable page is
 also unwritable, attempting to perform an AMO on an unreadable page always
 raises a store page-fault exception.
+
+AMOs永远不会引发加载页面错误异常。
+因为任何不可读的页面也是不可写的，因此试图在不可读的页面上执行AMO总是会导致存储页面错误异常。
 \end{commentary}
 
 The U bit indicates whether the page is accessible to user mode.
@@ -1562,11 +2549,19 @@ However, supervisor code normally operates with the SUM bit clear, in
 which case, supervisor code will fault on accesses to user-mode pages.
 Irrespective of SUM, the supervisor may not execute code on pages with U=1.
 
+U位表示用户模式是否可以访问该页面。
+U模式软件只能在U=1时访问该页面。
+如果设置了{\tt sstatus}寄存器中的SUM位，监管者模式软件也可以访问具有U=1的页面。
+然而，监管者代码通常在SUM位清除的情况下运行，在这种情况下，监管者代码将在访问用户模式页面时出错。
+
 \begin{commentary}
 An alternative PTE format would support different permissions for supervisor
 and user.  We omitted this feature because it would be largely redundant with
 the SUM mechanism (see Section~\ref{sec:sum}) and would require more encoding
 space in the PTE.
+
+另一种PTE格式将支持监管者和用户的不同权限。
+我们省略了这个特性，因为它在很大程度上是SUM机制的冗余（参见第\ref{sec:sum}节），并且在PTE中需要更多的编码空间。
 \end{commentary}
 
 The G bit designates a {\em global} mapping.  Global mappings are those that
@@ -1577,47 +2572,80 @@ whereas marking a non-global mapping as global is a software bug that,
 after switching to an address space with a different non-global mapping for
 that address range, can unpredictably result in either mapping being used.
 
+G位指定全局映射。{\em 全局}映射是存在于所有地址空间中的映射。
+对于非叶PTE，全局设置意味着页表的后续级别中的所有映射都是全局的。
+请注意，未将全局映射标记为全局只会降低性能，而将非全局映射标记成全局是一个软件错误，
+在切换到具有该地址范围的不同非全局映射的地址空间后，可能会不可预知地导致使用任一映射。
+
 \begin{commentary}
 Global mappings need not be stored redundantly in address-translation caches
 for multiple ASIDs.  Additionally, they need not be flushed from local
 address-translation caches when an SFENCE.VMA instruction is executed with
 {\em rs2}$\neq${\tt x0}.
-\end{commentary}
 
+全局映射无需冗余存储在多个ASID的地址转换缓存中。
+此外，当执行{\em rs2}$\neq${\tt x0}的SFENCE.VMA指令时，不需要从本地地址转换缓存中刷新它们。
+\end{commentary}
 The RSW field is reserved for use by supervisor software; the implementation
 shall ignore this field.
+
+RSW字段保留，供监管软件使用；具体实现应忽略此字段。
 
 Each leaf PTE contains an accessed (A) and dirty (D) bit.  The A bit indicates
 the virtual page has been read, written, or fetched from since the last time
 the A bit was cleared.  The D bit indicates the virtual page has been written
 since the last time the D bit was cleared.
 
+每个叶PTE包含一个已访问（A）和脏（D）位。
+A位表示自上次清除A位以来，虚拟页面已被读取、写入或取指。
+D位表示自上次清除D位以来已写入虚拟页。
+
 Two schemes to manage the A and D bits are permitted:
+
+以下两种方案可以用来管理A位和D位：
+
 \begin{itemize}
-\item When a virtual page is accessed and the A bit is clear, or is
-      written and the D bit is clear, a page-fault exception is raised.
-
-\item When a virtual page is accessed and the A bit is clear, or is
-      written and the D bit is clear, the implementation sets the
-      corresponding bit(s) in the PTE.  The PTE update must be atomic with
-      respect to other accesses to the PTE, and must atomically check
-      that the PTE is valid and grants sufficient permissions.  Updates
-      of the A bit may be performed as a result of speculation, but updates
-      to the D bit must be exact (i.e., not speculative), and observed
-      in program order by the local hart.  Furthermore, the PTE update
-      must appear in the global memory order no later than the explicit
-      memory access, or any subsequent explicit memory access to that
-      virtual page by the local hart.  The ordering on loads and stores
-      provided by FENCE instructions and the acquire/release bits on atomic
-      instructions also orders the PTE updates associated with those loads
-      and stores as observed by remote harts.
-
-      The PTE update is not required to be atomic with respect to the explicit
-      memory access that caused the update, and the sequence is interruptible.
-      However, the hart must not perform the explicit memory access before the
-      PTE update is globally visible.
+  \item When a virtual page is accessed and the A bit is clear, or is
+        written and the D bit is clear, a page-fault exception is raised.
+  
+  \item When a virtual page is accessed and the A bit is clear, or is
+        written and the D bit is clear, the implementation sets the
+        corresponding bit(s) in the PTE.  The PTE update must be atomic with
+        respect to other accesses to the PTE, and must atomically check
+        that the PTE is valid and grants sufficient permissions.  Updates
+        of the A bit may be performed as a result of speculation, but updates
+        to the D bit must be exact (i.e., not speculative), and observed
+        in program order by the local hart.  Furthermore, the PTE update
+        must appear in the global memory order no later than the explicit
+        memory access, or any subsequent explicit memory access to that
+        virtual page by the local hart.  The ordering on loads and stores
+        provided by FENCE instructions and the acquire/release bits on atomic
+        instructions also orders the PTE updates associated with those loads
+        and stores as observed by remote harts.
+  
+        The PTE update is not required to be atomic with respect to the explicit
+        memory access that caused the update, and the sequence is interruptible.
+        However, the hart must not perform the explicit memory access before the
+        PTE update is globally visible.
 \end{itemize}
+
+\begin{itemize}
+\item 当虚拟页面被访问并且A位为0时，或虚拟页面被写入且D位为0时，一个缺页异常将被引发。
+
+\item 当虚拟页面被访问并且A位为0时，或虚拟页面被写入且D位为0时，具体实现将在PTE中设置相应的一个或多个位。
+PTE更新和对PTE的其他访问必须是原子性的，并且必须原子性地检查PTE是否有效并授予足够的权限。
+A位的更新可能是推测执行的结果，但D位的更新必须是精确的（即，不是推测的），并由本地硬件线程按程序顺序监视。
+此外，PTE更新必须以全局内存顺序出现，不得晚于显式内存访问或本地硬件线程对该虚拟页的任何后续显式内存存取。
+FENCE指令提供的加载和存储排序以及原子指令上的获取/释放位也会根据远程硬件线程观察到的情况，
+对与这些加载和存储关联的PTE更新进行排序。
+
+对于引起更新的显式内存访问，PTE更新不需要是原子的，执行序列是可中断的。
+然而，在PTE更新全局可见之前，硬件线程不能执行显式内存访问。
+\end{itemize}
+
 All harts in a system must employ the same PTE-update scheme as each other.
+
+系统中的所有硬件线程必须使用相同的PTE更新方案。
 
 \begin{commentary}
 Prior versions of this specification required PTE A bit updates to be exact,
@@ -1628,8 +2656,14 @@ require exactness for functional correctness.  On the other hand, D bit updates
 are still required to be exact and performed in program order, as the D bit
 affects the functional correctness of page eviction.
 
+该规范的早期版本要求精确更新PTE的A位，但允许A位因推测而更新，因而简化了地址转换预取器的实现。
+系统软件通常使用A位作为页面替换策略的提示，但不需要精确的功能正确性。
+另一方面，D位的更新仍然需要精确并按程序顺序执行，因为D位影响页面收回的功能正确性。
+
 Implementations are of course still permitted to perform both A and D bit
 updates only in an exact manner.
+
+当然，仍然允许具体实现以精确的方式执行A位和D位更新。
 
 In both cases, requiring atomicity ensures that the PTE update will not be
 interrupted by other intervening writes to the page table, as such interruptions
@@ -1637,11 +2671,19 @@ could lead to A/D bits being set on PTEs that have been reused for other
 purposes, on memory that has been reclaimed for other purposes, and so on.
 Simple implementations may instead generate page-fault exceptions.
 
+在这两种情况下，要求原子性可以确保PTE更新不会被其他干预写入页表的操作中断，
+因为这样的中断可能会导致A/D位被设置在为其他目的使用的PTE上，或设置在为其它目的回收的内存上，以此类推。
+一种简单的实现可能会生成页错误异常。
+
 The A and D bits are never cleared by the implementation.  If the
 supervisor software does not rely on accessed and/or dirty bits,
 e.g. if it does not swap memory pages to secondary storage or if the
 pages are being used to map I/O space, it should always set them to 1
 in the PTE to improve performance.
+
+A位和D位永远不会被具体实现清除。
+如果监管者软件不依赖于已访问以及脏位，例如，如果它不将内存页交换到辅助存储器，
+或者如果这些页面正用于映射I/O空间，则应始终在PTE中将它们设置为1，以提高性能。
 \end{commentary}
 
 Any level of PTE may be a leaf PTE, so in addition to 4 KiB pages, Sv32
@@ -1649,71 +2691,122 @@ supports 4 MiB {\em megapages}.  A megapage must be virtually and
 physically aligned to a 4 MiB boundary; a page-fault exception is raised
 if the physical address is insufficiently aligned.
 
+任何级别的PTE都可以是叶PTE，因此除了4个KiB页面外，Sv32还支持4 MiB{\em 巨型页面}。
+一个巨型页面必须与一个4 MiB边界在物理上和虚拟上对齐；如果物理地址未充分对齐，则会引发页面错误异常。
+
 For non-leaf PTEs, the D, A, and U bits are reserved for future standard
 use.  Until their use is defined by a standard extension, they
 must be cleared by software for forward compatibility.
+
+对于非叶PTE，D、A和U位保留供未来标准使用。在标准扩展定义其使用之前，必须通过软件将它们清0以实现向前兼容性。
 
 For implementations with both page-based virtual memory and the ``A'' standard
 extension, the LR/SC reservation set must lie completely within a single
 base page (i.e., a naturally aligned \wunits{4}{KiB} region).
 
-\subsection{Virtual Address Translation Process}
+对于具有基于页面的虚拟内存和“A”标准扩展的具体实现，LR/SC保留集必须完全位于单个基本页面内（即自然对齐的\wunits{4}{KiB}区域）。
+
+\subsection{Virtual Address Translation Process 虚拟地址转换过程}
 \label{sv32algorithm}
 
 A virtual address $va$ is translated into a physical address $pa$ as
 follows:
 
+一个虚拟地址$va$被转换为一个物理地址$pa$的过程如下所示：
+
 \begin{enumerate}
 
-\item Let $a$ be ${\tt satp}.ppn \times \textrm{PAGESIZE}$, and let $i=\textrm{LEVELS} - 1$. (For Sv32, PAGESIZE=$2^{12}$ and LEVELS=2.)
-  The {\tt satp} register must be {\em active}, i.e., the effective privilege
-  mode must be S-mode or U-mode.
-
-\item Let $pte$ be the value of the PTE at address
-  $a+va.vpn[i]\times \textrm{PTESIZE}$. (For Sv32, PTESIZE=4.)
-  If accessing $pte$ violates a PMA or PMP check, raise an
-  access-fault exception corresponding to the original access type.
-
-\item If $pte.v=0$, or if $pte.r=0$ and $pte.w=1$, or if any bits or encodings
-  that are reserved for future standard use are set within $pte$, stop and
-  raise a page-fault exception corresponding to the original access type.
-
-\item Otherwise, the PTE is valid.
-  If $pte.r=1$ or $pte.x=1$, go to step 5.
-  Otherwise, this PTE is a pointer to the next level of the page table.  Let
-  $i=i-1$.  If $i<0$, stop and raise a page-fault exception
-  corresponding to the original access type.  Otherwise, let
-  $a=pte.ppn \times \textrm{PAGESIZE}$ and go to step 2.
-
-\item A leaf PTE has been found.  Determine if the requested memory access is
-  allowed by the $pte.r$, $pte.w$, $pte.x$, and $pte.u$ bits, given the
-  current privilege mode and the value of the SUM and MXR fields of
-  the {\tt mstatus} register.  If not, stop and raise a page-fault
-  exception corresponding to the original access type.
-
-\item If $i>0$ and $pte.ppn[i-1:0]\neq 0$, this is a misaligned superpage;
-  stop and raise a page-fault exception corresponding to the original access type.
-
-\item If $pte.a=0$, or if the original memory access is a store and $pte.d=0$, either
-  raise a page-fault exception corresponding to the original access type, or:
-  \begin{itemize}
-  \item If a store to $pte$ would violate a PMA or PMP check, raise an
+  \item Let $a$ be ${\tt satp}.ppn \times \textrm{PAGESIZE}$, and let $i=\textrm{LEVELS} - 1$. (For Sv32, PAGESIZE=$2^{12}$ and LEVELS=2.)
+    The {\tt satp} register must be {\em active}, i.e., the effective privilege
+    mode must be S-mode or U-mode.
+  
+  \item Let $pte$ be the value of the PTE at address
+    $a+va.vpn[i]\times \textrm{PTESIZE}$. (For Sv32, PTESIZE=4.)
+    If accessing $pte$ violates a PMA or PMP check, raise an
     access-fault exception corresponding to the original access type.
-  \item Perform the following steps atomically:
+  
+  \item If $pte.v=0$, or if $pte.r=0$ and $pte.w=1$, or if any bits or encodings
+    that are reserved for future standard use are set within $pte$, stop and
+    raise a page-fault exception corresponding to the original access type.
+  
+  \item Otherwise, the PTE is valid.
+    If $pte.r=1$ or $pte.x=1$, go to step 5.
+    Otherwise, this PTE is a pointer to the next level of the page table.  Let
+    $i=i-1$.  If $i<0$, stop and raise a page-fault exception
+    corresponding to the original access type.  Otherwise, let
+    $a=pte.ppn \times \textrm{PAGESIZE}$ and go to step 2.
+  
+  \item A leaf PTE has been found.  Determine if the requested memory access is
+    allowed by the $pte.r$, $pte.w$, $pte.x$, and $pte.u$ bits, given the
+    current privilege mode and the value of the SUM and MXR fields of
+    the {\tt mstatus} register.  If not, stop and raise a page-fault
+    exception corresponding to the original access type.
+  
+  \item If $i>0$ and $pte.ppn[i-1:0]\neq 0$, this is a misaligned superpage;
+    stop and raise a page-fault exception corresponding to the original access type.
+  
+  \item If $pte.a=0$, or if the original memory access is a store and $pte.d=0$, either
+    raise a page-fault exception corresponding to the original access type, or:
     \begin{itemize}
-      \item Compare $pte$ to the value of the PTE at address $a+va.vpn[i]\times \textrm{PTESIZE}$.
-      \item If the values match, set $pte.a$ to 1 and, if the original memory
-        access is a store, also set $pte.d$ to 1.
-      \item If the comparison fails, return to step 2
+    \item If a store to $pte$ would violate a PMA or PMP check, raise an
+      access-fault exception corresponding to the original access type.
+    \item Perform the following steps atomically:
+      \begin{itemize}
+        \item Compare $pte$ to the value of the PTE at address $a+va.vpn[i]\times \textrm{PTESIZE}$.
+        \item If the values match, set $pte.a$ to 1 and, if the original memory
+          access is a store, also set $pte.d$ to 1.
+        \item If the comparison fails, return to step 2
+      \end{itemize}
+    \end{itemize}
+  
+  \item The translation is successful. The translated physical address is
+    given as follows:
+  \begin{itemize}
+  \item $\textit{pa.pgoff} = \textit{va.pgoff}$.
+  \item If $i>0$, then this is a superpage translation and $pa.ppn[i-1:0]=va.vpn[i-1:0]$.
+  \item $pa.ppn[\textrm{LEVELS} - 1:i] = pte.ppn[\textrm{LEVELS} - 1:i]$.
+  \end{itemize}
+  
+\end{enumerate}
+
+\begin{enumerate}
+
+\item 设$a$为${\tt satp}.ppn \times \textrm{PAGESIZE}$，设$i=\textrm{LEVELS} - 1$
+（对于Sv32，PAGESIZE=$2^{12}$，LEVELS=2）。
+{\tt satp}寄存器必须处于{\em 活动}状态，即有效特权模式必须为S模式或U模式。
+
+\item 设$pte$为地址 $a+va.vpn[i]\times \textrm{PTESIZE}$处PTE的值
+（对于Sv32，PTESIZE=4）。如果访问$pte$违反了PMA或PMP检查，则引发与原始访问类型对应的访问错误异常。
+
+\item 如果$pte.v=0$，或者$pte.r=0$且$pte.w=1$，
+或者如果在$pte$中设置了被保留以供将来标准使用的任何位或编码，则停止并引发与原始访问类型对应的页面错误异常。
+
+\item 否则，PTE有效。如果$pte.r=1$或$pte.x=1$，转至步骤5；
+否则，此pte是指向页表下一级的指针。使$i=i-1$.如果$i<0$，则停止并引发与原始访问类型对应的页面错误异常；
+否则，使 $a=pte.ppn \times \textrm{PAGESIZE}$并转至步骤2。
+
+\item 已找到叶PTE。在给定当前特权模式和{\tt mstatus}寄存器的SUM和MXR字段值的情况下，
+确定$pte.r$、$pte.w$、$pte.x$和$pte.u$位是否允许请求的内存访问。
+如果不允许，则停止并引发与原始访问类型对应的页面错误异常。
+
+\item 如果$i>0$且$pte.ppn[i-1:0]\neq 0$，这是未对齐的超级页；停止并引发与原始访问类型对应的页面错误异常。
+
+\item 7. 如果$pte.a=0$，或者如果原始内存访问是存储且$pte.d=0$，则引发与原始访问类型对应的页面错误异常，或者：
+  \begin{itemize}
+  \item 如果$pte$的存储违反了PMA或PMP检查，则引发与原始访问类型对应的访问错误异常。
+  \item 自动执行以下步骤：
+    \begin{itemize}
+      \item 将$pte$与地址$a+va.vpn[i]\times \textrm{PTESIZE}$处的PTE值进行对比。
+      \item 如果值匹配，则将$pte.a$设置为1；如果原始内存访问是存储，则也将$pte.d$设置为1。
+      \item 如果对比不匹配，返回步骤2。
     \end{itemize}
   \end{itemize}
 
-\item The translation is successful. The translated physical address is
-  given as follows:
+\item 8. 翻译成功。转换后的物理地址如下：T
 \begin{itemize}
-\item $\textit{pa.pgoff} = \textit{va.pgoff}$.
-\item If $i>0$, then this is a superpage translation and $pa.ppn[i-1:0]=va.vpn[i-1:0]$.
-\item $pa.ppn[\textrm{LEVELS} - 1:i] = pte.ppn[\textrm{LEVELS} - 1:i]$.
+\item $\textit{pa.pgoff} = \textit{va.pgoff}$。
+\item 如果$i>0$，则这是一个超级页转换，$pa.ppn[i-1:0]=va.vpn[i-1:0]$。
+\item $pa.ppn[\textrm{LEVELS} - 1:i] = pte.ppn[\textrm{LEVELS} - 1:i]$。
 \end{itemize}
 
 \end{enumerate}
@@ -1721,14 +2814,18 @@ follows:
 All implicit accesses to the address-translation data structures in this
 algorithm are performed using width PTESIZE.
 
+该算法中所有对地址转换数据结构的隐式访问都是使用宽度PTESIZE执行的。
+
 \begin{commentary}
 This implies, for example, that an Sv48 implementation may not use two separate
 4B reads to non-atomically access a single 8B PTE, and that A/D bit updates
 performed by the implementation are treated as atomically updating the entire
 PTE, rather than just the A and/or D bit alone (even though the PTE value does
 not otherwise change).
-\end{commentary}
 
+这意味着，例如，Sv48实现可能不会使用两次单独的4B读取来非原子化地访问单个8B PTE，
+并且该具体实现执行的A/D位更新被视为原子化地更新整个PTE，而不仅仅是a位和/或D位（即使PTE值没有改变）。
+\end{commentary}
 The results of implicit address-translation reads in step 2 may be held in a
 read-only, incoherent {\em address-translation cache} but not shared with other
 harts.  The address-translation cache may hold an arbitrary number of entries,
@@ -1740,8 +2837,16 @@ implicit reads observe writes to the same memory locations, an SFENCE.VMA
 instruction must be executed after the writes to flush the relevant cached
 translations.
 
+步骤2中隐式地址转换读取的结果可能保存在一个只读的、非相干{\em 地址转换缓存}中，但不会与其他硬件线程共享。
+地址转换缓存可以保存任意数量的条目，包括任意数量的同一地址和ASID的条目。
+如果与条目相关联的ASID与步骤0中加载的ASID匹配，或者如果条目与{\em 全局}映射相关联，
+则地址转换缓存中的条目可以满足后续步骤2的读取。
+为了确保隐式读取能观察到对相同内存位置的写入，必须在写入后执行SFENCE.VMA指令，以刷新相关的转换缓存。
+
 The address-translation cache cannot be used in step 7; accessed and
 dirty bits may only be updated in memory directly.
+
+步骤7中无法使用地址转换缓存；访问位和脏位只能直接在内存中更新。
 
 \begin{commentary}
   It is permitted for multiple address-translation cache entries to co-exist
@@ -1754,12 +2859,20 @@ dirty bits may only be updated in memory directly.
   a write to the memory-management tables and subsequent implicit read of the
   same address: it is unpredictable whether the old non-leaf PTE or the new leaf
   PTE is used, but the behavior is otherwise well defined.
-\end{commentary}
 
+  允许同一地址的多个地址转换缓存项共存。
+  这表明，在传统TLB层次结构中，如果在不清除原始非叶PTE的有效位并执行{\em rs1}={\tt x0}的SFENCE.VMA的情况下，
+  将一个页面升级为一个超级页，或者如果在层次结构的给定级别上并行存在多个TLB，则可能有多个条目匹配单个地址。
+  在这种情况下，就像没有在内存管理表的写入和同一地址的后续隐式读取之间执行SFENCE.VMA一样：
+  使用旧的非叶PTE还是新的叶PTE是不可预测的，但在其他情况下，该行为是被明确定义的。
+\end{commentary}
 Implementations may also execute the address-translation algorithm
 speculatively at any time, for any virtual address, as long as {\tt satp} is
 active (as defined in Section~\ref{sec:satp}).  Such speculative executions
 have the effect of pre-populating the address-translation cache.
+
+只要{\tt satp}处于活动状态（如第\ref{sec:satp}节所定义），具体实现还可以在任何时候对任何虚拟地址推测性地执行地址转换算法。
+此类推测性执行具有预填充地址转换缓存的效果。
 
 Speculative executions of the address-translation algorithm behave as
 non-speculative executions of the algorithm do, except that they must not set the
@@ -1768,12 +2881,21 @@ address-translation cache entries if those entries would have been invalidated
 by any SFENCE.VMA instruction executed by the hart since the speculative
 execution of the algorithm began.
 
+地址转换算法的推测性执行与算法的非推测性执行的行为相同，
+但它们禁止为PTE设置脏位，也禁止触发异常，并且，如果自算法的推测执行开始以来，
+硬件线程执行的任何SFENCE.VMA指令可能已经使这些条目无效了，则它们不得创建地址转换缓存条目。
+
 \begin{commentary}
   For instance, it is illegal for both non-speculative and speculative
   executions of the translation algorithm to begin, read the level 2 page table,
   pause while the hart executes an SFENCE.VMA with {\em rs1}={\em rs2}={\tt x0},
   then resume using the now-stale level 2 PTE, as subsequent implicit reads
   could populate the address-translation cache with stale PTEs.
+
+  例如，开始执行转换算法的非推测执行和推测执行，
+  读取2级页表，在硬件线程执行{\em rs1}={\em rs2}={\tt x0}的SFENCE.VMA时暂停，
+  然后继续使用已经过时的2级 PTE，这些行为是非法的，
+  因为后续的隐式读取可能会用过时的PTE填充地址转换缓存。
 
   In many implementations, an SFENCE.VMA instruction with {\em rs1}={\tt x0}
   will therefore either terminate all previously-launched speculative
@@ -1786,30 +2908,46 @@ execution of the algorithm began.
   ASID, if applicable) are prevented from creating new address-translation cache
   entries mapping leaf PTEs, or wait for them to complete.
 
+  因此，在许多实现中，{\em rs1}={\tt x0}的SFENCE.VMA指令将终止先前启动的地址转换算法的所有推测执行（如果适用，针对指定的ASID），
+  或只是等待它们完成（在这种情况下创建的任何地址转换缓存项将由SFENCE.VMA视情况而定为无效）。
+  同样，{\em rs1}$\neq${\tt x0}的SFENCE.VMA指令通常必须确保防止先前启动的地址转换算法的推测执行（如果适用，针对指定的ASID）
+  创建映射叶PTE的新地址转换缓存项，或者等待它们完成。
+
   A consequence of implementations being permitted to read the translation data
   structures arbitrarily early and speculatively is that at any time, all
   page table entries reachable by executing the algorithm may be loaded into
   the address-translation cache.
+
+  允许具体实现任意提前和推测性地读取转换数据结构的结果是，在任何时候，
+  通过执行算法可以访问的所有页表条目都可以加载到地址转换缓存中。
 
   Although it would be uncommon to place page tables in non-idempotent memory,
   there is no explicit prohibition against doing so.  Since the algorithm may
   only touch page tables reachable from the root page table indicated in {\tt
   satp}, the range of addresses that an implementation's page table walker will
   touch is fully under supervisor control.
+
+  虽然在非幂等内存中放置页表并不常见，但并没有明确禁止这样做。
+  由于该算法可能只触及从{\tt satp}中指示的根页表中可以访问的页表，
+  因此具体实现的页表遍历器能触及的地址范围完全由监管者控制。
 \end{commentary}
 
 \begin{commentary}
 The algorithm does not admit the possibility of ignoring high-order PPN bits
 for implementations with narrower physical addresses.
+
+该算法不允许在物理地址较窄的实现中忽略PPN的高位。
 \end{commentary}
 
-\section{Sv39: Page-Based 39-bit Virtual-Memory System}
+\section{Sv39: Page-Based 39-bit Virtual-Memory System Sv39：基于页面的39位虚拟内存系统}
 \label{sec:sv39}
-
 This section describes a simple paged virtual-memory system
 for SXLEN=64, which supports 39-bit virtual address spaces.  The
 design of Sv39 follows the overall scheme of Sv32, and this section
 details only the differences between the schemes.
+
+本节介绍一个简单的SXLEN=64分页虚拟内存系统，它支持39位虚拟地址空间。
+Sv39的设计遵循Sv32的总体方案，本节仅详细说明方案之间的差异。
 
 \begin{commentary}
 We specified multiple virtual memory systems for RV64 to relieve the tension
@@ -1821,9 +2959,14 @@ capacity dedicated to page tables, the latency of page-table traversals, and
 the size of hardware structures that store virtual addresses.  Sv57 increases
 the virtual address space, page table capacity requirement, and translation
 latency even further.
+
+我们为RV64制定了多个虚拟内存系统，以缓解提供大地址空间和最小化地址转换成本之间的紧张关系。
+对于许多系统，\wunits{512}{GiB}的虚拟地址空间充足，所以Sv39就足够了。
+Sv48将虚拟地址空间增加到256 \wunits{256}{TiB}，但同时增加了专用于页表的物理内存容量，遍历页表的延迟，
+以及存储虚拟地址的硬件结构的大小。Sv57系列进一步增加了虚拟地址空间、页表容量需求以及转换延迟。
 \end{commentary}
 
-\subsection{Addressing and Memory Protection}
+\subsection{Addressing and Memory Protection 寻址和内存保护}
 
 Sv39 implementations support a 39-bit virtual address space, divided
 into \wunits{4}{KiB} pages.  An Sv39 address is partitioned as
@@ -1834,6 +2977,10 @@ a page-fault exception will occur.  The 27-bit VPN is translated into a
 44-bit PPN via a three-level page table, while the 12-bit page offset
 is untranslated.
 
+Sv39具体实现支持39位虚拟地址空间，分为\wunits{4}{KiB}页。
+Sv39地址的划分如图\ref{sv39va}所示。指令获取地址以及加载和存储有效地址（64位）的位63--39必须全部等于位38，
+否则将发生页错误异常。27位VPN通过三级页表转换为44位PPN，而12位页内偏移量未转换。
+
 \begin{commentary}
 When mapping between narrower and wider addresses, RISC-V
 zero-extends a narrower physical address to a wider size.  The mapping
@@ -1841,7 +2988,11 @@ between 64-bit virtual addresses and the 39-bit usable address
 space of Sv39 is not based on zero-extension but instead follows an
 entrenched convention that allows an OS to use one or a few of the
 most-significant bits of a full-size (64-bit) virtual address to
-quickly distinguish user and supervisor address regions.
+quickly distinguish user and supervisor address regions.  
+
+当在宽和窄的地址之间映射时，RISC-V 将更窄的物理地址零扩展到宽地址的大小。
+64位虚拟地址和Sv39的39位可用地址空间之间的映射不是基于零扩展，而是遵循一种根深蒂固的约定，
+即允许操作系统使用全尺寸（64位）虚拟地址中的一个或几个最重要的位来快速区分用户和监管者地址区域。
 \end{commentary}
 
 \begin{figure*}[h!]
@@ -1935,10 +3086,104 @@ quickly distinguish user and supervisor address regions.
 \label{sv39pte}
 \end{figure*}
 
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}O@{}O@{}O@{}O}
+\instbitrange{38}{30} &
+\instbitrange{29}{21} &
+\instbitrange{20}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{VPN[2]} &
+\multicolumn{1}{c|}{VPN[1]} &
+\multicolumn{1}{c|}{VPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+9 & 9 & 9 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv39 虚拟地址}
+\label{sv39va}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}T@{}O@{}O@{}O}
+\instbitrange{55}{30} &
+\instbitrange{29}{21} &
+\instbitrange{20}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{PPN[2]} &
+\multicolumn{1}{c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+26 & 9 & 9 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv39 物理地址}
+\label{sv39pa}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{cF@{}Y@{}Y@{}Y@{}Y@{}Fcccccccc}
+\instbit{63} &
+\instbitrange{62}{61} &
+\instbitrange{60}{54} &
+\instbitrange{53}{28} &
+\instbitrange{27}{19} &
+\instbitrange{18}{10} &
+\instbitrange{9}{8} &
+\instbit{7} &
+\instbit{6} &
+\instbit{5} &
+\instbit{4} &
+\instbit{3} &
+\instbit{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{N} &
+\multicolumn{1}{c|}{PBMT} &
+\multicolumn{1}{c|}{\it Reserved} &
+\multicolumn{1}{c|}{PPN[2]} &
+\multicolumn{1}{c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{RSW} &
+\multicolumn{1}{c|}{D} &
+\multicolumn{1}{c|}{A} &
+\multicolumn{1}{c|}{G} &
+\multicolumn{1}{c|}{U} &
+\multicolumn{1}{c|}{X} &
+\multicolumn{1}{c|}{W} &
+\multicolumn{1}{c|}{R} &
+\multicolumn{1}{c|}{V} \\
+\hline
+1 & 2 & 7 & 26 & 9 & 9 & 2 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv39 页表项}
+\label{sv39pte}
+\end{figure*}
+
 Sv39 page tables contain $2^9$ page table entries (PTEs), eight
 bytes each.  A page table is exactly the size of a page and must
 always be aligned to a page boundary.  The physical page number of the
 root page table is stored in the {\tt satp} register's PPN field.
+
+Sv39页表包含$2^9$个页表项（PTE），每项8个字节。一张页表正好是一张页面的大小，页表必须始终与页面边界对齐。
+根页表的物理页号存储在{\tt satp}寄存器的PPN字段中。
 
 The PTE format for Sv39 is shown in Figure~\ref{sv39pte}.  Bits 9--0
 have the same meaning as for Sv32.
@@ -1955,6 +3200,14 @@ for future standard use and, until their use is defined by some standard
 extension, must be zeroed by software for forward compatibility.
 If any of these bits are set, a page-fault exception is raised.
 
+Sv39的PTE格式如图\ref{sv39pte}所示。位9--0与在Sv32中的含义相同。
+第\ref{svnapot}章中，位63保留给Svnapot扩展使用。如果未实现Svnapot，则位63保留，
+并且必须由软件归零以实现前向兼容性，否则会引发页面错误异常。
+第\ref{svpbmt}章中，位62--61保留给Svpbmt扩展使用。如果未实现Svpbmt，
+则位62--61保留，并且必须由软件归零以实现前向兼容性，否则会引发页面错误异常。
+位60--54保留供将来的标准使用，在由某些标准扩展定义其使用之前，必须由软件归零，以实现前向兼容性。
+如果设置了这些位中的任何一位，则会引发页面错误异常。
+
 \begin{commentary}
 We reserved several PTE bits for a possible extension that improves
 support for sparse address spaces by allowing page-table levels to be
@@ -1964,8 +3217,12 @@ cost is reducing the physical address space, but \wunits{64}{PiB} is
 presently ample.  When it no longer suffices, the reserved
 bits that remain unallocated could be used to expand the physical
 address space.
-\end{commentary}
 
+我们为可能的扩展保留了几个PTE位，这些扩展通过允许跳过页表级别，
+减少内存使用量和TLB重新填充延迟，从而改进了对稀疏地址空间的支持。
+这些保留位也可用于促进研究实验。成本是减少物理地址空间，但64 \wunits{64}{PiB}目前已足够。
+当它不再足够时，保留的未分配位可用于扩展物理地址空间。
+\end{commentary}
 Any level of PTE may be a leaf PTE, so in addition to \wunits{4}{KiB}
 pages, Sv39 supports \wunits{2}{MiB} {\em megapages} and
 \wunits{1}{GiB} {\em gigapages}, each of which must be virtually and
@@ -1973,10 +3230,15 @@ physically aligned to a boundary equal to its size.
 A page-fault exception is raised if the physical address is insufficiently
 aligned.
 
+任何级别的PTE都可以是叶PTE，因此除了\wunits{4}{KiB}页面外，Sv39还支持\wunits{2}{MiB}{\em 巨型页面} 和\wunits{1}{GiB}{\em 千兆页面}，
+每个页面都必须在物理上和虚拟上与和它大小相等的边界对齐。如果物理地址未充分对齐，则会引发页面错误异常。
+
 The algorithm for virtual-to-physical address translation is the same as in
 Section~\ref{sv32algorithm}, except LEVELS equals 3 and PTESIZE equals 8.
 
-\section{Sv48: Page-Based 48-bit Virtual-Memory System}
+虚拟地址到物理地址转换的算法与第\ref{sv32algorithm}节中的相同，但LEVELS等于3，PTESIZE等于8。
+
+\section{Sv48: Page-Based 48-bit Virtual-Memory System Sv48：基于页面的48位虚拟内存系统}
 \label{sec:sv48}
 
 This section describes a simple paged virtual-memory system
@@ -1986,15 +3248,23 @@ insufficient.  It closely follows the design of Sv39, simply adding an
 additional level of page table, and so this chapter only details the
 differences between the two schemes.
 
+本节介绍一个简单的SXLEN=64分页虚拟内存系统，它支持39位虚拟地址空间。
+Sv48适用于39位虚拟地址空间不足的系统。它紧跟Sv39的设计，
+只是添加了一个额外的页表级别，因此本章只详细介绍了两种方案之间的差异。
+
 Implementations that support Sv48 must also support Sv39.
+
+支持Sv48的具体实现必须能够支持Sv39。
 
 \begin{commentary}
 Systems that support Sv48 can also support Sv39 at essentially no cost, and so
 should do so to maintain compatibility with supervisor software that assumes
 Sv39.
+
+支持Sv48的系统也可以基本上没有代价地支持Sv39，因此应该这样做以保持与Sv39的管理软件的兼容性。 
 \end{commentary}
 
-\subsection{Addressing and Memory Protection}
+\subsection{Addressing and Memory Protection 寻址和内存保护}
 
 Sv48 implementations support a 48-bit virtual address space, divided
 into \wunits{4}{KiB} pages.  An Sv48 address is partitioned as
@@ -2004,6 +3274,10 @@ which are 64 bits, must have bits 63--48 all equal to bit 47, or else
 a page-fault exception will occur.  The 36-bit VPN is translated into a
 44-bit PPN via a four-level page table, while the 12-bit page offset
 is untranslated.
+
+Sv48具体实现支持48位虚拟地址空间，分为\wunits{4}{KiB}页。Sv48地址的划分如图\ref{sv48va}所示。
+指令获取地址以及加载和存储有效地址（64位）的位63--48必须全部等于位47，
+否则将发生页错误异常。36位VPN通过四级页表转换为44位PPN，而12位页内偏移量未转换。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2102,6 +3376,103 @@ is untranslated.
 \label{sv48pte}
 \end{figure*}
 
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}O@{}O@{}O@{}O@{}O}
+\instbitrange{47}{39} &
+\instbitrange{38}{30} &
+\instbitrange{29}{21} &
+\instbitrange{20}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{VPN[3]} &
+\multicolumn{1}{c|}{VPN[2]} &
+\multicolumn{1}{c|}{VPN[1]} &
+\multicolumn{1}{c|}{VPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+9 & 9 & 9 & 9 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv48 虚拟地址}
+\label{sv48va}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}E@{}O@{}O@{}O@{}O}
+\instbitrange{55}{39} &
+\instbitrange{38}{30} &
+\instbitrange{29}{21} &
+\instbitrange{20}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{PPN[3]} &
+\multicolumn{1}{c|}{PPN[2]} &
+\multicolumn{1}{c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+17 & 9 & 9 & 9 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv48 物理地址}
+\label{sv48pa}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{cF@{}F@{}F@{}F@{}F@{}F@{}Fcccccccc}
+\instbit{63} &
+\instbitrange{62}{61} &
+\instbitrange{60}{54} &
+\instbitrange{53}{37} &
+\instbitrange{36}{28} &
+\instbitrange{27}{19} &
+\instbitrange{18}{10} &
+\instbitrange{9}{8} &
+\instbit{7} &
+\instbit{6} &
+\instbit{5} &
+\instbit{4} &
+\instbit{3} &
+\instbit{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{N} &
+\multicolumn{1}{c|}{PBMT} &
+\multicolumn{1}{c|}{\it Reserved} &
+\multicolumn{1}{c|}{PPN[3]} &
+\multicolumn{1}{c|}{PPN[2]} &
+\multicolumn{1}{c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{RSW} &
+\multicolumn{1}{c|}{D} &
+\multicolumn{1}{c|}{A} &
+\multicolumn{1}{c|}{G} &
+\multicolumn{1}{c|}{U} &
+\multicolumn{1}{c|}{X} &
+\multicolumn{1}{c|}{W} &
+\multicolumn{1}{c|}{R} &
+\multicolumn{1}{c|}{V} \\
+\hline
+1 & 2 & 7 & 17 & 9 & 9 & 9 & 2 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv48 页表项}
+\label{sv48pte}
+\end{figure*}
+
 The PTE format for Sv48 is shown in Figure~\ref{sv48pte}.  Bits 63--54 and 9--0
 have the same meaning as for Sv39.  Any level of PTE may be a leaf
 PTE, so in addition to \wunits{4}{KiB} pages, Sv48 supports
@@ -2111,11 +3482,18 @@ physically aligned to a boundary equal to its size.
 A page-fault exception is raised if the physical address is insufficiently
 aligned.
 
+Sv48的PTE格式如图\ref{sv48pte}所示。位63--54和9--0与在Sv39中的含义相同。
+任何级别的PTE都可以是叶PTE，因此，除了\wunits{4}{KiB}页外，Sv48还支持\wunits{2}{MiB}{\em 巨型页}、
+\wunits{1}{GiB}{\em 千兆页}和\wunits{512}{GiB} {\em 万亿页}，
+每个页面都必须在虚拟和物理上与和它大小相等的边界对齐。如果物理地址未充分对齐，则会引发页面错误异常。
+
 The algorithm for virtual-to-physical address translation is the same
 as in Section~\ref{sv32algorithm}, except LEVELS equals 4 and PTESIZE
 equals 8.
 
-\section{Sv57: Page-Based 57-bit Virtual-Memory System}
+虚拟地址到物理地址转换的算法与第\ref{sv32algorithm}节中的相同，但LEVELS等于4，PTESIZE等于8。
+
+\section{Sv57: Page-Based 57-bit Virtual-Memory System Sv57：基于页面的57位虚拟内存系统}
 \label{sec:sv57}
 
 This section describes a simple paged virtual-memory system designed
@@ -2125,16 +3503,22 @@ insufficient.  It closely follows the design of Sv48, simply adding an
 additional level of page table, and so this chapter only details the
 differences between the two schemes.
 
+本节介绍一个为RV64系统设计的简单分页虚拟内存系统，该系统支持57位虚拟地址空间。
+Sv57适用于48位虚拟地址空间不足的系统。它紧跟Sv48的设计，只是添加了一个额外的页表级别，
+因此本章只详细介绍了两种方案之间的差异。
+
 Implementations that support Sv57 must also support Sv48.
 
+支持Sv57的具体实现必须能够支持Sv48。
 \begin{commentary}
 Systems that support Sv57 can also support Sv48 at essentially no cost, and so
 should do so to maintain compatibility with supervisor software that assumes
 Sv48.
+
+支持Sv57的系统也可以基本上没有代价地支持Sv48，因此应该这样做以保持与Sv48的管理软件的兼容性。 
 \end{commentary}
 
-\subsection{Addressing and Memory Protection}
-
+\subsection{Addressing and Memory Protection 寻址和内存保护}
 Sv57 implementations support a 57-bit virtual address space, divided
 into \wunits{4}{KiB} pages.  An Sv57 address is partitioned as
 shown in Figure~\ref{sv57va}.
@@ -2143,6 +3527,10 @@ which are 64 bits, must have bits 63--57 all equal to bit 56, or else
 a page-fault exception will occur.  The 45-bit VPN is translated into a
 44-bit PPN via a five-level page table, while the 12-bit page offset
 is untranslated.
+
+Sv57具体实现支持57位虚拟地址空间，分为\wunits{4}{KiB}页。
+Sv57地址的划分如图\ref{sv57va}所示。指令获取地址以及加载和存储有效地址（64位）的位63--57必须全部等于位56，
+否则将发生页错误异常。45位VPN通过五级页表转换为44位PPN，而12位页内偏移量未转换。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2255,6 +3643,117 @@ is untranslated.
 \label{sv57pte}
 \end{figure*}
 
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}S@{}S@{}S@{}S@{}S@{}S}
+\instbitrange{56}{48} &
+\instbitrange{47}{39} &
+\instbitrange{38}{30} &
+\instbitrange{29}{21} &
+\instbitrange{20}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{VPN[4]} &
+\multicolumn{1}{c|}{VPN[3]} &
+\multicolumn{1}{c|}{VPN[2]} &
+\multicolumn{1}{c|}{VPN[1]} &
+\multicolumn{1}{c|}{VPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+9 & 9 & 9 & 9 & 9 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv57 虚拟地址}
+\label{sv57va}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{@{}R@{}S@{}S@{}S@{}S@{}S}
+\instbitrange{55}{48} &
+\instbitrange{47}{39} &
+\instbitrange{38}{30} &
+\instbitrange{29}{21} &
+\instbitrange{20}{12} &
+\instbitrange{11}{0} \\
+\hline
+\multicolumn{1}{|c|}{PPN[4]} &
+\multicolumn{1}{c|}{PPN[3]} &
+\multicolumn{1}{c|}{PPN[2]} &
+\multicolumn{1}{c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} &
+\multicolumn{1}{c|}{page offset} \\
+\hline
+8 & 9 & 9 & 9 & 9 & 12 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv57 物理地址}
+\label{sv57pa}
+\end{figure*}
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\begin{tabular}{c@{}F@{}Y@{}T@{}Wcccccccc}
+\instbit{63} &
+\instbitrange{62}{61} &
+\instbitrange{60}{54} &
+\instbitrange{53}{10} &
+\instbitrange{9}{8} &
+\instbit{7} &
+\instbit{6} &
+\instbit{5} &
+\instbit{4} &
+\instbit{3} &
+\instbit{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{N} &
+\multicolumn{1}{c|}{PBMT} &
+\multicolumn{1}{c|}{\it Reserved} &
+\multicolumn{1}{c|}{PPN} &
+\multicolumn{1}{c|}{RSW} &
+\multicolumn{1}{c|}{D} &
+\multicolumn{1}{c|}{A} &
+\multicolumn{1}{c|}{G} &
+\multicolumn{1}{c|}{U} &
+\multicolumn{1}{c|}{X} &
+\multicolumn{1}{c|}{W} &
+\multicolumn{1}{c|}{R} &
+\multicolumn{1}{c|}{V} \\
+\hline
+1 & 2 & 7 & 44 & 2 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+\end{tabular}
+
+\begin{tabular}{@{}F@{}F@{}F@{}F@{}F}
+\instbitrange{53}{46} &
+\instbitrange{45}{37} &
+\instbitrange{36}{28} &
+\instbitrange{27}{19} &
+\instbitrange{18}{10} \\
+\hline
+\multicolumn{1}{|c|}{PPN[4]} &
+\multicolumn{1}{c|}{PPN[3]} &
+\multicolumn{1}{c|}{PPN[2]} &
+\multicolumn{1}{c|}{PPN[1]} &
+\multicolumn{1}{c|}{PPN[0]} \\
+\hline
+8 & 9 & 9 & 9 & 9 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Sv57 页表项}
+\label{sv57pte}
+\end{figure*}
+
 The PTE format for Sv57 is shown in Figure~\ref{sv57pte}.  Bits 63--54 and 9--0
 have the same meaning as for Sv39.  Any level of PTE may be a leaf
 PTE, so in addition to \wunits{4}{KiB} pages, Sv57 supports
@@ -2264,9 +3763,17 @@ each of which must be virtually and physically aligned to a boundary equal
 to its size.  A page-fault exception is raised if the physical address is
 insufficiently aligned.
 
+Sv57的PTE格式如图\ref{sv57pte}所示。位63--54和9--0与在Sv39中的含义相同。
+任何级别的PTE都可以是叶PTE，因此，除了\wunits{4}{KiB}页外，
+Sv57还支持\wunits{2}{MiB} {\em 巨型页}、\wunits{1}{GiB} {\em 千兆页}、
+\wunits{512}{GiB} {\em 万亿页}和\wunits{256}{TiB} {\em PETA页}，
+每个页面都必须在虚拟和物理上与和它大小相等的边界对齐。如果物理地址未充分对齐，则会引发页错误异常。
+
 The algorithm for virtual-to-physical address translation is the same
 as in Section~\ref{sv32algorithm}, except LEVELS equals 5 and PTESIZE
 equals 8.
+
+虚拟地址到物理地址转换的算法与第\ref{sv32algorithm}节中的相同，但LEVELS等于5，PTESIZE等于8。
 
 \chapter{``Svnapot'' Standard Extension for NAPOT Translation Contiguity, Version 1.0}
 \label{svnapot}

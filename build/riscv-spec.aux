@@ -125,257 +125,139 @@
 \@writefile{toc}{\contentsline {chapter}{\numberline {第九章\hspace  {.3em}}用于乘法和除法的“M”标准扩展（2.0版本）}{51}{chapter.9}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\@writefile{toc}{\contentsline {section}{\numberline {9.1}Multiplication Operations}{51}{section.9.1}\protected@file@percent }
-\newlabel{multiplication-operations}{{9.1}{51}{Multiplication Operations}{section.9.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.1}乘法操作}{51}{section.9.1}\protected@file@percent }
+\newlabel{multiplication-operations}{{9.1}{51}{乘法操作}{section.9.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {9.2}Division Operations}{52}{section.9.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {9.1}{\ignorespaces Semantics for division by zero and division overflow. L is the width of the operation in bits: XLEN for DIV[U] and REM[U], or 32 for DIV[U]W and REM[U]W.}}{53}{table.9.1}\protected@file@percent }
-\newlabel{tab:divby0}{{9.1}{53}{Semantics for division by zero and division overflow. L is the width of the operation in bits: XLEN for DIV[U] and REM[U], or 32 for DIV[U]W and REM[U]W}{table.9.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {9.3}Zmmul Extension, Version 1.0}{53}{section.9.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9.1}{\ignorespaces 除数为零和除法溢出的语义。L是操作数的位宽度：或者是XLEN（对于DIV[U]和REM[U]），或者是32（对于DIV[U]W和REM[U]W） }}{53}{table.9.1}\protected@file@percent }
+\newlabel{tab:divby0}{{9.1}{53}{除数为零和除法溢出的语义。L是操作数的位宽度：或者是XLEN（对于DIV[U]和REM[U]），或者是32（对于DIV[U]W和REM[U]W）}{table.9.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.3}Zmmul扩展（1.0版本）}{53}{section.9.3}\protected@file@percent }
 \citation{Gharachorloo90memoryconsistency}
 \citation{Gharachorloo90memoryconsistency}
 \@writefile{toc}{\contentsline {chapter}{\numberline {第十章\hspace  {.3em}}用于原子指令的“A”标准扩展（2.1版本）}{55}{chapter.10}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
 \newlabel{atomics}{{十}{55}{用于原子指令的“A”标准扩展（2.1版本）}{chapter.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.1}Specifying Ordering of Atomic Instructions}{55}{section.10.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {10.2}Load-Reserved/Store-Conditional Instructions}{56}{section.10.2}\protected@file@percent }
-\newlabel{sec:lrsc}{{10.2}{56}{Load-Reserved/Store-Conditional Instructions}{section.10.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10.1}{\ignorespaces Sample code for compare-and-swap function using LR/SC.}}{59}{figure.10.1}\protected@file@percent }
-\newlabel{cas}{{10.1}{59}{Sample code for compare-and-swap function using LR/SC}{figure.10.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.3}Eventual Success of Store-Conditional Instructions}{59}{section.10.3}\protected@file@percent }
-\newlabel{sec:lrscseq}{{10.3}{59}{Eventual Success of Store-Conditional Instructions}{section.10.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {10.4}Atomic Memory Operations}{62}{section.10.4}\protected@file@percent }
-\newlabel{sec:amo}{{10.4}{62}{Atomic Memory Operations}{section.10.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.1}指定原子指令的次序}{55}{section.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10.2}加载-保留/存储-条件指令}{56}{section.10.2}\protected@file@percent }
+\newlabel{sec:lrsc}{{10.2}{56}{加载-保留/存储-条件指令}{section.10.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.1}{\ignorespaces 使用LR/SC的比较与交换功能的样例代码 Sample code for compare-and-swap function using LR/SC.}}{58}{figure.10.1}\protected@file@percent }
+\newlabel{cas}{{10.1}{58}{使用LR/SC的比较与交换功能的样例代码 Sample code for compare-and-swap function using LR/SC}{figure.10.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.3}存储-条件指令的最终正确完成}{59}{section.10.3}\protected@file@percent }
+\newlabel{sec:lrscseq}{{10.3}{59}{存储-条件指令的最终正确完成}{section.10.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10.4}原子内存操作}{60}{section.10.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10.5}Atomic Memory Operations}{60}{section.10.5}\protected@file@percent }
+\newlabel{sec:amo}{{10.5}{60}{Atomic Memory Operations}{section.10.5}{}}
 \citation{Rajwar:2001:SLE}
-\@writefile{lof}{\contentsline {figure}{\numberline {10.2}{\ignorespaces Sample code for mutual exclusion. {\tt  a0} contains the address of the lock.}}{63}{figure.10.2}\protected@file@percent }
-\newlabel{critical}{{10.2}{63}{Sample code for mutual exclusion. {\tt a0} contains the address of the lock}{figure.10.2}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第十一章\hspace  {.3em}}RVWMO Memory Consistency Model, Version 2.0}{65}{chapter.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10.2}{\ignorespaces 互斥的样例代码。{\tt  a0}包含了锁的地址。 Sample code for mutual exclusion. {\tt  a0} contains the address of the lock.}}{62}{figure.10.2}\protected@file@percent }
+\newlabel{critical}{{10.2}{62}{互斥的样例代码。{\tt a0}包含了锁的地址。 Sample code for mutual exclusion. {\tt a0} contains the address of the lock}{figure.10.2}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十一章\hspace  {.3em}}控制与状态寄存器（CSR）指令“Zicsr”（2.0版本）}{63}{chapter.11}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{ch:memorymodel}{{十一}{65}{RVWMO Memory Consistency Model, Version 2.0}{chapter.11}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {11.1}Definition of the RVWMO Memory Model}{66}{section.11.1}\protected@file@percent }
-\newlabel{sec:rvwmo}{{11.1}{66}{Definition of the RVWMO Memory Model}{section.11.1}{}}
-\newlabel{sec:rvwmo:primitives}{{11.1}{66}{Memory Model Primitives}{section.11.1}{}}
+\newlabel{csrinsts}{{十一}{63}{控制与状态寄存器（CSR）指令“Zicsr”（2.0版本）}{chapter.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {11.1}CSR指令}{63}{section.11.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {11.1}{\ignorespaces 决定一条CSR指令是否读或写指定CSR的条件。 Conditions determining whether a CSR instruction reads or writes the specified CSR.}}{65}{table.11.1}\protected@file@percent }
+\newlabel{tab:csrsideeffects}{{11.1}{65}{决定一条CSR指令是否读或写指定CSR的条件。 Conditions determining whether a CSR instruction reads or writes the specified CSR}{table.11.1}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十二章\hspace  {.3em}}“Zicntr”和“Zihpm”计数器}{67}{chapter.12}\protected@file@percent }
+\@writefile{lof}{\addvspace {10.0pt}}
+\@writefile{lot}{\addvspace {10.0pt}}
+\newlabel{counters}{{十二}{67}{“Zicntr”和“Zihpm”计数器}{chapter.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {12.1}用于基础计数器和计时器的“Zicntr”标准扩展}{67}{section.12.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12.1}{\ignorespaces 当XLEN＝32时，读取64位周期计数器的样例代码。 Sample code for reading the 64-bit cycle counter when XLEN=32.}}{69}{figure.12.1}\protected@file@percent }
+\newlabel{rdcycle}{{12.1}{69}{当XLEN＝32时，读取64位周期计数器的样例代码。 Sample code for reading the 64-bit cycle counter when XLEN=32}{figure.12.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {12.2}用于硬件性能计数器的“Zihpm”标准扩展}{69}{section.12.2}\protected@file@percent }
+\citation{ieee754-2008}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十三章\hspace  {.3em}}用于单精度浮点的“F”标准扩展（2.2版本）}{71}{chapter.13}\protected@file@percent }
+\@writefile{lof}{\addvspace {10.0pt}}
+\@writefile{lot}{\addvspace {10.0pt}}
+\newlabel{sec:single-float}{{十三}{71}{用于单精度浮点的“F”标准扩展（2.2版本）}{chapter.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13.1}F寄存器状态}{71}{section.13.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13.1}{\ignorespaces RISC-V标准F扩展单精度浮点状态。 }}{72}{figure.13.1}\protected@file@percent }
+\newlabel{fprs}{{13.1}{72}{RISC-V标准F扩展单精度浮点状态。}{figure.13.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13.2}浮点控制和状态寄存器}{73}{section.13.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13.2}{\ignorespaces 浮点控制和状态寄存器。 }}{73}{figure.13.2}\protected@file@percent }
+\newlabel{fcsr}{{13.2}{73}{浮点控制和状态寄存器。}{figure.13.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13.1}{\ignorespaces 舍入模式编码。}}{74}{table.13.1}\protected@file@percent }
+\newlabel{rm}{{13.1}{74}{舍入模式编码。}{table.13.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13.2}{\ignorespaces Accrued exception flag encoding.}}{74}{table.13.2}\protected@file@percent }
+\newlabel{bitdef}{{13.2}{74}{Accrued exception flag encoding}{table.13.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13.3}NaN的生成和传播}{74}{section.13.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13.4}亚正常算法}{75}{section.13.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13.5}单精度加载和存储指令}{75}{section.13.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13.6}单精度浮点运算指令}{76}{section.13.6}\protected@file@percent }
+\newlabel{sec:single-float-compute}{{13.6}{76}{单精度浮点运算指令}{section.13.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13.3}{\ignorespaces 格式域编码。 }}{76}{table.13.3}\protected@file@percent }
+\newlabel{tab:fmt}{{13.3}{76}{格式域编码。}{table.13.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13.7}单精度浮点转换和移动指令\mbox  {Instructions}}{78}{section.13.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13.4}{\ignorespaces 浮点到整数转换的域和对于无效输入的行为。 }}{78}{table.13.4}\protected@file@percent }
+\newlabel{tab:int_conv}{{13.4}{78}{浮点到整数转换的域和对于无效输入的行为。}{table.13.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13.8}单精度浮点比较指令}{80}{section.13.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13.9}单精度浮点分类指令}{80}{section.13.9}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13.5}{\ignorespaces FCLASS指令的结果的格式。 }}{81}{table.13.5}\protected@file@percent }
+\newlabel{tab:fclass}{{13.5}{81}{FCLASS指令的结果的格式。}{table.13.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十四章\hspace  {.3em}}用于双精度浮点的“D”标准扩展（2.2版本）}{83}{chapter.14}\protected@file@percent }
+\@writefile{lof}{\addvspace {10.0pt}}
+\@writefile{lot}{\addvspace {10.0pt}}
+\@writefile{toc}{\contentsline {section}{\numberline {14.1}D寄存器状态}{83}{section.14.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14.2}较窄值的NaN装箱}{83}{section.14.2}\protected@file@percent }
+\newlabel{nanboxing}{{14.2}{83}{较窄值的NaN装箱}{section.14.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {14.3}双精度加载和存储指令}{84}{section.14.3}\protected@file@percent }
+\newlabel{fld_fsd}{{14.3}{84}{双精度加载和存储指令}{section.14.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {14.4}双精度浮点运算指令}{85}{section.14.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14.5}双精度浮点转换和移动指令}{85}{section.14.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14.6}双精度浮点比较指令}{87}{section.14.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14.7}双精度浮点分类指令}{87}{section.14.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十五章\hspace  {.3em}}用于四精度浮点的“Q”标准扩展（2.2版本）}{89}{chapter.15}\protected@file@percent }
+\@writefile{lof}{\addvspace {10.0pt}}
+\@writefile{lot}{\addvspace {10.0pt}}
+\@writefile{toc}{\contentsline {section}{\numberline {15.1}四精度加载和存储指令}{89}{section.15.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {15.2}四精度运算指令}{90}{section.15.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {15.1}{\ignorespaces 格式域编码。}}{90}{table.15.1}\protected@file@percent }
+\newlabel{tab:fpextfmt}{{15.1}{90}{格式域编码。}{table.15.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {15.3}四精度转换和移动指令}{90}{section.15.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {15.4}四精度浮点比较指令}{91}{section.15.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {15.5}四精度浮点分类指令}{92}{section.15.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十六章\hspace  {.3em}}用于半精度浮点的“Zfh”和“Zfhmin”标准扩展（1.0版本}{93}{chapter.16}\protected@file@percent }
+\@writefile{lof}{\addvspace {10.0pt}}
+\@writefile{lot}{\addvspace {10.0pt}}
+\@writefile{toc}{\contentsline {section}{\numberline {16.1}半精度加载和存储指令}{93}{section.16.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {16.2}半精度运算指令}{94}{section.16.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {16.1}{\ignorespaces 格式域编码。}}{94}{table.16.1}\protected@file@percent }
+\newlabel{tab:fpextfmth}{{16.1}{94}{格式域编码。}{table.16.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {16.3}半精度转换和移动指令}{94}{section.16.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {16.4}半精度浮点比较指令}{96}{section.16.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {16.5}半精度浮点分类指令}{96}{section.16.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {16.6}用于最小半精度浮点支持的“Zfhmin”标准扩展}{96}{section.16.6}\protected@file@percent }
+\citation{roux:hal-01091186}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十七章\hspace  {.3em}}RVWMO内存一致性模型（2.0版本）}{99}{chapter.17}\protected@file@percent }
+\@writefile{lof}{\addvspace {10.0pt}}
+\@writefile{lot}{\addvspace {10.0pt}}
+\newlabel{ch:memorymodel}{{十七}{99}{RVWMO内存一致性模型（2.0版本）}{chapter.17}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {17.1}RVWMO内存模型的定义}{99}{section.17.1}\protected@file@percent }
+\newlabel{sec:rvwmo}{{17.1}{99}{RVWMO内存模型的定义}{section.17.1}{}}
+\newlabel{sec:rvwmo:primitives}{{17.1}{100}{内存模型原语}{section.17.1}{}}
 \citation{Gharachorloo90memoryconsistency}
-\newlabel{sec:memorymodel:dependencies}{{11.1}{68}{Syntactic Dependencies}{section.11.1}{}}
-\newlabel{ppo:->st}{{1}{70}{Preserved Program Order}{Item.4}{}}
-\newlabel{ppo:rdw}{{2}{70}{Preserved Program Order}{Item.5}{}}
-\newlabel{ppo:amoforward}{{3}{70}{Preserved Program Order}{Item.6}{}}
-\newlabel{ppo:fence}{{4}{70}{Preserved Program Order}{Item.7}{}}
-\newlabel{ppo:acquire}{{5}{70}{Preserved Program Order}{Item.8}{}}
-\newlabel{ppo:release}{{6}{70}{Preserved Program Order}{Item.9}{}}
-\newlabel{ppo:rcsc}{{7}{70}{Preserved Program Order}{Item.10}{}}
-\newlabel{ppo:pair}{{8}{70}{Preserved Program Order}{Item.11}{}}
-\newlabel{ppo:addr}{{9}{70}{Preserved Program Order}{Item.12}{}}
-\newlabel{ppo:data}{{10}{70}{Preserved Program Order}{Item.13}{}}
-\newlabel{ppo:ctrl}{{11}{70}{Preserved Program Order}{Item.14}{}}
-\newlabel{ppo:addrdatarfi}{{12}{70}{Preserved Program Order}{Item.15}{}}
-\newlabel{ppo:addrpo}{{13}{70}{Preserved Program Order}{Item.16}{}}
-\newlabel{rvwmo:ax:load}{{11.1}{71}{加载值公理}{Item.16}{}}
-\@writefile{toc}{\contentsline {paragraph}{加载值公理}{71}{Item.16}\protected@file@percent }
-\newlabel{rvwmo:ax:atom}{{11.1}{71}{原子性公理}{Item.18}{}}
-\@writefile{toc}{\contentsline {paragraph}{原子性公理}{71}{Item.18}\protected@file@percent }
-\newlabel{rvwmo:ax:prog}{{11.1}{71}{Progress Axiom}{Item.18}{}}
-\@writefile{toc}{\contentsline {paragraph}{Progress Axiom}{71}{Item.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {11.2}CSR Dependency Tracking Granularity}{71}{section.11.2}\protected@file@percent }
-\newlabel{sec:csr-granularity}{{11.2}{71}{CSR Dependency Tracking Granularity}{section.11.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {11.1}{\ignorespaces Granularities at which syntactic dependencies are tracked through CSRs}}{71}{table.11.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {11.3}Source and Destination Register Listings}{72}{section.11.3}\protected@file@percent }
-\newlabel{sec:source-dest-regs}{{11.3}{72}{Source and Destination Register Listings}{section.11.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {附录 A\hspace  {.3em}}RVWMO 说明材料（0.1版本）}{81}{appendix.A}\protected@file@percent }
-\@writefile{lof}{\addvspace {10.0pt}}
-\@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:memorymodelexplanation}{{A}{81}{RVWMO 说明材料（0.1版本）}{appendix.A}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.1}为什么用 RVWMO?}{81}{section.A.1}\protected@file@percent }
-\newlabel{sec:whyrvwmo}{{A.1}{81}{为什么用 RVWMO?}{section.A.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.2}Litmus 测试}{82}{section.A.2}\protected@file@percent }
-\newlabel{sec:litmustests}{{A.2}{82}{Litmus 测试}{section.A.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.1}{\ignorespaces 一个litmus测试的示例和一个被禁止的执行（{\tt  a0=1}）。}}{82}{figure.A.1}\protected@file@percent }
-\newlabel{fig:litmus:sample}{{A.1}{82}{一个litmus测试的示例和一个被禁止的执行（{\tt a0=1}）。}{figure.A.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces 在这个附录中绘制的litmus测试图表的要点}}{83}{table.A.1}\protected@file@percent }
-\newlabel{tab:litmus:key}{{A.1}{83}{在这个附录中绘制的litmus测试图表的要点}{table.A.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.3}RVWMO规则的解释}{83}{section.A.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.1}保留程序次序和全局内存次序}{84}{subsection.A.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.2}\nameref  *{rvwmo:ax:load}}{84}{subsection.A.3.2}\protected@file@percent }
-\newlabel{sec:memory:loadvalueaxiom}{{A.3.2}{84}{\nameref *{rvwmo:ax:load}}{subsection.A.3.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.2}{\ignorespaces A store buffer forwarding litmus test (outcome permitted)}}{85}{figure.A.2}\protected@file@percent }
-\newlabel{fig:litmus:storebuffer}{{A.2}{85}{A store buffer forwarding litmus test (outcome permitted)}{figure.A.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.3}{\ignorespaces “PPOCA”存储缓冲区转发litmus测试（允许的输出结果）}}{86}{figure.A.3}\protected@file@percent }
-\newlabel{fig:litmus:ppoca}{{A.3}{86}{“PPOCA”存储缓冲区转发litmus测试（允许的输出结果）}{figure.A.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.3}\nameref  *{rvwmo:ax:atom}}{87}{subsection.A.3.3}\protected@file@percent }
-\newlabel{sec:memory:atomicityaxiom}{{A.3.3}{87}{\nameref *{rvwmo:ax:atom}}{subsection.A.3.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.4}{\ignorespaces In all four (independent) code snippets, the store-conditional (c) is permitted but not guaranteed to succeed}}{87}{figure.A.4}\protected@file@percent }
-\newlabel{fig:litmus:lrsdsc}{{A.4}{87}{In all four (independent) code snippets, the store-conditional (c) is permitted but not guaranteed to succeed}{figure.A.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.4}\nameref  *{rvwmo:ax:prog}}{88}{subsection.A.3.4}\protected@file@percent }
-\newlabel{sec:memory:progress}{{A.3.4}{88}{\nameref *{rvwmo:ax:prog}}{subsection.A.3.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.5}Overlapping-Address Orderings (Rules\nobreakspace  {}\ref  {ppo:->st}--\ref  {ppo:amoforward})}{89}{subsection.A.3.5}\protected@file@percent }
-\newlabel{sec:memory:overlap}{{A.3.5}{89}{Overlapping-Address Orderings (Rules~\ref {ppo:->st}--\ref {ppo:amoforward})}{subsection.A.3.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.5}{\ignorespaces Litmus test MP+fence.w.w+fri-rfi-addr (outcome permitted)}}{90}{figure.A.5}\protected@file@percent }
-\newlabel{fig:litmus:frirfi}{{A.5}{90}{Litmus test MP+fence.w.w+fri-rfi-addr (outcome permitted)}{figure.A.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.6}{\ignorespaces Litmus test RSW (outcome permitted)}}{91}{figure.A.6}\protected@file@percent }
-\newlabel{fig:litmus:rsw}{{A.6}{91}{Litmus test RSW (outcome permitted)}{figure.A.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.6}Fences (Rule\nobreakspace  {}\ref  {ppo:fence})}{92}{subsection.A.3.6}\protected@file@percent }
-\newlabel{sec:mm:fence}{{A.3.6}{92}{Fences (Rule~\ref {ppo:fence})}{subsection.A.3.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.7}Explicit Synchronization (Rules\nobreakspace  {}\ref  {ppo:acquire}--\ref  {ppo:pair})}{93}{subsection.A.3.7}\protected@file@percent }
-\newlabel{sec:memory:acqrel}{{A.3.7}{93}{Explicit Synchronization (Rules~\ref {ppo:acquire}--\ref {ppo:pair})}{subsection.A.3.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.7}{\ignorespaces A spinlock with atomics}}{93}{figure.A.7}\protected@file@percent }
-\newlabel{fig:litmus:spinlock_atomics}{{A.7}{93}{A spinlock with atomics}{figure.A.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.8}{\ignorespaces A spinlock with fences}}{94}{figure.A.8}\protected@file@percent }
-\newlabel{fig:litmus:spinlock_fences}{{A.8}{94}{A spinlock with fences}{figure.A.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.8}Syntactic Dependencies (Rules\nobreakspace  {}\ref  {ppo:addr}--\ref  {ppo:ctrl})}{95}{subsection.A.3.8}\protected@file@percent }
-\newlabel{sec:memory:dependencies}{{A.3.8}{95}{Syntactic Dependencies (Rules~\ref {ppo:addr}--\ref {ppo:ctrl})}{subsection.A.3.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.9}{\ignorespaces (c) has a syntactic dependency on both (a) and (b) via {\tt  fflags}, a destination register that both (a) and (b) implicitly accumulate into}}{95}{figure.A.9}\protected@file@percent }
-\newlabel{fig:litmus:fflags}{{A.9}{95}{(c) has a syntactic dependency on both (a) and (b) via {\tt fflags}, a destination register that both (a) and (b) implicitly accumulate into}{figure.A.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.10}{\ignorespaces A syntactic address dependency}}{96}{figure.A.10}\protected@file@percent }
-\newlabel{fig:litmus:address}{{A.10}{96}{A syntactic address dependency}{figure.A.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.11}{\ignorespaces A syntactic control dependency}}{96}{figure.A.11}\protected@file@percent }
-\newlabel{fig:litmus:control1}{{A.11}{96}{A syntactic control dependency}{figure.A.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.12}{\ignorespaces Another syntactic control dependency}}{97}{figure.A.12}\protected@file@percent }
-\newlabel{fig:litmus:control2}{{A.12}{97}{Another syntactic control dependency}{figure.A.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.13}{\ignorespaces A variant of the LB litmus test (outcome forbidden)}}{97}{figure.A.13}\protected@file@percent }
-\newlabel{fig:litmus:successdeps}{{A.13}{97}{A variant of the LB litmus test (outcome forbidden)}{figure.A.13}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.9}Pipeline Dependencies (Rules\nobreakspace  {}\ref  {ppo:addrdatarfi}--\ref  {ppo:addrpo})}{98}{subsection.A.3.9}\protected@file@percent }
-\newlabel{sec:memory:ppopipeline}{{A.3.9}{98}{Pipeline Dependencies (Rules~\ref {ppo:addrdatarfi}--\ref {ppo:addrpo})}{subsection.A.3.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.14}{\ignorespaces Because of PPO rule\nobreakspace  {}\ref  {ppo:addrdatarfi} and the data dependency from (d) to (e), (d) must also precede (f) in the global memory order (outcome forbidden)}}{98}{figure.A.14}\protected@file@percent }
-\newlabel{fig:litmus:addrdatarfi}{{A.14}{98}{Because of PPO rule~\ref {ppo:addrdatarfi} and the data dependency from (d) to (e), (d) must also precede (f) in the global memory order (outcome forbidden)}{figure.A.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.15}{\ignorespaces Because of the extra store between (e) and (g), (d) no longer necessarily precedes (g) (outcome permitted)}}{99}{figure.A.15}\protected@file@percent }
-\newlabel{fig:litmus:addrdatarfi_no}{{A.15}{99}{Because of the extra store between (e) and (g), (d) no longer necessarily precedes (g) (outcome permitted)}{figure.A.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.16}{\ignorespaces Because of the address dependency from (d) to (e), (d) also precedes (f) (outcome forbidden)}}{100}{figure.A.16}\protected@file@percent }
-\newlabel{fig:litmus:addrpo}{{A.16}{100}{Because of the address dependency from (d) to (e), (d) also precedes (f) (outcome forbidden)}{figure.A.16}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.4}Beyond Main Memory}{100}{section.A.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.4.1}Coherence and Cacheability}{100}{subsection.A.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.4.2}I/O Ordering}{101}{subsection.A.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {A.17}{\ignorespaces Ordering memory and I/O accesses}}{102}{figure.A.17}\protected@file@percent }
-\newlabel{fig:litmus:wo}{{A.17}{102}{Ordering memory and I/O accesses}{figure.A.17}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.5}Code Porting and Mapping Guidelines}{103}{section.A.5}\protected@file@percent }
-\newlabel{sec:memory:porting}{{A.5}{103}{Code Porting and Mapping Guidelines}{section.A.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.2}{\ignorespaces Mappings from TSO operations to RISC-V operations}}{103}{table.A.2}\protected@file@percent }
-\newlabel{tab:tsomappings}{{A.2}{103}{Mappings from TSO operations to RISC-V operations}{table.A.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.3}{\ignorespaces Mappings from Power operations to RISC-V operations}}{104}{table.A.3}\protected@file@percent }
-\newlabel{tab:powermappings}{{A.3}{104}{Mappings from Power operations to RISC-V operations}{table.A.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.4}{\ignorespaces Mappings from ARM operations to RISC-V operations}}{104}{table.A.4}\protected@file@percent }
-\newlabel{tab:armmappings}{{A.4}{104}{Mappings from ARM operations to RISC-V operations}{table.A.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.5}{\ignorespaces Mappings from Linux memory primitives to RISC-V primitives. Other constructs (such as spinlocks) should follow accordingly. Platforms or devices with non-coherent DMA may need additional synchronization (such as cache flush or invalidate mechanisms); currently any such extra synchronization will be device-specific.}}{105}{table.A.5}\protected@file@percent }
-\newlabel{tab:linuxmappings}{{A.5}{105}{Mappings from Linux memory primitives to RISC-V primitives. Other constructs (such as spinlocks) should follow accordingly. Platforms or devices with non-coherent DMA may need additional synchronization (such as cache flush or invalidate mechanisms); currently any such extra synchronization will be device-specific}{table.A.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.18}{\ignorespaces Orderings between critical sections in Linux}}{106}{figure.A.18}\protected@file@percent }
-\newlabel{fig:litmus:lkmm_ll}{{A.18}{106}{Orderings between critical sections in Linux}{figure.A.18}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.6}{\ignorespaces Mappings from C/C++ primitives to RISC-V primitives.}}{107}{table.A.6}\protected@file@percent }
-\newlabel{tab:c11mappings}{{A.6}{107}{Mappings from C/C++ primitives to RISC-V primitives}{table.A.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.7}{\ignorespaces Hypothetical mappings from C/C++ primitives to RISC-V primitives, if native load-acquire and store-release opcodes are introduced.}}{108}{table.A.7}\protected@file@percent }
-\newlabel{tab:c11mappings_hypothetical}{{A.7}{108}{Hypothetical mappings from C/C++ primitives to RISC-V primitives, if native load-acquire and store-release opcodes are introduced}{table.A.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.6}Implementation Guidelines}{109}{section.A.6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {A.19}{\ignorespaces Write subsumption litmus test, allowed execution.}}{112}{figure.A.19}\protected@file@percent }
-\newlabel{fig:litmus:subsumption}{{A.19}{112}{Write subsumption litmus test, allowed execution}{figure.A.19}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.6.1}Possible Future Extensions}{112}{subsection.A.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {A.7}Known Issues}{113}{section.A.7}\protected@file@percent }
-\newlabel{sec:memory:discrepancies}{{A.7}{113}{Known Issues}{section.A.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.7.1}Mixed-size RSW}{113}{subsection.A.7.1}\protected@file@percent }
-\newlabel{sec:memory:discrepancies:mixedrsw}{{A.7.1}{113}{Mixed-size RSW}{subsection.A.7.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.20}{\ignorespaces Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}}{113}{figure.A.20}\protected@file@percent }
-\newlabel{fig:litmus:discrepancy:rsw1}{{A.20}{113}{Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}{figure.A.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.21}{\ignorespaces Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}}{113}{figure.A.21}\protected@file@percent }
-\newlabel{fig:litmus:discrepancy:rsw2}{{A.21}{113}{Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}{figure.A.21}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.22}{\ignorespaces Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}}{114}{figure.A.22}\protected@file@percent }
-\newlabel{fig:litmus:discrepancy:rsw3}{{A.22}{114}{Mixed-size discrepancy (permitted by axiomatic models, forbidden by operational model)}{figure.A.22}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {附录 B\hspace  {.3em}}Formal Memory Model Specifications, Version 0.1}{115}{appendix.B}\protected@file@percent }
-\@writefile{lof}{\addvspace {10.0pt}}
-\@writefile{lot}{\addvspace {10.0pt}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.1}Formal Axiomatic Specification in Alloy}{116}{section.B.1}\protected@file@percent }
-\newlabel{sec:alloy}{{B.1}{116}{Formal Axiomatic Specification in Alloy}{section.B.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.1}{\ignorespaces The RVWMO memory model formalized in Alloy (1/5: PPO)}}{116}{figure.B.1}\protected@file@percent }
-\newlabel{fig:alloy1}{{B.1}{116}{The RVWMO memory model formalized in Alloy (1/5: PPO)}{figure.B.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.2}{\ignorespaces The RVWMO memory model formalized in Alloy (2/5: Axioms)}}{117}{figure.B.2}\protected@file@percent }
-\newlabel{fig:alloy2}{{B.2}{117}{The RVWMO memory model formalized in Alloy (2/5: Axioms)}{figure.B.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.3}{\ignorespaces The RVWMO memory model formalized in Alloy (3/5: model of memory)}}{118}{figure.B.3}\protected@file@percent }
-\newlabel{fig:alloy3}{{B.3}{118}{The RVWMO memory model formalized in Alloy (3/5: model of memory)}{figure.B.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.4}{\ignorespaces The RVWMO memory model formalized in Alloy (4/5: Basic model rules)}}{119}{figure.B.4}\protected@file@percent }
-\newlabel{fig:alloy4}{{B.4}{119}{The RVWMO memory model formalized in Alloy (4/5: Basic model rules)}{figure.B.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.5}{\ignorespaces The RVWMO memory model formalized in Alloy (5/5: Auxiliaries)}}{120}{figure.B.5}\protected@file@percent }
-\newlabel{fig:alloy5}{{B.5}{120}{The RVWMO memory model formalized in Alloy (5/5: Auxiliaries)}{figure.B.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.2}Formal Axiomatic Specification in Herd}{121}{section.B.2}\protected@file@percent }
-\newlabel{sec:herd}{{B.2}{121}{Formal Axiomatic Specification in Herd}{section.B.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.6}{\ignorespaces {\tt  riscv-defs.cat}, a herd definition of preserved program order (1/3)}}{122}{figure.B.6}\protected@file@percent }
-\newlabel{fig:herd1}{{B.6}{122}{{\tt riscv-defs.cat}, a herd definition of preserved program order (1/3)}{figure.B.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.7}{\ignorespaces {\tt  riscv.cat}, a herd version of the RVWMO memory model (2/3)}}{123}{figure.B.7}\protected@file@percent }
-\newlabel{fig:herd2}{{B.7}{123}{{\tt riscv.cat}, a herd version of the RVWMO memory model (2/3)}{figure.B.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.8}{\ignorespaces {\tt  riscv.cat}, an alternative herd presentation of the RVWMO memory model (3/3)}}{124}{figure.B.8}\protected@file@percent }
-\newlabel{fig:herd3}{{B.8}{124}{{\tt riscv.cat}, an alternative herd presentation of the RVWMO memory model (3/3)}{figure.B.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.3}An Operational Memory Model}{125}{section.B.3}\protected@file@percent }
-\newlabel{sec:operational}{{B.3}{125}{An Operational Memory Model}{section.B.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Model states}{126}{section.B.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Model transitions}{126}{section.B.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.1}Intra-instruction Pseudocode Execution}{129}{subsection.B.3.1}\protected@file@percent }
-\newlabel{sec:omm:pseudocode_exec}{{B.3.1}{129}{Intra-instruction Pseudocode Execution}{subsection.B.3.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.2}Instruction Instance State}{131}{subsection.B.3.2}\protected@file@percent }
-\newlabel{sec:omm:inst_state}{{B.3.2}{131}{Instruction Instance State}{subsection.B.3.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.3}Hart State}{133}{subsection.B.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.4}Shared Memory State}{133}{subsection.B.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.5}Transitions}{134}{subsection.B.3.5}\protected@file@percent }
-\newlabel{sec:omm:transitions}{{B.3.5}{134}{Transitions}{subsection.B.3.5}{}}
-\newlabel{omm:fetch}{{B.3.5}{134}{Fetch instruction}{subsection.B.3.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{Fetch instruction}{134}{subsection.B.3.5}\protected@file@percent }
-\newlabel{omm:initiate_load}{{B.3.5}{135}{Initiate memory load operations}{Item.38}{}}
-\@writefile{toc}{\contentsline {paragraph}{Initiate memory load operations}{135}{Item.38}\protected@file@percent }
-\newlabel{omm:sat_by_forwarding}{{B.3.5}{135}{Satisfy memory load operation by forwarding from unpropagated stores}{Item.41}{}}
-\@writefile{toc}{\contentsline {paragraph}{Satisfy memory load operation by forwarding from unpropagated stores}{135}{Item.41}\protected@file@percent }
-\newlabel{omm:sat_from_mem}{{B.3.5}{137}{Satisfy memory load operation from memory}{Item.50}{}}
-\@writefile{toc}{\contentsline {paragraph}{Satisfy memory load operation from memory}{137}{Item.50}\protected@file@percent }
-\newlabel{omm:complete_loads}{{B.3.5}{137}{Complete load operations}{Item.50}{}}
-\@writefile{toc}{\contentsline {paragraph}{Complete load operations}{137}{Item.50}\protected@file@percent }
-\newlabel{omm:early_sc_fail}{{B.3.5}{137}{Early {\tt sc} fail}{Item.50}{}}
-\@writefile{toc}{\contentsline {paragraph}{Early {\tt  sc} fail}{137}{Item.50}\protected@file@percent }
-\newlabel{omm:paired_sc}{{B.3.5}{138}{Paired {\tt sc}}{Item.50}{}}
-\@writefile{toc}{\contentsline {paragraph}{Paired {\tt  sc}}{138}{Item.50}\protected@file@percent }
-\newlabel{omm:initiate_store_footprint}{{B.3.5}{138}{Initiate memory store operation footprints}{Item.50}{}}
-\@writefile{toc}{\contentsline {paragraph}{Initiate memory store operation footprints}{138}{Item.50}\protected@file@percent }
-\newlabel{omm:instantiate_store_value}{{B.3.5}{138}{Instantiate memory store operation values}{Item.53}{}}
-\@writefile{toc}{\contentsline {paragraph}{Instantiate memory store operation values}{138}{Item.53}\protected@file@percent }
-\newlabel{omm:commit_stores}{{B.3.5}{138}{Commit store instruction}{Item.55}{}}
-\@writefile{toc}{\contentsline {paragraph}{Commit store instruction}{138}{Item.55}\protected@file@percent }
-\newlabel{omm:commit_store:prev_addrs}{{8}{139}{Commit store instruction}{Item.63}{}}
-\newlabel{omm:commit_store:prev_stores}{{9}{139}{Commit store instruction}{Item.64}{}}
-\newlabel{omm:commit_store:prev_loads}{{10}{139}{Commit store instruction}{Item.65}{}}
-\newlabel{omm:prop_store}{{B.3.5}{139}{Propagate store operation}{Item.65}{}}
-\@writefile{toc}{\contentsline {paragraph}{Propagate store operation}{139}{Item.65}\protected@file@percent }
-\newlabel{omm:commit_sc}{{B.3.5}{140}{Commit and propagate store operation of an {\tt sc}}{Item.73}{}}
-\@writefile{toc}{\contentsline {paragraph}{Commit and propagate store operation of an {\tt  sc}}{140}{Item.73}\protected@file@percent }
-\newlabel{omm:late_sc_fail}{{B.3.5}{141}{Late {\tt sc} fail}{Item.80}{}}
-\@writefile{toc}{\contentsline {paragraph}{Late {\tt  sc} fail}{141}{Item.80}\protected@file@percent }
-\newlabel{omm:complete_stores}{{B.3.5}{141}{Complete store operations}{Item.82}{}}
-\@writefile{toc}{\contentsline {paragraph}{Complete store operations}{141}{Item.82}\protected@file@percent }
-\newlabel{omm:do_amo}{{B.3.5}{141}{Satisfy, commit and propagate operations of an AMO}{Item.82}{}}
-\@writefile{toc}{\contentsline {paragraph}{Satisfy, commit and propagate operations of an AMO}{141}{Item.82}\protected@file@percent }
-\newlabel{omm:commit_fence}{{B.3.5}{142}{Commit fence}{Item.89}{}}
-\@writefile{toc}{\contentsline {paragraph}{Commit fence}{142}{Item.89}\protected@file@percent }
-\newlabel{omm:reg_read}{{B.3.5}{143}{Register read}{Item.94}{}}
-\@writefile{toc}{\contentsline {paragraph}{Register read}{143}{Item.94}\protected@file@percent }
-\newlabel{omm:reg_write}{{B.3.5}{143}{Register write}{Item.96}{}}
-\@writefile{toc}{\contentsline {paragraph}{Register write}{143}{Item.96}\protected@file@percent }
-\newlabel{omm:sail_interp}{{B.3.5}{143}{Pseudocode internal step}{Item.98}{}}
-\@writefile{toc}{\contentsline {paragraph}{Pseudocode internal step}{143}{Item.98}\protected@file@percent }
-\newlabel{omm:finish}{{B.3.5}{143}{Finish instruction}{Item.98}{}}
-\@writefile{toc}{\contentsline {paragraph}{Finish instruction}{143}{Item.98}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.6}Limitations}{144}{subsection.B.3.6}\protected@file@percent }
-\newlabel{sec:omm:limitations}{{B.3.6}{144}{Limitations}{subsection.B.3.6}{}}
-\bibstyle{plain}
-\bibdata{riscv-spec}
-\bibcite{riscv-asm-manual}{1}
-\bibcite{riscv-elf-psabi}{2}
-\bibcite{Gharachorloo90memoryconsistency}{3}
-\bibcite{heil-tr1996}{4}
-\bibcite{ieee754-2008}{5}
-\bibcite{Katevenis:1983}{6}
-\bibcite{Kim-micro2005}{7}
-\bibcite{Klauser-1998}{8}
-\bibcite{spur-jsscc1989}{9}
-\bibcite{lithe-pan-hotpar09}{10}
-\bibcite{lithe-pan-pldi10}{11}
-\bibcite{riscI-isca1981}{12}
-\bibcite{Rajwar:2001:SLE}{13}
-\bibcite{ibmpower7}{14}
-\bibcite{majc}{15}
-\bibcite{jtseng:sbbci}{16}
-\bibcite{Ungar:1984}{17}
-\bibcite{riscvtr}{18}
-\bibcite{riscvtr2}{19}
-\gdef \@abspage@last{164}
+\newlabel{sec:memorymodel:dependencies}{{17.1}{101}{句法依赖}{section.17.1}{}}
+\newlabel{ppo:->st}{{1}{103}{保留的程序次序}{Item.4}{}}
+\newlabel{ppo:rdw}{{2}{103}{保留的程序次序}{Item.5}{}}
+\newlabel{ppo:amoforward}{{3}{103}{保留的程序次序}{Item.6}{}}
+\newlabel{ppo:fence}{{4}{103}{保留的程序次序}{Item.7}{}}
+\newlabel{ppo:acquire}{{5}{103}{保留的程序次序}{Item.8}{}}
+\newlabel{ppo:release}{{6}{103}{保留的程序次序}{Item.9}{}}
+\newlabel{ppo:rcsc}{{7}{103}{保留的程序次序}{Item.10}{}}
+\newlabel{ppo:pair}{{8}{103}{保留的程序次序}{Item.11}{}}
+\newlabel{ppo:addr}{{9}{103}{保留的程序次序}{Item.12}{}}
+\newlabel{ppo:data}{{10}{103}{保留的程序次序}{Item.13}{}}
+\newlabel{ppo:ctrl}{{11}{103}{保留的程序次序}{Item.14}{}}
+\newlabel{ppo:addrdatarfi}{{12}{103}{保留的程序次序}{Item.15}{}}
+\newlabel{ppo:addrpo}{{13}{103}{保留的程序次序}{Item.16}{}}
+\newlabel{rvwmo:ax:load}{{17.1}{104}{加载值公理}{Item.16}{}}
+\@writefile{toc}{\contentsline {paragraph}{加载值公理}{104}{Item.16}\protected@file@percent }
+\newlabel{rvwmo:ax:atom}{{17.1}{104}{原子性公理}{Item.18}{}}
+\@writefile{toc}{\contentsline {paragraph}{原子性公理}{104}{Item.18}\protected@file@percent }
+\newlabel{rvwmo:ax:prog}{{17.1}{104}{进度公理}{Item.18}{}}
+\@writefile{toc}{\contentsline {paragraph}{进度公理}{104}{Item.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {17.2}CSR依赖跟踪粒度}{104}{section.17.2}\protected@file@percent }
+\newlabel{sec:csr-granularity}{{17.2}{104}{CSR依赖跟踪粒度}{section.17.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {17.1}{\ignorespaces 通过CSR跟踪的句法依赖的粒度 }}{104}{table.17.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {17.3}源寄存器和目的寄存器列表}{104}{section.17.3}\protected@file@percent }
+\newlabel{sec:source-dest-regs}{{17.3}{104}{源寄存器和目的寄存器列表}{section.17.3}{}}
