@@ -20,7 +20,7 @@
 
 srcdir  = ../src
 
-docs_with_bib = riscv-privileged # riscv-spec 
+docs_with_bib = riscv-spec riscv-privileged  
 docs_without_bib =
 
 srcs = $(wildcard $(srcdir)/*.tex)

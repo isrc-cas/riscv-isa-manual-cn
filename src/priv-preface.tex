@@ -1,66 +1,52 @@
 \chapter{Preface}
 
+\iffalse
 This document describes the RISC-V privileged architecture.
 This release, version \privrev, contains the following versions of the RISC-V
 ISA modules:
+\fi
+本文档描述了RISC-V特权体系结构。此版本(20211203)包含以下版本的RISC-V ISA模块
 
 {
 \begin{table}[hbt]
   \centering
   \begin{tabular}{|c|l|c|}
     \hline
-    Module                & Version  & Status\\
+%    Module                & Version  & Status\\
+    模块                  & 版本      & 状态\\
     \hline
-    \em Machine ISA       & \em 1.13 & \em Draft \\
-    \bf Supervisor ISA    & \bf 1.12 & \bf Ratified \\
-    \bf Svnapot Extension & \bf 1.0  & \bf Ratified \\
-    \bf Svpbmt Extension  & \bf 1.0  & \bf Ratified \\
-    \bf Svinval Extension & \bf 1.0  & \bf Ratified \\
-    \bf Hypervisor ISA    & \bf 1.0  & \bf Ratified \\
-    \hline
-  \end{tabular}
-\end{table}
-}
-
-The following compatible changes have been made to the Machine ISA since version 1.12:
-\vspace{-0.2in}
-\begin{itemize}
-  \parskip 0pt
-  \itemsep 1pt
-\item Defined the {\tt misa}.V field to reflect that the V extension has been implemented.
-\end{itemize}
-
-\section*{Preface to Version 20211203}
-
-This document describes the RISC-V privileged architecture.
-This release, version 20211203, contains the following versions of the RISC-V
-ISA modules:
-
-{
-\begin{table}[hbt]
-  \centering
-  \begin{tabular}{|c|l|c|}
-    \hline
-    Module                & Version  & Status\\
-    \hline
+\iffalse
     \bf Machine ISA       & \bf 1.12 & \bf Ratified \\
     \bf Supervisor ISA    & \bf 1.12 & \bf Ratified \\
     \bf Svnapot Extension & \bf 1.0  & \bf Ratified \\
     \bf Svpbmt Extension  & \bf 1.0  & \bf Ratified \\
     \bf Svinval Extension & \bf 1.0  & \bf Ratified \\
     \bf Hypervisor ISA    & \bf 1.0  & \bf Ratified \\
+\fi
+    \bf Machine ISA       & \bf 1.12 & \bf 已批准 \\
+    \bf Supervisor ISA    & \bf 1.12 & \bf 已批准 \\
+    \bf Svnapot Extension & \bf 1.0  & \bf 已批准 \\
+    \bf Svpbmt Extension  & \bf 1.0  & \bf 已批准 \\
+    \bf Svinval Extension & \bf 1.0  & \bf 已批准 \\
+    \bf Hypervisor ISA    & \bf 1.0  & \bf 已批准 \\
     \hline
   \end{tabular}
 \end{table}
 }
 
+\iffalse
 The following changes have been made since version 1.11, which, while not
 strictly backwards compatible, are not anticipated to cause software
 portability problems in practice:
+\fi
+自1.11版本以来，已经做出了以下更改，虽然不是严格的
+向后兼容，但在实践中预计不会引起软件可移植性问题:
+
 \vspace{-0.2in}
 \begin{itemize}
   \parskip 0pt
   \itemsep 1pt
+\iffalse
 \item Changed MRET and SRET to clear {\tt mstatus}.MPRV when leaving M-mode.
 \item Reserved additional {\tt satp} patterns for future use.
 \item Stated that the {\tt scause} Exception Code field must implement
@@ -76,200 +62,582 @@ portability problems in practice:
 \item Clarify that if the address-translation algorithm non-speculatively
   reaches a PTE in which a bit reserved for future standard use is set,
   a page-fault exception must be raised.
+\fi
+\item 当离开M模式时，更改MRET和SRET来清除{\tt mstatus}.MPRV。
+\item 保留额外的{\tt satp}模式供将来使用。
+\item 声明{\tt scause}异常代码字段必须至少实现bits 4--0。
+\item 已根据RVWMO规定了宽松的I/O区域。之前的规范
+      暗示除了fences 和 acquire/release annotations以外的PPO规则不适用。
+\item 在使用基于页面的虚拟内存时，限制LR/SC预留集的大小和形状?。
+\item 任何实现了基于页面的虚拟内存的hart上，PMP更改需要一个SFENCE.VMA，即使VM目前没有启用。
+\item 允许对页表项A位进行推测性更新。
+\item 说明如果地址转换算法非推测性地到达一个PTE，
+      其中设置了一个为未来标准使用而保留的比特位，则必须引发缺页异常。
 \end{itemize}
 
-Additionally, the following compatible changes have been made since version
+%Additionally, the following compatible changes have been made since version
+此外，自版本以来还进行了以下兼容更改
 1.11:
 \vspace{-0.2in}
 \begin{itemize}
   \parskip 0pt
   \itemsep 1pt
-\item Removed the N extension.
-\item Defined the mandatory RV32-only CSR {\tt mstatush}, which contains
-  most of the same fields as the upper 32 bits of RV64's {\tt mstatus}.
-\item Defined the mandatory CSR {\tt mconfigptr}, which if nonzero
-  contains the address of a configuration data structure.
-\item Defined optional {\tt mseccfg} and {\tt mseccfgh} CSRs, which control
- the machine's security configuration.
-\item Defined {\tt menvcfg}, {\tt henvcfg}, and {\tt senvcfg} CSRs
-  (and RV32-only {\tt menvcfgh} and {\tt henvcfgh} CSRs),
-  which control various characteristics of the execution environment.
-\item Designated part of SYSTEM major opcode for custom use.
-\item Permitted the unconditional delegation of less-privileged interrupts.
-\item Added optional big-endian and bi-endian support.
-\item Made priority of load/store/AMO address-misaligned exceptions
-  implementation-defined relative to load/store/AMO page-fault
-  and access-fault exceptions.
-\item PMP reset values are now platform-defined.
-\item An additional 48 optional PMP registers have been defined.
-\item Slightly relaxed the atomicity requirement for A and D bit updates
-  performed by the implementation.
-\item Clarify the architectural behavior of address-translation caches
-\item Added Sv57 and Sv57x4 address translation modes.
-\item Software breakpoint exceptions are permitted to write either 0
-  or the {\tt pc} to {\em x}\/{\tt tval}.
-\item Clarified that bare S-mode need not support the SFENCE.VMA instruction.
-\item Specified relaxed constraints for implicit reads of non-idempotent
-  regions.
-\item Added the Svnapot Standard Extension, along with the N bit in
-  Sv39, Sv48, and Sv57 PTEs.
-\item Added the Svpbmt Standard Extension, along with the PBMT bits in
-  Sv39, Sv48, and Sv57 PTEs.
-\item Added the Svinval Standard Extension and associated instructions.
+%\item Removed the N extension.
+\item 删除N扩展
+%\item Defined the mandatory RV32-only CSR {\tt mstatush}, which contains
+%  most of the same fields as the upper 32 bits of RV64's {\tt mstatus}.
+\item 定义了强制性RV32-only的CSR {\tt mstatush}，
+      它包含了与RV64的{\tt mstatus}高32位相同的大部分字段。
+%\item Defined the mandatory CSR {\tt mconfigptr}, which if nonzero
+%  contains the address of a configuration data structure.
+\item 定义了强制性CSR{\tt mconfigptr}，如果它不为零，则包含配置数据结构的地址。
+%\item Defined optional {\tt mseccfg} and {\tt mseccfgh} CSRs, which control
+% the machine's security configuration.
+\item 定义了可选的{\tt mseccfg}和{\tt mseccfgh} CSRs，它们控制计算机的安全配置。
+%\item Defined {\tt menvcfg}, {\tt henvcfg}, and {\tt senvcfg} CSRs
+%  (and RV32-only {\tt menvcfgh} and {\tt henvcfgh} CSRs),
+%  which control various characteristics of the execution environment.
+\item 定义了{\tt menvcfg}、{\tt henvcfg}和{\tt senvcfg} CSRs(和RV32-only{\tt menvcfgh} 
+      和 {\tt henvcfgh} CSRs)，它们控制执行环境的各种特性。
+%\item Designated part of SYSTEM major opcode for custom use.
+\item 自定义使用SYSTEM主要操作码的指定部分。
+%\item Permitted the unconditional delegation of less-privileged interrupts.
+\item 允许对特权级较低的中断进行无条件授权。
+%\item Added optional big-endian and bi-endian support.
+\item 增加了可选的big-endian和bi-endian支持。
+%\item Made priority of load/store/AMO address-misaligned exceptions
+%  implementation-defined relative to load/store/AMO page-fault
+%  and access-fault exceptions.
+\item 相对于加载/存储/AMO页面错误和访问错误异常，优先考虑实现定义的加载/存储/AMO地址错误异常。
+%\item PMP reset values are now platform-defined.
+\item PMP重置值现在是平台定义的。
+%\item An additional 48 optional PMP registers have been defined.
+\item 另外还定义了48个可选的PMP寄存器。
+%\item Slightly relaxed the atomicity requirement for A and D bit updates
+  % performed by the implementation.
+\item 稍微放宽了实现执行对A和D位更新的原子性要求。
+% \item Clarify the architectural behavior of address-translation caches
+\item 阐明地址转换高速缓存的体系结构行为
+% \item Added Sv57 and Sv57x4 address translation modes.
+\item 增加了Sv57和Sv57x4地址转换模式。
+% \item Software breakpoint exceptions are permitted to write either 0
+  % or the PC to {\em x}\/{\tt tval}.
+\item 允许软件断点异常将0或PC写入 {\em x}\/{\tt tval}。
+% \item Clarified that bare S-mode need not support the SFENCE.VMA instruction.
+\item 阐明了裸S模式不需要支持SFENCE.VMA指令。
+% \item Specified relaxed constraints for implicit reads of non-idempotent
+  % regions.
+\item 指定非幂等区域的隐式读取的宽松约束。
+% \item Added the Svnapot Standard Extension, along with the N bit in
+  % Sv39, Sv48, and Sv57 PTEs.
+\item 增加了Svnapot标准扩展，以及Sv39、Sv48和Sv57 PTEs中的N位。
+% \item Added the Svpbmt Standard Extension, along with the PBMT bits in
+  % Sv39, Sv48, and Sv57 PTEs.
+\item 增加了Svpbmt标准扩展，以及Sv39、Sv48和Sv57 PTEs中的PBMT位。
+% \item Added the Svinval Standard Extension and associated instructions.
+\item 增加了Svinval标准扩展和相关指令。
 \end{itemize}
 
-Finally, the hypervisor architecture proposal has been extensively revised.
+% Finally, the hypervisor architecture proposal has been extensively revised.
+最后，对管理程序体系结构提议进行了广泛修改。
 
 \newpage
 
 \section*{Preface to Version 1.11}
 
-This is version 1.11 of the RISC-V privileged architecture.
-The document contains the following versions of the RISC-V ISA
-modules:
-
+% This is version 1.11 of the RISC-V privileged architecture.
+% The document contains the following versions of the RISC-V ISA
+% modules:
+这是RISC-V特权架构的1.11版本。
+文档中包含的RISC-V ISA模块版本如下:
 {
 \begin{table}[hbt]
   \centering
   \begin{tabular}{|c|l|c|}
     \hline
-    Module             & Version  & Status\\
+    % Module             & Version  & Status\\
+    模块             & 版本  & 状态 \\
     \hline
-    \bf Machine ISA    & \bf 1.11 & \bf Ratified \\
-    \bf Supervisor ISA & \bf 1.11 & \bf Ratified \\
-    \em Hypervisor ISA & \em 0.3  & \em Draft \\
+    % \bf Machine ISA    & \bf 1.11 & \bf Ratified \\
+    \bf Machine ISA    & \bf 1.11 & \bf 已批准 \\
+    % \bf Supervisor ISA & \bf 1.11 & \bf Ratified \\
+    \bf Supervisor ISA & \bf 1.11 & \bf 已批准 \\
+    % \em Hypervisor ISA & \em 0.3  & \em Draft \\
+    \em Hypervisor ISA & \em 0.3  & \em 草案 \\
     \hline
   \end{tabular}
 \end{table}
 }
 
-Changes from version 1.10 include:
+% Changes from version 1.10 include:
+与1.10版本相比的变化包括:
 \vspace{-0.2in}
 \begin{itemize}
   \parskip 0pt
   \itemsep 1pt
-  \item Moved Machine and Supervisor spec to {\bf Ratified} status.
-\item Improvements to the description and commentary.
-\item Added a draft proposal for a hypervisor extension.
-\item Specified which interrupt sources are reserved for standard use.
-\item Allocated some synchronous exception causes for custom use.
-\item Specified the priority ordering of synchronous exceptions.
-\item Added specification that xRET instructions may, but are not
-  required to, clear LR reservations if A extension present.
-\item The virtual-memory system no longer permits supervisor mode to execute
-  instructions from user pages, regardless of the SUM setting.
-\item Clarified that ASIDs are private to a hart, and added commentary about
-  the possibility of a future global-ASID extension.
-\item SFENCE.VMA semantics have been clarified.
-\item Made the {\tt mstatus}.MPP field \warl, rather than \wlrl.
-\item Made the unused {\em x}{\tt ip} fields \wpri, rather than \wiri.
-\item Made the unused {\tt misa} fields \warl, rather than \wiri.
-\item Made the unused {\tt pmpaddr} and {\tt pmpcfg} fields \warl, rather than \wiri.
-\item Required all harts in a system to employ the same PTE-update scheme as each other.
-\item Rectified an editing error that misdescribed the mechanism by which
-  {\tt mstatus}.{\em x}IE is written upon an exception.
-\item Described scheme for emulating misaligned AMOs.
-\item Specified the behavior of the {\tt misa} and {\em x}{\tt epc} registers in
-  systems with variable IALIGN.
-\item Specified the behavior of writing self-contradictory values to the
-  {\tt misa} register.
-\item Defined the {\tt mcountinhibit} CSR, which stops performance
-  counters from incrementing to reduce energy consumption.
-\item Specified semantics for PMP regions coarser than four bytes.
-\item Specified contents of CSRs across XLEN modification.
-\item Moved PLIC chapter into its own document.
+  % \item Moved Machine and Supervisor spec to {\bf Ratified} status.
+  \item 将Machine和Supervisor规格转变到{\bf 已批准}状态。
+% \item Improvements to the description and commentary.
+\item 对描述和注释的改进。
+% \item Added a draft proposal for a hypervisor extension.
+\item 添加了hypervisor扩展的提案草案。
+% \item Specified which interrupt sources are reserved for standard use.
+\item 指定哪些中断源被保留用于标准使用。
+% \item Allocated some synchronous exception causes for custom use.
+\item 为自定义使用分配了一些同步异常原因。
+% \item Specified the priority ordering of synchronous exceptions.
+\item 指定同步异常的优先级顺序。
+% \item Added specification that xRET instructions may, but are not
+  % required to, clear LR reservations if A extension present.
+\item 增加规范，如果扩展存在，xRET指令可以(但不是必需)清除LR保留。
+% \item The virtual-memory system no longer permits supervisor mode to execute
+  % instructions from user pages, regardless of the SUM setting.
+\item 虚拟内存系统不再允许管理模式执行来自用户页面的指令，无论SUM如何设置。
+% \item Clarified that ASIDs are private to a hart, and added commentary about
+  % the possibility of a future global-ASID extension.
+\item 阐明了ASIDs对一个hart是私有的，并添加了关于未来global-ASID扩展的可能性的评论。
+% \item SFENCE.VMA semantics have been clarified.
+\item SFENCE.VMA的语义已经被阐明。
+% \item Made the {\tt mstatus}.MPP field \warl, rather than \wlrl.
+\item 使 {\tt mstatus}.MPP 字段是\warl，而不是\wlrl。
+% \item Made the unused {\em x}{\tt ip} fields \wpri, rather than \wiri.
+\item 使未使用的{\em x}{\tt ip}字段是\wpri，而不是\wiri。
+% \item Made the unused {\tt misa} fields \warl, rather than \wiri.
+\item 使未使用的{\tt misa}字段\warl，而不是\wiri。
+% \item Made the unused {\tt pmpaddr} and {\tt pmpcfg} fields \warl, rather than \wiri.
+\item 使未使用的{\tt pmpaddr}和{\tt pmpcfg}字段是\warl，而不是\wiri。
+% \item Required all harts in a system to employ the same PTE-update scheme as each other.
+\item 要求系统中的所有harts都使用相同的PTE更新方案。
+% \item Rectified an editing error that misdescribed the mechanism by which
+  % {\tt mstatus}.{\em x}IE is written upon an exception.
+\item 修正了一个编辑错误，它描述了在异常情况下编写 {\tt mstatus}.{\em x} 的机制。
+% \item Described scheme for emulating misaligned AMOs.
+\item 描述了模拟失调AMOs的方案。
+% \item Specified the behavior of the {\tt misa} and {\em x}{\tt epc} registers in
+  % systems with variable IALIGN.
+\item 指定在可变IALIGN的系统中{\tt misa} 和 {\em x}{\tt epc} 寄存器的行为。
+% \item Specified the behavior of writing self-contradictory values to the
+  % {\tt misa} register.
+\item 指定将自相矛盾的值写入{\tt misa}寄存器的行为。
+% \item Defined the {\tt mcountinhibit} CSR, which stops performance
+  % counters from incrementing to reduce energy consumption.
+\item 定义了{\tt mcountinhibit} CSR，它阻止性能计数器增加以减少能耗。
+% \item Specified semantics for PMP regions coarser than four bytes.
+\item 为大于四个字节的PMP区域指定语义。
+% \item Specified contents of CSRs across XLEN modification.
+\item 指定跨XLEN修改CSRs的内容。
+% \item Moved PLIC chapter into its own document.
+\item 将PLIC章节移动到自己的文档中。
 \end{itemize}
 
 \newpage
 
 \section*{Preface to Version 1.10}
 
-This is version 1.10 of the RISC-V privileged
-architecture proposal.  Changes from version 1.9.1 include:
+% This is version 1.10 of the RISC-V privileged
+% architecture proposal.  Changes from version 1.9.1 include:
+这是RISC-V特权架构提案的1.10版本。从1.9.1版本开始的更改包括：
 
 \begin{itemize}
   \parskip 0pt
   \itemsep 1pt
-\item The previous version of this document was released under a
-  Creative Commons Attribution 4.0 International License by the
-  original authors, and this and future versions of this document will
-  be released under the same license.
-\item The explicit convention on shadow CSR addresses has been removed
-  to reclaim CSR space.  Shadow CSRs can still be added as needed.
-\item The {\tt mvendorid} register now contains the JEDEC code of the
-  core provider as opposed to a code supplied by the Foundation.  This
-  avoids redundancy and offloads work from the Foundation.
-\item The interrupt-enable stack discipline has been simplified.
-\item An optional mechanism to change the base ISA used by supervisor
-  and user modes has been added to the {\tt mstatus} CSR, and the
-  field previously called Base in {\tt misa} has been renamed to {\tt
-    MXL} for consistency.
-\item Clarified expected use of XS to summarize additional extension
-  state status fields in {\tt mstatus}.
-\item Optional vectored interrupt support has been added to the
-  {\tt mtvec} and {\tt stvec} CSRs.
-\item The SEIP and UEIP bits in the {\tt mip} CSR have been redefined
-  to support software injection of external interrupts.
-  \item The {\tt mbadaddr} register has been subsumed by a more
-    general {\tt mtval} register that can now capture bad
-    instruction bits on an illegal instruction fault to speed
-    instruction emulation.
-\item The machine-mode base-and-bounds translation and protection
-  schemes have been removed from the specification as part of moving
-  the virtual memory configuration to {\tt sptbr} (now {\tt satp}).  Some of the
-  motivation for the base and bound schemes are now covered by the PMP
-  registers, but space remains available in {\tt mstatus} to add these
-  back at a later date if deemed useful.
-\item In systems with only M-mode, or with both M-mode and U-mode but
-  without U-mode trap support, the {\tt medeleg} and {\tt mideleg}
-    registers now do not exist, whereas previously they returned zero.
-\item Virtual-memory page faults now have {\tt mcause} values distinct from
-  physical-memory access faults.  Page-fault exceptions can now be
-  delegated to S-mode without delegating exceptions generated by PMA
-  and PMP checks.
-\item An optional physical-memory protection (PMP) scheme has been proposed.
-\item The supervisor virtual memory configuration has been moved from the
-  {\tt mstatus} register to the {\tt sptbr} register.  Accordingly, the
-  {\tt sptbr} register has been renamed to {\tt satp} (Supervisor Address
-  Translation and Protection) to reflect its broadened role.
-\item The SFENCE.VM instruction has been removed in favor of the improved
-  SFENCE.VMA instruction.
-\item The {\tt mstatus} bit MXR has been exposed to S-mode via {\tt sstatus}.
-\item The polarity of the PUM bit in {\tt sstatus} has been inverted to
-  shorten code sequences involving MXR.  The bit has been renamed to SUM.
-\item Hardware management of page-table entry Accessed and Dirty bits has
-  been made optional; simpler implementations may trap to software to
-  set them.
-\item The counter-enable scheme has changed, so that S-mode can
-  control availability of counters to U-mode.
-\item H-mode has been removed, as we are focusing on recursive
-  virtualization support in S-mode.  The encoding space has been
-  reserved and may be repurposed at a later date.
-\item A mechanism to improve virtualization performance by
-  trapping S-mode virtual-memory management operations has been added.
-\item The Supervisor Binary Interface (SBI) chapter has been removed, so
-  that it can be maintained as a separate specification.
+% \item The previous version of this document was released under a
+%   Creative Commons Attribution 4.0 International License by the
+%   original authors, and this and future versions of this document will
+%   be released under the same license.
+\item 本文档的前一个版本是由原作者在知识共享署名4.0国际许可下发布的，
+本文档和未来的版本将在相同的许可下发布。
+% \item The explicit convention on shadow CSR addresses has been removed
+%   to reclaim CSR space.  Shadow CSRs can still be added as needed.
+\item 为了回收CSR空间，对影子内阁的CSR地址的显式约定被移除。仍然可以根据需要添加影子内阁的CSRs。
+% \item The {\tt mvendorid} register now contains the JEDEC code of the
+%   core provider as opposed to a code supplied by the Foundation.  This
+%   avoids redundancy and offloads work from the Foundation.
+\item {\tt mvendorid}寄存器现在包含核心提供者的JEDEC代码，
+而不是由基金会提供的代码。这避免了冗余并将减轻基金会的工作。
+% \item The interrupt-enable stack   has been simplified.
+\item 支持中断的堆栈规程已经简化。
+% \item An optional mechanism to change the base ISA used by supervisor
+%   and user modes has been added to the {\tt mstatus} CSR, and the
+%   field previously called Base in {\tt misa} has been renamed to {\tt
+%     MXL} for consistency.
+\item {\tt mstatus} CSR中增加了一种可选的机制来改变管理员和用户模式使用的base ISA，并且为了
+一致性，之前在{\tt misa}中称为base的字段被重命名为{\tt MXL}。
+% \item Clarified expected use of XS to summarize additional extension
+%   state status fields in {\tt mstatus}.
+\item 阐明了期望使用XS来总结{\tt mstatus}中的其他扩展状态的状态字段。
+% \item Optional vectored interrupt support has been added to the
+%   {\tt mtvec} and {\tt stvec} CSRs.
+\item {\tt mtvec}和{\tt stvec} CSRs中添加了可选的向量中断支持。
+% \item The SEIP and UEIP bits in the {\tt mip} CSR have been redefined
+%   to support software injection of external interrupts.
+\item {\tt mip} CSR中的SEIP和UEIP位被重新定义，以支持外部中断的软件注入。
+  % \item The {\tt mbadaddr} register has been subsumed by a more
+  %   general {\tt mtval} register that can now capture bad
+  %   instruction bits on an illegal instruction fault to speed
+  %   instruction emulation.
+\item {\tt mbadaddr}寄存器已被一个更通用的{\tt-mtval}寄存器所包含，
+该寄存器现在可以捕获非法指令错误上的错误指令位，以加快指令仿真。
+% \item The machine-mode base-and-bounds translation and protection
+%   schemes have been removed from the specification as part of moving
+%   the virtual memory configuration to {\tt sptbr} (now {\tt satp}).  Some of the
+%   motivation for the base and bound schemes are now covered by the PMP
+%   registers, but space remains available in {\tt mstatus} to add these
+%   back at a later date if deemed useful.
+\item 机器模式的基础边界转换和保护方案已经从规范中删除，
+作为将虚拟内存配置移动到{\tt sptbr}(现在是{\tt satp})的一部分。
+base和bound方案的一些诱因现在已经由PMP寄存器覆盖，
+但{\tt mstatus}中仍然有空间，如果认为有用，可以在以后添加这些寄存器。
+% \item In systems with only M-mode, or with both M-mode and U-mode but
+%   without U-mode trap support, the {\tt medeleg} and {\tt mideleg}
+%     registers now do not exist, whereas previously they returned zero.
+\item 在只支持M模式，或者同时支持M模式和U模式但不支持U模式陷阱的系统中，
+{\tt medeleg}和{\tt mideleg}寄存器现在不存在，而以前它们返回0。
+% \item Virtual-memory page faults now have {\tt mcause} values distinct from
+%   physical-memory access faults.  Page-fault exceptions can now be
+%   delegated to S-mode without delegating exceptions generated by PMA
+  % and PMP checks.
+\item 虚拟内存页面错误现在具有不同于物理内存访问错误的{\tt mcause}值。
+现在可以将页面错误异常授权到S模式，而无需授权由PMA和PMP检查生成的异常。
+% \item An optional physical-memory protection (PMP) scheme has been proposed.
+\item 提出了一种可选的物理内存保护(PMP)方案。
+% \item The supervisor virtual memory configuration has been moved from the
+%   {\tt mstatus} register to the {\tt sptbr} register.  Accordingly, the
+%   {\tt sptbr} register has been renamed to {\tt satp} (Supervisor Address
+%   Translation and Protection) to reflect its broadened role.
+\item 管理员虚拟内存配置已经从{\tt mstatus}寄存器移动到{\tt sptbr}寄存器。
+因此，{\tt sptbr}寄存器被重命名为{\tt satp}(Supervisor Address Translation and Protection)，
+以反映其扩大的作用。
+% \item The SFENCE.VM instruction has been removed in favor of the improved
+%   SFENCE.VMA instruction.
+\item SFENCE.VM指令已被删除，取而代之的是改进后的SFENCE.VMA指令。
+% \item The {\tt mstatus} bit MXR has been exposed to S-mode via {\tt sstatus}.
+\item {\tt mstatus}位MXR已通过{\tt sstatus}暴露到s模式。
+% \item The polarity of the PUM bit in {\tt sstatus} has been inverted to
+%   shorten code sequences involving MXR.  The bit has been renamed to SUM.
+\item {\tt sstatus}中的PUM位的极性被颠倒，以缩短涉及MXR的代码序列。位已重命名为SUM。
+% \item Hardware management of page-table entry Accessed and Dirty bits has
+%   been made optional; simpler implementations may trap to software to
+%   set them.
+\item 页表条目访问位和脏位的硬件管理是可选的;更简单的实现可能会让设置它们的软件陷入陷阱。
+% \item The counter-enable scheme has changed, so that S-mode can
+%   control availability of counters to U-mode.
+\item 计数器使能方案已更改，因此S模式可以控制计数器对U模式的可用性。
+% \item H-mode has been removed, as we are focusing on recursive
+%   virtualization support in S-mode.  The encoding space has been
+%   reserved and may be repurposed at a later date.
+\item H模式已经被删除，因为我们专注于s模式下的递归虚拟化支持。
+      编码空间已被保留，以后可以重新使用。
+% \item A mechanism to improve virtualization performance by
+%   trapping S-mode virtual-memory management operations has been added.
+\item 添加了一种通过捕获S模式虚拟内存管理操作来提高虚拟化性能的机制。
+% \item The Supervisor Binary Interface (SBI) chapter has been removed, so
+%   that it can be maintained as a separate specification.
+\item Supervisor Binary Interface (SBI)章节已经被删除，因此它可以作为一个单独的规范来维护。
 \end{itemize}
 
 \newpage
 
 \section*{Preface to Version 1.9.1}
 
-This is version 1.9.1 of the RISC-V privileged architecture
-proposal.  Changes from version 1.9 include:
+% This is version 1.9.1 of the RISC-V privileged architecture
+% proposal.  Changes from version 1.9 include:
+这是RISC-V特权架构提案的1.9.1版本。从1.9版本开始的更改包括：
 
 \begin{itemize}
   \parskip 0pt
   \itemsep 1pt
-\item Numerous additions and improvements to the commentary sections.
-\item Change configuration string proposal to be use a search process
-  that supports various formats including Device Tree String and
-  flattened Device Tree.
-\item Made {\tt misa} optionally writable to support modifying base
-  and supported ISA extensions.  CSR address of {\tt misa} changed.
-\item Added description of debug mode and debug CSRs.
-\item Added a hardware performance monitoring scheme.  Simplified the
-  handling of existing hardware counters, removing privileged versions
-  of the counters and the corresponding delta registers.
-\item Fixed description of SPIE in presence of user-level interrupts.
+% \item Numerous additions and improvements to the commentary sections.
+\item 对说明部分进行了大量的补充和改进。
+% \item Change configuration string proposal to be use a search process
+%   that supports various formats including Device Tree String and
+%   flattened Device Tree.
+\item 将配置字符串提案更改为使用支持各种格式的搜索过程，包括设备树字符串和扁平设备树。
+% \item Made {\tt misa} optionally writable to support modifying base
+%   and supported ISA extensions.  CSR address of {\tt misa} changed.
+\item 使{\tt misa}可选的写入，以支持修改基础和支持的ISA扩展。{\tt misa}的CSR地址已更改。
+% \item Added description of debug mode and debug CSRs.
+\item 增加调试模式和调试CSRs的说明。
+% \item Added a hardware performance monitoring scheme.  Simplified the
+%   handling of existing hardware counters, removing privileged versions
+%   of the counters and the corresponding delta registers.
+\item 增加硬件性能监控方案。简化了现有硬件计数器的处理，删除了计数器的特权版本和相应的增量寄存器。
+% \item Fixed description of SPIE in presence of user-level interrupts.
+\item 修正了用户级中断时SPIE的描述。
 \end{itemize}
+
+% \chapter{Preface}
+
+% This document describes the RISC-V privileged architecture.
+% This release, version \privrev, contains the following versions of the RISC-V
+% ISA modules:
+
+% {
+% \begin{table}[hbt]
+%   \centering
+%   \begin{tabular}{|c|l|c|}
+%     \hline
+%     Module                & Version  & Status\\
+%     \hline
+%     \em Machine ISA       & \em 1.13 & \em Draft \\
+%     \bf Supervisor ISA    & \bf 1.12 & \bf Ratified \\
+%     \bf Svnapot Extension & \bf 1.0  & \bf Ratified \\
+%     \bf Svpbmt Extension  & \bf 1.0  & \bf Ratified \\
+%     \bf Svinval Extension & \bf 1.0  & \bf Ratified \\
+%     \bf Hypervisor ISA    & \bf 1.0  & \bf Ratified \\
+%     \hline
+%   \end{tabular}
+% \end{table}
+% }
+
+% The following compatible changes have been made to the Machine ISA since version 1.12:
+% \vspace{-0.2in}
+% \begin{itemize}
+%   \parskip 0pt
+%   \itemsep 1pt
+% \item Defined the {\tt misa}.V field to reflect that the V extension has been implemented.
+% \end{itemize}
+
+% \section*{Preface to Version 20211203}
+
+% This document describes the RISC-V privileged architecture.
+% This release, version 20211203, contains the following versions of the RISC-V
+% ISA modules:
+
+% {
+% \begin{table}[hbt]
+%   \centering
+%   \begin{tabular}{|c|l|c|}
+%     \hline
+%     Module                & Version  & Status\\
+%     \hline
+%     \bf Machine ISA       & \bf 1.12 & \bf Ratified \\
+%     \bf Supervisor ISA    & \bf 1.12 & \bf Ratified \\
+%     \bf Svnapot Extension & \bf 1.0  & \bf Ratified \\
+%     \bf Svpbmt Extension  & \bf 1.0  & \bf Ratified \\
+%     \bf Svinval Extension & \bf 1.0  & \bf Ratified \\
+%     \bf Hypervisor ISA    & \bf 1.0  & \bf Ratified \\
+%     \hline
+%   \end{tabular}
+% \end{table}
+% }
+
+% The following changes have been made since version 1.11, which, while not
+% strictly backwards compatible, are not anticipated to cause software
+% portability problems in practice:
+% \vspace{-0.2in}
+% \begin{itemize}
+%   \parskip 0pt
+%   \itemsep 1pt
+% \item Changed MRET and SRET to clear {\tt mstatus}.MPRV when leaving M-mode.
+% \item Reserved additional {\tt satp} patterns for future use.
+% \item Stated that the {\tt scause} Exception Code field must implement
+%   bits 4--0 at minimum.
+% \item Relaxed I/O regions have been specified to follow RVWMO.  The previous
+%   specification implied that PPO rules other than fences and acquire/release
+%   annotations did not apply.
+% \item Constrained the LR/SC reservation set size and shape when using
+%   page-based virtual memory.
+% \item PMP changes require an SFENCE.VMA on any hart that implements
+%   page-based virtual memory, even if VM is not currently enabled.
+% \item Allowed for speculative updates of page table entry A bits.
+% \item Clarify that if the address-translation algorithm non-speculatively
+%   reaches a PTE in which a bit reserved for future standard use is set,
+%   a page-fault exception must be raised.
+% \end{itemize}
+
+% Additionally, the following compatible changes have been made since version
+% 1.11:
+% \vspace{-0.2in}
+% \begin{itemize}
+%   \parskip 0pt
+%   \itemsep 1pt
+% \item Removed the N extension.
+% \item Defined the mandatory RV32-only CSR {\tt mstatush}, which contains
+%   most of the same fields as the upper 32 bits of RV64's {\tt mstatus}.
+% \item Defined the mandatory CSR {\tt mconfigptr}, which if nonzero
+%   contains the address of a configuration data structure.
+% \item Defined optional {\tt mseccfg} and {\tt mseccfgh} CSRs, which control
+%  the machine's security configuration.
+% \item Defined {\tt menvcfg}, {\tt henvcfg}, and {\tt senvcfg} CSRs
+%   (and RV32-only {\tt menvcfgh} and {\tt henvcfgh} CSRs),
+%   which control various characteristics of the execution environment.
+% \item Designated part of SYSTEM major opcode for custom use.
+% \item Permitted the unconditional delegation of less-privileged interrupts.
+% \item Added optional big-endian and bi-endian support.
+% \item Made priority of load/store/AMO address-misaligned exceptions
+%   implementation-defined relative to load/store/AMO page-fault
+%   and access-fault exceptions.
+% \item PMP reset values are now platform-defined.
+% \item An additional 48 optional PMP registers have been defined.
+% \item Slightly relaxed the atomicity requirement for A and D bit updates
+%   performed by the implementation.
+% \item Clarify the architectural behavior of address-translation caches
+% \item Added Sv57 and Sv57x4 address translation modes.
+% \item Software breakpoint exceptions are permitted to write either 0
+%   or the {\tt pc} to {\em x}\/{\tt tval}.
+% \item Clarified that bare S-mode need not support the SFENCE.VMA instruction.
+% \item Specified relaxed constraints for implicit reads of non-idempotent
+%   regions.
+% \item Added the Svnapot Standard Extension, along with the N bit in
+%   Sv39, Sv48, and Sv57 PTEs.
+% \item Added the Svpbmt Standard Extension, along with the PBMT bits in
+%   Sv39, Sv48, and Sv57 PTEs.
+% \item Added the Svinval Standard Extension and associated instructions.
+% \end{itemize}
+
+% Finally, the hypervisor architecture proposal has been extensively revised.
+
+% \newpage
+
+% \section*{Preface to Version 1.11}
+
+% This is version 1.11 of the RISC-V privileged architecture.
+% The document contains the following versions of the RISC-V ISA
+% modules:
+
+% {
+% \begin{table}[hbt]
+%   \centering
+%   \begin{tabular}{|c|l|c|}
+%     \hline
+%     Module             & Version  & Status\\
+%     \hline
+%     \bf Machine ISA    & \bf 1.11 & \bf Ratified \\
+%     \bf Supervisor ISA & \bf 1.11 & \bf Ratified \\
+%     \em Hypervisor ISA & \em 0.3  & \em Draft \\
+%     \hline
+%   \end{tabular}
+% \end{table}
+% }
+
+% Changes from version 1.10 include:
+% \vspace{-0.2in}
+% \begin{itemize}
+%   \parskip 0pt
+%   \itemsep 1pt
+%   \item Moved Machine and Supervisor spec to {\bf Ratified} status.
+% \item Improvements to the description and commentary.
+% \item Added a draft proposal for a hypervisor extension.
+% \item Specified which interrupt sources are reserved for standard use.
+% \item Allocated some synchronous exception causes for custom use.
+% \item Specified the priority ordering of synchronous exceptions.
+% \item Added specification that xRET instructions may, but are not
+%   required to, clear LR reservations if A extension present.
+% \item The virtual-memory system no longer permits supervisor mode to execute
+%   instructions from user pages, regardless of the SUM setting.
+% \item Clarified that ASIDs are private to a hart, and added commentary about
+%   the possibility of a future global-ASID extension.
+% \item SFENCE.VMA semantics have been clarified.
+% \item Made the {\tt mstatus}.MPP field \warl, rather than \wlrl.
+% \item Made the unused {\em x}{\tt ip} fields \wpri, rather than \wiri.
+% \item Made the unused {\tt misa} fields \warl, rather than \wiri.
+% \item Made the unused {\tt pmpaddr} and {\tt pmpcfg} fields \warl, rather than \wiri.
+% \item Required all harts in a system to employ the same PTE-update scheme as each other.
+% \item Rectified an editing error that misdescribed the mechanism by which
+%   {\tt mstatus}.{\em x}IE is written upon an exception.
+% \item Described scheme for emulating misaligned AMOs.
+% \item Specified the behavior of the {\tt misa} and {\em x}{\tt epc} registers in
+%   systems with variable IALIGN.
+% \item Specified the behavior of writing self-contradictory values to the
+%   {\tt misa} register.
+% \item Defined the {\tt mcountinhibit} CSR, which stops performance
+%   counters from incrementing to reduce energy consumption.
+% \item Specified semantics for PMP regions coarser than four bytes.
+% \item Specified contents of CSRs across XLEN modification.
+% \item Moved PLIC chapter into its own document.
+% \end{itemize}
+
+% \newpage
+
+% \section*{Preface to Version 1.10}
+
+% This is version 1.10 of the RISC-V privileged
+% architecture proposal.  Changes from version 1.9.1 include:
+
+% \begin{itemize}
+%   \parskip 0pt
+%   \itemsep 1pt
+% \item The previous version of this document was released under a
+%   Creative Commons Attribution 4.0 International License by the
+%   original authors, and this and future versions of this document will
+%   be released under the same license.
+% \item The explicit convention on shadow CSR addresses has been removed
+%   to reclaim CSR space.  Shadow CSRs can still be added as needed.
+% \item The {\tt mvendorid} register now contains the JEDEC code of the
+%   core provider as opposed to a code supplied by the Foundation.  This
+%   avoids redundancy and offloads work from the Foundation.
+% \item The interrupt-enable stack discipline has been simplified.
+% \item An optional mechanism to change the base ISA used by supervisor
+%   and user modes has been added to the {\tt mstatus} CSR, and the
+%   field previously called Base in {\tt misa} has been renamed to {\tt
+%     MXL} for consistency.
+% \item Clarified expected use of XS to summarize additional extension
+%   state status fields in {\tt mstatus}.
+% \item Optional vectored interrupt support has been added to the
+%   {\tt mtvec} and {\tt stvec} CSRs.
+% \item The SEIP and UEIP bits in the {\tt mip} CSR have been redefined
+%   to support software injection of external interrupts.
+%   \item The {\tt mbadaddr} register has been subsumed by a more
+%     general {\tt mtval} register that can now capture bad
+%     instruction bits on an illegal instruction fault to speed
+%     instruction emulation.
+% \item The machine-mode base-and-bounds translation and protection
+%   schemes have been removed from the specification as part of moving
+%   the virtual memory configuration to {\tt sptbr} (now {\tt satp}).  Some of the
+%   motivation for the base and bound schemes are now covered by the PMP
+%   registers, but space remains available in {\tt mstatus} to add these
+%   back at a later date if deemed useful.
+% \item In systems with only M-mode, or with both M-mode and U-mode but
+%   without U-mode trap support, the {\tt medeleg} and {\tt mideleg}
+%     registers now do not exist, whereas previously they returned zero.
+% \item Virtual-memory page faults now have {\tt mcause} values distinct from
+%   physical-memory access faults.  Page-fault exceptions can now be
+%   delegated to S-mode without delegating exceptions generated by PMA
+%   and PMP checks.
+% \item An optional physical-memory protection (PMP) scheme has been proposed.
+% \item The supervisor virtual memory configuration has been moved from the
+%   {\tt mstatus} register to the {\tt sptbr} register.  Accordingly, the
+%   {\tt sptbr} register has been renamed to {\tt satp} (Supervisor Address
+%   Translation and Protection) to reflect its broadened role.
+% \item The SFENCE.VM instruction has been removed in favor of the improved
+%   SFENCE.VMA instruction.
+% \item The {\tt mstatus} bit MXR has been exposed to S-mode via {\tt sstatus}.
+% \item The polarity of the PUM bit in {\tt sstatus} has been inverted to
+%   shorten code sequences involving MXR.  The bit has been renamed to SUM.
+% \item Hardware management of page-table entry Accessed and Dirty bits has
+%   been made optional; simpler implementations may trap to software to
+%   set them.
+% \item The counter-enable scheme has changed, so that S-mode can
+%   control availability of counters to U-mode.
+% \item H-mode has been removed, as we are focusing on recursive
+%   virtualization support in S-mode.  The encoding space has been
+%   reserved and may be repurposed at a later date.
+% \item A mechanism to improve virtualization performance by
+%   trapping S-mode virtual-memory management operations has been added.
+% \item The Supervisor Binary Interface (SBI) chapter has been removed, so
+%   that it can be maintained as a separate specification.
+% \end{itemize}
+
+% \newpage
+
+% \section*{Preface to Version 1.9.1}
+
+% This is version 1.9.1 of the RISC-V privileged architecture
+% proposal.  Changes from version 1.9 include:
+
+% \begin{itemize}
+%   \parskip 0pt
+%   \itemsep 1pt
+% \item Numerous additions and improvements to the commentary sections.
+% \item Change configuration string proposal to be use a search process
+%   that supports various formats including Device Tree String and
+%   flattened Device Tree.
+% \item Made {\tt misa} optionally writable to support modifying base
+%   and supported ISA extensions.  CSR address of {\tt misa} changed.
+% \item Added description of debug mode and debug CSRs.
+% \item Added a hardware performance monitoring scheme.  Simplified the
+%   handling of existing hardware counters, removing privileged versions
+%   of the counters and the corresponding delta registers.
+% \item Fixed description of SPIE in presence of user-level interrupts.
+% \end{itemize}

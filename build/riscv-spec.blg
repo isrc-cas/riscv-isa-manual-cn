@@ -7,45 +7,46 @@ Warning--string name "november" is undefined
 --line 235 of file riscv-spec.bib
 Warning--to sort, need author or key in riscv-elf-psabi
 Warning--to sort, need author or key in riscv-asm-manual
-You've used 19 entries,
+Warning--to sort, need author or key in sparcieee1994
+You've used 27 entries,
             2118 wiz_defined-function locations,
-            614 strings with 7899 characters,
-and the built_in function-call counts, 7177 in all, are:
-= -- 680
-> -- 411
-< -- 8
-+ -- 168
-- -- 144
-* -- 516
-:= -- 1154
-add.period$ -- 54
-call.type$ -- 19
-change.case$ -- 131
+            657 strings with 8892 characters,
+and the built_in function-call counts, 9100 in all, are:
+= -- 869
+> -- 473
+< -- 9
++ -- 194
+- -- 162
+* -- 618
+:= -- 1476
+add.period$ -- 76
+call.type$ -- 27
+change.case$ -- 162
 chr.to.int$ -- 0
-cite$ -- 21
-duplicate$ -- 270
-empty$ -- 534
-format.name$ -- 144
-if$ -- 1520
+cite$ -- 30
+duplicate$ -- 356
+empty$ -- 713
+format.name$ -- 162
+if$ -- 1933
 int.to.chr$ -- 0
-int.to.str$ -- 19
-missing$ -- 13
-newline$ -- 94
-num.names$ -- 32
-pop$ -- 162
+int.to.str$ -- 27
+missing$ -- 17
+newline$ -- 132
+num.names$ -- 47
+pop$ -- 203
 preamble$ -- 1
-purify$ -- 111
+purify$ -- 136
 quote$ -- 0
-skip$ -- 198
+skip$ -- 264
 stack$ -- 0
-substring$ -- 335
-swap$ -- 73
-text.length$ -- 8
+substring$ -- 420
+swap$ -- 88
+text.length$ -- 9
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 76
-warning$ -- 2
-while$ -- 55
-width$ -- 21
-write$ -- 203
-(There were 3 warnings)
+type$ -- 106
+warning$ -- 3
+while$ -- 73
+width$ -- 29
+write$ -- 285
+(There were 4 warnings)

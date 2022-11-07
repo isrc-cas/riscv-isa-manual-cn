@@ -3775,16 +3775,22 @@ equals 8.
 
 虚拟地址到物理地址转换的算法与第\ref{sv32algorithm}节中的相同，但LEVELS等于5，PTESIZE等于8。
 
-\chapter{``Svnapot'' Standard Extension for NAPOT Translation Contiguity, Version 1.0}
+% \chapter{``Svnapot'' Standard Extension for NAPOT Translation Contiguity, Version 1.0}
+\chapter{``Svnapot'' NAPOT翻译连续性的标准扩展，版本1.0}
 \label{svnapot}
 
-In Sv39, Sv48, and Sv57, when a PTE has N=1, the PTE represents a
-translation that is part of a range of contiguous virtual-to-physical
-translations with the same values for PTE bits 5--0.  Such ranges must be of a
-naturally aligned power-of-2 (NAPOT) granularity larger than the base page
-size.
+% In Sv39, Sv48, and Sv57, when a PTE has N=1, the PTE represents a
+% translation that is part of a range of contiguous virtual-to-physical
+% translations with the same values for PTE bits 5--0.  Such ranges must be of a
+% naturally aligned power-of-2 (NAPOT) granularity larger than the base page
+% size.
+在Sv39、Sv48和Sv57中，当PTE具有N=1时，PTE表示作
+为连续虚拟到物理转换范围的一部分的转换，PTE位5-0的值相同。
+这样的范围必须具有自然对齐的2次方(NAPOT)粒度，大于基本页面大小。
 
-The Svnapot extension depends on Sv39.
+% The Svnapot extension depends on Sv39.
+Svnapot扩展依赖于Sv39。
+
 
 \begin{table*}[h!]
 \begin{center}
@@ -3805,73 +3811,110 @@ $\geq 1$ & {\tt x~xxxx~xxxx} & {\em Reserved}           & $-$ \\
 \label{ptenapot}
 \end{table*}
 
-NAPOT PTEs behave identically to non-NAPOT PTEs within the address-translation
-algorithm in Section~\ref{sv32algorithm}, except that:
+% NAPOT PTEs behave identically to non-NAPOT PTEs within the address-translation
+% algorithm in Section~\ref{sv32algorithm}, except that:
+在Section~\ref{sv32algorithm}的地址转换算法中，
+NAPOT PTEs的行为与非NAPOT PTEs相同，除了:
 \begin{itemize}
-  \item If the encoding in $pte$ is valid according to Table~\ref{ptenapot},
-    then instead of returning the original value of $pte$, implicit reads of a
-    NAPOT PTE return a copy of $pte$ in which $pte.ppn[i][pte.napot\_bits-1:0]$ is
-    replaced by $vpn[i][pte.napot\_bits-1:0]$.  If the encoding in $pte$ is
-    reserved according to Table~\ref{ptenapot}, then a page-fault exception
-    must be raised.
-  \item Implicit reads of NAPOT page table entries may create address-translation cache
-    entries mapping $a + j \times \textrm{PTESIZE}$ to a copy of $pte$
-    in which $pte.ppn[i][pte.napot\_bits-1:0]$ is replaced by
-    $vpn[i][pte.napot\_bits-1:0]$, for any or all $j$ such that
-    ${j >> napot\_bits}={vpn[i] >> napot\_bits}$, all for the address space identified
-    in {\em satp} as loaded by step 1.
+  % \item If the encoding in $pte$ is valid according to Table~\ref{ptenapot},
+  %   then instead of returning the original value of $pte$, implicit reads of a
+  %   NAPOT PTE return a copy of $pte$ in which $pte.ppn[pte.napot\_bits-1:0]$ is
+  %   replaced by $vpn[i][pte.napot\_bits-1:0]$.  If the encoding in $pte$ is
+  %   reserved according to Table~\ref{ptenapot}, then a page-fault exception
+  %   must be raised.
+  \item 如果$pte$中的编码根据Table~\ref{ptenapot}是有效的，那么对NAPOT PTE的隐式读
+  取不会返回$pte$的原始值，而是返回$pte$的副本，
+  其中$pte.ppn[pte.napot\_bits-1:0]$被$vpn[i][pte.napot\_bits-1:0]$取代。
+  如果根据表~\ref{ptenapot}保留$pte$中的编码，则必须引发页面错误异常。
+  % \item Implicit reads of NAPOT page table entries may create address-translation cache
+  %   entries mapping $a + va.vpn[j] \times \textrm{PTESIZE}$ to a copy of $pte$
+  %   in which $pte.ppn[pte.napot\_bits-1:0]$ is replaced by
+  %   $vpn[0][pte.napot\_bits-1:0]$, for any or all $j$ such that
+  %   ${j[8:napot\_bits]}={i[8:napot\_bits]}$, all for the address space identified
+  %   in {\em satp} as loaded by step 0.
+  \item 隐式读取NAPOT页表项可能会创建地址转换缓存项，
+  将$a + va.vpn[j] \times \textrm{PTESIZE}$映射到$pte$的一个副本，
+  其中$pte.ppn[pte.napot\_bits-1:0]$被$vpn[0][pte.napot\_bits-1:0]$取代，
+  对于任何或所有$j$， ${j[8:napot\_bits]}={i[8:napot\_bits]}$中的所有地址空间标
+  识为步骤0加载的{\em satp}。
 \end{itemize}
 
 \begin{commentary}
-  The motivation for a NAPOT PTE is that it can be cached in a TLB as one or
-  more entries representing the contiguous region as if it were a single
-  (large) page covered by a single translation.  This compaction can help
-  relieve TLB pressure in some scenarios.  The encoding is designed to fit
-  within the pre-existing Sv39, Sv48, and Sv57 PTE formats so as not to disrupt
-  existing implementations or designs that choose not to implement the scheme.
-  It is also designed so as not to complicate the definition of the
-  address-translation algorithm.
+  % The motivation for a NAPOT PTE is that it can be cached in a TLB as one or
+  % more entries representing the contiguous region as if it were a single
+  % (large) page covered by a single translation.  This compaction can help
+  % relieve TLB pressure in some scenarios.  The encoding is designed to fit
+  % within the pre-existing Sv39, Sv48, and Sv57 PTE formats so as not to disrupt
+  % existing implementations or designs that choose not to implement the scheme.
+  % It is also designed so as not to complicate the definition of the
+  % address-translation algorithm.
+  使用NAPOT PTE的原因是，它可以作为一个或多个表示连续区域的项缓存到TLB中，
+  就像一个翻译覆盖的单个(大)页一样。在某些场景下，这种压缩可以帮助减轻TLB压力。
+  该编码被设计成符合预先存在的Sv39、Sv48和Sv57 PTE格式，
+  从而不会破坏选择不实现该方案的现有实现或设计。此外，还对地址转换算法的定义进行了简化。
 
-  The address translation cache abstraction captures the behavior that would result from the creation
-  of a single TLB entry covering the entire NAPOT region.  It is also designed
-  to be consistent with implementations that support NAPOT PTEs by splitting
-  the NAPOT region into TLB entries covering any smaller power-of-two region
-  sizes.  For example, a 64~KiB NAPOT PTE might trigger the creation of 16
-  standard 4~KiB TLB entries, all with contents generated from the NAPOT PTE
-  (even if the PTEs for the other 4~KiB regions have different contents).
+  % The address translation cache abstraction captures the behavior that would result from the creation
+  % of a single TLB entry covering the entire NAPOT region.  It is also designed
+  % to be consistent with implementations that support NAPOT PTEs by splitting
+  % the NAPOT region into TLB entries covering any smaller power-of-two region
+  % sizes.  For example, a 64~KiB NAPOT PTE might trigger the creation of 16
+  % standard 4~KiB TLB entries, all with contents generated from the NAPOT PTE
+  % (even if the PTEs for the other 4~KiB regions have different contents).
+  地址转换缓存抽象捕获了由于创建覆盖整个NAPOT区域的单个TLB条目而导致的行为。
+  它还被设计成与支持NAPOT PTEs的实现一致，将NAPOT区域分割为TLB项，
+  覆盖任何较小的2次方区域大小。例如，一个64~KiB的NAPOT PTE可能会触
+  发16个标准的4~KiB TLB条目的创建，所有条目的内容都是从NAPOT PTE生成
+  的(即使其他4~KiB区域的PTE具有不同的内容)。
 
-  In typical usage scenarios, NAPOT PTEs in the same region will have the same
-  attributes, same PPNs, and same values for bits 5--0.  RSW remains reserved
-  for supervisor software control.  It is the responsibility of the OS and/or
-  hypervisor to configure the page tables in such a way that there are no
-  inconsistencies between NAPOT PTEs and other NAPOT or non-NAPOT PTEs that
-  overlap the same address range.  If an update needs to be made, the OS
-  generally should first mark all of the PTEs invalid, then issue SFENCE.VMA
-  instruction(s) covering all 4~KiB regions within the range (either via a
-  single SFENCE.VMA with {\em rs1}={\tt x0}, or with multiple SFENCE.VMA
-  instructions with {\em rs1}$\neq${\tt x0}), then update the PTE(s), as
-  described in Section~\ref{sec:sfence.vma}, unless any inconsistencies are
-  known to be benign.  If any inconsistencies do exist, then the effect is the
-  same as when SFENCE.VMA is used incorrectly: one of the translations will be
-  chosen, but the choice is unpredictable.
+  % In typical usage scenarios, NAPOT PTEs in the same region will have the same
+  % attributes, same PPNs, and same values for bits 5--0.  RSW remains reserved
+  % for supervisor software control.  It is the responsibility of the OS and/or
+  % hypervisor to configure the page tables in such a way that there are no
+  % inconsistencies between NAPOT PTEs and other NAPOT or non-NAPOT PTEs that
+  % overlap the same address range.  If an update needs to be made, the OS
+  % generally should first mark all of the PTEs invalid, then issue SFENCE.VMA
+  % instruction(s) covering all 4~KiB regions within the range (either via a
+  % single SFENCE.VMA with {\em rs1}={\tt x0}, or with multiple SFENCE.VMA
+  % instructions with {\em rs1}$\neq${\tt x0}), then update the PTE(s), as
+  % described in Section~\ref{sec:sfence.vma}, unless any inconsistencies are
+  % known to be benign.  If any inconsistencies do exist, then the effect is the
+  % same as when SFENCE.VMA is used incorrectly: one of the translations will be
+  % chosen, but the choice is unpredictable.
+  在典型的使用场景中，相同区域的NAPOT PTEs将具有相同的属性、相同的PPNs和位5- 0的相同值。
+  RSW仍保留为主管软件控制。操作系统和/或管理程序负责配置页表，
+  使NAPOT pte和其他重叠相同地址范围的NAPOT或非NAPOT PTEs之间不存在不一致。
+  如果需要进行更新，操作系统通常应该首先标记所有的PTE无效，
+  然后发出覆盖范围内所有4~KiB区域的SFENCE.VMA指令(要么通过带有{\em rs1}={\tt x0}的单个SFENCE.VMA，
+  要么通过带有{\em rs1}$\neq${\tt x0}的多个SFENCE.VMA指令)，然后更新PTE，
+  如~\ref{sec: sencevma}小节所述，除非已知的任何不一致都是无害的。
 
-  If an implementation chooses to use a NAPOT PTE (or cached version thereof),
-  it might not consult the PTE directly specified by the algorithm in
-  Section~\ref{sv32algorithm} at all.  Therefore, the D and A bits may not be
-  identical across all mappings of the same address range even in typical use
-  cases  The operating system must query all NAPOT aliases of a page to
-  determine whether that page has been accessed and/or is dirty.  If the OS
-  manually sets the A and/or D bits for a page, it is recommended that the OS
-  also set the A and/or D bits for other NAPOT aliases as appropriate in order
-  to avoid unnecessary traps.
+  % If an implementation chooses to use a NAPOT PTE (or cached version thereof),
+  % it might not consult the PTE directly specified by the algorithm in
+  % Section~\ref{sv32algorithm} at all.  Therefore, the D and A bits may not be
+  % identical across all mappings of the same address range even in typical use
+  % cases  The operating system must query all NAPOT aliases of a page to
+  % determine whether that page has been accessed and/or is dirty.  If the OS
+  % manually sets the A and/or D bits for a page, it is recommended that the OS
+  % also set the A and/or D bits for other NAPOT aliases as appropriate in order
+  % to avoid unnecessary traps.
+  如果一个实现选择使用NAPOT PTE(或其缓存版本)，
+  它可能根本不会查询Section~\ref{sv32algorithm}中算法直接指定的PTE。
+  因此，即使在典型的用例中，在相同地址范围的所有映射中，D位和A位也可能不相同。
+  操作系统必须查询一个页面的所有NAPOT别名，以确定该页面是否已被访问和/或是脏的。
+  如果操作系统手动设置了一个页面的A位和/或D位，建议操作系统也相
+  应地设置其他NAPOT别名的A位和/或D位，以避免不必要的陷阱。
 
-  Just as with normal PTEs, TLBs are permitted to cache NAPOT PTEs whose V
-  (Valid) bit is clear.
+  % Just as with normal PTEs, TLBs are permitted to cache NAPOT PTEs whose V
+  % (Valid) bit is clear.
+  与普通PTEs一样，TLBs允许缓存V (Valid)位为空的NAPOT PTEs。
 
-  Depending on need, the NAPOT scheme may be extended to other intermediate
-  page sizes and/or to other levels of the page table in the future.  The
-  encoding is designed to accommodate other NAPOT sizes should that need
-  arise.  For example:
+
+  % Depending on need, the NAPOT scheme may be extended to other intermediate
+  % page sizes and/or to other levels of the page table in the future.  The
+  % encoding is designed to accommodate other NAPOT sizes should that need
+  % arise.  For example:
+  根据需要，将来可以将NAPOT方案扩展到其他中间页大小和/或页表的其他级别。
+  编码的设计是为了适应需要出现的其他NAPOT大小。例如:
 
   \begin{center}\em
   \begin{tabular}{|c|c||l|c|}
@@ -3891,26 +3934,40 @@ algorithm in Section~\ref{sv32algorithm}, except that:
   \end{tabular}
   \end{center}
 
-  In such a case, an implementation may or may not support all options.  The
-  discoverability mechanism for this extension would be extended to allow
-  system software to determine which sizes are supported.
+  % In such a case, an implementation may or may not support all options.  The
+  % discoverability mechanism for this extension would be extended to allow
+  % system software to determine which sizes are supported.
+  在这种情况下，实现可能支持，也可能不支持所有选项。
+  该扩展的发现机制将被扩展，以允许系统软件确定支持的大小。
 
-  Other sizes may remain deliberately excluded, so that PPN bits not being
-  used to indicate a valid NAPOT region size (e.g., the least-significant bit
-  of $pte.ppn[i]$) may be repurposed for other uses in the future.
+  % Other sizes may remain deliberately excluded, so that PPN bits not being
+  % used to indicate a valid NAPOT region size (e.g., the least-significant bit
+  % of $pte.ppn[i]$) may be repurposed for other uses in the future.
+  其他的大小可以被故意排除，这样没有被用来表示有效的NAPOT区域
+  大小的PPN位(例如，最低有效位$pte.ppn[i]$)将来可能被用于其他用途。
 
-  However, in case finer-grained intermediate page size support proves not to
-  be useful, we have chosen to standardize only 64~KiB support as a first step.
+  % However, in case finer-grained intermediate page size support proves not to
+  % be useful, we have chosen to standardize only 64~KiB support as a first step.
+  但是，如果细粒度的中间页面大小支持被证明没有用处，我们选择只标准化64~KiB支持作为第一步。
 \end{commentary}
 
-\chapter{``Svpbmt'' Standard Extension for Page-Based Memory Types, Version 1.0}
+
+% \chapter{``Svpbmt'' Standard Extension for Page-Based Memory Types, Version 1.0}
+% \label{svpbmt}
+
+\chapter{用于基于页面的内存类型的标准扩展“Svpbmt”，版本1.0}
 \label{svpbmt}
 
 In Sv39, Sv48, and Sv57, bits 62--61 of a leaf page table entry indicate the use
 of page-based memory types that override the PMA(s) for the associated memory
 pages.  The encoding for the PBMT bits is captured in Table~\ref{pbmt}.
 
+在Sv39、Sv48和Sv57中，叶页表项的第62--61位指示基于页的内存类型的使用，该类型覆盖相关内存页的PMA(s)。
+PBMT比特的编码如表~\ref{pbmt}所示。
+
 The Svpbmt extension depends on Sv39.
+
+Svpbmt扩展依赖于Sv39。
 
 \begin{table*}[h!]
 \begin{center}
@@ -3930,31 +3987,65 @@ not mentioned are inherited from the PMA associated with the physical address.}
 \label{pbmt}
 \end{table*}
 
+\begin{table*}[h!]
+\begin{center}
+\begin{tabular}{|c|c|l|}
+\hline
+模式 & 值  & 需要的内存属性 \\
+\hline
+PMA  & 0      & 无 \\
+NC   & 1      & 不可缓存、幂等、弱内存顺序（RVWMO）、主存储器 \\
+IO   & 2      & 不可缓存、非幂等、强内存顺序（I/O排序）、I/O \\
+$-$  & 3      & {\em 保留以供未来标准使用} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{表6.1：Sv39、Sv48和Sv57 PTEs中PBMT字段的编码。未提及的属性是从与物理地址关联的PMA继承的。}
+\label{pbmt}
+\end{table*}
+
 \begin{commentary}
 Future extensions may provide more and/or finer-grained control over which PMAs
 can be overridden.
+
+未来的扩展可能提供更多和/或更细粒度的控制，这些拓展中PMA可以被覆盖。
 \end{commentary}
 
 For non-leaf PTEs, bits 62--61 are reserved for future standard use.  Until
 their use is defined by a standard extension, they must be cleared by software
 for forward compatibility, or else a page-fault exception is raised.
 
+对于非叶PTE，位62--61保留供将来的标准使用。在标准扩展定义它们的用法之前，
+必须由软件清除它们以实现前向兼容性，否则会引发页面错误异常。
+
 For leaf PTEs, setting bits 62–-61 to the value 3 is reserved for future
 standard use.
 Until this value is defined by a standard extension, using this reserved value
 in a leaf PTE raises a page-fault exception.
 
+对于叶PTE，将位62-61设置为值3被保留以供将来的标准使用。
+在该值由标准扩展定义之前，在叶PTE中使用该保留值会引发页面错误异常。
+
+
 If the underlying physical memory attribute for a page is vacant, the PBMT settings do not override that.
+
+如果页面的底层物理内存属性为空，则PBMT设置不会覆盖该属性。
 
 When PBMT settings override a main memory page into I/O or vice versa, memory
 accesses to such pages obey the memory ordering rules of the final effective
 attribute, as follows.
+
+当PBMT设置将主存页覆盖为I/O或者在相反的情况下，
+对这些页的内存访问遵循最终有效属性的内存排序规则，如下所示。
 
 If the underlying physical memory attribute for a page is I/O, and the page has
 PBMT=NC, then accesses to that page obey RVWMO.
 However, accesses to such pages are
 considered to be {\em both} I/O and main memory accesses for the purposes of FENCE,
 {\em.aq}, and {\em.rl}.
+
+如果页面的底层物理内存属性是I/O，并且该页面具有PBMT=NC，则对该页面的访问遵循RVWMO。
+然而，出于FENCE、{\em.aq}和{\em.rl}的目的，对这些页面的访问被认为是I/O{\em 和}主内存访问。
 
 If the underlying physical memory attribute for a page is main memory, and the
 page has PBMT=IO, then accesses to that page obey strong channel 0 I/O ordering
@@ -3964,49 +4055,75 @@ However, accesses to such pages are
 considered to be {\em both} I/O and main memory accesses for the purposes of FENCE,
 {\em.aq}, and {\em.rl}.
 
+如果页面的底层物理内存属性是主存，并且该页面具有PBMT=IO，
+那么对于物理主存的其他访问以及对于PBMT=I/O的页面的其他访问，
+遵循强通道0 I/O排序规则。
+然而，出于FENCE、{\em.aq}和{\em.rl}的目的，对这些页面的访问被认为是I/O{\em both}主内存访问。
+
 \begin{commentary}
 A device driver written to rely on I/O strong ordering rules will not
 operate correctly if the address range is mapped with PBMT=NC.
 As such, this configuration is discouraged.
 
+如果地址范围映射到PBMT=NC的区域，则编写为依赖I/O强排序规则的设备驱动程序将无法正常运行。
+因此，不鼓励这种配置。
+
 It will often still be useful to map physical I/O regions using PBMT=NC so that
 write combining and speculative accesses can be performed.  Such optimizations
 will likely improve performance when applied with adequate care.
+
+使用PBMT=NC映射物理I/O区域通常仍然很有用，可以方便执行写合并和推测访问。
+如果应用时足够小心，这样的优化可能会提高性能。
 \end{commentary}
 
-When Svpbmt is used with non-zero PBMT encodings,
-it is possible for multiple virtual aliases of the same
-physical page to exist simultaneously with different memory attributes.  It is
-also possible for a U-mode or S-mode mapping through a PTE with Svpbmt enabled
-to observe different memory attributes for a given region of physical memory
-than a concurrent access to the same page performed by M-mode or when
-MODE=Bare.  In such cases, the behaviors dictated by the attributes (including
-coherence, which is otherwise unaffected) may be violated.
+% When Svpbmt is used with non-zero PBMT encodings,
+% it is possible for multiple virtual aliases of the same
+% physical page to exist simultaneously with different memory attributes.  It is
+% also possible for a U-mode or S-mode mapping through a PTE with Svpbmt enabled
+% to observe different memory attributes for a given region of physical memory
+% than a concurrent access to the same page performed by M-mode or when
+% MODE=Bare.  In such cases, the behaviors dictated by the attributes (including
+% coherence, which is otherwise unaffected) may be violated.
+当Svpbmt与非零PBMT编码一起使用时，同一个物理页
+面的多个虚拟别名可能同时存在，且具有不同的内存属性。
+通过启用Svpbmt的PTE, U模式或S模式映射也可以观察给定物理内存区域的不同内存属性，
+而不是通过M模式或MODE=Bare时执行的对同一页面的并发访问。
+在这种情况下，可能会违反由属性决定的行为(包括一致性，它在其他方面是不受影响的)。
 
-Accessing the same location using different attributes that are both non-cacheable
-(e.g., NC and IO) does not cause loss of coherence, but might result in weaker
-memory ordering than the stricter attribute ordinarily guarantees.
-Executing a {\tt fence iorw, iorw} instruction between such accesses suffices
-to prevent loss of memory ordering.
+% Accessing the same location using different attributes that are both non-cacheable
+% (e.g., NC and IO) does not cause loss of coherence, but might result in weaker
+% memory ordering than the stricter attribute ordinarily guarantees.
+% Executing a {\tt fence iorw, iorw} instruction between such accesses suffices
+% to prevent loss of memory ordering.
+使用非缓存的不同属性(例如NC和IO)访问相同的位置不会导致一致性的丧失，
+但可能会导致较弱的内存排序，而不是通常保证的更严格的属性。在这些访
+问之间执行{\tt fence iorw, iorw}指令足以防止内存顺序的丢失。
 
-Accessing the same location using different cacheability attributes may cause loss
-of coherence.
-Executing the following sequence between such accesses prevents both loss of
-coherence and loss of memory ordering:
+% Accessing the same location using different cacheability attributes may cause loss
+% of coherence.
+% Executing the following sequence between such accesses prevents both loss of
+% coherence and loss of memory ordering:
 {\tt fence iorw, iorw}, followed by {\tt cbo.flush} to an address of
 that location, followed by a {\tt fence iorw, iorw}.
+使用不同的缓存属性访问相同的位置可能会导致一致性的丧失。
+在这种访问之间执行以下序列，可以防止一致性和内存顺序的丢失:
+{\tt fence iorw, iorw}，然后是{\tt cbo.flush}到那个位置
+的地址，然后是{\tt fence iorw, iorw}。
 
 \begin{commentary}
-It follows that, if the same location might later be referenced using the
-original attributes, then this sequence must be repeated beforehand.
+% It follows that, if the same location might later be referenced using the
+% original attributes, then this sequence must be repeated beforehand.
+因此，如果以后可能使用原始属性引用相同的位置，则必须事先重复此序列。
 \end{commentary}
 
 \begin{commentary}
-In certain cases, a weaker sequence might suffice to prevent loss of
-coherence.
-These situations will be detailed following the forthcoming formalization of
-the interaction of the RVWMO memory model with the instructions in the Zicbom
-extension.
+% In certain cases, a weaker sequence might suffice to prevent loss of
+% coherence.
+在某些情况下，较弱的序列可能足以防止相干性的丧失。
+% These situations will be detailed following the forthcoming formalization of
+% the interaction of the RVWMO memory model with the instructions in the Zicbom
+% extension.
+这些情况将在即将进行的RVWMO内存模型与Zicbom扩展中的指令交互的形式化之后详细介绍。
 \end{commentary}
 
 When two-stage address translation is enabled within the H extension, the
@@ -4018,14 +4135,24 @@ Otherwise, the PMAs serve as the intermediate attributes.  Second, if
 the intermediate attributes to produce the final set of attributes used by
 accesses to the page in question.  Otherwise, the intermediate attributes are
 used as the final set of attributes.
+当在H扩展中启用两阶段地址转换时，基于页面的内存类型也会分两阶段应用。
+首先，如果{\tt hgatp}.MODE不等于零，非零G-stage PTE PBMT位覆盖PMA中的属性以生成中间属性集。
+否则，PMA作为中间属性。其次，如果{\tt vsatp}.MODE不等于零，非零VS-stage PTE PBMT位将覆盖中间属性，
+以生成访问相关页面所使用的最终属性集。否则，将使用中间属性作为最终的属性集。
 
-\chapter{``Svinval'' Standard Extension for Fine-Grained Address-Translation Cache Invalidation, Version 1.0}
+% \chapter{``Svinval'' Standard Extension for Fine-Grained Address-Translation Cache Invalidation, Version 1.0}
+% \label{svinval}
+
+\chapter{用于细粒度地址转换缓存失效的“Svinval”标准扩展，1.0版}
 \label{svinval}
 
 The Svinval extension splits SFENCE.VMA, HFENCE.VVMA, and HFENCE.GVMA
 instructions into finer-grained invalidation and ordering operations that can
 be more efficiently batched or pipelined on certain classes of high-performance
 implementation.
+
+Svinval扩展将SFENCE.VMA、HFENCE.VVMA和HFENCE.GVMA指令拆分为细粒度的无效化和排序操作，
+这些操作可以在某些高性能的具体实现上更高效地进行批处理或流水线化。
 
 \vspace{-0.2in}
 \begin{center}
@@ -4055,6 +4182,11 @@ that an SFENCE.VMA instruction with the same values of {\em rs1} and {\em rs2}
 would invalidate.  However, unlike SFENCE.VMA, SINVAL.VMA instructions are only
 ordered with respect to SFENCE.VMA, SFENCE.W.INVAL, and SFENCE.INVAL.IR
 instructions as defined below.
+
+SINVAL.VMA指令和具有相同{\em rs1}和{\em rs2}值的SFENCE.VMA指令功能类似，会使相同的地址转换缓存条目无效。
+然而，与SFENCE.VMA不同，SINVAL.VMA指令仅对下面定义的SFENCE.VMA、SFENCE.W.INVAL和SFENCE.INVAL.IR指令进行排序。
+
+
 
 \vspace{-0.2in}
 \begin{center}
@@ -4109,6 +4241,11 @@ guarantees that any previous SINVAL.VMA instructions executed by the current har
 are ordered before subsequent implicit references by that hart to the
 memory-management data structures.
 
+SFENCE.W.INVAL指令保证在同一硬件线程执行后续SINVAL.VMA指令之前，
+对当前RISC-V硬件线程已经可见的任何先前的存储进行排序。
+SFENCE.INVAL.IR指令保证在当前硬件线程在后续对内存管理数据结构隐式引用之前，
+对当前硬件线程先前执行的所有SINVAL.VMA指令进行排序。
+
 When executed in order (but not necessarily consecutively) by a single hart, the
 sequence SFENCE.W.INVAL, SINVAL.VMA, and SFENCE.INVAL.IR has the same effect as
 a hypothetical SFENCE.VMA instruction in which:
@@ -4119,6 +4256,14 @@ a hypothetical SFENCE.VMA instruction in which:
     prior to the SFENCE.VMA, and
   \item reads and writes following the SFENCE.INVAL.IR are considered to be
     those subsequent to the SFENCE.VMA.
+\end{itemize}
+
+当由单个硬件线程按顺序（但不一定连续）执行时，序列SFENCE.W.INVAL、
+SINVAL.VMA和SFENCE.INVAL.IR与假设的SFENCE.VMA指令具有相同的效果，假设的SFENCE.VMA指令满足：
+\begin{itemize}
+  \item SFENCE.VMA的rs1和rs2值与SINVAL.VMA中使用的值相同，
+  \item SFENCE.W.INVAL之前的读和写被视为SFENCE.VMA之前的读写，以及
+  \item SFENCE.INVAL.IR之后的读和写被认为是SFENCE.VMA在之后。
 \end{itemize}
 
 \vspace{-0.2in}
@@ -4173,6 +4318,10 @@ semantics as SINVAL.VMA, except that they combine with SFENCE.W.INVAL and
 SFENCE.INVAL.IR to replace HFENCE.VVMA and HFENCE.GVMA, respectively, instead
 of SFENCE.VMA.  In addition, HINVAL.GVMA uses VMIDs instead of ASIDs.
 
+如果实现了管理程序扩展，Svinval扩展还提供了两条附加指令：HINVAL.VVMA和HINVAL.GVMA。
+它们与SINVAL.VMA具有相同的含义，只是它们分别地与SFENCE.W.INVAL和SFENCE.INVAL.IR结合，
+并分别替换HFENCE.VVMA和HFENCE.GVMA，而不是SFENCE.VMA。此外，HINVAL.GVMA使用VMIDs而不是ASIDs。
+
 SINVAL.VMA, HINVAL.VVMA, and HINVAL.GVMA require the same permissions and raise
 the same exceptions as SFENCE.VMA, HFENCE.VVMA, and HFENCE.GVMA, respectively.
 In particular, an attempt to execute any of these instructions in
@@ -4185,6 +4334,13 @@ exception.
 When {\tt hstatus}.VTVM=1, an attempt to execute SINVAL.VMA in VS-mode
 also raises a virtual instruction exception.
 
+SINVAL.VMA、HINVAL.VVMA和HINVAL.GVMA分别需要与SFENCE.VMA、
+HFENCE.VVMA和HFENCE.GVMA相同的权限并引发相同的异常。
+特别是，尝试在U模式下执行这其中任何一个指令总是会引发非法指令异常，
+而当{\tt mstatus}.TVM=1时，尝试在S模式或HS模式下执行SINVAL.VMA或HINVAL.GVMA也会引发非法的指令异常。
+尝试在VS模式或VU模式下执行HINVAL.VVMA或HINVAL.GVMA指令，或在VU模式中执行SINVAL.VMA指令，会引发虚拟指令异常。
+当{\tt hstatus}.VTVM=1时，尝试在VS模式下执行SINVAL.VMA也会引发虚拟指令异常。
+
 \begin{commentary}
   SFENCE.W.INVAL and SFENCE.INVAL.IR instructions do not need to be trapped when
   {\tt mstatus}.TVM=1 or when {\tt hstatus}.VTVM=1, as they only have ordering
@@ -4192,11 +4348,19 @@ also raises a virtual instruction exception.
   is sufficient to enable emulation of the intended overall TLB maintenance
   functionality.
 
+  当{\tt mstatus}.TVM=1或{\tt hstatus}.VTVM=1时，SFENCE.W.INVAL和SFENCE.INVALIR指令不需要陷阱陷入，
+  因为它们只具有排序效果，没有可见的副作用。
+  SINVAL.VMA指令的陷入足以实现对预期全部TLB维护功能的仿真。
+
   In typical usage, software will invalidate a range of virtual addresses in
   the address-translation caches by executing an SFENCE.W.INVAL instruction,
   executing a series of SINVAL.VMA, HINVAL.VVMA, or HINVAL.GVMA instructions to
   the addresses (and optionally ASIDs or VMIDs) in question, and then executing
   an SFENCE.INVAL.IR instruction.
+
+  在典型用法中，软件将通过执行SFENCE.W.INVAL指令，对相关的地址（和可选的ASIDs或VMIDs）
+  执行一系列SINVAL.VMA、HINVAL.VVMA或HINVAL.GVMA指令，然后执行SFENCE.INVAL.IR指令，
+  使地址转换缓存中的一系列虚拟地址无效。
 
   High-performance implementations will be able to pipeline the
   address-translation cache invalidation operations, and will defer any
@@ -4204,8 +4368,16 @@ also raises a virtual instruction exception.
   SFENCE.INVAL.IR, SFENCE.VMA, HFENCE.GVMA, or HFENCE.VVMA instruction is
   executed.
 
+  高性能的具体实现将能够对地址转换缓存无效操作进行流水线处理，
+  这将延迟任何流水线暂停或其他强制内存排序，
+  直到执行一个SFENCE.W.INVAL、SFENCE.INVAL.IR、SFENCE.VMA、HFENCE.GVMA或HFENCE.VVMA指令。
+
   Simpler implementations may implement SINVAL.VMA, HINVAL.VVMA, and
   HINVAL.GVMA identically to SFENCE.VMA, HFENCE.VVMA, and HFENCE.GVMA,
   respectively, while implementing SFENCE.W.INVAL and SFENCE.INVAL.IR
   instructions as no-ops.
+
+  更简单的实现可以分别依照SFENCE.VMA、HFENCE.VVMA和HFENCE.GVMA相同地
+  实现SINVAL.VMA、HINVAL.VVMA和HINVAL.GVMA，
+  而将SFENCE.W.INVAL和SFENCE.INVAL.IR指令实现为空操作。
 \end{commentary}

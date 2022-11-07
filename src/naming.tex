@@ -48,7 +48,7 @@ RISC-V ISA字符串以RV32I、RV32E、RV64I或RV128I开始，表示了对于基�
 % concatenating the base integer prefix with the names of the included
 % extensions, e.g., ``RV64IMAFD''.
 
-我们也定义了一个缩写“G”来代表“IMAFDZicsr_Zifencei”基础和扩展，因为这是为了表示我们的标准通用目的ISA。
+我们也定义了一个缩写“G”来代表“IMAFDZicsr\_Zifencei”基础和扩展，因为这是为了表示我们的标准通用目的ISA。
 % We have also defined an abbreviation ``G'' to represent the ``IMAFDZicsr\_Zifencei''
 % base and extensions, as this is intended to represent our standard
 % general-purpose ISA.
@@ -91,12 +91,12 @@ RISC-V ISA字符串以RV32I、RV32E、RV64I或RV128I开始，表示了对于基�
 \section{着重说明}
 % \section{Underscores}
 
-下划线“_”可以被用于分割ISA扩展，以增强可读性，和提供歧义消除，例如“RV32I2_M2_A2”。
+下划线“\_”可以被用于分割ISA扩展，以增强可读性，和提供歧义消除，例如“RV32I2\_M2\_A2”。
 % Underscores ``\_'' may be used to separate ISA extensions to
 % improve readability and to provide disambiguation, e.g., ``RV32I2\_M2\_A2''.
 
 因为用于打包SIMD的“P”扩展可能会与版本号中的小数点相混淆，所以如果它跟在一个数字后面，那么在它前面必须加下划线。
-例如，“rv32i2p2”意味着RV32I的2.2版本，而“rv32i2_p2”意味着带有P扩展的2.0版本的RV32I的2.0版本。
+例如，“rv32i2p2”意味着RV32I的2.2版本，而“rv32i2\_p2”意味着带有P扩展的2.0版本的RV32I的2.0版本。
 % Because the ``P'' extension for Packed SIMD can be confused for the decimal
 % point in a version number, it must be preceded by an underscore if it follows
 % a number.  For example, ``rv32i2p2'' means version 2.2 of RV32I, whereas
@@ -115,7 +115,7 @@ RISC-V ISA字符串以RV32I、RV32E、RV64I或RV128I开始，表示了对于基�
 
 跟在“Z”后面的第一个字母通常暗示了相关字母顺序最近的扩展种类，IMAFDQCVH。
 例如，对于用于未对齐原子的“Zam”扩展，字母“a”表示该扩展与“A”标准扩展相关。
-如果命名了多个“Z”扩展，它们应当首先按种类排序，然后在每个种类中按字母顺序排序——例如，“Zicsr_Zifencei_Zam”。
+如果命名了多个“Z”扩展，它们应当首先按种类排序，然后在每个种类中按字母顺序排序——例如，“Zicsr\_Zifencei\_Zam”。
 % The first letter following the ``Z'' conventionally indicates the most closely
 % related alphabetical extension category, IMAFDQCVH.  For the ``Zam''
 % extension for misaligned atomics, for example, the letter ``a'' indicates the
@@ -123,7 +123,7 @@ RISC-V ISA字符串以RV32I、RV32E、RV64I或RV128I开始，表示了对于基�
 % extensions are named, they should be ordered first by category, then
 % alphabetically within a category---for example, ``Zicsr\_Zifencei\_Zam''.
 
-使用“Z”前缀的扩展必须使用一个下划线与其它多字母的扩展分割，例如，“RV32IMAC_Zicsr_Zifencei”。
+使用“Z”前缀的扩展必须使用一个下划线与其它多字母的扩展分割，例如，“RV32IMACZicsr\_Zifencei”。
 % Extensions with the ``Z'' prefix must be separated
 % from other multi-letter extensions by an underscore, e.g.,
 % ``RV32IMACZicsr\_Zifencei''.
@@ -166,7 +166,7 @@ RISC-V ISA字符串以RV32I、RV32E、RV64I或RV128I开始，表示了对于基�
 % ``Xhwacha2'' and ``Xhwacha2p0'' name version 2.0 of same.
 
 非标准扩展必须被列在所有的标准扩展之后。它们必须通过一条下划线来与其它多字母的扩展分割。
-例如，一个带有非标准扩展Argle和Bargle的ISA可以被命名为“RV64IZifencei_Xargle_Xbargle”。
+例如，一个带有非标准扩展Argle和Bargle的ISA可以被命名为“RV64IZifencei\_Xargle\_Xbargle”。
 % Non-standard extensions must be listed after all standard extensions.
 % They must be separated from other multi-letter extensions
 % by an underscore.  For example, an ISA with non-standard extensions

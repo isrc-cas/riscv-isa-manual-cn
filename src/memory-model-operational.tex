@@ -300,7 +300,7 @@ Here:
   例如，给定加载指令\verb!lw x1,0(x2)!，一次执行往往将如下运行。初始执行状态将从给定的操作码的伪代码计算。
   这可能预计是{\sc Read\_reg}({\tt x2}, {\it read\_continuation})。
   把寄存器{\tt x2}最近写入的值（如果有必要，指令语义将被阻塞，直到寄存器的值可用），也就是{\tt 0x4000}，输入到{\it read\_continuation}，
-  返回{\sc Load\_mem}({\tt plain\_load}, {\tt 0x4000}, {\tt 4}, {\it load\_continuation}。把从内存地址{\tt 0x4000}加载的{\tt 4}字节的值，也就是{\tt 0x42}，
+  返回{\sc Load\_mem}({\tt plain\_load}, {\tt 0x4000}, {\tt 4}, {\it load\_continuation})。把从内存地址{\tt 0x4000}加载的{\tt 4}字节的值，也就是{\tt 0x42}，
   输入到{\it load\_continuation}，返回{\sc Write\_reg}({\tt x1}, {\tt 0x42}, {\sc Done})。在上述状态之间可能出现许多{\sc Internal}({\it next\_state})状态。
 % For example, given the load instruction \verb!lw x1,0(x2)!,
 % an execution will typically go as follows.
@@ -312,27 +312,27 @@ Here:
 % Many {\sc Internal}({\it next\_state}) states may appear before and between the states above.
 \end{commentary}
 
-注意，写内存被分为两个步骤，STORE_EA和STORE_MEMV：第一个步骤制造存储暂时已知的内存足迹，而第二个步骤添加要被存储的值。我们确保这些在伪代码中是成对的（STORE_EA后面跟着STORE_MEMV），但是在它们之间可能会有其它的步骤。
-Notice that writing to memory is split into two steps, {\sc Store\_ea} and {\sc Store\_memv}: the first one makes the memory footprint of the store provisionally known, and the second one adds the value to be stored.
-We ensure these are paired in the pseudocode ({\sc Store\_ea} followed by {\sc Store\_memv}), but there may be other steps between them.
+注意，写内存被分为两个步骤，{\sc Store\_ea}和{\sc Store\_memv}：第一个步骤制造存储暂时已知的内存足迹，而第二个步骤添加要被存储的值。我们确保这些在伪代码中是成对的（{\sc Store\_ea}后面跟着{\sc Store\_memv}），但是在它们之间可能会有其它的步骤。
+% Notice that writing to memory is split into two steps, {\sc Store\_ea} and {\sc Store\_memv}: the first one makes the memory footprint of the store provisionally known, and the second one adds the value to be stored.
+% We ensure these are paired in the pseudocode ({\sc Store\_ea} followed by {\sc Store\_memv}), but there may be other steps between them.
 \begin{commentary}
-  可以观察到，STORE_EA可以发生在要存储的值被决定之前。例如，对于操作模型所允许的石蕊测试LB＋fence.r.rw＋data-po（正如RVWMO所允许的那样），硬件线程1中的第一个存储必须在它的值被决定之前就采取STORE_EA步骤，以便第二个存储可以看到它是一个非重叠的内存足迹，以允许第二个存储被乱序提交而不违反一致性。
-It is observable that the {\sc Store\_ea} can occur before the value to be stored is determined.
-For example, for the litmus test LB+fence.r.rw+data-po to be allowed by the operational model (as it is by RVWMO), the first store in Hart 1 has to take the {\sc Store\_ea} step before its value is determined, so that the second store can see it is to a non-overlapping memory footprint, allowing the second store to be committed out of order without violating coherence.
+  可以观察到，{\sc Store\_ea}可以发生在要存储的值被决定之前。例如，对于操作模型所允许的石蕊测试LB＋fence.r.rw＋data-po（正如RVWMO所允许的那样），硬件线程1中的第一个存储必须在它的值被决定之前就采取{\sc Store\_ea}步骤，以便第二个存储可以看到它是一个非重叠的内存足迹，以允许第二个存储被乱序提交而不违反一致性。
+% It is observable that the {\sc Store\_ea} can occur before the value to be stored is determined.
+% For example, for the litmus test LB+fence.r.rw+data-po to be allowed by the operational model (as it is by RVWMO), the first store in Hart 1 has to take the {\sc Store\_ea} step before its value is determined, so that the second store can see it is to a non-overlapping memory footprint, allowing the second store to be committed out of order without violating coherence.
 \end{commentary}
 
-除了明确执行一次加载和一次存储的AMO，每个指令的伪代码最多执行一次存储或一次加载。那些内存访问然后通过硬件线程语义被分割为架构上的原子性单元（见下面的初始化内存加载操作和初始化内存存储操作足迹）。
-The pseudocode of each instruction performs at most one store or one load, except for AMOs that perform exactly one load and one store.
-Those memory accesses are then split apart into the architecturally atomic units by the hart semantics (see \nameref{omm:initiate_load} and \nameref{omm:initiate_store_footprint} below).
+除了明确执行一次加载和一次存储的AMO，每个指令的伪代码最多执行一次存储或一次加载。那些内存访问然后通过硬件线程语义被分割为架构上的原子性单元（见下面的\nameref{omm:initiate_load}和\nameref{omm:initiate_store_footprint}）。
+% The pseudocode of each instruction performs at most one store or one load, except for AMOs that perform exactly one load and one store.
+% Those memory accesses are then split apart into the architecturally atomic units by the hart semantics (see \nameref{omm:initiate_load} and \nameref{omm:initiate_store_footprint} below).
 
-非正式地，一个寄存器读的每一位都应当由来自最近的（以程序次序）可以写该位的指令实例的一个寄存器写（或者来自硬件线程的初始寄存器状态，如果没有这样的写的话）来满足。因此，有必要知道每个指令实例的寄存器写的足迹，我们在指令实例被创建时（见下面的获取指令的动作）计算这个足迹。我们确保在伪代码中，每个指令对每个寄存器位最多执行一次寄存器写，并且也保证不会尝试读取它刚刚写入的寄存器的值。
-Informally, each bit of a register read should be satisfied from a register write by the most recent (in program order) instruction instance that can write that bit (or from the hart's initial register state if there is no such write).
-Hence, it is essential to know the register write footprint of each instruction instance, which we calculate when the instruction instance is created (see the action of \nameref{omm:fetch} below).
-We ensure in the pseudocode that each instruction does at most one register write to each register bit, and also that it does not try to read a register value it just wrote.
+非正式地，一个寄存器读的每一位都应当由来自最近的（以程序次序）可以写该位的指令实例的一个寄存器写（或者来自硬件线程的初始寄存器状态，如果没有这样的写的话）来满足。因此，有必要知道每个指令实例的寄存器写的足迹，我们在指令实例被创建时（见下面的\nameref{omm:fetch}的动作）计算这个足迹。我们确保在伪代码中，每个指令对每个寄存器位最多执行一次寄存器写，并且也保证不会尝试读取它刚刚写入的寄存器的值。
+% Informally, each bit of a register read should be satisfied from a register write by the most recent (in program order) instruction instance that can write that bit (or from the hart's initial register state if there is no such write).
+% Hence, it is essential to know the register write footprint of each instruction instance, which we calculate when the instruction instance is created (see the action of \nameref{omm:fetch} below).
+% We ensure in the pseudocode that each instruction does at most one register write to each register bit, and also that it does not try to read a register value it just wrote.
 
 每个寄存器读必须等待合适的寄存器写被执行（正如上面描述的那样），从这个事实浮现了模型中的数据流依赖（地址和数据）。
-Data-flow dependencies (address and data) in the model emerge from the
-fact that each register read has to wait for the appropriate register write to be executed (as described above).
+% Data-flow dependencies (address and data) in the model emerge from the
+% fact that each register read has to wait for the appropriate register write to be executed (as described above).
 
 \subsection{指令实例状态}\label{sec:omm:inst_state}
 % \subsection{Instruction Instance State}\label{sec:omm:inst_state}
@@ -341,8 +341,8 @@ fact that each register read has to wait for the appropriate register write to b
 \begin{itemize}
 \item {\it program\_loc}，指令被从此获取的内存地址； % , the memory address from which the instruction was fetched;
 \item {\it instruction\_kind}，识别这是否是一个加载、存储、AMO、屏障、分支/跳转，或者一个‘简单的’指令（这也包括了一种类似于描述伪指令执行状态的类型）； % identifying whether this is a load, store, AMO, fence, branch/jump or a `simple' instruction (this also includes a {\it kind} similar to the one described for the pseudocode execution states);
-\item {\it src\_regs}，源reg_names的集合（包括系统寄存器），由指令的伪代码静态决定； %  , the set of source {\it reg\_name}s (including system registers), as statically determined from the pseudocode of the instruction;
-\item {\it dst\_regs}，目的reg_names（包括系统寄存器），由指令的伪代码静态决定； % , the destination {\it reg\_name}s (including system registers), as statically determined from the pseudocode of the instruction;
+\item {\it src\_regs}，源{\it reg\_name}的集合（包括系统寄存器），由指令的伪代码静态决定； %  , the set of source {\it reg\_name}s (including system registers), as statically determined from the pseudocode of the instruction;
+\item {\it dst\_regs}，目的{\it reg\_name}（包括系统寄存器），由指令的伪代码静态决定； % , the destination {\it reg\_name}s (including system registers), as statically determined from the pseudocode of the instruction;
 \item {\it pseudocode\_state}（或者有时只简写为‘state’），如下之一（这是一个带标签的联合；标签用小写字母表示）：  %  (or sometimes just `state' for short), one of (this is a tagged union; tags in small-caps):
   \begin{center}
   \begin{tabular}{l@{ \quad-\quad }l}
@@ -362,9 +362,9 @@ fact that each register read has to wait for the appropriate register write to b
   % the as-yet-unsatisfied slices (the byte indices that have not been
   % satisfied yet), and, for the satisfied slices, the store slices
   % (each consisting of a memory store operation and subset of its byte indices) that satisfied it.
-  % ------   下面两条word里没有，可能是tex新版本刚加入的内容 ----------
-\item {\it mem\_stores}, a set of memory store operations, and for each one a flag that indicates whether it has been propagated (passed to the shared memory) or not.
-\item information recording whether the instance is committed, finished, etc.
+% ------   下面两条word里没有，可能是tex新版本刚加入的内容 ----------
+% \item {\it mem\_stores}, a set of memory store operations, and for each one a flag that indicates whether it has been propagated (passed to the shared memory) or not.
+% \item information recording whether the instance is committed, finished, etc.
 \end{itemize}
 
 每个内存加载操作包括了一个内存足迹（地址和尺寸）。每个内存存储操作包括了一个内存足迹和（当值可用时）一个值。
@@ -374,7 +374,9 @@ fact that each register read has to wait for the appropriate register write to b
 一个带有非空{\it mem\_loads}的加载指令实例，如果所有的加载操作都被满足（换句话说，没有未满足的加载片段），那么被称之为被完全满足的。
 % A load instruction instance with a non-empty {\it mem\_loads}, for which all the load operations are satisfied (i.e.~there are no unsatisfied load slices) is said to be {\it entirely satisfied}.
 
-非正式地，一个指令实例被称为具有完全决定的数据，如果为它的源寄存器提供输入的加载（和sc）指令被完成了。类似地，它被称为具有完全决定的内存足迹，如果为它的内存操作地址寄存器提供输入的加载（和sc）指令被完成了。正式地讲，我们首先定义了完全决定的寄存器写的概念：一个来自指令实例i的reg_writes的w被称之为完全决定的，如果满足了下列条件之一：
+非正式地，一个指令实例被称为具有{\it 完全决定的}数据，如果为它的源寄存器提供输入的加载（和{\tt sc}）指令被完成了。
+类似地，它被称为具有完全决定的内存足迹，如果为它的内存操作地址寄存器提供输入的加载（和{\tt sc}）指令被完成了。
+正式地讲，我们首先定义了{\it 完全决定的寄存器写}的概念：一个来自指令实例$i$的{\it reg\_writes}的$w$被称之为{\it 完全决定的}，如果满足了下列条件之一：
 % Informally, an instruction instance is said to have {\it fully determined data} if the load (and {\tt sc}) instructions feeding its source registers are finished.
 % Similarly, it is said to have a {\it fully determined memory footprint} if the load (and {\tt sc}) instructions feeding its memory operation address register are finished.
 %
@@ -384,11 +386,12 @@ fact that each register read has to wait for the appropriate register write to b
 \item w所写的值不会被i制造的内存操作所影响（即，一个从内存加载的值或者sc的结果），并且，对于i已经制造的每个影响w的寄存器读，源于i读取的寄存器写都是完全决定的（或者i从初始寄存器状态读取）。 
 % the value written by $w$ is not affected by a memory operation that $i$ has made (i.e. a value loaded from memory or the result of {\tt sc}), and, for every register read that $i$ has made, that affects $w$, the register write from which $i$ read is fully determined (or $i$ read from the initial register state).
 \end{enumerate}
-现在，一个指令实例i被称为具有完全决定的数据，如果对于每个来自reg_reads 的寄存器读r，r从中读取的寄存器写都是完全决定的。一个指令实例i被称为具有完全决定的内存足迹，如果对于来自reg_reads的每个输入到i的内存操作地址的寄存器读r，r从中读取的寄存器写都是完全决定的。
+现在，一个指令实例$i$被称为具有{\it 完全决定的}数据，如果对于每个来自{\it reg\_reads}的寄存器读$r$，$r$从中读取的寄存器写都是完全决定的。
+一个指令实例$i$被称为{\it 具有完全决定的内存足迹}，如果对于来自{\it reg\_reads}的每个输入到$i$的内存操作地址的寄存器读$r$，$r$从中读取的寄存器写都是完全决定的。
 % Now, an instruction instance $i$ is said to have  {\it fully determined data} if for every register read $r$ from {\it reg\_reads}, the register writes that $r$ reads from are fully determined.
 % An instruction instance $i$ is said to have a {\it fully determined memory footprint} if for every register read $r$ from {\it reg\_reads} that feeds into $i$'s memory operation address, the register writes that $r$ reads from are fully determined.
 \begin{commentary}
-  对于每次寄存器写，rmem工具都会记录，在执行写的这一时刻，该指令已经读取的来自其它指令的寄存器写的集合。通过小心地安排由工具覆盖的指令的伪代码，我们能够做到这点，使得这确实是这次写所依赖的寄存器写的集合。
+  对于每次寄存器写， {\tt rmem}工具都会记录，在执行写的这一时刻，该指令已经读取的来自其它指令的寄存器写的集合。通过小心地安排由工具覆盖的指令的伪代码，我们能够做到这点，使得这确实是这次写所依赖的寄存器写的集合。
 % The {\tt rmem} tool records, for every register write, the set of register writes from other instructions that have been read by this instruction at the point of performing the write.
 % By carefully arranging the pseudocode of the instructions covered by the tool we were able to make it so that this is exactly the set of register writes on which the write depends on.
 \end{commentary}
@@ -417,7 +420,9 @@ fact that each register read has to wait for the appropriate register write to b
 % When a load operation is satisfied from memory, for each byte of the load operation, the most recent corresponding store slice is returned.
 
 \begin{commentary}
-  对于大多数目的，将共享内存想象为一个数组会更简单，即，一个从内存位置到内存存储操作片段的映射，这里每个内存位置被映射到一个最近的针对该位置的内存存储操作的1字节的片段。然而，对于适当地处理sc指令，这种抽象不够详细。RVWMO原子性公理允许来自与sc相同的硬件线程的存储操作，以在sc的存储操作和与之配对的lr将读取自的存储操作之间进行干预。为了允许这种存储操作进行干预，而禁止其它的，数组抽象必须被扩展以记录更多的信息。这里，我们使用一个列表，因为它很简单，但是更有效和可扩展的实现应当更可能使用某些更好的东西。
+  对于大多数目的，将共享内存想象为一个数组会更简单，即，一个从内存位置到内存存储操作片段的映射，这里每个内存位置被映射到一个最近的针对该位置的内存存储操作的1字节的片段。
+  然而，对于适当地处理{\tt sc}指令，这种抽象不够详细。RVWMO\nameref{rvwmo:ax:atom}允许来自与{\tt sc}相同的硬件线程的存储操作，以在{\tt sc}的存储操作和与之配对的{\tt lr}将读取自的存储操作之间进行干预。
+  为了允许这种存储操作进行干预，而禁止其它的，数组抽象必须被扩展以记录更多的信息。这里，我们使用一个列表，因为它很简单，但是更有效和可扩展的实现应当更可能使用某些更好的东西。
 % For most purposes, it is simpler to think of the shared memory as an array, i.e., a map from memory locations to memory store operation slices, where each memory location is mapped to a one-byte slice of the most recent memory store operation to that location.
 % However, this abstraction is not detailed enough to properly handle the {\tt sc} instruction.
 % The RVWMO \nameref{rvwmo:ax:atom} allows store operations from the same hart as the {\tt sc} to intervene between the store operation of the {\tt sc} and the store operations the paired {\tt lr} read from.
@@ -436,26 +441,30 @@ fact that each register read has to wait for the appropriate register write to b
 % The condition is followed by an action that is applied to that state when the transition is taken, in order to generate the new system state.
 
 \paragraph{获取指令}\label{omm:fetch}
-可以从地址loc获取指令实例i的一个可能的程序次序后继，如果：
+可以从地址{\it loc}获取指令实例$i$的一个可能的程序次序后继，如果：
 % A possible program-order-successor of instruction instance $i$ can be fetched from address {\it loc} if:
 \begin{enumerate}
-\item 它还没有被获取到，即，在硬件线程的指令树中，i没有直接的来自loc的后继；并且 % it has not already been fetched, i.e., none of the immediate successors of $i$ in the hart's {\it instruction\_tree} are from {\it loc}; and
-\item 如果i的伪代码已经向pc写入了一个地址，那么loc必须是那个地址，否则loc就是：  % if $i$'s pseudocode has already written an address to {\em pc}, then {\it loc} must be that address, otherwise {\it loc} is:
+\item 它还没有被获取到，即，在硬件线程的{\it 指令树}中，$i$没有直接的来自{\it loc}的后继；并且 % it has not already been fetched, i.e., none of the immediate successors of $i$ in the hart's {\it instruction\_tree} are from {\it loc}; and
+\item 如果$i$的伪代码已经向{\em pc}写入了一个地址，那么{\it loc}必须是那个地址，否则{\it loc}就是：  % if $i$'s pseudocode has already written an address to {\em pc}, then {\it loc} must be that address, otherwise {\it loc} is:
   \begin{itemize}
   \item 对于一个条件分支，是后继地址或分支目标地址；  % for a conditional branch, the successor address or the branch target address;
-  \item 对于一个（直接的）跳转和链接指令（jal），是目标地址；  % for a (direct) jump and link instruction ({\tt jal}), the target address;
-  \item 对于一个间接跳转指令（jalr），是任何地址；以及  % for an indirect jump instruction ({\tt jalr}), any address; and
-  \item 对于任何其它的指令，是i.program loc＋4。 %  for any other instruction, $i.\textit{program\_loc}+4$.
+  \item 对于一个（直接的）跳转和链接指令（{\tt jal}），是目标地址；  % for a (direct) jump and link instruction ({\tt jal}), the target address;
+  \item 对于一个间接跳转指令（{\tt jalr}），是任何地址；以及  % for an indirect jump instruction ({\tt jalr}), any address; and
+  \item 对于任何其它的指令，是$i.\textit{program\_loc}+4$。 %  for any other instruction, $i.\textit{program\_loc}+4$.
   \end{itemize}
 \end{enumerate}
 % \fixme{Does an instruction at the end of memory need special-case treatment?}
 
-行动：在loc处的程序内存中为指令构建一个新的初始化的指令实例i’，它带有从指令伪代码计算的状态PLAIN(isa_state)，包括从伪代码可以获得的静态信息，例如它的instruction_kind、src_regs和dst_regs，并把i’添加到硬件线程的指令树作为i的一个后继。
+行动：在{\it loc}处的程序内存中为指令构建一个新的初始化的指令实例$i’$，它带有从指令伪代码计算的状态{\sc Plain}({\it isa\_state})，包括从伪代码可以获得的静态信息，例如它的{\it instruction\_kind}，{\it src\_regs}，和{\it dst\_regs}，并把$i’$添加到硬件线程的指令树作为$i$的一个后继。
 % Action: construct a freshly initialized instruction instance $i'$ for the instruction in the program memory at {\it loc}, with state {\sc Plain}({\it isa\_state}), computed from the instruction pseudocode, including the static information available from the pseudocode such as its {\it instruction\_kind}, {\it src\_regs}, and {\it dst\_regs}, and add $i'$ to the hart's {\it instruction\_tree} as a successor of $i$.
 
 \begin{commentary}
 
-  可能的下一个获取地址（loc）在获取i之后是立即可用的，并且模型不需要等待伪代码写到pc；这允许乱序执行，并且推测过去的条件分支和跳转。对于大多数指令，这些地址很容易从指令的伪代码获得。唯一的例外是间接跳转指令（jalr），那里地址依赖于寄存器中持有的值。原则上，数学模型应当允许这里推测到任意的地址。在rmem工具中的穷举搜索通过多次运行穷举搜索来处理这个问题，对于每个间接跳转，都带有不断增长的、可能的下一个获取地址的集合。最初的搜索使用空集合，因此在间接跳转指令之后没有获取，直到指令的伪代码写到pc，然后我们使用该值来获取下一条指令。在开始穷举搜索的下一次迭代之前，我们为每个间接跳转（按代码位置分组）收集了它在先前搜索迭代中的所有执行中写到pc的值的集合，并使用它作为指令的可能的下一个获取的地址。当没有检测到新的获取地址时，这个过程终止。
+  可能的下一个获取地址（{\it loc}）在获取$i$之后是立即可用的，并且模型不需要等待伪代码写到{\em pc}；这允许乱序执行，并且推测过去的条件分支和跳转。对于大多数指令，这些地址很容易从指令的伪代码获得。
+  唯一的例外是间接跳转指令（{\tt jalr}），那里地址依赖于寄存器中持有的值。
+  原则上，数学模型应当允许这里推测到任意的地址。在{\tt rmem}工具中的穷举搜索通过多次运行穷举搜索来处理这个问题，对于每个间接跳转，都带有不断增长的、可能的下一个获取地址的集合。
+  最初的搜索使用空集合，因此在间接跳转指令之后没有获取，直到指令的伪代码写到{\em pc}，然后我们使用该值来获取下一条指令。在开始穷举搜索的下一次迭代之前，我们为每个间接跳转（按代码位置分组）收集了它在先前搜索迭代中的所有执行中写到{\em pc}的值的集合，并使用它作为指令的可能的下一个获取的地址。
+  当没有检测到新的获取地址时，这个过程终止。
 % The possible next fetch addresses ({\it loc}) are available immediately after fetching $i$ and the model does not need to wait for the pseudocode to write to {\em pc}; this allows out-of-order execution, and speculation past conditional branches and jumps.
 % For most instructions these addresses are easily obtained from the instruction pseudocode.
 % The only exception to that is the indirect jump instruction ({\tt jalr}), where the address depends on the value held in a register.
@@ -470,64 +479,64 @@ fact that each register read has to wait for the appropriate register write to b
 \end{commentary}
 
 \paragraph{初始化内存加载操作}\label{omm:initiate_load}
-一个状态PLAIN(LOAD_MEM(kind, address, size, load_continuation))中的指令实例i总是可以初始化对应的内存加载操作。
+一个状态{\sc Plain}({\sc Load\_mem}({\it kind}, {\it address}, {\it size}, {\it load\_continuation}))中的指令实例$i$总是可以初始化对应的内存加载操作。
 % An instruction instance $i$ in state {\sc Plain}({\sc Load\_mem}({\it kind}, {\it address}, {\it size}, {\it load\_continuation})) can always initiate the corresponding memory load operations.
 行动：
 % Action:
 \begin{enumerate}
-\item 构造合适的内存加载操作mlos：  % Construct the appropriate memory load operations $mlos$:
+\item 构造合适的内存加载操作$mlos$：  % Construct the appropriate memory load operations $mlos$:
   \begin{itemize}
-  \item 如果address被对齐到size，那么mlos是一个从address开始的size字节的单个内存加载操作； %  if {\it address} is aligned to {\it size} then $mlos$ is a single memory load operation of {\it size} bytes from {\it address};
-  \item 否则，mlos是一组数量为size的内存加载操作的集合，每个加载操作负责地址address...address＋size－1中的一个字节。  % otherwise, $mlos$ is a set of {\it size} memory load operations, each of one byte, from the addresses $\textit{address}\ldots\textit{address}+\textit{size}-1$.
+  \item 如果{\it address}被对齐到{\it size}，那么$mlos$是一个从{\it address}开始的{\it size}字节的单个内存加载操作； %  if {\it address} is aligned to {\it size} then $mlos$ is a single memory load operation of {\it size} bytes from {\it address};
+  \item 否则，$mlos$是一组数量为{\it size}的内存加载操作的集合，每个加载操作负责地址$\textit{address}\ldots\textit{address}+\textit{size}-1$中的一个字节。  % otherwise, $mlos$ is a set of {\it size} memory load operations, each of one byte, from the addresses $\textit{address}\ldots\textit{address}+\textit{size}-1$.
   \end{itemize}
-\item 把i的mem_loads设置到mlos；并且  % set {\it mem\_loads} of $i$ to $mlos$; and
-\item 更新i的状态为PENDING_MEM_LOADS(load_continuation)。  % update the state of $i$ to {\sc Pending\_mem\_loads}({\it load\_continuation}).
+\item 把$i$的{\it mem\_loads}设置到$mlos$；并且  % set {\it mem\_loads} of $i$ to $mlos$; and
+\item 更新$i$的状态为{\sc Pending\_mem\_loads}({\it load\_continuation})。  % update the state of $i$ to {\sc Pending\_mem\_loads}({\it load\_continuation}).
 \end{enumerate}
 
 \begin{commentary}
-  在17.1节中说到，未对齐的内存访问可能在任意粒度被分解。这里我们把它们分解为一个字节的访问，因为这个粒度包含了所有其它的粒度。
+  在~\ref{sec:rvwmo:primitives}节中说到，未对齐的内存访问可能在任意粒度被分解。这里我们把它们分解为一个字节的访问，因为这个粒度包含了所有其它的粒度。
 % In Section~\ref{sec:rvwmo:primitives} it is said that misaligned memory accesses may be decomposed at any granularity.
 % Here we decompose them to one-byte accesses as this granularity subsumes all others.
 \end{commentary}
 
 \paragraph{通过从未传播的状态转发来满足内存加载操作}\label{omm:sat_by_forwarding}
-对于一个状态PENDING_MEM_LOADS(load_continuation)中的非AMO加载指令实例i，和i.mem_loads中的一个具有未满足片段的内存加载操作mlo，内存加载操作可以通过从未被程序次序之前的存储指令实例所传播的内存存储操作转发，而被部分地或完全地满足，如果：
+对于一个状态{\sc Pending\_mem\_loads}({\it load\_continuation})中的非AMO加载指令实例$i$，和$i.\textit{mem\_loads}$中的一个具有未满足片段的内存加载操作$mlo$，内存加载操作可以通过从未被程序次序之前的存储指令实例所传播的内存存储操作转发，而被部分地或完全地满足，如果：
 % For a non-AMO load instruction instance $i$ in state {\sc Pending\_mem\_loads}({\it load\_continuation}), and a memory load operation $mlo$ in $i.\textit{mem\_loads}$ that has unsatisfied slices, the memory load operation can be partially or entirely satisfied by forwarding from unpropagated memory store operations by store instruction instances that are program-order-before $i$ if:
 \begin{enumerate}
-\item 所有的程序次序在先的设置了.sr和.pw的fence指令都完成了；  % all program-order-previous {\tt fence} instructions with {\tt .sr} and {\tt .pw} set are finished;
-\item 对于每个程序次序在先的设置了.sr和.pr，但是没有设置.pw的fence指令，f，如果f没有完成，那么所有的程序次序在f之前的加载指令都被完全地满足了；  % for every program-order-previous {\tt fence} instruction, $f$, with {\tt .sr} and {\tt .pr} set, and {\tt .pw} not set, if $f$ is not finished then all load instructions that are program-order-before $f$ are entirely satisfied;
-\item 对于每个没有完成的程序次序在先的fence.tso指令，f，所有的程序次序先于f的加载指令都被完全地满足了；  % for every program-order-previous {\tt fence.tso} instruction, $f$, that is not finished, all load instructions that are program-order-before $f$ are entirely satisfied;
+\item 所有的程序次序在先的设置了{\tt .sr}和{\tt .pw}的{\tt fence}指令都完成了；  % all program-order-previous {\tt fence} instructions with {\tt .sr} and {\tt .pw} set are finished;
+\item 对于每个程序次序在先的设置了{\tt .sr}和{\tt .pr}，但是没有设置{\tt .pw}的{\tt fence}指令，$f$，如果$f$没有完成，那么所有的程序次序在$f$之前的加载指令都被完全地满足了；  % for every program-order-previous {\tt fence} instruction, $f$, with {\tt .sr} and {\tt .pr} set, and {\tt .pw} not set, if $f$ is not finished then all load instructions that are program-order-before $f$ are entirely satisfied;
+\item 对于每个没有完成的程序次序在先的{\tt fence.tso}指令，$f$，所有的程序次序先于$f$的加载指令都被完全地满足了；  % for every program-order-previous {\tt fence.tso} instruction, $f$, that is not finished, all load instructions that are program-order-before $f$ are entirely satisfied;
 % \item all program-order-previous {\tt fence.i} instructions are finished;
-\item 如果i是一个load-acquire-RCsc，所有的程序次序在先的store-relaase-RCsc都完成了；  % if $i$ is a load-acquire-RCsc, all program-order-previous store-releases-RCsc are finished;
-\item 如果i是一个load-acquire-release，所有的程序次序在先的指令都完成了；  % if $i$ is a load-acquire-release, all program-order-previous instructions are finished;
+\item 如果$i$是一个load-acquire-RCsc，所有的程序次序在先的store-relaase-RCsc都完成了；  % if $i$ is a load-acquire-RCsc, all program-order-previous store-releases-RCsc are finished;
+\item 如果$i$是一个load-acquire-release，所有的程序次序在先的指令都完成了；  % if $i$ is a load-acquire-release, all program-order-previous instructions are finished;
 \item 所有的未完成的程序次序在先的load-acquire指令都完全地被满足了；并且  % all non-finished program-order-previous load-acquire instructions are entirely satisfied; and
 \item 所有的程序次序在先的store-acquire-release指令都被满足了；  % all program-order-previous store-acquire-release instructions are finished;
 \end{enumerate}
 
-令msoss是所有来自程序次序先于i的、并且已经计算出要存储的值的非sc存储指令实例的未被转发的内存存储操作片段的集合，它们与mlo的未被满足的片段重叠，并且不会被干扰的存储操作、或从一个干扰的加载读取的存储操作所替代。最后一个条件要求，对于msoss中的每个来自指令i’的内存存储操作片段msos：
+令$msoss$是所有来自程序次序先于$i$的、并且已经计算出要存储的值的非{\tt sc}存储指令实例的未被转发的内存存储操作片段的集合，它们与$mlo$的未被满足的片段重叠，并且不会被干扰的存储操作、或从一个干扰的加载读取的存储操作所替代。最后一个条件要求，对于$msoss$中的每个来自指令$i’$的内存存储操作片段$msos$：
 % Let $msoss$ be the set of all unpropagated memory store operation slices from non-{\tt sc} store instruction instances that are program-order-before $i$ and have already calculated the value to be stored, that overlap with the unsatisfied slices of $mlo$, and which are not superseded by intervening store operations or store operations that are read from by an intervening load.
 % The last condition requires, for each memory store operation slice $msos$ in $msoss$ from instruction $i'$:
 \begin{tightlist}
-\item 没有程序次序在i和i’之间的存储指令带有与msos重叠的内存存储操作；并且 % that there is no store instruction program-order-between $i$ and $i'$ with a memory store operation overlapping $msos$; and
-\item 没有程序次序在i和i’之间的加载指令被来自不同的硬件线程的重叠的内存存储操作片段所满足。  % that there is no load instruction program-order-between $i$ and $i'$ that was satisfied from an overlapping memory store operation slice from a different hart.
+\item 没有程序次序在$i$和$i’$之间的存储指令带有与$msos$重叠的内存存储操作；并且 % that there is no store instruction program-order-between $i$ and $i'$ with a memory store operation overlapping $msos$; and
+\item 没有程序次序在$i$和$i’$之间的加载指令被来自不同的硬件线程的重叠的内存存储操作片段所满足。  % that there is no load instruction program-order-between $i$ and $i'$ that was satisfied from an overlapping memory store operation slice from a different hart.
 \end{tightlist}
 
 行动：
 % Action:
 \begin{enumerate}
-\item 更新i.mem_loads，以表示mlo被msoss满足了；并且
+\item 更新$i.\textit{mem\_loads}$，以表示$mlo$被$msoss$满足了；并且
 % update $i.\textit{mem\_loads}$ to indicate that $mlo$ was satisfied by $msoss$; and
-\item 重启任何违背一致性的推测性指令，作为这个的结果，也就是说，对于每个未完成的作为i的程序次序后继的指令i’，和i’的每个由msoss’满足的内存加载操作mlo’，如果在msoss’中存在一个内存存储操作片段msos’，和一个来自msoss中一个不同的内存存储操作的重叠的内存存储操作片段，并且msos’并非来自i的一个程序次序后继指令，那么重新启动i’和它的重启依赖。
+\item 重启任何违背一致性的推测性指令，作为这个的结果，也就是说，对于每个未完成的作为i的程序次序后继的指令$i’$，和$i’$的每个由$msoss’$满足的内存加载操作$mlo’$，如果在$msoss’$中存在一个内存存储操作片段$msos’$，和一个来自$msoss$中一个不同的内存存储操作的重叠的内存存储操作片段，并且$msos’$并非来自$i$的一个程序次序后继指令，那么重新启动$i’$和它的{\em 重启依赖}。
 % restart any speculative instructions which have violated coherence as a result of this, i.e., for every non-finished instruction $i'$ that is a program-order-successor of $i$, and every memory load operation $mlo'$ of $i'$ that was satisfied from $msoss'$, if there exists a memory store operation slice $msos'$ in $msoss'$, and an overlapping memory store operation slice from a different memory store operation in $msoss$, and $msos'$ is not from an instruction that is a program-order-successor of $i$, restart $i'$ and its {\em restart-dependents}.
 \end{enumerate}
-此处，指令j的重启依赖是指：
+此处，指令$j$的{\em 重启依赖}是指：
 % Where, the {\em restart-dependents} of instruction $j$ are:
 \begin{tightlist}
-\item j的程序次序后继，如果它有关于j的寄存器写的数据流依赖；  % program-order-successors of $j$ that have data-flow dependency on a register write of $j$;
-\item j的程序次序后继，如果它有一个内存加载操作，其读取自j的一个内存存储操作（通过转发）；  % program-order-successors of $j$ that have a memory load operation that reads from a memory store operation of $j$ (by forwarding);
-\item 如果j是一个load-acquire，那么是j的所有的程序次序后继；  % if $j$ is a load-acquire, all the program-order-successors of $j$;
-\item 如果j是一个加载，对于每个设置了.sr和.pr，但是没有设置.pw的fence，f，如果它是j的一个程序次序后继，那么是所有的是f的程序次序后继的加载指令；  %  if $j$ is a load, for every {\tt fence}, $f$, with {\tt .sr} and {\tt .pr} set, and {\tt .pw} not set, that is a program-order-successor of $j$, all the load instructions that are program-order-successors of $f$;
-\item 如果j是一个加载，对于每个fence.tso，f，如果是j的一个程序次序后继，那么是所有的是f的程序次序后继的加载指令；以及  % if $j$ is a load, for every {\tt fence.tso}, $f$, that is a program-order-successor of $j$, all the load instructions that are program-order-successors of $f$;
+\item $j$的程序次序后继，如果它有关于$j$的寄存器写的数据流依赖；  % program-order-successors of $j$ that have data-flow dependency on a register write of $j$;
+\item $j$的程序次序后继，如果它有一个内存加载操作，其读取自j的一个内存存储操作（通过转发）；  % program-order-successors of $j$ that have a memory load operation that reads from a memory store operation of $j$ (by forwarding);
+\item 如果$j$是一个load-acquire，那么是$j$的所有的程序次序后继；  % if $j$ is a load-acquire, all the program-order-successors of $j$;
+\item 如果$j$是一个加载，对于每个设置了{\tt .sr}和{\tt .pr}，但是没有设置{\tt .pw}的{\tt fence}，$f$，如果它是$j$的一个程序次序后继，那么是所有的是$f$的程序次序后继的加载指令；  %  if $j$ is a load, for every {\tt fence}, $f$, with {\tt .sr} and {\tt .pr} set, and {\tt .pw} not set, that is a program-order-successor of $j$, all the load instructions that are program-order-successors of $f$;
+\item 如果$j$是一个加载，对于每个{\tt fence.tso}，$f$，如果是$j$的一个程序次序后继，那么是所有的是$f$的程序次序后继的加载指令；以及  % if $j$ is a load, for every {\tt fence.tso}, $f$, that is a program-order-successor of $j$, all the load instructions that are program-order-successors of $f$;
 % and 
 \item（递归地）所有的上述指令实例的所有重启依赖。  %  (recursively) all the restart-dependents of all the instruction instances above.
 \end{tightlist}
@@ -536,18 +545,19 @@ fact that each register read has to wait for the appropriate register write to b
   向一个内存加载转发内存存储操作可能只满足该加载的某些片段，而使其它片段仍是未满足的。
 % Forwarding memory store operations to a memory load might satisfy only some slices of the load, leaving other slices unsatisfied.
 
-一个程序次序在先的不可用的存储操作，当它变得可用时，在采用上面的过渡的时候，可能使得msoss暂时不可靠（违反一致性）。那样的存储将阻止加载的完成（见完成指令），并将在存储操作被传播时，导致它重启（见传播存储操作）。
+一个程序次序在先的不可用的存储操作，当它变得可用时，在采用上面的过渡的时候，可能使得$msoss$暂时不可靠（违反一致性）。那样的存储将阻止加载的完成（见\nameref{omm:finish}），并将在存储操作被传播时，导致它重启（见\nameref{omm:prop_store}）。
 % A program-order-previous store operation that was not available when taking the transition above might make $msoss$ provisionally unsound (violating coherence) when it becomes available.
 % That store will prevent the load from being finished (see \nameref{omm:finish}), and will cause it to restart when that store operation is propagated (see \nameref{omm:prop_store}).
 
-上述过渡条件的结果就是，store-release-RCsc内存存储操作不能被转发到load-acquire-RCsc指令：msoss不包括来自已完成存储的内存存储操作（因为那些必定是已传播的内存存储操作），而且当加载是acquire-RCsc的时候，上述条件需要所有的程序次序在先的store-release-RCsc都被完成。
+上述过渡条件的结果就是，store-release-RCsc内存存储操作不能被转发到load-acquire-RCsc指令：$msoss$不包括来自已完成存储的内存存储操作（因为那些必定是已传播的内存存储操作），而且当加载是acquire-RCsc的时候，上述条件需要所有的程序次序在先的store-release-RCsc都被完成。
 % A consequence of the transition condition above is that store-release-RCsc memory store operations cannot be forwarded to load-acquire-RCsc instructions:
 % $msoss$ does not include memory store operations from finished stores (as those must be propagated memory store operations), and the condition above requires all program-order-previous store-releases-RCsc to be finished when the load is acquire-RCsc.
 \end{commentary}
 
 
 \paragraph{从内存满足内存加载操作}\label{omm:sat_from_mem}
-对于一个非AMO加载指令或者一个“AMO的满足、提交和传播操作”过渡上下文中的AMO指令的指令实例i，任何i.mem_loads中的有未满足片段的内存加载操作mlo，可以从内存被满足，如果通过未传播的存储转发来满足内存加载操作的所有条件都被满足了的话。行动：令msoss是来自覆盖了mlo的未满足片段的内存的内存存储操作片段，并应用通过未传播的存储转发满足内存加载操作的行为。对于一个非AMO加载指令或者一个“AMO的满足、提交和传播操作”过渡上下文中的AMO指令的指令实例i，任何i.mem_loads中的有未满足片段的内存加载操作mlo，可以从内存被满足，如果通过未传播的存储转发来满足内存加载操作的所有条件都被满足了的话。行动：令msoss是来自覆盖了mlo的未满足片段的内存的内存存储操作片段，并应用通过未传播的存储转发满足内存加载操作的行为。
+对于一个非AMO加载指令或者一个“AMO的满足、提交和传播操作”过渡上下文中的AMO指令的指令实例$i$，任何$i.\textit{mem\_loads}$中的有未满足片段的内存加载操作mlo，可以从内存被满足，如果通过未传播的存储转发来满足内存加载操作的所有条件都被满足了的话。
+行动：令$msoss$是来自覆盖了$mlo$的未满足片段的内存的内存存储操作片段，并应用通过未传播的存储转发满足内存加载操作的行为。
 % For an instruction instance $i$ of a non-AMO load instruction or an AMO instruction in the context of the ``\nameref{omm:do_amo}'' transition, any memory load operation $mlo$ in $i.\textit{mem\_loads}$ that has unsatisfied slices, can be satisfied from memory if all the conditions of \nameref{omm:sat_by_forwarding} are satisfied.
 % Action: let $msoss$ be the memory store operation slices from memory covering the unsatisfied slices of $mlo$, and apply the action of \nameref{omm:sat_by_forwarding}.
 
@@ -559,34 +569,37 @@ fact that each register read has to wait for the appropriate register write to b
 
 
 \paragraph{完整加载操作}\label{omm:complete_loads}
-状态PENDING_MEM_LOADS(load_continuation)中的一个加载指令实例i可以是完整的（不要与完成相混淆），如果所有的内存加载操作i.mem loads被完全地满足了（即，没有未满足的片段）。行动：将i的状态更新为PLAIN(load_continuation(mem_value))，这里mem_value是从所有满足i.mem_loads的内存存储操作片段集合而成的。
+状态{\sc Pending\_mem\_loads}({\it load\_continuation})中的一个加载指令实例$i$可以是完整的（不要与完成相混淆），如果所有的内存加载操作$i.\textit{mem\_loads}$被完全地满足了（即，没有未满足的片段）。
+行动：将i的状态更新为{\sc Plain}({\it load\_continuation(mem\_value)})，这里{\it mem\_value}是从所有满足$i.\textit{mem\_loads}$的内存存储操作片段集合而成的。
 % A load instruction instance $i$ in state {\sc Pending\_mem\_loads}({\it load\_continuation}) can be completed (not to be confused with finished) if all the memory load operations $i.\textit{mem\_loads}$ are entirely satisfied (i.e.~there are no unsatisfied slices).
 % Action: update the state of $i$ to {\sc Plain}({\it load\_continuation(mem\_value)}), where {\it mem\_value} is assembled from all the memory store operation slices that satisfied $i.\textit{mem\_loads}$.
 
 
 \paragraph{早期{\tt sc}失败}\label{omm:early_sc_fail}
-状态PLAIN(EARLY_SC_FAIL(res_continuation))中的一个sc指令实例i可以总是被造成失败。行动：把i的状态更新到PLAIN(res_continuation(false))。
+状态{\sc Plain}({\sc Early\_sc\_fail}({\it res\_continuation}))中的一个{\tt sc}指令实例$i$可以总是被造成失败。行动：把$i$的状态更新到{\sc Plain}({\it res\_continuation(false)})。
 % An {\tt sc} instruction instance $i$ in state {\sc Plain}({\sc Early\_sc\_fail}({\it res\_continuation})) can always be made to fail.
 % Action: update the state of $i$ to {\sc Plain}({\it res\_continuation(false)}).
 
 
 \paragraph{配对的{\tt sc} }\label{omm:paired_sc}
-状态PLAIN(EARLY_SC_FAIL(res_continuation))中的一个sc指令实例i可以继续它的（可能成功的）执行，如果i与一个lr配对的话。行动：把i的状态更新到PLAIN(res_continuation(true))。
+状态{\sc Plain}({\sc Early\_sc\_fail}({\it res\_continuation}))中的一个{\tt sc}指令实例$i$可以继续它的（可能成功的）执行，如果$i$与一个{\tt lr}配对的话。行动：把$i$的状态更新到{\sc Plain}({\it res\_continuation(true)})。
 % An {\tt sc} instruction instance $i$ in state {\sc Plain}({\sc Early\_sc\_fail}({\it res\_continuation})) can continue its (potentially successful) execution if $i$ is paired with an {\tt lr}.
 % Action: update the state of $i$ to {\sc Plain}({\it res\_continuation(true)}).
 
 
 \paragraph{初始化内存存储操作足迹}\label{omm:initiate_store_footprint}
-状态PLAIN(STORE_EA(kind, address, size, next_state))中的一个指令实例i可以总是宣布它的挂起的内存操作足迹。
+状态{\sc Plain}({\sc Store\_ea}({\it kind}, {\it address}, {\it size}, {\it next\_state}))中的一个指令实例$i$可以总是宣布它的挂起的内存操作足迹。
 行动：
+% An instruction instance $i$ in state {\sc Plain}({\sc Store\_ea}({\it kind}, {\it address}, {\it size}, {\it next\_state})) can always announce its pending memory store operation footprint.
+% Action:
 \begin{enumerate}
-\item 构造合适的内存存储操作msos（不带有存储的值）： % construct the appropriate memory store operations $msos$ (without the store value):
+\item 构造合适的内存存储操作$msos$（不带有存储的值）： % construct the appropriate memory store operations $msos$ (without the store value):
   \begin{itemize}
-  \item 如果address对齐到size，那么msos是一个单独的针对address的size字节的内存存储操作； % if {\it address} is aligned to {\it size} then $msos$ is a single memory store operation of {\it size} bytes to {\it address};
-  \item 否则，msos是一组数量为size的内存存储操作集合，每个长度1字节，针对地址address...address＋size－1。  %  otherwise, $msos$ is a set of {\it size} memory store operations, each of one-byte size, to the addresses $\textit{address}\ldots\textit{address}+\textit{size}-1$.
+  \item 如果{\it address}对齐到{\it size}，那么$msos$是一个单独的针对{\it address}的{\it size}字节的内存存储操作； % if {\it address} is aligned to {\it size} then $msos$ is a single memory store operation of {\it size} bytes to {\it address};
+  \item 否则，$msos$是一组数量为{\it size}的内存存储操作集合，每个长度1字节，针对地址$\textit{address}\ldots\textit{address}+\textit{size}-1$。  %  otherwise, $msos$ is a set of {\it size} memory store operations, each of one-byte size, to the addresses $\textit{address}\ldots\textit{address}+\textit{size}-1$.
   \end{itemize}
-\item 把i.mem_stores设置为msos；并且  % set $i.\textit{mem\_stores}$ to $msos$; and
-\item 把i的状态更新到PLAIN(next_state)。  % update the state of $i$ to {\sc Plain}({\it next\_state}).
+\item 把$i.\textit{mem\_stores}$设置为$msos$；并且  % set $i.\textit{mem\_stores}$ to $msos$; and
+\item 把$i$的状态更新到{\sc Plain}({\it next\_state})。  % update the state of $i$ to {\sc Plain}({\it next\_state}).
 \end{enumerate}
 
 \begin{commentary}
@@ -597,37 +610,38 @@ fact that each register read has to wait for the appropriate register write to b
 
 
 \paragraph{初始化内存存储操作的值}\label{omm:instantiate_store_value}
-状态PLAIN(STORE_MEMV(mem_value, store_continuation))中的一个指令实例i可以总是初始化内存存储操作i.mem_stores的值。
+状态{\sc Plain}({\sc Store\_memv}({\it mem\_value}中的一个指令实例i可以总是初始化内存存储操作$i.\textit{mem\_stores}$的值。
 行动：
 % An instruction instance $i$ in state {\sc Plain}({\sc Store\_memv}({\it mem\_value}, {\it store\_continuation})) can always instantiate the values of the memory store operations $i.\textit{mem\_stores}$.
 % Action:
 \begin{enumerate}
-\item 在内存存储操作i.mem_stores之间分割出mem_value；以及 % split {\it mem\_value} between the memory store operations $i.\textit{mem\_stores}$; and
-\item 把i的状态更新到PENDING_MEM_STORES(store_continuation)。 % update the state of $i$ to {\sc Pending\_mem\_stores}({\it store\_continuation}).
+\item 在内存存储操作{\it mem\_value}之间分割出$i.\textit{mem\_stores}$；以及 % split {\it mem\_value} between the memory store operations $i.\textit{mem\_stores}$; and
+\item 把$i$的状态更新到{\sc Pending\_mem\_stores}({\it store\_continuation})。 % update the state of $i$ to {\sc Pending\_mem\_stores}({\it store\_continuation}).
 \end{enumerate}
 
 
 \paragraph{提交存储指令}\label{omm:commit_stores}
-一个非sc存储指令，或者一个在“提交和传播一个sc的存储操作”的上下文中的sc指令，如果在状态PENDING_MEM_STORES(store_continuation)之中，那么可以被提交（不要与传播相混淆），如果：
+一个非{\tt sc}存储指令，或者一个在“提交和传播一个{\tt sc}的存储操作”的上下文中的{\tt sc}指令，如果在状态{\sc Pending\_mem\_stores}({\it store\_continuation})之中，那么可以被提交（不要与传播相混淆），如果：
 % An uncommitted instruction instance $i$ of a non-{\tt sc} store instruction or an {\tt sc} instruction in the context of the ``\nameref{omm:commit_sc}'' transition, in state {\sc Pending\_mem\_stores}({\it store\_continuation}), can be committed (not to be confused with propagated) if:
 \begin{enumerate}
-\item i具有完全决定的数据； % $i$ has fully determined data;
+\item $i$具有完全决定的数据； % $i$ has fully determined data;
 \item 所有的程序次序在先的条件分支和间接跳转指令都完成了； % all program-order-previous conditional branch and indirect jump instructions are finished;
-\item 所有的程序次序在先的设置了.sw的fence指令都完成了； % all program-order-previous {\tt fence} instructions with {\tt .sw} set are finished;
-\item 所有的程序次序在先的fence.tso指令都完成了； % all program-order-previous {\tt fence.tso} instructions are finished;
+\item 所有的程序次序在先的设置了{\tt .sw}的{\tt fence}指令都完成了； % all program-order-previous {\tt fence} instructions with {\tt .sw} set are finished;
+\item 所有的程序次序在先的{\tt fence.tso}指令都完成了； % all program-order-previous {\tt fence.tso} instructions are finished;
 % \item all program-order-previous {\tt fence.i} instructions are finished;
 \item 所有的程序次序在先的load-acquire指令都完成了； % all program-order-previous load-acquire instructions are finished;
 \item 所有的程序次序在先的store-acquire-release指令都完成了； %  all program-order-previous store-acquire-release instructions are finished;
-\item 如果i是一个store-release，所有的程序次序在先的指令都完成了； %  if $i$ is a store-release, all program-order-previous instructions are finished;
+\item 如果$i$是一个store-release，所有的程序次序在先的指令都完成了； %  if $i$ is a store-release, all program-order-previous instructions are finished;
 \item\label{omm:commit_store:prev_addrs} 所有的程序次序在先的内存访问指令具有完全决定的内存足迹； % all program-order-previous memory access instructions have a fully determined memory footprint;
-\item\label{omm:commit_store:prev_stores} 所有的程序次序在先的存储指令，除了失败的sc，都已经初始化并因此具有非空的mem_stores；并且  % all program-order-previous store instructions, except for {\tt sc} that failed, have initiated and so have non-empty {\it mem\_stores}; and
-\item\label{omm:commit_store:prev_loads} 所有的程序次序在先的加载指令都已经初始化并因此具有非空的mem_loads。 % all program-order-previous load instructions have initiated and so have non-empty {\it mem\_loads}.
+\item\label{omm:commit_store:prev_stores} 所有的程序次序在先的存储指令，除了失败的{\tt sc}，都已经初始化并因此具有非空的{\it mem\_stores}；并且  % all program-order-previous store instructions, except for {\tt sc} that failed, have initiated and so have non-empty {\it mem\_stores}; and
+\item\label{omm:commit_store:prev_loads} 所有的程序次序在先的加载指令都已经初始化并因此具有非空的{\it mem\_loads}。 % all program-order-previous load instructions have initiated and so have non-empty {\it mem\_loads}.
 \end{enumerate}
 行动：记录i被提交了。
 % Action: record that $i$ is committed.
 
 \begin{commentary}
-  注意，如果条件8被满足了，条件9和10也被满足，或者将在采取某些立即的过渡之后被满足。因此，对它们的要求并不会增强模型。通过要求它们，我们保证了先前的内存访问指令已经采取了足够的过渡，使得它们的内存操作对传播存储操作的条件检查可见，这是指令将采取的下一个过渡，使得那个条件更加简单。
+  注意，如果条件\ref{omm:commit_store:prev_addrs}被满足了，条件\ref{omm:commit_store:prev_stores}和\ref{omm:commit_store:prev_loads}也被满足，或者将在采取某些立即的过渡之后被满足。
+  因此，对它们的要求并不会增强模型。通过要求它们，我们保证了先前的内存访问指令已经采取了足够的过渡，使得它们的内存操作对\nameref{omm:prop_store}的条件检查可见，这是指令将采取的下一个过渡，使得那个条件更加简单。
 % Notice that if condition \ref{omm:commit_store:prev_addrs} is satisfied the conditions \ref{omm:commit_store:prev_stores} and \ref{omm:commit_store:prev_loads} are also satisfied, or will be satisfied after taking some eager transitions.
 % Hence, requiring them does not strengthen the model.
 % By requiring them, we guarantee that previous memory access instructions have taken enough transitions to make their memory operations visible for the condition check of \nameref{omm:prop_store}, which is the next transition the instruction will take, making that condition simpler.
@@ -635,14 +649,14 @@ fact that each register read has to wait for the appropriate register write to b
 
 
 \paragraph{传播存储操作}\label{omm:prop_store}
-对于状态PENDING_MEM_STORES(store_continuation)中的一个提交的指令实例i，和一个在i.mem stores之中的未传播的内存存储操作mso，mso可以被传播，如果：
+对于状态{\sc Pending\_mem\_stores}({\it store\_continuation})中的一个提交的指令实例$i$，和一个在$i.\textit{mem\_stores}$之中的未传播的内存存储操作$mso$，$mso$可以被传播，如果：
 % For a committed instruction instance $i$ in state {\sc Pending\_mem\_stores}({\it store\_continuation}), and an unpropagated memory store operation $mso$ in $i.\textit{mem\_stores}$, $mso$ can be propagated if:
 \begin{enumerate}
-\item 所有的与mso重叠的程序次序在先的存储指令的内存存储操作都已经传播；  % all memory store operations of program-order-previous store instructions that overlap with $mso$ have already propagated;
-\item 所有的与mso重叠的程序次序在先的加载指令的内存加载操作都已经被满足，并且（加载指令）是不可重启的（见下面的定义）；并且  % all memory load operations of program-order-previous load instructions that overlap with $mso$ have already been satisfied, and (the load instructions) are {\em non-restartable} (see definition below); and
-\item 所有的通过转发mso被满足的内存加载操作都被完全地满足。  % all memory load operations that were satisfied by forwarding $mso$ are entirely satisfied.
+\item 所有的与$mso$重叠的程序次序在先的存储指令的内存存储操作都已经传播；  % all memory store operations of program-order-previous store instructions that overlap with $mso$ have already propagated;
+\item 所有的与$mso$重叠的程序次序在先的加载指令的内存加载操作都已经被满足，并且（加载指令）是{\em 不可重启的}（见下面的定义）；并且  % all memory load operations of program-order-previous load instructions that overlap with $mso$ have already been satisfied, and (the load instructions) are {\em non-restartable} (see definition below); and
+\item 所有的通过转发$mso$被满足的内存加载操作都被完全地满足。  % all memory load operations that were satisfied by forwarding $mso$ are entirely satisfied.
 \end{enumerate}
-此处，一个未完成的指令实例i是不可重启的，如果：
+此处，一个{\em 未完成的}指令实例$i$是不可重启的，如果：
 % Where a non-finished instruction instance $j$ is {\em non-restartable} if:
 \begin{enumerate}
 \item 不存在一个存储指令s和s的一个未传播的内存存储操作mso，使得对mso应用“传播存储操作”过渡的行为将导致j的重启；并且 % there does not exist a store instruction $s$ and an unpropagated memory store operation $mso$ of $s$ such that applying the action of the ``\nameref{omm:prop_store}'' transition to $mso$ will result in the restart of $j$; and
@@ -651,54 +665,54 @@ fact that each register read has to wait for the appropriate register write to b
 行动：
 % Action:
 \begin{enumerate}
-\item 使用mso更新共享内存的状态；  % update the shared memory state with $mso$;
-\item 更新i.mem_stores，以表示mso被传播了；以及  % update $i.\textit{mem\_stores}$ to indicate that $mso$ was propagated; and
-\item 重启任何因为这个的结果而已经违背了一致性的推测性指令，也就是说，对于每个程序次序晚于i的未完成的指令i’和msoss’中的与mso重叠而不来自mso的每个i’的内存加载操作mlo’，并且msos’不是来自i的一个程序次序后继，重启i’和它的重启依赖（见：通过从未传播的存储转发来满足内存加载操作）。  % restart any speculative instructions which have violated coherence as a result of this, i.e., for every non-finished instruction $i'$ program-order-after $i$ and every memory load operation $mlo'$ of $i'$ that was satisfied from $msoss'$, if there exists a memory store operation slice $msos'$ in $msoss'$ that overlaps with $mso$ and is not from $mso$, and $msos'$ is not from a program-order-successor of $i$, restart $i'$ and its {\em restart-dependents} (see \nameref{omm:sat_by_forwarding}).
+\item 使用$mso$更新共享内存的状态；  % update the shared memory state with $mso$;
+\item 更新$i.\textit{mem\_stores}$，以表示$mso$被传播了；以及  % update $i.\textit{mem\_stores}$ to indicate that $mso$ was propagated; and
+\item 重启任何因为这个的结果而已经违背了一致性的推测性指令，也就是说，对于每个程序次序晚于$i$的未完成的指令$i’$和$msoss’$中的与$mso$重叠而不来自$mso$的每个$i’$的内存加载操作$mlo’$，并且$msos’$不是来自$i$的一个程序次序后继，重启$i’$和它的{\em 重启依赖}（见：\nameref{omm:sat_by_forwarding}）。  % restart any speculative instructions which have violated coherence as a result of this, i.e., for every non-finished instruction $i'$ program-order-after $i$ and every memory load operation $mlo'$ of $i'$ that was satisfied from $msoss'$, if there exists a memory store operation slice $msos'$ in $msoss'$ that overlaps with $mso$ and is not from $mso$, and $msos'$ is not from a program-order-successor of $i$, restart $i'$ and its {\em restart-dependents} (see \nameref{omm:sat_by_forwarding}).
 \end{enumerate}
 
 
 \paragraph{提交和传播一个{\tt sc}的存储操作}\label{omm:commit_sc}
-一个来自硬件线程h的、状态PENDING_MEM_STORES(store_continuation)中的、未提交的sc指令实例i，带有一个配对的lr i’，其已经被某些存储片段msoss所满足，可以被同时提交和传播，如果：
+一个来自硬件线程$h$的、状态{\sc Pending\_mem\_stores}({\it store\_continuation})中的、未提交的{\tt sc}指令实例$i$，带有一个配对的{\tt lr} $i’$，其已经被某些存储片段$msoss$所满足，可以被同时提交和传播，如果：
 % An uncommitted {\tt sc} instruction instance $i$, from hart $h$, in state {\sc Pending\_mem\_stores}({\it store\_continuation}), with a paired {\tt lr} $i'$ that has been satisfied by some store slices $msoss$, can be committed and propagated at the same time if:
 \begin{enumerate}
-\item i’被完成； % $i'$ is finished;
-\item 每个已经转发到i’的内存存储操作都是已传播的； % every memory store operation that has been forwarded to $i'$ is propagated;
-\item 提交存储指令的条件被满足； % the conditions of \nameref{omm:commit_stores} is satisfied;
-\item 传播存储操作的条件被满足（注意一个sc指令只能有一个内存存储操作）；以及  % the conditions of \nameref{omm:prop_store} is satisfied (notice that an {\tt sc} instruction can only have one memory store operation); and
-\item 在共享内存中，对于每个来自msoss的存储片段msos，从msos被传播到内存后的任何时刻，msos都还没有被来自不是h的硬件线程的存储覆写。  % for every store slice $msos$ from $msoss$, $msos$ has not been overwritten, in the shared memory, by a store that is from a hart that is not $h$, at any point since $msos$ was propagated to memory.
+\item $i’$被完成； % $i'$ is finished;
+\item 每个已经转发到$i’$的内存存储操作都是已传播的； % every memory store operation that has been forwarded to $i'$ is propagated;
+\item \nameref{omm:commit_stores}的条件被满足； % the conditions of \nameref{omm:commit_stores} is satisfied;
+\item \nameref{omm:prop_store}的条件被满足（注意一个{\tt sc}指令只能有一个内存存储操作）；以及  % the conditions of \nameref{omm:prop_store} is satisfied (notice that an {\tt sc} instruction can only have one memory store operation); and
+\item 在共享内存中，对于每个来自$msoss$的存储片段$msos$，从$msos$被传播到内存后的任何时刻，$msos$都还没有被来自不是$h$的硬件线程的存储覆写。  % for every store slice $msos$ from $msoss$, $msos$ has not been overwritten, in the shared memory, by a store that is from a hart that is not $h$, at any point since $msos$ was propagated to memory.
 \end{enumerate}
 行动：
 % Action:
 \begin{enumerate}
-\item 应用提交存储指令的行动；以及  % apply the actions of \nameref{omm:commit_stores}; and
-\item 应用传播存储操作的行动。  %  apply the action of \nameref{omm:prop_store}.
+\item 应用\nameref{omm:commit_stores}的行动；以及  % apply the actions of \nameref{omm:commit_stores}; and
+\item 应用\nameref{omm:prop_store}的行动。  %  apply the action of \nameref{omm:prop_store}.
 \end{enumerate}
 
 
-\paragraph{晚期{\tt sc}失败}\label{omm:late_sc_fail}
-状态PENDING_MEM_STORES(store_continuation)中的一个sc指令实例i，如果还没有传播它的内存存储操作，那么总是可以被造成失败。
+\paragraph{Late {\tt sc} fail}\label{omm:late_sc_fail}
+状态{\sc Pending\_mem\_stores}({\it store\_continuation})中的一个{\tt sc}指令实例$i$，如果还没有传播它的内存存储操作，那么总是可以被造成失败。
 行动：
 % An {\tt sc} instruction instance $i$ in state {\sc Pending\_mem\_stores}({\it store\_continuation}), that has not propagated its memory store operation, can always be made to fail.
 % Action:
 \begin{enumerate}
-\item 清除i.mem_stores；以及 % clear $i.\textit{mem\_stores}$; and
-\item 把i的状态更新到PLAIN(store_continuation(false))。  % update the state of $i$ to {\sc Plain}({\it store\_continuation(false)}).
+\item 清除$i.\textit{mem\_stores}$；以及 % clear $i.\textit{mem\_stores}$; and
+\item 把$i$的状态更新到{\sc Plain}({\it store\_continuation(false)})。  % update the state of $i$ to {\sc Plain}({\it store\_continuation(false)}).
 \end{enumerate}
 
 \begin{commentary}
-  为了效率，rmem工具只在不可能采用一个提交和传播一个sc存储操作过渡的时候，才允许这个过渡。这不影响所允许的最终状态的集合，但是当交互式地探究时，如果sc应当失败，那么应当使用早期sc失败过渡，而不是期待这个过渡。
+  为了效率，{\tt rmem}工具只在不可能采用一个提交和传播一个{\tt sc}存储操作过渡的时候，才允许这个过渡。这不影响所允许的最终状态的集合，但是当交互式地探究时，如果sc应当失败，那么应当使用早期sc失败过渡，而不是期待这个过渡。
 % For efficiency, the {\tt rmem} tool allows this transition only when it is not possible to take the \nameref{omm:commit_sc} transition.
 % This does not affect the set of allowed final states, but when explored interactively, if the {\tt sc} should fail one should use the \nameref{omm:early_sc_fail} transition instead of waiting for this transition.
 \end{commentary}
 
 \paragraph{完整存储操作}\label{omm:complete_stores}
-状态PENDING_MEM_STORES(store_continuation)中的一个存储指令实例i，如果在i.mem_stores中的所有内存存储操作都已经被传播，那么可以总是完整的（不要与完成相混淆）。行动：把i的状态更新到PLAIN(store_continuation(true))。
+状态{\sc Pending\_mem\_stores}({\it store\_continuation})中的一个存储指令实例$i$，如果在$i.\textit{mem\_stores}$中的所有内存存储操作都已经被传播，那么可以总是完整的（不要与完成相混淆）。行动：把$i$的状态更新到{\sc Plain}({\it store\_continuation(true)})。
 % A store instruction instance $i$ in state {\sc Pending\_mem\_stores}({\it store\_continuation}), for which all the memory store operations in $i.\textit{mem\_stores}$ have been propagated, can always be completed (not to be confused with finished).
 % Action: update the state of $i$ to {\sc Plain}({\it store\_continuation(true)}).
 
 
 \paragraph{满足、提交和传播一个AMO的操作}\label{omm:do_amo}
-状态PENDING_MEM_LOADS(load_continuation)中的一个AMO指令实例i可以执行它的内存访问，如果可以执行下列顺序的过渡而没有干扰的过渡：
+状态{\sc Pending\_mem\_loads}({\it load\_continuation})中的一个AMO指令实例$i$可以执行它的内存访问，如果可以执行下列顺序的过渡而没有干扰的过渡：
 % An AMO instruction instance $i$ in state {\sc Pending\_mem\_loads}({\it load\_continuation}) can perform its memory access if it is possible to perform the following sequence of transitions with no intervening transitions:
 \begin{enumerate}
 \item \nameref{omm:sat_from_mem}
@@ -709,7 +723,7 @@ fact that each register read has to wait for the appropriate register write to b
 \item \nameref{omm:prop_store}
 \item \nameref{omm:complete_stores}
 \end{enumerate}
-并且额外地，完成指令的条件，除了不要求i在状态PLAIN(DONE)之中，其余在这些过渡之后保持不变。行动：一个接一个地、不加干扰过渡地，执行上述序列的过渡（这不包括完成指令），
+并且额外地，完成指令的条件，除了不要求$i$在状态{\sc Plain}({\sc Done}之中，其余在这些过渡之后保持不变。行动：一个接一个地、不加干扰过渡地，执行上述序列的过渡（这不包括完成指令），
 % and in addition, the condition of \nameref{omm:finish}, with the exception of not requiring $i$ to be in state {\sc Plain}({\sc Done}), holds after those transitions.
 % Action: perform the above sequence of transitions (this does not include \nameref{omm:finish}), one after the other, with no intervening transitions.
 
@@ -726,88 +740,95 @@ fact that each register read has to wait for the appropriate register write to b
 
 
 \paragraph{提交屏障}\label{omm:commit_fence}
-在状态PLAIN(FENCE(kind, next_state))中的一个屏障指令实例i可以被提交，如果：
+在状态{\sc Plain}({\sc Fence}({\it kind}, {\it next\_state}))中的一个屏障指令实例$i$可以被提交，如果：
 % A fence instruction instance $i$ in state {\sc Plain}({\sc Fence}({\it kind}, {\it next\_state})) can be committed if:
 \begin{enumerate}
-\item 如果i是一个普通fence，并且它设置了.pr，那么所有的程序次序在先的加载指令都是完成的； % if $i$ is a normal fence and it has {\tt .pr} set, all program-order-previous load instructions are finished;
-\item 如果i是一个普通fence，并且它设置了.pw，那么所有的程序次序在先的存储指令都是完成的；以及 % if $i$ is a normal fence and it has {\tt .pw} set, all program-order-previous store instructions are finished; and
-\item 如果i是一个fence.tso，那么所有的程序次序在先的加载和存储指令都是完成的。 % if $i$ is a {\tt fence.tso}, all program-order-previous load and store instructions are finished.
+\item 如果$i$是一个普通fence，并且它设置了{\tt .pr}，那么所有的程序次序在先的加载指令都是完成的； % if $i$ is a normal fence and it has {\tt .pr} set, all program-order-previous load instructions are finished;
+\item 如果$i$是一个普通fence，并且它设置了{\tt .pw}，那么所有的程序次序在先的存储指令都是完成的；以及 % if $i$ is a normal fence and it has {\tt .pw} set, all program-order-previous store instructions are finished; and
+\item 如果$i$是一个{\tt fence.tso}，那么所有的程序次序在先的加载和存储指令都是完成的。 % if $i$ is a {\tt fence.tso}, all program-order-previous load and store instructions are finished.
 % \item if $i$ is a {\tt fence.i} instruction, all program-order-previous memory access instructions have fully determined memory footprints.
 \end{enumerate}
 行动：
 % Action:
 \begin{enumerate}
-\item 记录i被提交了；以及 % record that $i$ is committed; and
-\item 把i的状态更新到PLAIN(next_state)。 % update the state of $i$ to {\sc Plain}({\it next\_state}).
+\item 记录$i$被提交了；以及 % record that $i$ is committed; and
+\item 把$i$的状态更新到{\sc Plain}({\it next\_state})。 % update the state of $i$ to {\sc Plain}({\it next\_state}).
 \end{enumerate}
 
 
 \paragraph{寄存器读}\label{omm:reg_read}
 % \paragraph{Register read}\label{omm:reg_read}
-状态PLAIN(READ_REG(reg_name, read_cont))中的一个指令实例i可以执行一次reg_name的寄存器读，如果它需要读取自的每个指令实例都已经执行了所期待的reg_name寄存器写。
+状态{\sc Plain}({\sc Read\_reg}({\it reg\_name}中的一个指令实例$i$可以执行一次{\it reg\_name}的寄存器读，如果它需要读取自的每个指令实例都已经执行了所期待的{\it reg\_name}寄存器写。
 % An instruction instance $i$ in state {\sc Plain}({\sc Read\_reg}({\it reg\_name}, {\it read\_cont})) can do a register read of {\it reg\_name} if every instruction instance that it needs to read from has already performed the expected {\it reg\_name} register write.
 
-对于reg_name的每一位，令read_sources包括，可以写到该位的最近（以程序次序）的指令实例对于该位的写入（如果有的话）。如果没有这样的指令，来源就是来自initial_register_state的初始的寄存器值。令reg_value为从read_sources集合的值。行动：
+对于{\it reg\_name}的每一位，令{\it read\_sources}包括，可以写到该位的最近（以程序次序）的指令实例对于该位的写入（如果有的话）。如果没有这样的指令，来源就是来自{\it initial\_register\_state}的初始的寄存器值。令{\it reg\_value}为从{\it read\_sources}集合的值。行动：
 % Let {\it read\_sources} include, for each bit of {\it reg\_name}, the write to
 % that bit by the most recent (in program order) instruction instance that can write to that bit, if any. If there is no such instruction, the source is the initial register value from {\it initial\_register\_state}.
 % Let  {\it reg\_value} be the value assembled from {\it read\_sources}.
 % Action:
 \begin{enumerate}
-\item 把reg_name添加到带有read_sources和reg_value的i.reg_reads；以及 % add {\it reg\_name} to $i.\textit{reg\_reads}$ with {\it read\_sources} and {\it reg\_value}; and
-\item 把i的状态更新为PLAIN(read_cont(reg_value))。 % update the state of $i$ to {\sc Plain}({\it read\_cont(reg\_value)}).
+\item 把{\it reg\_name}添加到带有{\it read\_sources}和{\it reg\_value}的$i.\textit{reg\_reads}$；以及 % add {\it reg\_name} to $i.\textit{reg\_reads}$ with {\it read\_sources} and {\it reg\_value}; and
+\item 把$i$的状态更新为{\sc Plain}({\it read\_cont(reg\_value)})。 % update the state of $i$ to {\sc Plain}({\it read\_cont(reg\_value)}).
 \end{enumerate}
 
 
 \paragraph{寄存器写}\label{omm:reg_write}
-状态PLAIN(WRITE_REG(reg_name, reg_value, next_state))中的一个指令实例i总是可以执行一个reg_name寄存器写。行动：
+状态{\sc Plain}({\sc Write\_reg}({\it reg\_name}中的一个指令实例$i$总是可以执行一个{\it reg\_name}寄存器写。行动：
 % An instruction instance $i$ in state {\sc Plain}({\sc Write\_reg}({\it reg\_name}, {\it reg\_value}, {\it next\_state})) can always do a {\it reg\_name} register write.
 % Action:
 \begin{enumerate}
-\item 把reg_name添加到带有deps和reg_value的i.reg_writes；以及  % add {\it reg\_name} to $i.\textit{reg\_writes}$ with $deps$ and {\it reg\_value}; and
-\item 把i的状态更新到PLAIN(next_state)。 % update the state of $i$ to {\sc Plain}({\it next\_state}).
+\item 把{\it reg\_name}添加到带有$deps$和{\it reg\_value}的$i.\textit{reg\_writes}$；以及  % add {\it reg\_name} to $i.\textit{reg\_writes}$ with $deps$ and {\it reg\_value}; and
+\item 把$i$的状态更新到{\sc Plain}({\it next\_state})。 % update the state of $i$ to {\sc Plain}({\it next\_state}).
 \end{enumerate}
-此处deps是所有来自i.reg_reads的读取来源的集合，和一个标志的配对，这个标志为真，当且仅当i是一个已经被完全地满足的加载指令实例。
+此处$deps$是所有来自$i.\textit{reg\_reads}$的读取来源的集合，和一个标志的配对，这个标志为真，当且仅当$i$是一个已经被完全地满足的加载指令实例。
 % where $deps$ is a pair of the set of all {\it read\_sources} from $i.\textit{reg\_reads}$, and a flag that is true iff $i$ is a load instruction instance that has already been entirely satisfied.
 
 
 \paragraph{伪代码内部步骤}\label{omm:sail_interp}
-An instruction instance $i$ in state {\sc Plain}({\sc Internal}({\it next\_state})) can always do that pseudocode-internal step.
-Action: update the state of $i$ to {\sc Plain}({\it next\_state}).
+状态{\sc Plain}({\sc Internal}({\it next\_state}))中的一个指令实例$i$总是可以执行那个伪代码内部的步骤。
+行动：把$i$的状态更新到{\sc Plain}({\it next\_state})。
+% An instruction instance $i$ in state {\sc Plain}({\sc Internal}({\it next\_state})) can always do that pseudocode-internal step.
+% Action: update the state of $i$ to {\sc Plain}({\it next\_state}).
 
 
 \paragraph{完成指令}\label{omm:finish}
-状态PLAIN(INTERNAL(next_state))中的一个指令实例i总是可以执行那个伪代码内部的步骤。行动：把i的状态更新到PLAIN(next_state)。
+状态{\sc Plain}({\sc Done})中的一个未完成的指令实例$i$可以被完成，如果：
 % A non-finished instruction instance $i$ in state {\sc Plain}({\sc Done}) can be finished if:
 \begin{enumerate}
-\item 如果i是一个加载指令： %if $i$ is a load instruction:
+\item 如果$i$是一个加载指令： %if $i$ is a load instruction:
   \begin{enumerate}
   \item 所有的程序次序在先的load-acquire指令都被完成了； % all program-order-previous load-acquire instructions are finished;
-  \item 所有的程序次序在先的设置了.sr的fence指令都被完成了； % all program-order-previous {\tt fence} instructions with {\tt .sr} set are finished;
-  \item 对于每个程序次序在先的没有完成的fence.tso指令，f，所有的程序次序在f之前的加载指令都被完成了；并且  % for every program-order-previous {\tt fence.tso} instruction, $f$, that is not finished, all load instructions that are program-order-before $f$ are finished; and
-  \item 保证i的内存加载指令所读取的值将不会引起对一致性的违背，即，对于任何程序次序在先的指令实例i’，令cfp是来自程序次序在i和i’之间的存储指令的已传播的内存存储操作，和从程序次序在i和i’之间、包括i’的存储指令转发到i的固定的内存存储操作，这二者的组合，并令cfp是i的内存足迹中的cfp的补。如果cfp是不空的： % it is guaranteed that the values read by the memory load operations of $i$ will not cause coherence violations, i.e., for any program-order-previous instruction instance $i'$, let $\textit{cfp}$ be the combined footprint of propagated memory store operations from store instructions program-order-between $i$ and $i'$, and {\em fixed memory store operations} that were forwarded to $i$ from store instructions program-order-between $i$ and $i'$ including $i'$, and let $\overline{\textit{cfp}}$ be the complement of $\textit{cfp}$ in the memory footprint of $i$.
+  \item 所有的程序次序在先的设置了.sr的{\tt fence}指令都被完成了； % all program-order-previous {\tt fence} instructions with {\tt .sr} set are finished;
+  \item 对于每个程序次序在先的没有完成的{\tt fence.tso}指令，$f$，所有的程序次序在$f$之前的加载指令都被完成了；并且  % for every program-order-previous {\tt fence.tso} instruction, $f$, that is not finished, all load instructions that are program-order-before $f$ are finished; and
+  \item 保证$i$的内存加载指令所读取的值将不会引起对一致性的违背，即，对于任何程序次序在先的指令实例$i’$，令$\textit{cfp}$是来自程序次序在$i$和$i’$之间的存储指令的已传播的内存存储操作，和从程序次序在$i$和$i’$之间、包括$i’$的存储指令转发到$i$的{\em 固定的内存存储操作}，这二者的组合，并令$\overline{\textit{cfp}}$是$i$的内存足迹中的$\textit{cfp}$的补。
+  如果$\overline{\textit{cfp}}$是不空的： 
+  % it is guaranteed that the values read by the memory load operations of $i$ will not cause coherence violations, i.e., for any program-order-previous instruction instance $i'$, let $\textit{cfp}$ be the combined footprint of propagated memory store operations from store instructions program-order-between $i$ and $i'$, and {\em fixed memory store operations} that were forwarded to $i$ from store instructions program-order-between $i$ and $i'$ including $i'$, and let $\overline{\textit{cfp}}$ be the complement of $\textit{cfp}$ in the memory footprint of $i$.
   % If $\overline{\textit{cfp}}$ is not empty:
     \begin{enumerate}
-    \item i’具有一个完全决定的内存足迹； %  $i'$ has a fully determined memory footprint;
-    \item i’没有与cfp重叠的未传播的内存存储操作；并且  % $i'$ has no unpropagated memory store operations that overlap with $\overline{\textit{cfp}}$; and
-    \item 如果i’是一个带有与cfp重叠的内存足迹的加载，那么与cfp重叠的i’的所有的内存加载操作都被满足，并且i’是不可重启的（对于如何决定一个指令是否是不可重启的，见传播存储操作过渡）。  % if $i'$ is a load with a memory footprint that overlaps with $\overline{\textit{cfp}}$, then all the memory load operations of $i'$ that overlap with $\overline{\textit{cfp}}$ are satisfied and $i'$ is {\em non-restartable} (see the \nameref{omm:prop_store} transition for how to determined if an instruction is non-restartable).
+    \item $i’$具有一个完全决定的内存足迹； %  $i'$ has a fully determined memory footprint;
+    \item $i’$没有与$\overline{\textit{cfp}}$重叠的未传播的内存存储操作；并且  % $i'$ has no unpropagated memory store operations that overlap with $\overline{\textit{cfp}}$; and
+    \item 如果$i’$是一个带有与$\overline{\textit{cfp}}$重叠的内存足迹的加载，那么与$\overline{\textit{cfp}}$重叠的$i’$的所有的内存加载操作都被满足，并且$i’$是不可重启的（对于如何决定一个指令是否是不可重启的，见传播存储操作过渡）。  
+    % if $i'$ is a load with a memory footprint that overlaps with $\overline{\textit{cfp}}$, then all the memory load operations of $i'$ that overlap with $\overline{\textit{cfp}}$ are satisfied and $i'$ is {\em non-restartable} (see the \nameref{omm:prop_store} transition for how to determined if an instruction is non-restartable).
     \end{enumerate}
   这里，一个内存存储操作被称为固定的，如果存储指令具有完全决定的数据。
   % Here, a memory store operation is called fixed if the store instruction has fully determined data.
   \end{enumerate}
-\item i具有一个完全决定的数据；并且  % $i$ has a fully determined data; and
-\item 如果i不是一个屏障，那么所有的程序次序在先的条件分支和间接跳转指令都被完成了。  % if $i$ is not a fence, all program-order-previous conditional branch and indirect jump instructions are finished.
+\item $i$具有一个完全决定的数据；并且  % $i$ has a fully determined data; and
+\item 如果$i$不是一个屏障，那么所有的程序次序在先的条件分支和间接跳转指令都被完成了。  % if $i$ is not a fence, all program-order-previous conditional branch and indirect jump instructions are finished.
 \end{enumerate}
 行动：
 % Action:
 \begin{enumerate}
-\item 如果i是一个条件分支或者间接跳转指令，丢弃任何未采取的执行路径，即，移除instruction_tree中的所有的不可被分支/跳转采用而达到的指令实例；并且  % if $i$ is a conditional branch or indirect jump instruction, discard any untaken paths of execution, i.e., remove all instruction instances that are not reachable by the branch/jump taken in {\it instruction\_tree}; and
-\item 记录该指令为完成的，即，设置finished为真。  % record the instruction as finished, i.e., set {\it finished} to {\it true}.
+\item 如果$i$是一个条件分支或者间接跳转指令，丢弃任何未采取的执行路径，即，移除{\it instruction\_tree}中的所有的不可被分支/跳转采用而达到的指令实例；并且  % if $i$ is a conditional branch or indirect jump instruction, discard any untaken paths of execution, i.e., remove all instruction instances that are not reachable by the branch/jump taken in {\it instruction\_tree}; and
+\item 记录该指令为完成的，即，设置{\it finished}为真。  % record the instruction as finished, i.e., set {\it finished} to {\it true}.
 \end{enumerate}
 
 
 \subsection{局限性}\label{sec:omm:limitations}
 \begin{itemize}
-\item 模型覆盖用户级RV64I和RV64A。特别地，它不支持未对齐的原子性扩展“Zam”或者总存储排序扩展“Ztso”。使模型适应RV32I/A和G、Q还有C扩展应当是轻而易举的，但是我们从未尝试过它。这将主要涉及，为指令写Sail代码，同时对并发模型的改变（如果有的话）最小。
+\item 模型覆盖用户级RV64I和RV64A。
+特别地，它不支持未对齐的原子性扩展“Zam”或者总存储排序扩展“Ztso”。
+使模型适应RV32I/A和G、Q还有C扩展应当是轻而易举的，但是我们从未尝试过它。这将主要涉及，为指令写Sail代码，同时对并发模型的改变（如果有的话）最小。
 % The model covers user-level RV64I and RV64A.
 % In particular, it does not support the misaligned atomics extension ``Zam'' or the total store ordering extension ``Ztso''.
 % It should be trivial to adapt the model to RV32I/A and to the G, Q and C extensions, but we have never tried it. This will involve, mostly, writing Sail code for the instructions, with minimal, if any, changes to the concurrency model.

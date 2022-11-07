@@ -8,6 +8,20 @@
 {RISC-V ELF psABI Specification}.
 \newblock \url{https://github.com/riscv/riscv-elf-psabi-doc/}.
 
+\bibitem{sparcieee1994}
+{IEEE} standard for a 32-bit microprocessor.
+\newblock IEEE Std. 1754-1994, 1994.
+
+\bibitem{ibm360}
+G.~M. Amdahl, G.~A. Blaauw, and Jr. F.~P.~Brooks.
+\newblock Architecture of the {IBM} {System/360}.
+\newblock {\em IBM Journal of R. \& D.}, 8(2), 1964.
+
+\bibitem{stretch}
+Werner Buchholz, editor.
+\newblock {\em Planning a computer system: {Project} {Stretch}}.
+\newblock McGraw-Hill Book Company, 1962.
+
 \bibitem{Gharachorloo90memoryconsistency}
 Kourosh Gharachorloo, Daniel Lenoski, James Laudon, Phillip Gibbons, Anoop
   Gupta, and John Hennessy.
@@ -53,6 +67,11 @@ David~D. Lee, Shing~I. Kong, Mark~D. Hill, George~S. Taylor, David~A. Hodges,
   processing.
 \newblock {\em IEEE JSSC}, 24(6):1688--1698, December 1989.
 
+\bibitem{openriscarch}
+OpenCores.
+\newblock {OpenRISC} 1000 architecture manual, architecture version 1.0,
+  December 2012.
+
 \bibitem{lithe-pan-hotpar09}
 Heidi Pan, Benjamin Hindman, and Krste Asanovi\'c.
 \newblock {Lithe}: Enabling efficient composition of parallel libraries.
@@ -78,12 +97,25 @@ Ravi Rajwar and James~R. Goodman.
   Symposium on Microarchitecture}, MICRO 34, pages 294--305. IEEE Computer
   Society, 2001.
 
+\bibitem{roux:hal-01091186}
+Pierre Roux.
+\newblock {Innocuous Double Rounding of Basic Arithmetic Operations}.
+\newblock {\em {Journal of Formalized Reasoning}}, 7(1):131--142, November
+  2014.
+
 \bibitem{ibmpower7}
 Balaram Sinharoy, R.~Kalla, W.~J. Starke, H.~Q. Le, R.~Cargnoni, J.~A.
   Van~Norstrand, B.~J. Ronchetti, J.~Stuecheli, J.~Leenstra, G.~L. Guthrie,
   D.~Q. Nguyen, B.~Blaner, C.~F. Marino, E.~Retter, and P.~Williams.
 \newblock {IBM} {POWER7} multicore server processor.
 \newblock {\em IBM Journal of Research and Development}, 55(3):1--1, 2011.
+
+\bibitem{cdc6600}
+James~E. Thornton.
+\newblock Parallel operation in the {Control Data 6600}.
+\newblock In {\em Proceedings of the October 27-29, 1964, Fall Joint Computer
+  Conference, Part II: Very High Speed Computer Systems}, AFIPS '64 (Fall, part
+  II), pages 33--40, 1965.
 
 \bibitem{majc}
 Marc Tremblay, Jeffrey Chan, Shailender Chaudhry, Andrew~W. Conigliaro, and
@@ -102,6 +134,17 @@ J.~Tseng and K.~Asanovi\'c.
 David Ungar, Ricki Blau, Peter Foley, Dain Samples, and David Patterson.
 \newblock Architecture of {SOAR}: {Smalltalk} on a {RISC}.
 \newblock In {\em ISCA}, pages 188--197, Ann Arbor, MI, 1984.
+
+\bibitem{waterman-ms}
+Andrew Waterman.
+\newblock {Improving Energy Efficiency and Reducing Code Size with RISC-V
+  Compressed}.
+\newblock Master's thesis, University of California, Berkeley, 2011.
+
+\bibitem{waterman-phd}
+Andrew Waterman.
+\newblock {\em Design of the {RISC-V} Instruction Set Architecture}.
+\newblock PhD thesis, University of California, Berkeley, 2016.
 
 \bibitem{riscvtr}
 Andrew Waterman, Yunsup Lee, David~A. Patterson, and Krste Asanovi\'{c}.
