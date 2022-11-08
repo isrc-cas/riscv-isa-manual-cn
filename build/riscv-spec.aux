@@ -20,6 +20,8 @@
 \@writefile{toc}{\contentsline {chapter}{前言}{i}{Doc-Start}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
+\pfn@fnpage{1}{7}
+\pfn@fnpage{2}{7}
 \citation{riscv-elf-psabi}
 \citation{riscvtr2}
 \citation{riscvtr}
@@ -41,11 +43,13 @@
 \@writefile{toc}{\contentsline {section}{\numberline {1.5}基础指令长度编码}{7}{section.1.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces RISC-V 指令长度编码。 当前只有16位和32位编码已被冻结。}}{9}{figure.1.1}\protected@file@percent }
 \newlabel{instlengthcode}{{1.1}{9}{RISC-V 指令长度编码。 当前只有16位和32位编码已被冻结。}{figure.1.1}{}}
+\pfn@fnpage{3}{30}
 \@writefile{toc}{\contentsline {section}{\numberline {1.6}异常、陷入和中断}{10}{section.1.6}\protected@file@percent }
 \newlabel{sec:trap-defn}{{1.6}{10}{异常、陷入和中断}{section.1.6}{}}
+\pfn@fnpage{4}{31}
 \@writefile{lot}{\contentsline {table}{\numberline {1.1}{\ignorespaces 陷入的特点。 注：1） 可以被请求终止. 2） 不精确的致命的陷入或许可被软件观测到。}}{11}{table.1.1}\protected@file@percent }
 \newlabel{table:trapcharacteristics}{{1.1}{11}{陷入的特点。 注：1） 可以被请求终止. 2） 不精确的致命的陷入或许可被软件观测到。}{table.1.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1.7}“未指定的”（UNSPECIFIED）行为和值}{11}{section.1.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.7}“未指定的”（UNSPECIFIED）行为和值}{12}{section.1.7}\protected@file@percent }
 \citation{riscv-asm-manual}
 \@writefile{toc}{\contentsline {chapter}{\numberline {第二章\hspace  {.3em}}RV32I 基础整数指令集，2.1版本}{13}{chapter.2}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
@@ -127,7 +131,7 @@
 \@writefile{lot}{\addvspace {10.0pt}}
 \@writefile{toc}{\contentsline {section}{\numberline {9.1}乘法操作}{51}{section.9.1}\protected@file@percent }
 \newlabel{multiplication-operations}{{9.1}{51}{乘法操作}{section.9.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {9.2}Division Operations}{52}{section.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.2}除法操作 }{52}{section.9.2}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {9.1}{\ignorespaces 除数为零和除法溢出的语义。L是操作数的位宽度：或者是XLEN（对于DIV[U]和REM[U]），或者是32（对于DIV[U]W和REM[U]W） }}{53}{table.9.1}\protected@file@percent }
 \newlabel{tab:divby0}{{9.1}{53}{除数为零和除法溢出的语义。L是操作数的位宽度：或者是XLEN（对于DIV[U]和REM[U]），或者是32（对于DIV[U]W和REM[U]W）}{table.9.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {9.3}Zmmul扩展（1.0版本）}{53}{section.9.3}\protected@file@percent }
@@ -145,8 +149,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {10.3}存储-条件指令的最终正确完成}{59}{section.10.3}\protected@file@percent }
 \newlabel{sec:lrscseq}{{10.3}{59}{存储-条件指令的最终正确完成}{section.10.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {10.4}原子内存操作}{60}{section.10.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {10.5}Atomic Memory Operations}{60}{section.10.5}\protected@file@percent }
-\newlabel{sec:amo}{{10.5}{60}{Atomic Memory Operations}{section.10.5}{}}
+\newlabel{sec:amo}{{10.4}{60}{原子内存操作}{section.10.4}{}}
 \citation{Rajwar:2001:SLE}
 \@writefile{lof}{\contentsline {figure}{\numberline {10.2}{\ignorespaces 互斥的样例代码。{\tt  a0}包含了锁的地址。 Sample code for mutual exclusion. {\tt  a0} contains the address of the lock.}}{62}{figure.10.2}\protected@file@percent }
 \newlabel{critical}{{10.2}{62}{互斥的样例代码。{\tt a0}包含了锁的地址。 Sample code for mutual exclusion. {\tt a0} contains the address of the lock}{figure.10.2}{}}
@@ -155,15 +158,15 @@
 \@writefile{lot}{\addvspace {10.0pt}}
 \newlabel{csrinsts}{{十一}{63}{控制与状态寄存器（CSR）指令“Zicsr”（2.0版本）}{chapter.11}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {11.1}CSR指令}{63}{section.11.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {11.1}{\ignorespaces 决定一条CSR指令是否读或写指定CSR的条件。 Conditions determining whether a CSR instruction reads or writes the specified CSR.}}{65}{table.11.1}\protected@file@percent }
-\newlabel{tab:csrsideeffects}{{11.1}{65}{决定一条CSR指令是否读或写指定CSR的条件。 Conditions determining whether a CSR instruction reads or writes the specified CSR}{table.11.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11.1}{\ignorespaces 决定一条CSR指令是否读或写指定CSR的条件。 }}{65}{table.11.1}\protected@file@percent }
+\newlabel{tab:csrsideeffects}{{11.1}{65}{决定一条CSR指令是否读或写指定CSR的条件。}{table.11.1}{}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {第十二章\hspace  {.3em}}“Zicntr”和“Zihpm”计数器}{67}{chapter.12}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
 \newlabel{counters}{{十二}{67}{“Zicntr”和“Zihpm”计数器}{chapter.12}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {12.1}用于基础计数器和计时器的“Zicntr”标准扩展}{67}{section.12.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {12.1}{\ignorespaces 当XLEN＝32时，读取64位周期计数器的样例代码。 Sample code for reading the 64-bit cycle counter when XLEN=32.}}{69}{figure.12.1}\protected@file@percent }
-\newlabel{rdcycle}{{12.1}{69}{当XLEN＝32时，读取64位周期计数器的样例代码。 Sample code for reading the 64-bit cycle counter when XLEN=32}{figure.12.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12.1}{\ignorespaces 当XLEN＝32时，读取64位周期计数器的样例代码。 }}{69}{figure.12.1}\protected@file@percent }
+\newlabel{rdcycle}{{12.1}{69}{当XLEN＝32时，读取64位周期计数器的样例代码。}{figure.12.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {12.2}用于硬件性能计数器的“Zihpm”标准扩展}{69}{section.12.2}\protected@file@percent }
 \citation{ieee754-2008}
 \@writefile{toc}{\contentsline {chapter}{\numberline {第十三章\hspace  {.3em}}用于单精度浮点的“F”标准扩展（2.2版本）}{71}{chapter.13}\protected@file@percent }
@@ -178,8 +181,8 @@
 \newlabel{fcsr}{{13.2}{73}{浮点控制和状态寄存器。}{figure.13.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {13.1}{\ignorespaces 舍入模式编码。}}{74}{table.13.1}\protected@file@percent }
 \newlabel{rm}{{13.1}{74}{舍入模式编码。}{table.13.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {13.2}{\ignorespaces Accrued exception flag encoding.}}{74}{table.13.2}\protected@file@percent }
-\newlabel{bitdef}{{13.2}{74}{Accrued exception flag encoding}{table.13.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13.2}{\ignorespaces 累积异常标志编码。 }}{74}{table.13.2}\protected@file@percent }
+\newlabel{bitdef}{{13.2}{74}{累积异常标志编码。}{table.13.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {13.3}NaN的生成和传播}{74}{section.13.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {13.4}亚正常算法}{75}{section.13.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {13.5}单精度加载和存储指令}{75}{section.13.5}\protected@file@percent }
@@ -187,7 +190,7 @@
 \newlabel{sec:single-float-compute}{{13.6}{76}{单精度浮点运算指令}{section.13.6}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {13.3}{\ignorespaces 格式域编码。 }}{76}{table.13.3}\protected@file@percent }
 \newlabel{tab:fmt}{{13.3}{76}{格式域编码。}{table.13.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {13.7}单精度浮点转换和移动指令\mbox  {Instructions}}{78}{section.13.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13.7}单精度浮点转换和移动\mbox  {指令}}{78}{section.13.7}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {13.4}{\ignorespaces 浮点到整数转换的域和对于无效输入的行为。 }}{78}{table.13.4}\protected@file@percent }
 \newlabel{tab:int_conv}{{13.4}{78}{浮点到整数转换的域和对于无效输入的行为。}{table.13.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {13.8}单精度浮点比较指令}{80}{section.13.8}\protected@file@percent }
@@ -261,6 +264,12 @@
 \@writefile{lot}{\contentsline {table}{\numberline {17.1}{\ignorespaces 通过CSR跟踪的句法依赖的粒度 }}{104}{table.17.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {17.3}源寄存器和目的寄存器列表}{104}{section.17.3}\protected@file@percent }
 \newlabel{sec:source-dest-regs}{{17.3}{104}{源寄存器和目的寄存器列表}{section.17.3}{}}
+\gdef \LT@i {\LT@entry 
+    {1}{97.75826pt}\LT@entry 
+    {1}{97.75826pt}\LT@entry 
+    {1}{69.3055pt}\LT@entry 
+    {1}{126.21101pt}\LT@entry 
+    {1}{125.81102pt}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {第十八章\hspace  {.3em}}用于压缩指令的“C”标准扩展（2.0版本）}{113}{chapter.18}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
@@ -279,287 +288,287 @@
 \citation{waterman-phd}
 \@writefile{toc}{\contentsline {section}{\numberline {18.4}控制转移指令}{121}{section.18.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {18.5}整数运算指令}{122}{section.18.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {18.6}C指令在LR/SC序列中的使用}{128}{section.18.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {18.7}“提示”指令}{128}{section.18.7}\protected@file@percent }
-\newlabel{sec:rvc-hints}{{18.7}{128}{“提示”指令}{section.18.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {18.3}{\ignorespaces RVC HINT指令。}}{129}{table.18.3}\protected@file@percent }
-\newlabel{tab:rvc-hints}{{18.3}{129}{RVC HINT指令。}{table.18.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {18.8}RVC指令集列表}{130}{section.18.8}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {18.4}{\ignorespaces RVC操作码映射}}{130}{table.18.4}\protected@file@percent }
-\newlabel{rvcopcodemap}{{18.4}{130}{RVC操作码映射}{table.18.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {18.5}{\ignorespaces RVC的指令列表，第0象限。}}{131}{table.18.5}\protected@file@percent }
-\newlabel{rvc-instr-table0}{{18.5}{131}{RVC的指令列表，第0象限。}{table.18.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {18.6}{\ignorespaces RVC的指令列表，第1象限。}}{132}{table.18.6}\protected@file@percent }
-\newlabel{rvc-instr-table1}{{18.6}{132}{RVC的指令列表，第1象限。}{table.18.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {18.7}{\ignorespaces RVC的指令列表，第2象限。}}{133}{table.18.7}\protected@file@percent }
-\newlabel{rvc-instr-table2}{{18.7}{133}{RVC的指令列表，第2象限。}{table.18.7}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第十九章\hspace  {.3em}}用于位操作的“B”标准扩展（0.0版本）}{135}{chapter.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {18.6}C指令在LR/SC序列中的使用}{127}{section.18.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {18.7}“提示”指令}{127}{section.18.7}\protected@file@percent }
+\newlabel{sec:rvc-hints}{{18.7}{127}{“提示”指令}{section.18.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18.3}{\ignorespaces RVC HINT指令。}}{128}{table.18.3}\protected@file@percent }
+\newlabel{tab:rvc-hints}{{18.3}{128}{RVC HINT指令。}{table.18.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {18.8}RVC指令集列表}{129}{section.18.8}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {18.4}{\ignorespaces RVC操作码映射}}{129}{table.18.4}\protected@file@percent }
+\newlabel{rvcopcodemap}{{18.4}{129}{RVC操作码映射}{table.18.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18.5}{\ignorespaces RVC的指令列表，第0象限。}}{130}{table.18.5}\protected@file@percent }
+\newlabel{rvc-instr-table0}{{18.5}{130}{RVC的指令列表，第0象限。}{table.18.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18.6}{\ignorespaces RVC的指令列表，第1象限。}}{131}{table.18.6}\protected@file@percent }
+\newlabel{rvc-instr-table1}{{18.6}{131}{RVC的指令列表，第1象限。}{table.18.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18.7}{\ignorespaces RVC的指令列表，第2象限。}}{132}{table.18.7}\protected@file@percent }
+\newlabel{rvc-instr-table2}{{18.7}{132}{RVC的指令列表，第2象限。}{table.18.7}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第十九章\hspace  {.3em}}用于位操作的“B”标准扩展（0.0版本）}{133}{chapter.19}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:bits}{{十九}{135}{用于位操作的“B”标准扩展（0.0版本）}{chapter.19}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十章\hspace  {.3em}}用于动态翻译语言的“J”标准扩展（0.0版本）}{137}{chapter.20}\protected@file@percent }
+\newlabel{sec:bits}{{十九}{133}{用于位操作的“B”标准扩展（0.0版本）}{chapter.19}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十章\hspace  {.3em}}用于动态翻译语言的“J”标准扩展（0.0版本）}{135}{chapter.20}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:j}{{二十}{137}{用于动态翻译语言的“J”标准扩展（0.0版本）}{chapter.20}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十一章\hspace  {.3em}}用于打包SIMD指令的“P”标准扩展（0.2版本）}{139}{chapter.21}\protected@file@percent }
+\newlabel{sec:j}{{二十}{135}{用于动态翻译语言的“J”标准扩展（0.0版本）}{chapter.20}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十一章\hspace  {.3em}}用于打包SIMD指令的“P”标准扩展（0.2版本）}{137}{chapter.21}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:packedsimd}{{二十一}{139}{用于打包SIMD指令的“P”标准扩展（0.2版本）}{chapter.21}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十二章\hspace  {.3em}}用于向量操作的“V”标准扩展（0.7版本）}{141}{chapter.22}\protected@file@percent }
+\newlabel{sec:packedsimd}{{二十一}{137}{用于打包SIMD指令的“P”标准扩展（0.2版本）}{chapter.21}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十二章\hspace  {.3em}}用于向量操作的“V”标准扩展（0.7版本）}{139}{chapter.22}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:vector}{{二十二}{141}{用于向量操作的“V”标准扩展（0.7版本）}{chapter.22}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十三章\hspace  {.3em}}用于非对齐原子的“Zam”标准扩展（0.1版本）}{143}{chapter.23}\protected@file@percent }
+\newlabel{sec:vector}{{二十二}{139}{用于向量操作的“V”标准扩展（0.7版本）}{chapter.22}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十三章\hspace  {.3em}}用于非对齐原子的“Zam”标准扩展（0.1版本）}{141}{chapter.23}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:zam}{{二十三}{143}{用于非对齐原子的“Zam”标准扩展（0.1版本）}{chapter.23}{}}
-\newlabel{rvwmo:ax:misaligned}{{二十三}{143}{未对齐原子的原子性公理}{chapter.23}{}}
-\@writefile{toc}{\contentsline {paragraph}{未对齐原子的原子性公理 }{143}{chapter.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十四章\hspace  {.3em}}用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}{145}{chapter.24}\protected@file@percent }
+\newlabel{sec:zam}{{二十三}{141}{用于非对齐原子的“Zam”标准扩展（0.1版本）}{chapter.23}{}}
+\newlabel{rvwmo:ax:misaligned}{{二十三}{141}{未对齐原子的原子性公理}{chapter.23}{}}
+\@writefile{toc}{\contentsline {paragraph}{未对齐原子的原子性公理 }{141}{chapter.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十四章\hspace  {.3em}}用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}{143}{chapter.24}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:zfinx}{{二十四}{145}{用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}{chapter.24}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {24.1}处理更窄的值}{145}{section.24.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {24.2}Zdinx}{146}{section.24.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {24.3}处理更宽的值}{146}{section.24.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {24.4}Zhinx}{147}{section.24.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {24.5}Zhinxmin}{147}{section.24.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {24.6}特权架构的影响}{147}{section.24.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十五章\hspace  {.3em}}用于全存储排序的“Ztso”标准扩展（0.1版本）}{149}{chapter.25}\protected@file@percent }
+\newlabel{sec:zfinx}{{二十四}{143}{用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}{chapter.24}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {24.1}处理更窄的值}{143}{section.24.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {24.2}Zdinx}{144}{section.24.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {24.3}处理更宽的值}{144}{section.24.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {24.4}Zhinx}{145}{section.24.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {24.5}Zhinxmin}{145}{section.24.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {24.6}特权架构的影响}{145}{section.24.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十五章\hspace  {.3em}}用于全存储排序的“Ztso”标准扩展（0.1版本）}{147}{chapter.25}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:ztso}{{二十五}{149}{用于全存储排序的“Ztso”标准扩展（0.1版本）}{chapter.25}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十六章\hspace  {.3em}}RV32/64G指令集列表}{151}{chapter.26}\protected@file@percent }
+\newlabel{sec:ztso}{{二十五}{147}{用于全存储排序的“Ztso”标准扩展（0.1版本）}{chapter.25}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十六章\hspace  {.3em}}RV32/64G指令集列表}{149}{chapter.26}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\@writefile{lot}{\contentsline {table}{\numberline {26.1}{\ignorespaces RISCV-V基础操作码映射，instinst[1:0]=11 }}{151}{table.26.1}\protected@file@percent }
-\newlabel{opcodemap}{{26.1}{151}{RISCV-V基础操作码映射，instinst[1:0]=11}{table.26.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {26.2}{\ignorespaces RISC-V指令列表}}{158}{table.26.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {26.3}{\ignorespaces RISC-V控制和状态寄存器（CSR）地址映射。}}{159}{table.26.3}\protected@file@percent }
-\newlabel{rvgcsrnames}{{26.3}{159}{RISC-V控制和状态寄存器（CSR）地址映射。}{table.26.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十七章\hspace  {.3em}}扩充的RISC-V}{161}{chapter.27}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {26.1}{\ignorespaces RISCV-V基础操作码映射，instinst[1:0]=11 }}{149}{table.26.1}\protected@file@percent }
+\newlabel{opcodemap}{{26.1}{149}{RISCV-V基础操作码映射，instinst[1:0]=11}{table.26.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {26.2}{\ignorespaces RISC-V指令列表}}{156}{table.26.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {26.3}{\ignorespaces RISC-V控制和状态寄存器（CSR）地址映射。}}{157}{table.26.3}\protected@file@percent }
+\newlabel{rvgcsrnames}{{26.3}{157}{RISC-V控制和状态寄存器（CSR）地址映射。}{table.26.3}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十七章\hspace  {.3em}}扩充的RISC-V}{159}{chapter.27}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{extensions}{{二十七}{161}{扩充的RISC-V}{chapter.27}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {27.1}扩展术语}{161}{section.27.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {27.1}{\ignorespaces 建议的标准RISC-V指令编码空间尺寸。}}{162}{table.27.1}\protected@file@percent }
-\newlabel{encodingspaces}{{27.1}{162}{建议的标准RISC-V指令编码空间尺寸。}{table.27.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {27.2}{\ignorespaces 标准指令集扩展的二维特征。 }}{163}{table.27.2}\protected@file@percent }
-\newlabel{exttax}{{27.2}{163}{标准指令集扩展的二维特征。}{table.27.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {27.2}RISC-V扩展设计理念}{164}{section.27.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {27.3}定宽32位指令格式下的扩展}{164}{section.27.3}\protected@file@percent }
-\newlabel{fix32b}{{27.3}{164}{定宽32位指令格式下的扩展}{section.27.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {27.4}添加对齐的64位指令扩展}{165}{section.27.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {27.5}支持VLIW编码}{166}{section.27.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十八章\hspace  {.3em}}ISA扩展命名约定}{169}{chapter.28}\protected@file@percent }
+\newlabel{extensions}{{二十七}{159}{扩充的RISC-V}{chapter.27}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {27.1}扩展术语}{159}{section.27.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {27.1}{\ignorespaces 建议的标准RISC-V指令编码空间尺寸。}}{160}{table.27.1}\protected@file@percent }
+\newlabel{encodingspaces}{{27.1}{160}{建议的标准RISC-V指令编码空间尺寸。}{table.27.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {27.2}{\ignorespaces 标准指令集扩展的二维特征。 }}{161}{table.27.2}\protected@file@percent }
+\newlabel{exttax}{{27.2}{161}{标准指令集扩展的二维特征。}{table.27.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {27.2}RISC-V扩展设计理念}{162}{section.27.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {27.3}定宽32位指令格式下的扩展}{162}{section.27.3}\protected@file@percent }
+\newlabel{fix32b}{{27.3}{162}{定宽32位指令格式下的扩展}{section.27.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {27.4}添加对齐的64位指令扩展}{163}{section.27.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {27.5}支持VLIW编码}{164}{section.27.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十八章\hspace  {.3em}}ISA扩展命名约定}{167}{chapter.28}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{naming}{{二十八}{169}{ISA扩展命名约定}{chapter.28}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {28.1}大小写敏感性}{169}{section.28.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.2}基础整数ISA}{169}{section.28.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.3}指令集扩展的命名}{169}{section.28.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.4}版本号}{170}{section.28.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.5}着重说明}{170}{section.28.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.6}附加的标准扩展的命名}{170}{section.28.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.7}监管器级指令集扩展}{171}{section.28.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.8}机器级指令集扩展}{171}{section.28.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.9}非标准扩展的命名}{171}{section.28.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {28.10}子集命名约定}{171}{section.28.10}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {28.1}{\ignorespaces  标准ISA扩展命名。该表也定义了扩展的名字在命名字符串中必须出现在的传统次序， 表中从上到下的顺序表示命名字符串中从开始到结束的顺序，例如，RV32IMACV是合法的，而RV32IMAVC是不合法的。 }}{172}{table.28.1}\protected@file@percent }
-\newlabel{isanametable}{{28.1}{172}{标准ISA扩展命名。该表也定义了扩展的名字在命名字符串中必须出现在的传统次序， 表中从上到下的顺序表示命名字符串中从开始到结束的顺序，例如，RV32IMACV是合法的，而RV32IMAVC是不合法的。}{table.28.1}{}}
+\newlabel{naming}{{二十八}{167}{ISA扩展命名约定}{chapter.28}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {28.1}大小写敏感性}{167}{section.28.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.2}基础整数ISA}{167}{section.28.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.3}指令集扩展的命名}{167}{section.28.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.4}版本号}{168}{section.28.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.5}着重说明}{168}{section.28.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.6}附加的标准扩展的命名}{168}{section.28.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.7}监管器级指令集扩展}{169}{section.28.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.8}机器级指令集扩展}{169}{section.28.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.9}非标准扩展的命名}{169}{section.28.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28.10}子集命名约定}{169}{section.28.10}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {28.1}{\ignorespaces  标准ISA扩展命名。该表也定义了扩展的名字在命名字符串中必须出现在的传统次序， 表中从上到下的顺序表示命名字符串中从开始到结束的顺序，例如，RV32IMACV是合法的，而RV32IMAVC是不合法的。 }}{170}{table.28.1}\protected@file@percent }
+\newlabel{isanametable}{{28.1}{170}{标准ISA扩展命名。该表也定义了扩展的名字在命名字符串中必须出现在的传统次序， 表中从上到下的顺序表示命名字符串中从开始到结束的顺序，例如，RV32IMACV是合法的，而RV32IMAVC是不合法的。}{table.28.1}{}}
 \citation{sparcieee1994}
-\@writefile{toc}{\contentsline {chapter}{\numberline {第二十九章\hspace  {.3em}}历史和鸣谢}{173}{chapter.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {第二十九章\hspace  {.3em}}历史和鸣谢}{171}{chapter.29}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{history}{{二十九}{173}{历史和鸣谢}{chapter.29}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {29.1}“为什么要开发一个新的ISA？”伯克利小组的理由}{173}{section.29.1}\protected@file@percent }
+\newlabel{history}{{二十九}{171}{历史和鸣谢}{chapter.29}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {29.1}“为什么要开发一个新的ISA？”伯克利小组的理由}{171}{section.29.1}\protected@file@percent }
 \citation{openriscarch}
-\@writefile{toc}{\contentsline {section}{\numberline {29.2}从ISA手册1.0版的修订历史}{175}{section.29.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {29.3}从ISA手册2.0版的修订历史}{176}{section.29.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {29.1}{\ignorespaces 已制造的RISC-V测试芯片。}}{176}{table.29.1}\protected@file@percent }
-\newlabel{silicon}{{29.1}{176}{已制造的RISC-V测试芯片。}{table.29.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {29.2}从ISA手册1.0版的修订历史}{173}{section.29.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {29.3}从ISA手册2.0版的修订历史}{174}{section.29.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {29.1}{\ignorespaces 已制造的RISC-V测试芯片。}}{174}{table.29.1}\protected@file@percent }
+\newlabel{silicon}{{29.1}{174}{已制造的RISC-V测试芯片。}{table.29.1}{}}
 \citation{waterman-ms}
-\@writefile{toc}{\contentsline {section}{\numberline {29.4}从2.1版的修订历史}{178}{section.29.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {29.5}从2.2版的修订历史}{179}{section.29.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {29.6}2.3版的修订历史}{179}{section.29.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {29.7}赞助}{179}{section.29.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {附录 A\hspace  {.3em}}RVWMO 说明材料（0.1版本）}{181}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {29.4}从2.1版的修订历史}{176}{section.29.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {29.5}从2.2版的修订历史}{177}{section.29.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {29.6}2.3版的修订历史}{177}{section.29.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {29.7}赞助}{177}{section.29.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {附录 A\hspace  {.3em}}RVWMO 说明材料（0.1版本）}{179}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\newlabel{sec:memorymodelexplanation}{{A}{181}{RVWMO 说明材料（0.1版本）}{appendix.A}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.1}为什么用 RVWMO?}{181}{section.A.1}\protected@file@percent }
-\newlabel{sec:whyrvwmo}{{A.1}{181}{为什么用 RVWMO?}{section.A.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.2}Litmus 测试}{182}{section.A.2}\protected@file@percent }
-\newlabel{sec:litmustests}{{A.2}{182}{Litmus 测试}{section.A.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.1}{\ignorespaces 一个litmus测试的示例和一个被禁止的执行（{\tt  a0=1}）。}}{182}{figure.A.1}\protected@file@percent }
-\newlabel{fig:litmus:sample}{{A.1}{182}{一个litmus测试的示例和一个被禁止的执行（{\tt a0=1}）。}{figure.A.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces 在这个附录中绘制的litmus测试图表的要点}}{183}{table.A.1}\protected@file@percent }
-\newlabel{tab:litmus:key}{{A.1}{183}{在这个附录中绘制的litmus测试图表的要点}{table.A.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.3}RVWMO规则的解释}{183}{section.A.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.1}保留程序次序和全局内存次序}{184}{subsection.A.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.2}\nameref  *{rvwmo:ax:load}}{184}{subsection.A.3.2}\protected@file@percent }
-\newlabel{sec:memory:loadvalueaxiom}{{A.3.2}{184}{\nameref *{rvwmo:ax:load}}{subsection.A.3.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.2}{\ignorespaces 一个存储缓冲区转发石蕊测试（允许的输出结果） }}{185}{figure.A.2}\protected@file@percent }
-\newlabel{fig:litmus:storebuffer}{{A.2}{185}{一个存储缓冲区转发石蕊测试（允许的输出结果）}{figure.A.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.3}{\ignorespaces “PPOCA”存储缓冲区转发litmus测试（允许的输出结果）}}{186}{figure.A.3}\protected@file@percent }
-\newlabel{fig:litmus:ppoca}{{A.3}{186}{“PPOCA”存储缓冲区转发litmus测试（允许的输出结果）}{figure.A.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.3}\nameref  *{rvwmo:ax:atom}}{187}{subsection.A.3.3}\protected@file@percent }
-\newlabel{sec:memory:atomicityaxiom}{{A.3.3}{187}{\nameref *{rvwmo:ax:atom}}{subsection.A.3.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.4}{\ignorespaces 在所有的四个（独立的）代码片段中，存储条件(c)是被允许的，但是不保证成功 }}{187}{figure.A.4}\protected@file@percent }
-\newlabel{fig:litmus:lrsdsc}{{A.4}{187}{在所有的四个（独立的）代码片段中，存储条件(c)是被允许的，但是不保证成功}{figure.A.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.4}\nameref  *{rvwmo:ax:prog}}{188}{subsection.A.3.4}\protected@file@percent }
-\newlabel{sec:memory:progress}{{A.3.4}{188}{\nameref *{rvwmo:ax:prog}}{subsection.A.3.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.5}重叠地址排序（规则\nobreakspace  {}\ref  {ppo:->st}-\ref  {ppo:amoforward}） }{188}{subsection.A.3.5}\protected@file@percent }
-\newlabel{sec:memory:overlap}{{A.3.5}{188}{重叠地址排序（规则~\ref {ppo:->st}-\ref {ppo:amoforward}）}{subsection.A.3.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.5}{\ignorespaces 石蕊测试MP＋fence.w.w＋fir-rfi-addr（允许的输出结果）。 }}{189}{figure.A.5}\protected@file@percent }
-\newlabel{fig:litmus:frirfi}{{A.5}{189}{石蕊测试MP＋fence.w.w＋fir-rfi-addr（允许的输出结果）。}{figure.A.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.6}{\ignorespaces 石蕊测试RSW（允许的输出结果） }}{190}{figure.A.6}\protected@file@percent }
-\newlabel{fig:litmus:rsw}{{A.6}{190}{石蕊测试RSW（允许的输出结果）}{figure.A.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.6}屏障（规则\nobreakspace  {}\ref  {ppo:fence}）}{191}{subsection.A.3.6}\protected@file@percent }
-\newlabel{sec:mm:fence}{{A.3.6}{191}{屏障（规则~\ref {ppo:fence}）}{subsection.A.3.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.7}显式同步（规则\nobreakspace  {}\ref  {ppo:acquire}-\ref  {ppo:pair}）}{192}{subsection.A.3.7}\protected@file@percent }
-\newlabel{sec:memory:acqrel}{{A.3.7}{192}{显式同步（规则~\ref {ppo:acquire}-\ref {ppo:pair}）}{subsection.A.3.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.7}{\ignorespaces 带原子性的自旋锁}}{192}{figure.A.7}\protected@file@percent }
-\newlabel{fig:litmus:spinlock_atomics}{{A.7}{192}{带原子性的自旋锁}{figure.A.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.8}{\ignorespaces 带屏障的自旋锁}}{193}{figure.A.8}\protected@file@percent }
-\newlabel{fig:litmus:spinlock_fences}{{A.8}{193}{带屏障的自旋锁}{figure.A.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.8}句法依赖（规则\nobreakspace  {}\ref  {ppo:addr}-\ref  {ppo:ctrl}）}{194}{subsection.A.3.8}\protected@file@percent }
-\newlabel{sec:memory:dependencies}{{A.3.8}{194}{句法依赖（规则~\ref {ppo:addr}-\ref {ppo:ctrl}）}{subsection.A.3.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.9}{\ignorespaces 通过{\tt  fflags}，一个(a)和(b)都会隐含地累积进去的目的寄存器，(c)有一个关于(a)和(b)的句法依赖。 }}{194}{figure.A.9}\protected@file@percent }
-\newlabel{fig:litmus:fflags}{{A.9}{194}{通过{\tt fflags}，一个(a)和(b)都会隐含地累积进去的目的寄存器，(c)有一个关于(a)和(b)的句法依赖。}{figure.A.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.10}{\ignorespaces 一个句法地址依赖 }}{194}{figure.A.10}\protected@file@percent }
-\newlabel{fig:litmus:address}{{A.10}{194}{一个句法地址依赖}{figure.A.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.11}{\ignorespaces 一个句法控制依赖 }}{195}{figure.A.11}\protected@file@percent }
-\newlabel{fig:litmus:control1}{{A.11}{195}{一个句法控制依赖}{figure.A.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.12}{\ignorespaces 另一个句法控制依赖 }}{195}{figure.A.12}\protected@file@percent }
-\newlabel{fig:litmus:control2}{{A.12}{195}{另一个句法控制依赖}{figure.A.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.13}{\ignorespaces LB石蕊测试的一种变体（禁止的输出结果） }}{196}{figure.A.13}\protected@file@percent }
-\newlabel{fig:litmus:successdeps}{{A.13}{196}{LB石蕊测试的一种变体（禁止的输出结果）}{figure.A.13}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.9}流水线依赖（规则\nobreakspace  {}\ref  {ppo:addrdatarfi}-\ref  {ppo:addrpo}）}{196}{subsection.A.3.9}\protected@file@percent }
-\newlabel{sec:memory:ppopipeline}{{A.3.9}{196}{流水线依赖（规则~\ref {ppo:addrdatarfi}-\ref {ppo:addrpo}）}{subsection.A.3.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.14}{\ignorespaces 根据PPO规则\nobreakspace  {}\ref  {ppo:addrdatarfi}和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果） }}{197}{figure.A.14}\protected@file@percent }
-\newlabel{fig:litmus:addrdatarfi}{{A.14}{197}{根据PPO规则~\ref {ppo:addrdatarfi}和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果）}{figure.A.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.15}{\ignorespaces 根据PPO规则12和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果） }}{197}{figure.A.15}\protected@file@percent }
-\newlabel{fig:litmus:addrdatarfi_no}{{A.15}{197}{根据PPO规则12和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果）}{figure.A.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.16}{\ignorespaces 因为在(e)和(g)之间的额外的存储，(d)不再必须先于(g)了（允许的输出结果） }}{198}{figure.A.16}\protected@file@percent }
-\newlabel{fig:litmus:addrpo}{{A.16}{198}{因为在(e)和(g)之间的额外的存储，(d)不再必须先于(g)了（允许的输出结果）}{figure.A.16}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.4}超出主存范围}{198}{section.A.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.4.1}一致性和可缓存性}{198}{subsection.A.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.4.2}I/O排序}{199}{subsection.A.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {A.17}{\ignorespaces 有序的内存和I/O访问}}{199}{figure.A.17}\protected@file@percent }
-\newlabel{fig:litmus:wo}{{A.17}{199}{有序的内存和I/O访问}{figure.A.17}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.5}代码移植和映射指南}{200}{section.A.5}\protected@file@percent }
-\newlabel{sec:memory:porting}{{A.5}{200}{代码移植和映射指南}{section.A.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.2}{\ignorespaces 从TSO操作到RISC-V操作的映射 }}{200}{table.A.2}\protected@file@percent }
-\newlabel{tab:tsomappings}{{A.2}{200}{从TSO操作到RISC-V操作的映射}{table.A.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.3}{\ignorespaces 从Power操作到RISC-V操作的映射}}{201}{table.A.3}\protected@file@percent }
-\newlabel{tab:powermappings}{{A.3}{201}{从Power操作到RISC-V操作的映射}{table.A.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.4}{\ignorespaces 从ARM操作到RISC-V操作的映射}}{201}{table.A.4}\protected@file@percent }
-\newlabel{tab:armmappings}{{A.4}{201}{从ARM操作到RISC-V操作的映射}{table.A.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.5}{\ignorespaces 从Linux内存原语到RISC-V原语的映射。其它的构造（例如自旋锁）应当相应地服从。非一致性DMA的平台或设备可能需要额外的同步（例如缓存冲刷或无效性机制）；当前任何这样的额外同步都将是设备相关的。 }}{202}{table.A.5}\protected@file@percent }
-\newlabel{tab:linuxmappings}{{A.5}{202}{从Linux内存原语到RISC-V原语的映射。其它的构造（例如自旋锁）应当相应地服从。非一致性DMA的平台或设备可能需要额外的同步（例如缓存冲刷或无效性机制）；当前任何这样的额外同步都将是设备相关的。}{table.A.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.18}{\ignorespaces Linux中临界区之间的次序}}{203}{figure.A.18}\protected@file@percent }
-\newlabel{fig:litmus:lkmm_ll}{{A.18}{203}{Linux中临界区之间的次序}{figure.A.18}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.6}{\ignorespaces Mappings from C/C++ primitives to RISC-V primitives.}}{204}{table.A.6}\protected@file@percent }
-\newlabel{tab:c11mappings}{{A.6}{204}{Mappings from C/C++ primitives to RISC-V primitives}{table.A.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.7}{\ignorespaces 假设的从C/C++原语到RISC-V原语的映射，如果引入了原生的加载-获取和存储释放操作码的话。 }}{205}{table.A.7}\protected@file@percent }
-\newlabel{tab:c11mappings_hypothetical}{{A.7}{205}{假设的从C/C++原语到RISC-V原语的映射，如果引入了原生的加载-获取和存储释放操作码的话。}{table.A.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.6}实现指南}{206}{section.A.6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {A.19}{\ignorespaces 写归并石蕊测试，允许的执行。 }}{208}{figure.A.19}\protected@file@percent }
-\newlabel{fig:litmus:subsumption}{{A.19}{208}{写归并石蕊测试，允许的执行。}{figure.A.19}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.6.1}未来可能的扩展}{209}{subsection.A.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {A.7}已知问题}{209}{section.A.7}\protected@file@percent }
-\newlabel{sec:memory:discrepancies}{{A.7}{209}{已知问题}{section.A.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.7.1}混合尺寸的RSW}{209}{subsection.A.7.1}\protected@file@percent }
-\newlabel{sec:memory:discrepancies:mixedrsw}{{A.7.1}{209}{混合尺寸的RSW}{subsection.A.7.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.20}{\ignorespaces 混合尺寸的差异（被公理模型所允许，被操作模型所禁止） }}{209}{figure.A.20}\protected@file@percent }
-\newlabel{fig:litmus:discrepancy:rsw1}{{A.20}{209}{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}{figure.A.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.21}{\ignorespaces 混合尺寸的差异（被公理模型所允许，被操作模型所禁止） }}{210}{figure.A.21}\protected@file@percent }
-\newlabel{fig:litmus:discrepancy:rsw2}{{A.21}{210}{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}{figure.A.21}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.22}{\ignorespaces 混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}}{210}{figure.A.22}\protected@file@percent }
-\newlabel{fig:litmus:discrepancy:rsw3}{{A.22}{210}{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}{figure.A.22}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {附录 B\hspace  {.3em}}形式化的内存模型规范（0.1版本）}{211}{appendix.B}\protected@file@percent }
+\newlabel{sec:memorymodelexplanation}{{A}{179}{RVWMO 说明材料（0.1版本）}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.1}为什么用 RVWMO?}{179}{section.A.1}\protected@file@percent }
+\newlabel{sec:whyrvwmo}{{A.1}{179}{为什么用 RVWMO?}{section.A.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.2}Litmus 测试}{180}{section.A.2}\protected@file@percent }
+\newlabel{sec:litmustests}{{A.2}{180}{Litmus 测试}{section.A.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.1}{\ignorespaces 一个litmus测试的示例和一个被禁止的执行（{\tt  a0=1}）。}}{180}{figure.A.1}\protected@file@percent }
+\newlabel{fig:litmus:sample}{{A.1}{180}{一个litmus测试的示例和一个被禁止的执行（{\tt a0=1}）。}{figure.A.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces 在这个附录中绘制的litmus测试图表的要点}}{181}{table.A.1}\protected@file@percent }
+\newlabel{tab:litmus:key}{{A.1}{181}{在这个附录中绘制的litmus测试图表的要点}{table.A.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.3}RVWMO规则的解释}{181}{section.A.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.1}保留程序次序和全局内存次序}{182}{subsection.A.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.2}\nameref  *{rvwmo:ax:load}}{182}{subsection.A.3.2}\protected@file@percent }
+\newlabel{sec:memory:loadvalueaxiom}{{A.3.2}{182}{\nameref *{rvwmo:ax:load}}{subsection.A.3.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.2}{\ignorespaces 一个存储缓冲区转发石蕊测试（允许的输出结果） }}{183}{figure.A.2}\protected@file@percent }
+\newlabel{fig:litmus:storebuffer}{{A.2}{183}{一个存储缓冲区转发石蕊测试（允许的输出结果）}{figure.A.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.3}{\ignorespaces “PPOCA”存储缓冲区转发litmus测试（允许的输出结果）}}{184}{figure.A.3}\protected@file@percent }
+\newlabel{fig:litmus:ppoca}{{A.3}{184}{“PPOCA”存储缓冲区转发litmus测试（允许的输出结果）}{figure.A.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.3}\nameref  *{rvwmo:ax:atom}}{185}{subsection.A.3.3}\protected@file@percent }
+\newlabel{sec:memory:atomicityaxiom}{{A.3.3}{185}{\nameref *{rvwmo:ax:atom}}{subsection.A.3.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.4}{\ignorespaces 在所有的四个（独立的）代码片段中，存储条件(c)是被允许的，但是不保证成功 }}{185}{figure.A.4}\protected@file@percent }
+\newlabel{fig:litmus:lrsdsc}{{A.4}{185}{在所有的四个（独立的）代码片段中，存储条件(c)是被允许的，但是不保证成功}{figure.A.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.4}\nameref  *{rvwmo:ax:prog}}{186}{subsection.A.3.4}\protected@file@percent }
+\newlabel{sec:memory:progress}{{A.3.4}{186}{\nameref *{rvwmo:ax:prog}}{subsection.A.3.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.5}重叠地址排序（规则\nobreakspace  {}\ref  {ppo:->st}-\ref  {ppo:amoforward}） }{186}{subsection.A.3.5}\protected@file@percent }
+\newlabel{sec:memory:overlap}{{A.3.5}{186}{重叠地址排序（规则~\ref {ppo:->st}-\ref {ppo:amoforward}）}{subsection.A.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.5}{\ignorespaces 石蕊测试MP＋fence.w.w＋fir-rfi-addr（允许的输出结果）。 }}{187}{figure.A.5}\protected@file@percent }
+\newlabel{fig:litmus:frirfi}{{A.5}{187}{石蕊测试MP＋fence.w.w＋fir-rfi-addr（允许的输出结果）。}{figure.A.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.6}{\ignorespaces 石蕊测试RSW（允许的输出结果） }}{188}{figure.A.6}\protected@file@percent }
+\newlabel{fig:litmus:rsw}{{A.6}{188}{石蕊测试RSW（允许的输出结果）}{figure.A.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.6}屏障（规则\nobreakspace  {}\ref  {ppo:fence}）}{189}{subsection.A.3.6}\protected@file@percent }
+\newlabel{sec:mm:fence}{{A.3.6}{189}{屏障（规则~\ref {ppo:fence}）}{subsection.A.3.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.7}显式同步（规则\nobreakspace  {}\ref  {ppo:acquire}-\ref  {ppo:pair}）}{190}{subsection.A.3.7}\protected@file@percent }
+\newlabel{sec:memory:acqrel}{{A.3.7}{190}{显式同步（规则~\ref {ppo:acquire}-\ref {ppo:pair}）}{subsection.A.3.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.7}{\ignorespaces 带原子性的自旋锁}}{190}{figure.A.7}\protected@file@percent }
+\newlabel{fig:litmus:spinlock_atomics}{{A.7}{190}{带原子性的自旋锁}{figure.A.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.8}{\ignorespaces 带屏障的自旋锁}}{191}{figure.A.8}\protected@file@percent }
+\newlabel{fig:litmus:spinlock_fences}{{A.8}{191}{带屏障的自旋锁}{figure.A.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.8}句法依赖（规则\nobreakspace  {}\ref  {ppo:addr}-\ref  {ppo:ctrl}）}{192}{subsection.A.3.8}\protected@file@percent }
+\newlabel{sec:memory:dependencies}{{A.3.8}{192}{句法依赖（规则~\ref {ppo:addr}-\ref {ppo:ctrl}）}{subsection.A.3.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.9}{\ignorespaces 通过{\tt  fflags}，一个(a)和(b)都会隐含地累积进去的目的寄存器，(c)有一个关于(a)和(b)的句法依赖。 }}{192}{figure.A.9}\protected@file@percent }
+\newlabel{fig:litmus:fflags}{{A.9}{192}{通过{\tt fflags}，一个(a)和(b)都会隐含地累积进去的目的寄存器，(c)有一个关于(a)和(b)的句法依赖。}{figure.A.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.10}{\ignorespaces 一个句法地址依赖 }}{192}{figure.A.10}\protected@file@percent }
+\newlabel{fig:litmus:address}{{A.10}{192}{一个句法地址依赖}{figure.A.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.11}{\ignorespaces 一个句法控制依赖 }}{193}{figure.A.11}\protected@file@percent }
+\newlabel{fig:litmus:control1}{{A.11}{193}{一个句法控制依赖}{figure.A.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.12}{\ignorespaces 另一个句法控制依赖 }}{193}{figure.A.12}\protected@file@percent }
+\newlabel{fig:litmus:control2}{{A.12}{193}{另一个句法控制依赖}{figure.A.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.13}{\ignorespaces LB石蕊测试的一种变体（禁止的输出结果） }}{194}{figure.A.13}\protected@file@percent }
+\newlabel{fig:litmus:successdeps}{{A.13}{194}{LB石蕊测试的一种变体（禁止的输出结果）}{figure.A.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.9}流水线依赖（规则\nobreakspace  {}\ref  {ppo:addrdatarfi}-\ref  {ppo:addrpo}）}{194}{subsection.A.3.9}\protected@file@percent }
+\newlabel{sec:memory:ppopipeline}{{A.3.9}{194}{流水线依赖（规则~\ref {ppo:addrdatarfi}-\ref {ppo:addrpo}）}{subsection.A.3.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.14}{\ignorespaces 根据PPO规则\nobreakspace  {}\ref  {ppo:addrdatarfi}和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果） }}{195}{figure.A.14}\protected@file@percent }
+\newlabel{fig:litmus:addrdatarfi}{{A.14}{195}{根据PPO规则~\ref {ppo:addrdatarfi}和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果）}{figure.A.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.15}{\ignorespaces 根据PPO规则12和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果） }}{195}{figure.A.15}\protected@file@percent }
+\newlabel{fig:litmus:addrdatarfi_no}{{A.15}{195}{根据PPO规则12和从(d)到(e)的数据依赖，在全局内存次序中，(d)必须也先于(f)（禁止的输出结果）}{figure.A.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.16}{\ignorespaces 因为在(e)和(g)之间的额外的存储，(d)不再必须先于(g)了（允许的输出结果） }}{196}{figure.A.16}\protected@file@percent }
+\newlabel{fig:litmus:addrpo}{{A.16}{196}{因为在(e)和(g)之间的额外的存储，(d)不再必须先于(g)了（允许的输出结果）}{figure.A.16}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.4}超出主存范围}{196}{section.A.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.4.1}一致性和可缓存性}{196}{subsection.A.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.4.2}I/O排序}{197}{subsection.A.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {A.17}{\ignorespaces 有序的内存和I/O访问}}{197}{figure.A.17}\protected@file@percent }
+\newlabel{fig:litmus:wo}{{A.17}{197}{有序的内存和I/O访问}{figure.A.17}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.5}代码移植和映射指南}{198}{section.A.5}\protected@file@percent }
+\newlabel{sec:memory:porting}{{A.5}{198}{代码移植和映射指南}{section.A.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.2}{\ignorespaces 从TSO操作到RISC-V操作的映射 }}{198}{table.A.2}\protected@file@percent }
+\newlabel{tab:tsomappings}{{A.2}{198}{从TSO操作到RISC-V操作的映射}{table.A.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.3}{\ignorespaces 从Power操作到RISC-V操作的映射}}{199}{table.A.3}\protected@file@percent }
+\newlabel{tab:powermappings}{{A.3}{199}{从Power操作到RISC-V操作的映射}{table.A.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.4}{\ignorespaces 从ARM操作到RISC-V操作的映射}}{199}{table.A.4}\protected@file@percent }
+\newlabel{tab:armmappings}{{A.4}{199}{从ARM操作到RISC-V操作的映射}{table.A.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.5}{\ignorespaces 从Linux内存原语到RISC-V原语的映射。其它的构造（例如自旋锁）应当相应地服从。非一致性DMA的平台或设备可能需要额外的同步（例如缓存冲刷或无效性机制）；当前任何这样的额外同步都将是设备相关的。 }}{200}{table.A.5}\protected@file@percent }
+\newlabel{tab:linuxmappings}{{A.5}{200}{从Linux内存原语到RISC-V原语的映射。其它的构造（例如自旋锁）应当相应地服从。非一致性DMA的平台或设备可能需要额外的同步（例如缓存冲刷或无效性机制）；当前任何这样的额外同步都将是设备相关的。}{table.A.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.18}{\ignorespaces Linux中临界区之间的次序}}{201}{figure.A.18}\protected@file@percent }
+\newlabel{fig:litmus:lkmm_ll}{{A.18}{201}{Linux中临界区之间的次序}{figure.A.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.6}{\ignorespaces 从C/C++原语到RISC-V原语的映射。 }}{202}{table.A.6}\protected@file@percent }
+\newlabel{tab:c11mappings}{{A.6}{202}{从C/C++原语到RISC-V原语的映射。}{table.A.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.7}{\ignorespaces 假设的从C/C++原语到RISC-V原语的映射，如果引入了原生的加载-获取和存储释放操作码的话。 }}{203}{table.A.7}\protected@file@percent }
+\newlabel{tab:c11mappings_hypothetical}{{A.7}{203}{假设的从C/C++原语到RISC-V原语的映射，如果引入了原生的加载-获取和存储释放操作码的话。}{table.A.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.6}实现指南}{204}{section.A.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {A.19}{\ignorespaces 写归并石蕊测试，允许的执行。 }}{206}{figure.A.19}\protected@file@percent }
+\newlabel{fig:litmus:subsumption}{{A.19}{206}{写归并石蕊测试，允许的执行。}{figure.A.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.6.1}未来可能的扩展}{207}{subsection.A.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A.7}已知问题}{207}{section.A.7}\protected@file@percent }
+\newlabel{sec:memory:discrepancies}{{A.7}{207}{已知问题}{section.A.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.7.1}混合尺寸的RSW}{207}{subsection.A.7.1}\protected@file@percent }
+\newlabel{sec:memory:discrepancies:mixedrsw}{{A.7.1}{207}{混合尺寸的RSW}{subsection.A.7.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.20}{\ignorespaces 混合尺寸的差异（被公理模型所允许，被操作模型所禁止） }}{207}{figure.A.20}\protected@file@percent }
+\newlabel{fig:litmus:discrepancy:rsw1}{{A.20}{207}{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}{figure.A.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.21}{\ignorespaces 混合尺寸的差异（被公理模型所允许，被操作模型所禁止） }}{208}{figure.A.21}\protected@file@percent }
+\newlabel{fig:litmus:discrepancy:rsw2}{{A.21}{208}{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}{figure.A.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.22}{\ignorespaces 混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}}{208}{figure.A.22}\protected@file@percent }
+\newlabel{fig:litmus:discrepancy:rsw3}{{A.22}{208}{混合尺寸的差异（被公理模型所允许，被操作模型所禁止）}{figure.A.22}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {附录 B\hspace  {.3em}}形式化的内存模型规范（0.1版本）}{209}{appendix.B}\protected@file@percent }
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.1}Alloy中的形式公理规范}{212}{section.B.1}\protected@file@percent }
-\newlabel{sec:alloy}{{B.1}{212}{Alloy中的形式公理规范}{section.B.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.1}{\ignorespaces Alloy中的形式化RVWMO内存模型（1/5：PPO） }}{212}{figure.B.1}\protected@file@percent }
-\newlabel{fig:alloy1}{{B.1}{212}{Alloy中的形式化RVWMO内存模型（1/5：PPO）}{figure.B.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.2}{\ignorespaces Alloy中的形式化RVWMO内存模型（2/5：公理） }}{213}{figure.B.2}\protected@file@percent }
-\newlabel{fig:alloy2}{{B.2}{213}{Alloy中的形式化RVWMO内存模型（2/5：公理）}{figure.B.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.3}{\ignorespaces Alloy中的形式化RVWMO内存模型（3/5：内存的模型）}}{214}{figure.B.3}\protected@file@percent }
-\newlabel{fig:alloy3}{{B.3}{214}{Alloy中的形式化RVWMO内存模型（3/5：内存的模型）}{figure.B.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.4}{\ignorespaces Alloy中的形式化RVWMO内存模型（4/5：基础模型规则）}}{215}{figure.B.4}\protected@file@percent }
-\newlabel{fig:alloy4}{{B.4}{215}{Alloy中的形式化RVWMO内存模型（4/5：基础模型规则）}{figure.B.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.5}{\ignorespaces Alloy中的形式化RVWMO内存模型（5/5：辅助内容） ]}}{216}{figure.B.5}\protected@file@percent }
-\newlabel{fig:alloy5}{{B.5}{216}{Alloy中的形式化RVWMO内存模型（5/5：辅助内容） ]}{figure.B.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.2}Herd中的形式公理规范}{217}{section.B.2}\protected@file@percent }
-\newlabel{sec:herd}{{B.2}{217}{Herd中的形式公理规范}{section.B.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.6}{\ignorespaces riscv-defs.cat，一个关于保留程序次序的Herd定义（1/3） }}{218}{figure.B.6}\protected@file@percent }
-\newlabel{fig:herd1}{{B.6}{218}{riscv-defs.cat，一个关于保留程序次序的Herd定义（1/3）}{figure.B.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.7}{\ignorespaces riscv.cat，RVWMO内存模型的一个Herd版本（2/3） }}{219}{figure.B.7}\protected@file@percent }
-\newlabel{fig:herd2}{{B.7}{219}{riscv.cat，RVWMO内存模型的一个Herd版本（2/3）}{figure.B.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {B.8}{\ignorespaces {\tt  riscv.cat}，RVWMO内存模型的一种备选的Herd表示（3/3） }}{220}{figure.B.8}\protected@file@percent }
-\newlabel{fig:herd3}{{B.8}{220}{{\tt riscv.cat}，RVWMO内存模型的一种备选的Herd表示（3/3）}{figure.B.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.3}一个内存操作模型}{221}{section.B.3}\protected@file@percent }
-\newlabel{sec:operational}{{B.3}{221}{一个内存操作模型}{section.B.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{模型状态}{221}{section.B.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{模型过渡}{222}{section.B.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.1}指令内的伪码执行}{224}{subsection.B.3.1}\protected@file@percent }
-\newlabel{sec:omm:pseudocode_exec}{{B.3.1}{224}{指令内的伪码执行}{subsection.B.3.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.2}指令实例状态}{226}{subsection.B.3.2}\protected@file@percent }
-\newlabel{sec:omm:inst_state}{{B.3.2}{226}{指令实例状态}{subsection.B.3.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.3}硬件线程状态}{227}{subsection.B.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.4}共享内存状态}{228}{subsection.B.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.5}过渡}{228}{subsection.B.3.5}\protected@file@percent }
-\newlabel{sec:omm:transitions}{{B.3.5}{228}{过渡}{subsection.B.3.5}{}}
-\newlabel{omm:fetch}{{B.3.5}{228}{获取指令}{subsection.B.3.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{获取指令}{228}{subsection.B.3.5}\protected@file@percent }
-\newlabel{omm:initiate_load}{{B.3.5}{229}{初始化内存加载操作}{Item.40}{}}
-\@writefile{toc}{\contentsline {paragraph}{初始化内存加载操作}{229}{Item.40}\protected@file@percent }
-\newlabel{omm:sat_by_forwarding}{{B.3.5}{229}{通过从未传播的状态转发来满足内存加载操作}{Item.43}{}}
-\@writefile{toc}{\contentsline {paragraph}{通过从未传播的状态转发来满足内存加载操作}{229}{Item.43}\protected@file@percent }
-\newlabel{omm:sat_from_mem}{{B.3.5}{231}{从内存满足内存加载操作}{Item.52}{}}
-\@writefile{toc}{\contentsline {paragraph}{从内存满足内存加载操作}{231}{Item.52}\protected@file@percent }
-\newlabel{omm:complete_loads}{{B.3.5}{231}{完整加载操作}{Item.52}{}}
-\@writefile{toc}{\contentsline {paragraph}{完整加载操作}{231}{Item.52}\protected@file@percent }
-\newlabel{omm:early_sc_fail}{{B.3.5}{231}{早期{\tt sc}失败}{Item.52}{}}
-\@writefile{toc}{\contentsline {paragraph}{早期{\tt  sc}失败}{231}{Item.52}\protected@file@percent }
-\newlabel{omm:paired_sc}{{B.3.5}{231}{配对的{\tt sc}}{Item.52}{}}
-\@writefile{toc}{\contentsline {paragraph}{配对的{\tt  sc} }{231}{Item.52}\protected@file@percent }
-\newlabel{omm:initiate_store_footprint}{{B.3.5}{231}{初始化内存存储操作足迹}{Item.52}{}}
-\@writefile{toc}{\contentsline {paragraph}{初始化内存存储操作足迹}{231}{Item.52}\protected@file@percent }
-\newlabel{omm:instantiate_store_value}{{B.3.5}{232}{初始化内存存储操作的值}{Item.55}{}}
-\@writefile{toc}{\contentsline {paragraph}{初始化内存存储操作的值}{232}{Item.55}\protected@file@percent }
-\newlabel{omm:commit_stores}{{B.3.5}{232}{提交存储指令}{Item.57}{}}
-\@writefile{toc}{\contentsline {paragraph}{提交存储指令}{232}{Item.57}\protected@file@percent }
-\newlabel{omm:commit_store:prev_addrs}{{8}{232}{提交存储指令}{Item.65}{}}
-\newlabel{omm:commit_store:prev_stores}{{9}{232}{提交存储指令}{Item.66}{}}
-\newlabel{omm:commit_store:prev_loads}{{10}{232}{提交存储指令}{Item.67}{}}
-\newlabel{omm:prop_store}{{B.3.5}{233}{传播存储操作}{Item.67}{}}
-\@writefile{toc}{\contentsline {paragraph}{传播存储操作}{233}{Item.67}\protected@file@percent }
-\newlabel{omm:commit_sc}{{B.3.5}{233}{提交和传播一个{\tt sc}的存储操作}{Item.75}{}}
-\@writefile{toc}{\contentsline {paragraph}{提交和传播一个{\tt  sc}的存储操作}{233}{Item.75}\protected@file@percent }
-\newlabel{omm:late_sc_fail}{{B.3.5}{234}{Late {\tt sc} fail}{Item.82}{}}
-\@writefile{toc}{\contentsline {paragraph}{Late {\tt  sc} fail}{234}{Item.82}\protected@file@percent }
-\newlabel{omm:complete_stores}{{B.3.5}{234}{完整存储操作}{Item.84}{}}
-\@writefile{toc}{\contentsline {paragraph}{完整存储操作}{234}{Item.84}\protected@file@percent }
-\newlabel{omm:do_amo}{{B.3.5}{234}{满足、提交和传播一个AMO的操作}{Item.84}{}}
-\@writefile{toc}{\contentsline {paragraph}{满足、提交和传播一个AMO的操作}{234}{Item.84}\protected@file@percent }
-\newlabel{omm:commit_fence}{{B.3.5}{235}{提交屏障}{Item.91}{}}
-\@writefile{toc}{\contentsline {paragraph}{提交屏障}{235}{Item.91}\protected@file@percent }
-\newlabel{omm:reg_read}{{B.3.5}{235}{寄存器读}{Item.96}{}}
-\@writefile{toc}{\contentsline {paragraph}{寄存器读}{235}{Item.96}\protected@file@percent }
-\newlabel{omm:reg_write}{{B.3.5}{236}{寄存器写}{Item.98}{}}
-\@writefile{toc}{\contentsline {paragraph}{寄存器写}{236}{Item.98}\protected@file@percent }
-\newlabel{omm:sail_interp}{{B.3.5}{236}{伪代码内部步骤}{Item.100}{}}
-\@writefile{toc}{\contentsline {paragraph}{伪代码内部步骤}{236}{Item.100}\protected@file@percent }
-\newlabel{omm:finish}{{B.3.5}{236}{完成指令}{Item.100}{}}
-\@writefile{toc}{\contentsline {paragraph}{完成指令}{236}{Item.100}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B.1}Alloy中的形式公理规范}{210}{section.B.1}\protected@file@percent }
+\newlabel{sec:alloy}{{B.1}{210}{Alloy中的形式公理规范}{section.B.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.1}{\ignorespaces Alloy中的形式化RVWMO内存模型（1/5：PPO） }}{210}{figure.B.1}\protected@file@percent }
+\newlabel{fig:alloy1}{{B.1}{210}{Alloy中的形式化RVWMO内存模型（1/5：PPO）}{figure.B.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.2}{\ignorespaces Alloy中的形式化RVWMO内存模型（2/5：公理） }}{211}{figure.B.2}\protected@file@percent }
+\newlabel{fig:alloy2}{{B.2}{211}{Alloy中的形式化RVWMO内存模型（2/5：公理）}{figure.B.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.3}{\ignorespaces Alloy中的形式化RVWMO内存模型（3/5：内存的模型）}}{212}{figure.B.3}\protected@file@percent }
+\newlabel{fig:alloy3}{{B.3}{212}{Alloy中的形式化RVWMO内存模型（3/5：内存的模型）}{figure.B.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.4}{\ignorespaces Alloy中的形式化RVWMO内存模型（4/5：基础模型规则）}}{213}{figure.B.4}\protected@file@percent }
+\newlabel{fig:alloy4}{{B.4}{213}{Alloy中的形式化RVWMO内存模型（4/5：基础模型规则）}{figure.B.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.5}{\ignorespaces Alloy中的形式化RVWMO内存模型（5/5：辅助内容） ]}}{214}{figure.B.5}\protected@file@percent }
+\newlabel{fig:alloy5}{{B.5}{214}{Alloy中的形式化RVWMO内存模型（5/5：辅助内容） ]}{figure.B.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.2}Herd中的形式公理规范}{215}{section.B.2}\protected@file@percent }
+\newlabel{sec:herd}{{B.2}{215}{Herd中的形式公理规范}{section.B.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.6}{\ignorespaces riscv-defs.cat，一个关于保留程序次序的Herd定义（1/3） }}{216}{figure.B.6}\protected@file@percent }
+\newlabel{fig:herd1}{{B.6}{216}{riscv-defs.cat，一个关于保留程序次序的Herd定义（1/3）}{figure.B.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.7}{\ignorespaces riscv.cat，RVWMO内存模型的一个Herd版本（2/3） }}{217}{figure.B.7}\protected@file@percent }
+\newlabel{fig:herd2}{{B.7}{217}{riscv.cat，RVWMO内存模型的一个Herd版本（2/3）}{figure.B.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {B.8}{\ignorespaces {\tt  riscv.cat}，RVWMO内存模型的一种备选的Herd表示（3/3） }}{218}{figure.B.8}\protected@file@percent }
+\newlabel{fig:herd3}{{B.8}{218}{{\tt riscv.cat}，RVWMO内存模型的一种备选的Herd表示（3/3）}{figure.B.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.3}一个内存操作模型}{219}{section.B.3}\protected@file@percent }
+\newlabel{sec:operational}{{B.3}{219}{一个内存操作模型}{section.B.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{模型状态}{219}{section.B.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{模型过渡}{220}{section.B.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.1}指令内的伪码执行}{222}{subsection.B.3.1}\protected@file@percent }
+\newlabel{sec:omm:pseudocode_exec}{{B.3.1}{222}{指令内的伪码执行}{subsection.B.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.2}指令实例状态}{224}{subsection.B.3.2}\protected@file@percent }
+\newlabel{sec:omm:inst_state}{{B.3.2}{224}{指令实例状态}{subsection.B.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.3}硬件线程状态}{225}{subsection.B.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.4}共享内存状态}{226}{subsection.B.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.5}过渡}{226}{subsection.B.3.5}\protected@file@percent }
+\newlabel{sec:omm:transitions}{{B.3.5}{226}{过渡}{subsection.B.3.5}{}}
+\newlabel{omm:fetch}{{B.3.5}{226}{获取指令}{subsection.B.3.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{获取指令}{226}{subsection.B.3.5}\protected@file@percent }
+\newlabel{omm:initiate_load}{{B.3.5}{227}{初始化内存加载操作}{Item.40}{}}
+\@writefile{toc}{\contentsline {paragraph}{初始化内存加载操作}{227}{Item.40}\protected@file@percent }
+\newlabel{omm:sat_by_forwarding}{{B.3.5}{227}{通过从未传播的状态转发来满足内存加载操作}{Item.43}{}}
+\@writefile{toc}{\contentsline {paragraph}{通过从未传播的状态转发来满足内存加载操作}{227}{Item.43}\protected@file@percent }
+\newlabel{omm:sat_from_mem}{{B.3.5}{229}{从内存满足内存加载操作}{Item.52}{}}
+\@writefile{toc}{\contentsline {paragraph}{从内存满足内存加载操作}{229}{Item.52}\protected@file@percent }
+\newlabel{omm:complete_loads}{{B.3.5}{229}{完整加载操作}{Item.52}{}}
+\@writefile{toc}{\contentsline {paragraph}{完整加载操作}{229}{Item.52}\protected@file@percent }
+\newlabel{omm:early_sc_fail}{{B.3.5}{229}{早期{\tt sc}失败}{Item.52}{}}
+\@writefile{toc}{\contentsline {paragraph}{早期{\tt  sc}失败}{229}{Item.52}\protected@file@percent }
+\newlabel{omm:paired_sc}{{B.3.5}{229}{配对的{\tt sc}}{Item.52}{}}
+\@writefile{toc}{\contentsline {paragraph}{配对的{\tt  sc} }{229}{Item.52}\protected@file@percent }
+\newlabel{omm:initiate_store_footprint}{{B.3.5}{229}{初始化内存存储操作足迹}{Item.52}{}}
+\@writefile{toc}{\contentsline {paragraph}{初始化内存存储操作足迹}{229}{Item.52}\protected@file@percent }
+\newlabel{omm:instantiate_store_value}{{B.3.5}{230}{初始化内存存储操作的值}{Item.55}{}}
+\@writefile{toc}{\contentsline {paragraph}{初始化内存存储操作的值}{230}{Item.55}\protected@file@percent }
+\newlabel{omm:commit_stores}{{B.3.5}{230}{提交存储指令}{Item.57}{}}
+\@writefile{toc}{\contentsline {paragraph}{提交存储指令}{230}{Item.57}\protected@file@percent }
+\newlabel{omm:commit_store:prev_addrs}{{8}{230}{提交存储指令}{Item.65}{}}
+\newlabel{omm:commit_store:prev_stores}{{9}{230}{提交存储指令}{Item.66}{}}
+\newlabel{omm:commit_store:prev_loads}{{10}{230}{提交存储指令}{Item.67}{}}
+\newlabel{omm:prop_store}{{B.3.5}{231}{传播存储操作}{Item.67}{}}
+\@writefile{toc}{\contentsline {paragraph}{传播存储操作}{231}{Item.67}\protected@file@percent }
+\newlabel{omm:commit_sc}{{B.3.5}{231}{提交和传播一个{\tt sc}的存储操作}{Item.75}{}}
+\@writefile{toc}{\contentsline {paragraph}{提交和传播一个{\tt  sc}的存储操作}{231}{Item.75}\protected@file@percent }
+\newlabel{omm:late_sc_fail}{{B.3.5}{232}{Late {\tt sc} fail}{Item.82}{}}
+\@writefile{toc}{\contentsline {paragraph}{Late {\tt  sc} fail}{232}{Item.82}\protected@file@percent }
+\newlabel{omm:complete_stores}{{B.3.5}{232}{完整存储操作}{Item.84}{}}
+\@writefile{toc}{\contentsline {paragraph}{完整存储操作}{232}{Item.84}\protected@file@percent }
+\newlabel{omm:do_amo}{{B.3.5}{232}{满足、提交和传播一个AMO的操作}{Item.84}{}}
+\@writefile{toc}{\contentsline {paragraph}{满足、提交和传播一个AMO的操作}{232}{Item.84}\protected@file@percent }
+\newlabel{omm:commit_fence}{{B.3.5}{233}{提交屏障}{Item.91}{}}
+\@writefile{toc}{\contentsline {paragraph}{提交屏障}{233}{Item.91}\protected@file@percent }
+\newlabel{omm:reg_read}{{B.3.5}{233}{寄存器读}{Item.96}{}}
+\@writefile{toc}{\contentsline {paragraph}{寄存器读}{233}{Item.96}\protected@file@percent }
+\newlabel{omm:reg_write}{{B.3.5}{234}{寄存器写}{Item.98}{}}
+\@writefile{toc}{\contentsline {paragraph}{寄存器写}{234}{Item.98}\protected@file@percent }
+\newlabel{omm:sail_interp}{{B.3.5}{234}{伪代码内部步骤}{Item.100}{}}
+\@writefile{toc}{\contentsline {paragraph}{伪代码内部步骤}{234}{Item.100}\protected@file@percent }
+\newlabel{omm:finish}{{B.3.5}{234}{完成指令}{Item.100}{}}
+\@writefile{toc}{\contentsline {paragraph}{完成指令}{234}{Item.100}\protected@file@percent }
 \bibstyle{plain}
 \bibdata{riscv-spec}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.6}局限性}{237}{subsection.B.3.6}\protected@file@percent }
-\newlabel{sec:omm:limitations}{{B.3.6}{237}{局限性}{subsection.B.3.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3.6}局限性}{235}{subsection.B.3.6}\protected@file@percent }
+\newlabel{sec:omm:limitations}{{B.3.6}{235}{局限性}{subsection.B.3.6}{}}
 \bibcite{riscv-asm-manual}{1}
 \bibcite{riscv-elf-psabi}{2}
 \bibcite{sparcieee1994}{3}
@@ -587,4 +596,4 @@
 \bibcite{waterman-phd}{25}
 \bibcite{riscvtr}{26}
 \bibcite{riscvtr2}{27}
-\gdef \@abspage@last{261}
+\gdef \@abspage@last{259}

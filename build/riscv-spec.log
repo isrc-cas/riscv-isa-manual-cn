@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  7 NOV 2022 18:15
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  8 NOV 2022 15:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -750,8 +750,14 @@ File: ctex.cfg 2021/12/12 v2.5.8 Configuration file (CTEX)
 (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/indentfirst.sty
 Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
 )
+(/usr/local/texlive/2022/texmf-dist/tex/latex/yafoot/pfnote.sty
+Package: pfnote 2018/09/03 v1.1 
+\pfn@fnotectr=\count347
+\pfn@page=\count348
+\pfn@pageprev=\count349
+)
 \savedwidth=\skip78
-\enitdp@tightlist=\count347
+\enitdp@tightlist=\count350
 
 
 Package array Warning: Column W is already defined on input line 124.
@@ -825,7 +831,7 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count348
+\c@section@level=\count351
 )
 LaTeX Info: Redefining \ref on input line 18.
 LaTeX Info: Redefining \pageref on input line 18.
@@ -834,7 +840,7 @@ LaTeX Info: Redefining \nameref on input line 18.
 \@outlinefile=\write4
 \openout4 = `riscv-spec.out'.
 
-\c@lstlisting=\count349
+\c@lstlisting=\count352
 
 Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 (fontspec)             this).
@@ -979,7 +985,7 @@ Underfull \hbox (badness 1057) in paragraph at lines 1148--1158
 
 [29]
 
-LaTeX Warning: Float too large for page by 103.44243pt on input line 1298.
+LaTeX Warning: Float too large for page by 68.08238pt on input line 1298.
 
 ) (../src/zifencei.tex [30] [31] [32
 
@@ -1063,7 +1069,7 @@ Overfull \hbox (4.16757pt too wide) in paragraph at lines 84--110
 
 [44] [45]
 
-LaTeX Warning: Float too large for page by 260.3926pt on input line 375.
+LaTeX Warning: Float too large for page by 225.03255pt on input line 375.
 
 ) (../src/rv128.tex [46] [47] [48
 
@@ -1079,7 +1085,7 @@ Overfull \hbox (12.30765pt too wide) in paragraph at lines 40--40
 [51
 
 ]
-Overfull \hbox (11.61833pt too wide) in paragraph at lines 109--109
+Overfull \hbox (11.61833pt too wide) in paragraph at lines 111--111
  []|\TU/lmr/m/n/10.95 DIV[U]W/REM[U]W| 
  []
 
@@ -1154,7 +1160,7 @@ Overfull \hbox (2.63942pt too wide) in paragraph at lines 56--56
 [67
 
 ] [68]
-Underfull \hbox (badness 1400) in paragraph at lines 271--279
+Underfull \hbox (badness 1400) in paragraph at lines 273--281
 \TU/SongtiSCLight(0)/m/n/10.95 当 \TU/lmr/m/n/10.95 XLEN \TU/SongtiSCLight(0)/m/
 n/10.95 ＝ \TU/lmr/m/n/10.95 32 \TU/SongtiSCLight(0)/m/n/10.95 时，|  这 些 性 能 计 数 
 器 的 高 \TU/lmr/m/n/10.95 32 \TU/SongtiSCLight(0)/m/n/10.95 位 可 以 通 过 额 外 的 \TU/l
@@ -1165,42 +1171,37 @@ mr/m/n/10.95 CSR \TU/lmtt/m/n/10.95 hpmcounter3h \TU/lmr/m/n/10.95 -
 第十三章
 [71
 
-] [72]
-Overfull \hbox (67.34499pt too wide) in paragraph at lines 213--255
- [] 
- []
-
-[73
+] [72] [73
 
 ] [74] [75]
-Overfull \hbox (0.51508pt too wide) in paragraph at lines 547--547
+Overfull \hbox (0.51508pt too wide) in paragraph at lines 549--549
  []|\TU/lmr/m/n/10.95 FADD/FSUB| 
  []
 
 
-Overfull \hbox (15.12242pt too wide) in paragraph at lines 550--550
+Overfull \hbox (15.12242pt too wide) in paragraph at lines 552--552
  []|\TU/lmr/m/n/10.95 MIN/MAX| 
  []
 
 [76]
-Overfull \hbox (24.39697pt too wide) in paragraph at lines 620--621
+Overfull \hbox (24.39697pt too wide) in paragraph at lines 622--623
  []|\TU/lmr/m/n/10.95 F[N]MADD/F[N]MSUB| 
  []
 
 [77]
-Overfull \hbox (1.01877pt too wide) in paragraph at lines 735--735
+Overfull \hbox (1.01877pt too wide) in paragraph at lines 737--737
  []|\TU/lmr/m/n/10.95 FCVT.\TU/lmr/m/it/10.95 int\TU/lmr/m/n/10.95 .\TU/lmr/m/i
 t/10.95 fmt| 
  []
 
 
-Overfull \hbox (1.01877pt too wide) in paragraph at lines 736--736
+Overfull \hbox (1.01877pt too wide) in paragraph at lines 738--738
  []|\TU/lmr/m/n/10.95 FCVT.\TU/lmr/m/it/10.95 fmt\TU/lmr/m/n/10.95 .\TU/lmr/m/i
 t/10.95 int| 
  []
 
 [78] [79]
-Overfull \hbox (16.04222pt too wide) in paragraph at lines 921--921
+Overfull \hbox (16.04222pt too wide) in paragraph at lines 923--923
  []|\TU/lmr/m/n/10.95 EQ/LT/LE| 
  []
 
@@ -1281,15 +1282,11 @@ Overfull \hbox (16.04222pt too wide) in paragraph at lines 372--372
 ]
 第十七章
 [99] [100] [101] [102] [103] (../src/dep-table.tex [104]
-Overfull \hbox (68.98904pt too wide) in paragraph at lines 51--140
-[][] 
+Overfull \hbox (47.08905pt too wide) in alignment at lines 51--139
+ [] [] [] [] [] 
  []
 
 [105]
-Overfull \vbox (121.99103pt too high) has occurred while \output is active []
-
-
-[106]
 Overfull \hbox (68.98904pt too wide) in paragraph at lines 141--155
 [][] 
  []
@@ -1299,7 +1296,7 @@ Overfull \hbox (68.98904pt too wide) in paragraph at lines 156--170
 [][] 
  []
 
-
+[106]
 Overfull \hbox (68.98904pt too wide) in paragraph at lines 171--208
 [][] 
  []
@@ -1493,7 +1490,7 @@ Overfull \hbox (6.83275pt too wide) in paragraph at lines 1176--1176
  []|\TU/lmr/m/n/10.95 imm[5]| 
  []
 
-[124] [125] [126] [127] [128] [129] (../src/rvc-opcode-map.tex
+[124] [125] [126] [127] [128] (../src/rvc-opcode-map.tex
 Overfull \hbox (17.81396pt too wide) in paragraph at lines 7--23
  [] 
  []
@@ -1722,41 +1719,41 @@ Overfull \hbox (19.88892pt too wide) in paragraph at lines 380--533
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-)) (../src/b.tex [130
+)) (../src/b.tex [129
 
-] [131] [132] [133] [134
-
-]
+] [130] [131] [132]
 第十九章
-) (../src/j.tex [135] [136
+) (../src/j.tex [133
+
+] [134
 
 ]
 第二十章
-) (../src/p.tex [137] [138
+) (../src/p.tex [135] [136
 
 ]
 第二十一章
-) (../src/v.tex [139] [140
+) (../src/v.tex [137] [138
 
 ]
 第二十二章
-) (../src/zam.tex [141] [142
+) (../src/zam.tex [139] [140
 
 ]
 第二十三章
-) (../src/zfinx.tex [143] [144
+) (../src/zfinx.tex [141] [142
 
 ]
 第二十四章
-[145] [146]) (../src/ztso.tex [147] [148
+[143] [144]) (../src/ztso.tex [145] [146
 
 ]
 第二十五章
-) (../src/gmaps.tex [149] [150
+) (../src/gmaps.tex [147] [148
 
 ]
 第二十六章
-(../src/opcode-map.tex) (../src/instr-table.tex [151]
+(../src/opcode-map.tex) (../src/instr-table.tex [149]
 Overfull \hbox (4.8823pt too wide) in paragraph at lines 12--12
 []|[]| 
  []
@@ -1846,24 +1843,24 @@ Overfull \hbox (4.8823pt too wide) in paragraph at lines 2444--2444
 
 LaTeX Warning: Float too large for page by 100.54062pt on input line 2875.
 
-) [152] [153] [154] [155] [156] [157] [158]) (../src/extensions.tex [159
+) [150] [151] [152] [153] [154] [155] [156]) (../src/extensions.tex [157
 
 ]
-[160
+[158
 
 ]
 第二十七章
-[161] [162] [163] [164] [165] [166]) (../src/naming.tex [167] [168
+[159] [160] [161] [162] [163] [164]) (../src/naming.tex [165] [166
 
 ]
 第二十八章
-[169]
+[167]
 Underfull \hbox (badness 10000) in paragraph at lines 126--130
 []\TU/SongtiSCLight(0)/m/n/10.95 使 用  |“\TU/lmr/m/n/10.95 Z\TU/SongtiSCLight(0)
 /m/n/10.95 ”|  前 缀 的 扩 展 必 须 使 用 一 个 下 划 线 与 其 它 多 字 母 的 扩 展 分 割，|  例
  []
 
-[170]
+[168]
 Underfull \hbox (badness 2790) in paragraph at lines 168--174
 []\TU/SongtiSCLight(0)/m/n/10.95 非 标 准 扩 展 必 须 被 列 在 所 有 的 标 准 扩 展 之 后。|  它 们 必
  须 通 过 一 条 下 划 线 来 与 其 它 多
@@ -1880,15 +1877,15 @@ r/m/n/10.95 Argle \TU/SongtiSCLight(0)/m/n/10.95 和 \TU/lmr/m/n/10.95 Bargle \T
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-) (../src/history.tex [171] [172]
+) (../src/history.tex [169] [170]
 第二十九章
-[173
+[171
 
-] [174] [175] [176] [177] [178]) (../src/memory.tex [179] [180
+] [172] [173] [174] [175] [176]) (../src/memory.tex [177] [178
 
 ]
 附录 A
-[181]
+[179]
 Overfull \hbox (9.90086pt too wide) in paragraph at lines 71--87
 []|[]| 
  []
@@ -1922,13 +1919,13 @@ Package fontspec Info: Font family 'PingFangSC(0)' created for font 'PingFang
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[182]
+[180]
 Underfull \hbox (badness 10000) in paragraph at lines 154--156
 []\TU/SongtiSCLight(0)/m/n/10.95 除 了 在 这 个 附 录 中 描 述 的 内 容，|  在[][]$[][][][][] 
 [] [] [] [][][][][][] [] [][][] [] [][][][][][][][][][][][][] []
  []
 
-[183]
+[181]
 Overfull \hbox (9.90086pt too wide) in paragraph at lines 223--235
 []|[]| 
  []
@@ -1940,7 +1937,7 @@ File: figs/litmus_sb_fwd.pdf Graphic file (type pdf)
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[184] [185]
+[182] [183]
 Overfull \hbox (20.40086pt too wide) in paragraph at lines 297--313
 []|[]| 
  []
@@ -1953,7 +1950,7 @@ Overfull \hbox (46.14082pt too wide) in paragraph at lines 3--315
 []|[][]| 
  []
 
-[186] [187] [188]
+[184] [185] [186]
 Overfull \hbox (15.15086pt too wide) in paragraph at lines 464--478
 []|[]| 
  []
@@ -1966,7 +1963,7 @@ Overfull \hbox (36.56482pt too wide) in paragraph at lines 3--480
 []|[][]| 
  []
 
-[189]
+[187]
 Overfull \hbox (15.15086pt too wide) in paragraph at lines 516--531
 []|[]| 
  []
@@ -1979,11 +1976,11 @@ Overfull \hbox (44.84998pt too wide) in paragraph at lines 513--536
  [][] 
  []
 
-[190] [191]
+[188] [189]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[192] [193] [194]
+[190] [191] [192]
 Overfull \hbox (25.65086pt too wide) in paragraph at lines 857--870
 []|[]| 
  []
@@ -1995,7 +1992,7 @@ File: figs/litmus_lb_lrsc.pdf Graphic file (type pdf)
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[195]
+[193]
 Overfull \hbox (15.15086pt too wide) in paragraph at lines 910--922
 []|[]| 
  []
@@ -2027,7 +2024,7 @@ Overfull \hbox (19.70142pt too wide) in paragraph at lines 3--963
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[196]
+[194]
 Overfull \hbox (15.15086pt too wide) in paragraph at lines 984--994
 []|[]| 
  []
@@ -2043,8 +2040,8 @@ Overfull \hbox (30.6024pt too wide) in paragraph at lines 3--996
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[197] [198] [199] [200] [201] [202]
-Overfull \hbox (3.8474pt too wide) in paragraph at lines 1355--1425
+[195] [196] [197] [198] [199] [200]
+Overfull \hbox (3.8474pt too wide) in paragraph at lines 1355--1427
  [][] 
  []
 
@@ -2054,8 +2051,8 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[203] [204] [205] [206] [207]
-Overfull \hbox (9.90086pt too wide) in paragraph at lines 1630--1639
+[201] [202] [203] [204] [205]
+Overfull \hbox (9.90086pt too wide) in paragraph at lines 1632--1641
 []|[]| 
  []
 
@@ -2063,20 +2060,20 @@ Overfull \hbox (9.90086pt too wide) in paragraph at lines 1630--1639
 File: figs/litmus_subsumption.pdf Graphic file (type pdf)
 <use figs/litmus_subsumption.pdf>
 )
-Overfull \hbox (19.70142pt too wide) in paragraph at lines 3--1641
+Overfull \hbox (19.70142pt too wide) in paragraph at lines 3--1643
 []|[][]| 
  []
 
-[208]
+[206]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[209] [210]
+[207] [208]
 附录 B
-[211
+[209
 
 ] (../src/memory-model-alloy.tex
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10.95> not available
@@ -2106,9 +2103,9 @@ LaTeX Warning: Float too large for page by 147.89929pt on input line 277.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-) [212
+) [210
 
-] [213] [214] [215] [216] (../src/memory-model-herd.tex
+] [211] [212] [213] [214] (../src/memory-model-herd.tex
 
 LaTeX Warning: Float too large for page by 247.99953pt on input line 83.
 
@@ -2118,12 +2115,12 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-) [217
+) [215
 
-] [218] [219] [220] (../src/memory-model-operational.tex [221
+] [216] [217] [218] (../src/memory-model-operational.tex [219
 
-] [222]
-[223] [224]
+] [220]
+[221] [222]
 Underfull \hbox (badness 10000) in paragraph at lines 288--290
 []\TU/SongtiSCLight(0)/m/n/10.95 对 于 加 载\TU/lmr/m/n/10.95 /\TU/SongtiSCLight(0)
 /m/n/10.95 存 储，| \TU/lmr/m/it/10.95 kind \TU/SongtiSCLight(0)/m/n/10.95 标 识 了 它
@@ -2138,19 +2135,19 @@ Underfull \hbox (badness 2671) in paragraph at lines 295--297
  如 何 继 续 处 理 每 个 可 能 由 周 围 内 存 模 型 所 提 供 的 值
  []
 
-[225] [226] [227] [228]
+[223] [224] [225] [226]
 Underfull \hbox (badness 10000) in paragraph at lines 503--506
 \TU/SongtiSCLight(0)/b/n/10.95 通 过 从 未 传 播 的 状 态 转 发 来 满 足 内 存 加 载 操 作[] \TU/So
 ngtiSCLight(0)/m/n/10.95 对 于 一 个 状 态 \TU/lmr/m/sc/10.95 Pend-
  []
 
-[229] [230] [231]
+[227] [228] [229]
 Underfull \hbox (badness 1590) in paragraph at lines 636--637
 []\TU/SongtiSCLight(0)/m/n/10.95 所 有 的 程 序 次 序 在 先 的 存 储 指 令，|  除 了 失 败 的 \TU/l
 mtt/m/n/10.95 sc\TU/SongtiSCLight(0)/m/n/10.95 ，|  都 已 经 初 始 化 并 因 此 具 有 非 空 的
  []
 
-[232]
+[230]
 Underfull \hbox (badness 10000) in paragraph at lines 675--678
 \TU/SongtiSCLight(0)/b/n/10.95 提 交 和 传 播 一 个 \TU/lmtt/m/n/10.95 sc \TU/SongtiSC
 Light(0)/b/n/10.95 的 存 储 操 作[] \TU/SongtiSCLight(0)/m/n/10.95 一 个 来 自 硬 件 线 程 $
@@ -2166,23 +2163,23 @@ ntinuation\TU/lmr/m/n/10.95 ) \TU/SongtiSCLight(0)/m/n/10.95 中 的、|  未 �
 i$\TU/SongtiSCLight(0)/m/n/10.95 ，|  带 有 一 个 配 对 的
  []
 
-[233] [234] [235] [236])) (./riscv-spec.bbl [237] [238
+[231] [232] [233] [234])) (./riscv-spec.bbl [235] [236
 
-] [239] [240]) [241]
+] [237] [238]) [239]
 (./riscv-spec.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `riscv-spec.out' has not changed.
-(rerunfilecheck)             Checksum: FC07FA4098CDB7E111E85E5B0F9BDDF5;22082.
+(rerunfilecheck)             Checksum: FE3B504C3C5616CB5F11E0DC7BB7A41B;21780.
  ) 
 Here is how much of TeX's memory you used:
- 21064 strings out of 476179
- 504640 string characters out of 5809545
- 1050457 words of memory out of 5000000
- 41285 multiletter control sequences out of 15000+600000
+ 21144 strings out of 476179
+ 508376 string characters out of 5809545
+ 1051553 words of memory out of 5000000
+ 41361 multiletter control sequences out of 15000+600000
  478536 words of font info for 127 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  94i,21n,100p,829b,1255s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on riscv-spec.pdf (261 pages).
+Output written on riscv-spec.pdf (259 pages).

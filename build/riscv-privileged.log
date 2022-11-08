@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  7 NOV 2022 18:15
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.9.7)  8 NOV 2022 15:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -750,8 +750,14 @@ File: ctex.cfg 2021/12/12 v2.5.8 Configuration file (CTEX)
 (/usr/local/texlive/2022/texmf-dist/tex/latex/tools/indentfirst.sty
 Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
 )
+(/usr/local/texlive/2022/texmf-dist/tex/latex/yafoot/pfnote.sty
+Package: pfnote 2018/09/03 v1.1 
+\pfn@fnotectr=\count347
+\pfn@page=\count348
+\pfn@pageprev=\count349
+)
 \savedwidth=\skip78
-\enitdp@tightlist=\count347
+\enitdp@tightlist=\count350
 
 
 Package array Warning: Column W is already defined on input line 124.
@@ -916,7 +922,7 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count348
+\c@section@level=\count351
 )
 LaTeX Info: Redefining \ref on input line 19.
 LaTeX Info: Redefining \pageref on input line 19.
@@ -925,7 +931,7 @@ LaTeX Info: Redefining \nameref on input line 19.
 \@outlinefile=\write4
 \openout4 = `riscv-privileged.out'.
 
-\c@lstlisting=\count349
+\c@lstlisting=\count352
 
 Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 (fontspec)             this).
@@ -1624,10 +1630,10 @@ Package rerunfilecheck Info: File `riscv-privileged.out' has not changed.
 (rerunfilecheck)             Checksum: 3CC36A0D213F9CA4A821D2E75269A3FE;31496.
  ) 
 Here is how much of TeX's memory you used:
- 19950 strings out of 476179
- 456965 string characters out of 5809545
- 840362 words of memory out of 5000000
- 40305 multiletter control sequences out of 15000+600000
+ 19992 strings out of 476179
+ 458526 string characters out of 5809545
+ 840526 words of memory out of 5000000
+ 40343 multiletter control sequences out of 15000+600000
  478472 words of font info for 119 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  94i,14n,100p,599b,753s stack positions out of 10000i,1000n,20000p,200000b,200000s

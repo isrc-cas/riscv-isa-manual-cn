@@ -153,8 +153,10 @@ CSRRWI、CSRRSI和CSRRCI变体分别与CSRRW、CSRRS和CSRRC相似，
     CSRRSI/CSRRCI & --  & 否  & 是 & 是 \\
     \hline
   \end{tabular}
-  \caption{决定一条CSR指令是否读或写指定CSR的条件。  Conditions determining whether a CSR instruction reads or writes
-    the specified CSR.}
+  \caption{决定一条CSR指令是否读或写指定CSR的条件。  
+  % Conditions determining whether a CSR instruction reads or writes
+    % the specified CSR.
+    }
   \label{tab:csrsideeffects}
 \end{table}
 
@@ -266,7 +268,7 @@ RISC-V ISA不认为一个CSR写入的间接效果是该写入的副作用。
 % (Note the distinction made earlier between side effects and indirect
 % effects of CSR writes.)
 
-对于RVWMO内存一致性模型（第17章~\ref{ch:memorymodel}），CSR的访问默认是弱有序的，
+对于RVWMO内存一致性模型（第~\ref{ch:memorymodel}章），CSR的访问默认是弱有序的，
 所以其它硬件线程或设备可以以一种不同于程序次序的次序观测到CSR的访问。
 另外，CSR的访问并非按照显式内存访问排序，除非CSR的访问修改了实施显式内存访问的指令的执行行为，
 或者除非CSR的访问和显式内存访问被内存模型定义的语法依赖或本手册第二卷中内存排序PMA节定义的排序需求所排序。
@@ -323,7 +325,7 @@ RISC-V ISA不认为一个CSR写入的间接效果是该写入的副作用。
 % to memory-mapped I/O regions.
 
 \begin{commentary}
-  按全局内存次序进行CSR访问的重新排序的规则应该大概被移动至第17章~\ref{ch:memorymodel}，关于RVWMO内存一致性模型。
+  按全局内存次序进行CSR访问的重新排序的规则应该大概被移动至第~\ref{ch:memorymodel}章，关于RVWMO内存一致性模型。
 % The rules for the reordering of CSR accesses in the global memory order
 % should probably be moved to Chapter~\ref{ch:memorymodel} concerning the
 % RVWMO memory consistency model.

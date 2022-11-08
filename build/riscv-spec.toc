@@ -6,7 +6,7 @@
 \contentsline {section}{\numberline {1.4}内存}{6}{section.1.4}%
 \contentsline {section}{\numberline {1.5}基础指令长度编码}{7}{section.1.5}%
 \contentsline {section}{\numberline {1.6}异常、陷入和中断}{10}{section.1.6}%
-\contentsline {section}{\numberline {1.7}“未指定的”（UNSPECIFIED）行为和值}{11}{section.1.7}%
+\contentsline {section}{\numberline {1.7}“未指定的”（UNSPECIFIED）行为和值}{12}{section.1.7}%
 \contentsline {chapter}{\numberline {第二章\hspace {.3em}}RV32I 基础整数指令集，2.1版本}{13}{chapter.2}%
 \contentsline {section}{\numberline {2.1}基础整数 ISA 的编程模型}{13}{section.2.1}%
 \contentsline {section}{\numberline {2.2}基础指令格式}{15}{section.2.2}%
@@ -31,14 +31,13 @@
 \contentsline {chapter}{\numberline {第八章\hspace {.3em}}RV128I基础整数指令集（1.7版本）}{49}{chapter.8}%
 \contentsline {chapter}{\numberline {第九章\hspace {.3em}}用于乘法和除法的“M”标准扩展（2.0版本）}{51}{chapter.9}%
 \contentsline {section}{\numberline {9.1}乘法操作}{51}{section.9.1}%
-\contentsline {section}{\numberline {9.2}Division Operations}{52}{section.9.2}%
+\contentsline {section}{\numberline {9.2}除法操作 }{52}{section.9.2}%
 \contentsline {section}{\numberline {9.3}Zmmul扩展（1.0版本）}{53}{section.9.3}%
 \contentsline {chapter}{\numberline {第十章\hspace {.3em}}用于原子指令的“A”标准扩展（2.1版本）}{55}{chapter.10}%
 \contentsline {section}{\numberline {10.1}指定原子指令的次序}{55}{section.10.1}%
 \contentsline {section}{\numberline {10.2}加载-保留/存储-条件指令}{56}{section.10.2}%
 \contentsline {section}{\numberline {10.3}存储-条件指令的最终正确完成}{59}{section.10.3}%
 \contentsline {section}{\numberline {10.4}原子内存操作}{60}{section.10.4}%
-\contentsline {section}{\numberline {10.5}Atomic Memory Operations}{60}{section.10.5}%
 \contentsline {chapter}{\numberline {第十一章\hspace {.3em}}控制与状态寄存器（CSR）指令“Zicsr”（2.0版本）}{63}{chapter.11}%
 \contentsline {section}{\numberline {11.1}CSR指令}{63}{section.11.1}%
 \contentsline {chapter}{\numberline {第十二章\hspace {.3em}}“Zicntr”和“Zihpm”计数器}{67}{chapter.12}%
@@ -51,7 +50,7 @@
 \contentsline {section}{\numberline {13.4}亚正常算法}{75}{section.13.4}%
 \contentsline {section}{\numberline {13.5}单精度加载和存储指令}{75}{section.13.5}%
 \contentsline {section}{\numberline {13.6}单精度浮点运算指令}{76}{section.13.6}%
-\contentsline {section}{\numberline {13.7}单精度浮点转换和移动指令\mbox {Instructions}}{78}{section.13.7}%
+\contentsline {section}{\numberline {13.7}单精度浮点转换和移动\mbox {指令}}{78}{section.13.7}%
 \contentsline {section}{\numberline {13.8}单精度浮点比较指令}{80}{section.13.8}%
 \contentsline {section}{\numberline {13.9}单精度浮点分类指令}{80}{section.13.9}%
 \contentsline {chapter}{\numberline {第十四章\hspace {.3em}}用于双精度浮点的“D”标准扩展（2.2版本）}{83}{chapter.14}%
@@ -88,99 +87,99 @@
 \contentsline {section}{\numberline {18.3}加载和存储指令}{116}{section.18.3}%
 \contentsline {section}{\numberline {18.4}控制转移指令}{121}{section.18.4}%
 \contentsline {section}{\numberline {18.5}整数运算指令}{122}{section.18.5}%
-\contentsline {section}{\numberline {18.6}C指令在LR/SC序列中的使用}{128}{section.18.6}%
-\contentsline {section}{\numberline {18.7}“提示”指令}{128}{section.18.7}%
-\contentsline {section}{\numberline {18.8}RVC指令集列表}{130}{section.18.8}%
-\contentsline {chapter}{\numberline {第十九章\hspace {.3em}}用于位操作的“B”标准扩展（0.0版本）}{135}{chapter.19}%
-\contentsline {chapter}{\numberline {第二十章\hspace {.3em}}用于动态翻译语言的“J”标准扩展（0.0版本）}{137}{chapter.20}%
-\contentsline {chapter}{\numberline {第二十一章\hspace {.3em}}用于打包SIMD指令的“P”标准扩展（0.2版本）}{139}{chapter.21}%
-\contentsline {chapter}{\numberline {第二十二章\hspace {.3em}}用于向量操作的“V”标准扩展（0.7版本）}{141}{chapter.22}%
-\contentsline {chapter}{\numberline {第二十三章\hspace {.3em}}用于非对齐原子的“Zam”标准扩展（0.1版本）}{143}{chapter.23}%
-\contentsline {paragraph}{未对齐原子的原子性公理 }{143}{chapter.23}%
-\contentsline {chapter}{\numberline {第二十四章\hspace {.3em}}用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}{145}{chapter.24}%
-\contentsline {section}{\numberline {24.1}处理更窄的值}{145}{section.24.1}%
-\contentsline {section}{\numberline {24.2}Zdinx}{146}{section.24.2}%
-\contentsline {section}{\numberline {24.3}处理更宽的值}{146}{section.24.3}%
-\contentsline {section}{\numberline {24.4}Zhinx}{147}{section.24.4}%
-\contentsline {section}{\numberline {24.5}Zhinxmin}{147}{section.24.5}%
-\contentsline {section}{\numberline {24.6}特权架构的影响}{147}{section.24.6}%
-\contentsline {chapter}{\numberline {第二十五章\hspace {.3em}}用于全存储排序的“Ztso”标准扩展（0.1版本）}{149}{chapter.25}%
-\contentsline {chapter}{\numberline {第二十六章\hspace {.3em}}RV32/64G指令集列表}{151}{chapter.26}%
-\contentsline {chapter}{\numberline {第二十七章\hspace {.3em}}扩充的RISC-V}{161}{chapter.27}%
-\contentsline {section}{\numberline {27.1}扩展术语}{161}{section.27.1}%
-\contentsline {section}{\numberline {27.2}RISC-V扩展设计理念}{164}{section.27.2}%
-\contentsline {section}{\numberline {27.3}定宽32位指令格式下的扩展}{164}{section.27.3}%
-\contentsline {section}{\numberline {27.4}添加对齐的64位指令扩展}{165}{section.27.4}%
-\contentsline {section}{\numberline {27.5}支持VLIW编码}{166}{section.27.5}%
-\contentsline {chapter}{\numberline {第二十八章\hspace {.3em}}ISA扩展命名约定}{169}{chapter.28}%
-\contentsline {section}{\numberline {28.1}大小写敏感性}{169}{section.28.1}%
-\contentsline {section}{\numberline {28.2}基础整数ISA}{169}{section.28.2}%
-\contentsline {section}{\numberline {28.3}指令集扩展的命名}{169}{section.28.3}%
-\contentsline {section}{\numberline {28.4}版本号}{170}{section.28.4}%
-\contentsline {section}{\numberline {28.5}着重说明}{170}{section.28.5}%
-\contentsline {section}{\numberline {28.6}附加的标准扩展的命名}{170}{section.28.6}%
-\contentsline {section}{\numberline {28.7}监管器级指令集扩展}{171}{section.28.7}%
-\contentsline {section}{\numberline {28.8}机器级指令集扩展}{171}{section.28.8}%
-\contentsline {section}{\numberline {28.9}非标准扩展的命名}{171}{section.28.9}%
-\contentsline {section}{\numberline {28.10}子集命名约定}{171}{section.28.10}%
-\contentsline {chapter}{\numberline {第二十九章\hspace {.3em}}历史和鸣谢}{173}{chapter.29}%
-\contentsline {section}{\numberline {29.1}“为什么要开发一个新的ISA？”伯克利小组的理由}{173}{section.29.1}%
-\contentsline {section}{\numberline {29.2}从ISA手册1.0版的修订历史}{175}{section.29.2}%
-\contentsline {section}{\numberline {29.3}从ISA手册2.0版的修订历史}{176}{section.29.3}%
-\contentsline {section}{\numberline {29.4}从2.1版的修订历史}{178}{section.29.4}%
-\contentsline {section}{\numberline {29.5}从2.2版的修订历史}{179}{section.29.5}%
-\contentsline {section}{\numberline {29.6}2.3版的修订历史}{179}{section.29.6}%
-\contentsline {section}{\numberline {29.7}赞助}{179}{section.29.7}%
-\contentsline {chapter}{\numberline {附录 A\hspace {.3em}}RVWMO 说明材料（0.1版本）}{181}{appendix.A}%
-\contentsline {section}{\numberline {A.1}为什么用 RVWMO?}{181}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Litmus 测试}{182}{section.A.2}%
-\contentsline {section}{\numberline {A.3}RVWMO规则的解释}{183}{section.A.3}%
-\contentsline {subsection}{\numberline {A.3.1}保留程序次序和全局内存次序}{184}{subsection.A.3.1}%
-\contentsline {subsection}{\numberline {A.3.2}\nameref *{rvwmo:ax:load}}{184}{subsection.A.3.2}%
-\contentsline {subsection}{\numberline {A.3.3}\nameref *{rvwmo:ax:atom}}{187}{subsection.A.3.3}%
-\contentsline {subsection}{\numberline {A.3.4}\nameref *{rvwmo:ax:prog}}{188}{subsection.A.3.4}%
-\contentsline {subsection}{\numberline {A.3.5}重叠地址排序（规则\nobreakspace {}\ref {ppo:->st}-\ref {ppo:amoforward}） }{188}{subsection.A.3.5}%
-\contentsline {subsection}{\numberline {A.3.6}屏障（规则\nobreakspace {}\ref {ppo:fence}）}{191}{subsection.A.3.6}%
-\contentsline {subsection}{\numberline {A.3.7}显式同步（规则\nobreakspace {}\ref {ppo:acquire}-\ref {ppo:pair}）}{192}{subsection.A.3.7}%
-\contentsline {subsection}{\numberline {A.3.8}句法依赖（规则\nobreakspace {}\ref {ppo:addr}-\ref {ppo:ctrl}）}{194}{subsection.A.3.8}%
-\contentsline {subsection}{\numberline {A.3.9}流水线依赖（规则\nobreakspace {}\ref {ppo:addrdatarfi}-\ref {ppo:addrpo}）}{196}{subsection.A.3.9}%
-\contentsline {section}{\numberline {A.4}超出主存范围}{198}{section.A.4}%
-\contentsline {subsection}{\numberline {A.4.1}一致性和可缓存性}{198}{subsection.A.4.1}%
-\contentsline {subsection}{\numberline {A.4.2}I/O排序}{199}{subsection.A.4.2}%
-\contentsline {section}{\numberline {A.5}代码移植和映射指南}{200}{section.A.5}%
-\contentsline {section}{\numberline {A.6}实现指南}{206}{section.A.6}%
-\contentsline {subsection}{\numberline {A.6.1}未来可能的扩展}{209}{subsection.A.6.1}%
-\contentsline {section}{\numberline {A.7}已知问题}{209}{section.A.7}%
-\contentsline {subsection}{\numberline {A.7.1}混合尺寸的RSW}{209}{subsection.A.7.1}%
-\contentsline {chapter}{\numberline {附录 B\hspace {.3em}}形式化的内存模型规范（0.1版本）}{211}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Alloy中的形式公理规范}{212}{section.B.1}%
-\contentsline {section}{\numberline {B.2}Herd中的形式公理规范}{217}{section.B.2}%
-\contentsline {section}{\numberline {B.3}一个内存操作模型}{221}{section.B.3}%
-\contentsline {paragraph}{模型状态}{221}{section.B.3}%
-\contentsline {paragraph}{模型过渡}{222}{section.B.3}%
-\contentsline {subsection}{\numberline {B.3.1}指令内的伪码执行}{224}{subsection.B.3.1}%
-\contentsline {subsection}{\numberline {B.3.2}指令实例状态}{226}{subsection.B.3.2}%
-\contentsline {subsection}{\numberline {B.3.3}硬件线程状态}{227}{subsection.B.3.3}%
-\contentsline {subsection}{\numberline {B.3.4}共享内存状态}{228}{subsection.B.3.4}%
-\contentsline {subsection}{\numberline {B.3.5}过渡}{228}{subsection.B.3.5}%
-\contentsline {paragraph}{获取指令}{228}{subsection.B.3.5}%
-\contentsline {paragraph}{初始化内存加载操作}{229}{Item.40}%
-\contentsline {paragraph}{通过从未传播的状态转发来满足内存加载操作}{229}{Item.43}%
-\contentsline {paragraph}{从内存满足内存加载操作}{231}{Item.52}%
-\contentsline {paragraph}{完整加载操作}{231}{Item.52}%
-\contentsline {paragraph}{早期{\tt sc}失败}{231}{Item.52}%
-\contentsline {paragraph}{配对的{\tt sc} }{231}{Item.52}%
-\contentsline {paragraph}{初始化内存存储操作足迹}{231}{Item.52}%
-\contentsline {paragraph}{初始化内存存储操作的值}{232}{Item.55}%
-\contentsline {paragraph}{提交存储指令}{232}{Item.57}%
-\contentsline {paragraph}{传播存储操作}{233}{Item.67}%
-\contentsline {paragraph}{提交和传播一个{\tt sc}的存储操作}{233}{Item.75}%
-\contentsline {paragraph}{Late {\tt sc} fail}{234}{Item.82}%
-\contentsline {paragraph}{完整存储操作}{234}{Item.84}%
-\contentsline {paragraph}{满足、提交和传播一个AMO的操作}{234}{Item.84}%
-\contentsline {paragraph}{提交屏障}{235}{Item.91}%
-\contentsline {paragraph}{寄存器读}{235}{Item.96}%
-\contentsline {paragraph}{寄存器写}{236}{Item.98}%
-\contentsline {paragraph}{伪代码内部步骤}{236}{Item.100}%
-\contentsline {paragraph}{完成指令}{236}{Item.100}%
-\contentsline {subsection}{\numberline {B.3.6}局限性}{237}{subsection.B.3.6}%
+\contentsline {section}{\numberline {18.6}C指令在LR/SC序列中的使用}{127}{section.18.6}%
+\contentsline {section}{\numberline {18.7}“提示”指令}{127}{section.18.7}%
+\contentsline {section}{\numberline {18.8}RVC指令集列表}{129}{section.18.8}%
+\contentsline {chapter}{\numberline {第十九章\hspace {.3em}}用于位操作的“B”标准扩展（0.0版本）}{133}{chapter.19}%
+\contentsline {chapter}{\numberline {第二十章\hspace {.3em}}用于动态翻译语言的“J”标准扩展（0.0版本）}{135}{chapter.20}%
+\contentsline {chapter}{\numberline {第二十一章\hspace {.3em}}用于打包SIMD指令的“P”标准扩展（0.2版本）}{137}{chapter.21}%
+\contentsline {chapter}{\numberline {第二十二章\hspace {.3em}}用于向量操作的“V”标准扩展（0.7版本）}{139}{chapter.22}%
+\contentsline {chapter}{\numberline {第二十三章\hspace {.3em}}用于非对齐原子的“Zam”标准扩展（0.1版本）}{141}{chapter.23}%
+\contentsline {paragraph}{未对齐原子的原子性公理 }{141}{chapter.23}%
+\contentsline {chapter}{\numberline {第二十四章\hspace {.3em}}用于在整数寄存器中使用浮点的“Zfinx”、“Zdinx”、“Zhinx”、“Zhinxmin”标准扩展（1.0版本）}{143}{chapter.24}%
+\contentsline {section}{\numberline {24.1}处理更窄的值}{143}{section.24.1}%
+\contentsline {section}{\numberline {24.2}Zdinx}{144}{section.24.2}%
+\contentsline {section}{\numberline {24.3}处理更宽的值}{144}{section.24.3}%
+\contentsline {section}{\numberline {24.4}Zhinx}{145}{section.24.4}%
+\contentsline {section}{\numberline {24.5}Zhinxmin}{145}{section.24.5}%
+\contentsline {section}{\numberline {24.6}特权架构的影响}{145}{section.24.6}%
+\contentsline {chapter}{\numberline {第二十五章\hspace {.3em}}用于全存储排序的“Ztso”标准扩展（0.1版本）}{147}{chapter.25}%
+\contentsline {chapter}{\numberline {第二十六章\hspace {.3em}}RV32/64G指令集列表}{149}{chapter.26}%
+\contentsline {chapter}{\numberline {第二十七章\hspace {.3em}}扩充的RISC-V}{159}{chapter.27}%
+\contentsline {section}{\numberline {27.1}扩展术语}{159}{section.27.1}%
+\contentsline {section}{\numberline {27.2}RISC-V扩展设计理念}{162}{section.27.2}%
+\contentsline {section}{\numberline {27.3}定宽32位指令格式下的扩展}{162}{section.27.3}%
+\contentsline {section}{\numberline {27.4}添加对齐的64位指令扩展}{163}{section.27.4}%
+\contentsline {section}{\numberline {27.5}支持VLIW编码}{164}{section.27.5}%
+\contentsline {chapter}{\numberline {第二十八章\hspace {.3em}}ISA扩展命名约定}{167}{chapter.28}%
+\contentsline {section}{\numberline {28.1}大小写敏感性}{167}{section.28.1}%
+\contentsline {section}{\numberline {28.2}基础整数ISA}{167}{section.28.2}%
+\contentsline {section}{\numberline {28.3}指令集扩展的命名}{167}{section.28.3}%
+\contentsline {section}{\numberline {28.4}版本号}{168}{section.28.4}%
+\contentsline {section}{\numberline {28.5}着重说明}{168}{section.28.5}%
+\contentsline {section}{\numberline {28.6}附加的标准扩展的命名}{168}{section.28.6}%
+\contentsline {section}{\numberline {28.7}监管器级指令集扩展}{169}{section.28.7}%
+\contentsline {section}{\numberline {28.8}机器级指令集扩展}{169}{section.28.8}%
+\contentsline {section}{\numberline {28.9}非标准扩展的命名}{169}{section.28.9}%
+\contentsline {section}{\numberline {28.10}子集命名约定}{169}{section.28.10}%
+\contentsline {chapter}{\numberline {第二十九章\hspace {.3em}}历史和鸣谢}{171}{chapter.29}%
+\contentsline {section}{\numberline {29.1}“为什么要开发一个新的ISA？”伯克利小组的理由}{171}{section.29.1}%
+\contentsline {section}{\numberline {29.2}从ISA手册1.0版的修订历史}{173}{section.29.2}%
+\contentsline {section}{\numberline {29.3}从ISA手册2.0版的修订历史}{174}{section.29.3}%
+\contentsline {section}{\numberline {29.4}从2.1版的修订历史}{176}{section.29.4}%
+\contentsline {section}{\numberline {29.5}从2.2版的修订历史}{177}{section.29.5}%
+\contentsline {section}{\numberline {29.6}2.3版的修订历史}{177}{section.29.6}%
+\contentsline {section}{\numberline {29.7}赞助}{177}{section.29.7}%
+\contentsline {chapter}{\numberline {附录 A\hspace {.3em}}RVWMO 说明材料（0.1版本）}{179}{appendix.A}%
+\contentsline {section}{\numberline {A.1}为什么用 RVWMO?}{179}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Litmus 测试}{180}{section.A.2}%
+\contentsline {section}{\numberline {A.3}RVWMO规则的解释}{181}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}保留程序次序和全局内存次序}{182}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}\nameref *{rvwmo:ax:load}}{182}{subsection.A.3.2}%
+\contentsline {subsection}{\numberline {A.3.3}\nameref *{rvwmo:ax:atom}}{185}{subsection.A.3.3}%
+\contentsline {subsection}{\numberline {A.3.4}\nameref *{rvwmo:ax:prog}}{186}{subsection.A.3.4}%
+\contentsline {subsection}{\numberline {A.3.5}重叠地址排序（规则\nobreakspace {}\ref {ppo:->st}-\ref {ppo:amoforward}） }{186}{subsection.A.3.5}%
+\contentsline {subsection}{\numberline {A.3.6}屏障（规则\nobreakspace {}\ref {ppo:fence}）}{189}{subsection.A.3.6}%
+\contentsline {subsection}{\numberline {A.3.7}显式同步（规则\nobreakspace {}\ref {ppo:acquire}-\ref {ppo:pair}）}{190}{subsection.A.3.7}%
+\contentsline {subsection}{\numberline {A.3.8}句法依赖（规则\nobreakspace {}\ref {ppo:addr}-\ref {ppo:ctrl}）}{192}{subsection.A.3.8}%
+\contentsline {subsection}{\numberline {A.3.9}流水线依赖（规则\nobreakspace {}\ref {ppo:addrdatarfi}-\ref {ppo:addrpo}）}{194}{subsection.A.3.9}%
+\contentsline {section}{\numberline {A.4}超出主存范围}{196}{section.A.4}%
+\contentsline {subsection}{\numberline {A.4.1}一致性和可缓存性}{196}{subsection.A.4.1}%
+\contentsline {subsection}{\numberline {A.4.2}I/O排序}{197}{subsection.A.4.2}%
+\contentsline {section}{\numberline {A.5}代码移植和映射指南}{198}{section.A.5}%
+\contentsline {section}{\numberline {A.6}实现指南}{204}{section.A.6}%
+\contentsline {subsection}{\numberline {A.6.1}未来可能的扩展}{207}{subsection.A.6.1}%
+\contentsline {section}{\numberline {A.7}已知问题}{207}{section.A.7}%
+\contentsline {subsection}{\numberline {A.7.1}混合尺寸的RSW}{207}{subsection.A.7.1}%
+\contentsline {chapter}{\numberline {附录 B\hspace {.3em}}形式化的内存模型规范（0.1版本）}{209}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Alloy中的形式公理规范}{210}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Herd中的形式公理规范}{215}{section.B.2}%
+\contentsline {section}{\numberline {B.3}一个内存操作模型}{219}{section.B.3}%
+\contentsline {paragraph}{模型状态}{219}{section.B.3}%
+\contentsline {paragraph}{模型过渡}{220}{section.B.3}%
+\contentsline {subsection}{\numberline {B.3.1}指令内的伪码执行}{222}{subsection.B.3.1}%
+\contentsline {subsection}{\numberline {B.3.2}指令实例状态}{224}{subsection.B.3.2}%
+\contentsline {subsection}{\numberline {B.3.3}硬件线程状态}{225}{subsection.B.3.3}%
+\contentsline {subsection}{\numberline {B.3.4}共享内存状态}{226}{subsection.B.3.4}%
+\contentsline {subsection}{\numberline {B.3.5}过渡}{226}{subsection.B.3.5}%
+\contentsline {paragraph}{获取指令}{226}{subsection.B.3.5}%
+\contentsline {paragraph}{初始化内存加载操作}{227}{Item.40}%
+\contentsline {paragraph}{通过从未传播的状态转发来满足内存加载操作}{227}{Item.43}%
+\contentsline {paragraph}{从内存满足内存加载操作}{229}{Item.52}%
+\contentsline {paragraph}{完整加载操作}{229}{Item.52}%
+\contentsline {paragraph}{早期{\tt sc}失败}{229}{Item.52}%
+\contentsline {paragraph}{配对的{\tt sc} }{229}{Item.52}%
+\contentsline {paragraph}{初始化内存存储操作足迹}{229}{Item.52}%
+\contentsline {paragraph}{初始化内存存储操作的值}{230}{Item.55}%
+\contentsline {paragraph}{提交存储指令}{230}{Item.57}%
+\contentsline {paragraph}{传播存储操作}{231}{Item.67}%
+\contentsline {paragraph}{提交和传播一个{\tt sc}的存储操作}{231}{Item.75}%
+\contentsline {paragraph}{Late {\tt sc} fail}{232}{Item.82}%
+\contentsline {paragraph}{完整存储操作}{232}{Item.84}%
+\contentsline {paragraph}{满足、提交和传播一个AMO的操作}{232}{Item.84}%
+\contentsline {paragraph}{提交屏障}{233}{Item.91}%
+\contentsline {paragraph}{寄存器读}{233}{Item.96}%
+\contentsline {paragraph}{寄存器写}{234}{Item.98}%
+\contentsline {paragraph}{伪代码内部步骤}{234}{Item.100}%
+\contentsline {paragraph}{完成指令}{234}{Item.100}%
+\contentsline {subsection}{\numberline {B.3.6}局限性}{235}{subsection.B.3.6}%

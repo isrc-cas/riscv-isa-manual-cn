@@ -11,10 +11,10 @@
 
 \chapter{RVWMO 说明材料（0.1版本）}
 \label{sec:memorymodelexplanation}
-这节使用了更加非正式的语言和具体的例子，提供了更多关于RVWMO（第17章~\ref{ch:memorymodel}）的解释。
+这节使用了更加非正式的语言和具体的例子，提供了更多关于RVWMO（第~\ref{ch:memorymodel}章）的解释。
 这些解释都是为了澄清该公理和保留的程序次序规则的含义和目的。
-这个附录应当被视为评注；而所有的规范性材料都在第17章~\ref{ch:memorymodel}和ISA规范的主体的其余部分中提供。
-当前的所有已知的差异性都被列在了第A.7节~\ref{sec:memory:discrepancies}。任何其它的差异性都是无意的。
+这个附录应当被视为评注；而所有的规范性材料都在第~\ref{ch:memorymodel}章和ISA规范的主体的其余部分中提供。
+当前的所有已知的差异性都被列在了第~\ref{sec:memory:discrepancies}节。任何其它的差异性都是无意的。
 % This section provides more explanation for RVWMO (Chapter~\ref{ch:memorymodel}), using more informal language and concrete examples.
 % These are intended to clarify the meaning and intent of the axioms and preserved program order rules.
 % This appendix should be treated as commentary; all normative material is provided in Chapter~\ref{ch:memorymodel} and in the rest of the main body of the ISA specification.
@@ -229,7 +229,7 @@ Litmus测试被用于理解特定具体情境中的内存模型的含义。
       (c) & fence r,r   & (g) & fence r,r   \\
       (d) & lw a1,0(s1) & (h) & lw a3,0(s0) \\
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a1=0}, {\tt a2=1}, {\tt a3=0}}
+      \multicolumn{4}{c}{输出结果 {\tt a0=1}, {\tt a1=0}, {\tt a2=1}, {\tt a3=0}}
     \end{tabular}
   }
   &
@@ -307,7 +307,7 @@ Litmus测试被用于理解特定具体情境中的内存模型的含义。
           &             &     & add s0,s0,a2  \\
           &             & (g) & lw a2,0(s0)   \\
       \hline
-      \multicolumn{4}{c}{结果： {\tt a0=1}, {\tt a1=1}, {\tt a2=0}}
+      \multicolumn{4}{c}{输出结果： {\tt a0=1}, {\tt a1=1}, {\tt a2=0}}
     \end{tabular}
   }
   &
@@ -472,7 +472,7 @@ LR/SC的行为就像是，旧值被带到核心，修改，然后写回到内存
           &             & (h) & add s0,s0,t3 \\
           &             & (i) & lw~ a2,0(s0) \\
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a1=2}, {\tt a2=0}}
+      \multicolumn{4}{c}{输出结果: {\tt a0=1}, {\tt a1=2}, {\tt a2=0}}
     \end{tabular}
   }
   &
@@ -525,7 +525,7 @@ LR/SC的行为就像是，旧值被带到核心，修改，然后写回到内存
           &             & (j) & add s0,s0,t3 \\
           &             & (k) & lw~ a3,0(s0) \\
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a1=$v$}, {\tt a2=$v$}, {\tt a3=0}}
+      \multicolumn{4}{c}{输出结果: {\tt a0=1}, {\tt a1=$v$}, {\tt a2=$v$}, {\tt a3=0}}
     \end{tabular}
   }
   &
@@ -726,7 +726,7 @@ PPO规则~\ref{ppo:pair}说明了，一个SC必须在全局内存次序中出现
 % The Alpha memory model was notable for choosing {\em not} to enforce the ordering of such dependencies, but most modern hardware and software memory models consider allowing dependent instructions to be reordered too confusing and counterintuitive.
 % Furthermore, modern code sometimes intentionally uses such dependencies as a particularly lightweight ordering enforcement mechanism.
 
-~\ref{sec:memorymodel:dependencies}节中的术语工作如下。
+第~\ref{sec:memorymodel:dependencies}节中的术语工作如下。
 无论何时，当写入每个目的寄存器的值是源寄存器的函数的时候，指令被称为携带了从它们的源寄存器到它们的目的寄存器的依赖。
 对于大多数指令，这意味着，目的寄存器携带了一个来自所有源寄存器的依赖。然而，也有一些著名的例外。在内存指令的情形中，写入目的寄存器的值最终来自于内存系统，而不是直接来自源寄存器，并因此这样打破了所携带的来自源寄存器的依赖链。
 在无条件跳转的情形中，写入目的寄存器的值来自于当前的{\tt pc}（它永远不会被内存模型认为是一个源寄存器），并因此类似地，JALR（仅有的带有源寄存器的跳转）不会携带一个从{\em rs1}到{\em rd}的依赖。
@@ -855,7 +855,7 @@ PPO规则~\ref{ppo:ctrl}反过来暗示了，任何后继的存储操作将在�
   {
     \tt\small
     \begin{tabular}{cl||cl}
-    \multicolumn{4}{c}{Initial values: 0(s0)=1; 0(s2)=1} \\
+    \multicolumn{4}{c}{初始值: 0(s0)=1; 0(s2)=1} \\
     \\
     \multicolumn{2}{c}{Hart 0} & \multicolumn{2}{c}{Hart 1} \\
     \hline
@@ -864,7 +864,7 @@ PPO规则~\ref{ppo:ctrl}反过来暗示了，任何后继的存储操作将在�
       (c) & sc a2,a0,0(s1) &                    \\
       (d) & sd a2,0(s2)    &                    \\
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=0}, {\tt a3=0}}
+      \multicolumn{4}{c}{输出结果: {\tt a0=0}, {\tt a3=0}}
     \end{tabular}
   }
   & &
@@ -917,7 +917,7 @@ PPO规则~\ref{ppo:ctrl}反过来暗示了，任何后继的存储操作将在�
           &             &     & add s0,s0,a2   \\
           &             & (g) & lw a3,0(s0)    \\   
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a3=0}}
+      \multicolumn{4}{c}{输出结果: {\tt a0=1}, {\tt a3=0}}
     \end{tabular}
   } & &
   \input{figs/litmus_datarfi.pdf_t}
@@ -956,7 +956,7 @@ PPO规则~\ref{ppo:addrdatarfi}和\ref{ppo:addrpo}反应了几乎所有的真实
           &             & (h) & lw a3,0(s0)    \\   
 
       \hline
-      \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a3=0}}
+      \multicolumn{4}{c}{输出结果: {\tt a0=1}, {\tt a3=0}}
     \end{tabular}
   } & &
   \input{figs/litmus_datacoirfi.pdf_t}
@@ -989,7 +989,7 @@ PPO规则~\ref{ppo:addrdatarfi}和\ref{ppo:addrpo}反应了几乎所有的真实
     (b) & fence rw,rw & (e) & lw a2, 0(a1)   \\
     (c) & sw s2,0(s1) & (f) & sw t1, 0(s0)   \\
     \hline
-    \multicolumn{4}{c}{Outcome: {\tt a0=1}, {\tt a1=t}}
+    \multicolumn{4}{c}{输出结果: {\tt a0=1}, {\tt a1=t}}
     \end{tabular}  
     & &
     \input{figs/litmus_addrpo.pdf_t}
@@ -1354,7 +1354,7 @@ RVWMO 映射:
   \centering
   \begin{tabular}{|l|l|}
     \hline
-    C/C++ Construct                            & RVWMO Mapping \\
+    C/C++ 构造                            & RVWMO 映射 \\
     \hline
     \hline
     Non-atomic load                            & \tt l\{b|h|w|d\}               \\
@@ -1368,7 +1368,7 @@ RVWMO 映射:
     \tt atomic\_load(memory\_order\_seq\_cst)  & \tt fence rw,rw; l\{b|h|w|d\}; fence r,rw       \\
     \hline
     \hline
-    Non-atomic store                           & \tt s\{b|h|w|d\}               \\
+    非原子性存储                           & \tt s\{b|h|w|d\}               \\
     \hline
     \tt atomic\_store(memory\_order\_relaxed)  & \tt s\{b|h|w|d\}               \\
     \hline
@@ -1386,7 +1386,7 @@ RVWMO 映射:
     \tt atomic\_thread\_fence(memory\_order\_seq\_cst) & \tt fence rw,rw \\
     \hline
     \hline
-    C/C++ Construct                           & RVWMO AMO Mapping        \\
+    C/C++ 构造                          & RVWMO AMO 映射        \\
     \hline
     \tt atomic\_<op>(memory\_order\_relaxed)  & \tt amo<op>.\{w|d\}      \\
     \hline
@@ -1399,7 +1399,7 @@ RVWMO 映射:
     \tt atomic\_<op>(memory\_order\_seq\_cst) & \tt amo<op>.\{w|d\}.aqrl \\
     \hline
     \hline
-    C/C++ Construct                           & RVWMO LR/SC Mapping\\
+    C/C++ 构造                           & RVWMO LR/SC 映射\\
     \hline
     \multirow{2}{*}{\tt atomic\_<op>(memory\_order\_relaxed)}
       & \tt loop:\@ lr.\{w|d\}; <op>; sc.\{w|d\}; \\
@@ -1422,7 +1422,9 @@ RVWMO 映射:
       & \tt sc.\{w|d\}.rl; bnez loop \\
     \hline
   \end{tabular}
-  \caption{Mappings from C/C++ primitives to RISC-V primitives.}
+  \caption{从C/C++原语到RISC-V原语的映射。
+    % Mappings from C/C++ primitives to RISC-V primitives.
+    }
   \label{tab:c11mappings}
 \end{table}
 

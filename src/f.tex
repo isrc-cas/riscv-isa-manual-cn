@@ -218,38 +218,38 @@ FSRM通过把{\tt frm}域中的值复制进整数寄存器{\em rd}，然后把�
 \hline
 \multicolumn{1}{|c|}{000} &
 \multicolumn{1}{l|}{RNE} &
-\multicolumn{1}{l|}{就近舍入，关联到偶数  Round to Nearest, ties to Even}\\
+\multicolumn{1}{l|}{就近舍入，关联到偶数  \iffalse Round to Nearest, ties to Even \fi }\\
 \hline
 \multicolumn{1}{|c|}{001} &
 \multicolumn{1}{l|}{RTZ} &
-\multicolumn{1}{l|}{向零舍入  Round towards Zero}\\
+\multicolumn{1}{l|}{向零舍入  \iffalse Round towards Zero \fi }\\
 \hline
 \multicolumn{1}{|c|}{010} &
 \multicolumn{1}{l|}{RDN} &
-\multicolumn{1}{l|}{向下舍入（向$-\infty$）  Round Down (towards $-\infty$)}\\
+\multicolumn{1}{l|}{向下舍入（向$-\infty$） \iffalse Round Down (towards $-\infty$)\fi  }  \\
 \hline
 \multicolumn{1}{|c|}{011} &
 \multicolumn{1}{l|}{RUP} &
-\multicolumn{1}{l|}{向上舍入（向$+\infty$）  Round Up (towards $+\infty$)}\\
+\multicolumn{1}{l|}{向上舍入（向$+\infty$） \iffalse Round Up (towards $+\infty$)\fi }  \\
 \hline
 \multicolumn{1}{|c|}{100} &
 \multicolumn{1}{l|}{RMM} &
-\multicolumn{1}{l|}{就近舍入，关联到最大幅度  Round to Nearest, ties to Max Magnitude}\\
+\multicolumn{1}{l|}{就近舍入，关联到最大幅度  \iffalse Round to Nearest, ties to Max Magnitude\fi }   \\
 \hline
 \multicolumn{1}{|c|}{101} &
 \multicolumn{1}{l|}{} &
-\multicolumn{1}{l|}{\em 保留供未来使用。 Reserved for future use.}\\
+\multicolumn{1}{l|}{\em 保留供未来使用。\iffalse Reserved for future use.\fi }  \\
 \hline
 \multicolumn{1}{|c|}{110} &
 \multicolumn{1}{l|}{} &
-\multicolumn{1}{l|}{\em 保留供未来使用。 Reserved for future use.}\\
+\multicolumn{1}{l|}{\em 保留供未来使用。\iffalse Reserved for future use.\fi }  \\
 \hline
 \multicolumn{1}{|c|}{111} &
 \multicolumn{1}{l|}{DYN} &
-\multicolumn{1}{l|}{在指令的{\em rm}域中，选择动态舍入模式；  In instruction's {\em rm} field, selects dynamic rounding mode;}\\
+\multicolumn{1}{l|}{在指令的{\em rm}域中，选择动态舍入模式；  \iffalse In instruction's {\em rm} field, selects dynamic rounding mode;\fi }   \\
 \multicolumn{1}{|c|}{} &
 \multicolumn{1}{l|}{} &
-\multicolumn{1}{l|}{在舍入模式寄存器中，{\em 保留}。  In Rounding Mode register, {\em reserved}.}\\
+\multicolumn{1}{l|}{在舍入模式寄存器中，{\em 保留}。 \iffalse In Rounding Mode register, {\em reserved}.\fi }    \\
 \hline
 \end{tabular}
 \end{center}
@@ -294,28 +294,30 @@ F规范的已批准版本强制规定，当一条指令以保留的动态舍入�
 \begin{center}
 \begin{tabular}{cl}
 \hline
-\multicolumn{1}{|c|}{Flag Mnemonic} &
-\multicolumn{1}{c|}{Flag Meaning} \\
+\multicolumn{1}{|c|}{标志助记符} &
+\multicolumn{1}{c|}{标志含义} \\
 \hline
 \multicolumn{1}{|c|}{NV} &
-\multicolumn{1}{c|}{Invalid Operation}\\
+\multicolumn{1}{c|}{无效的操作 \iffalse Invalid Operation \fi }\\
 \hline
 \multicolumn{1}{|c|}{DZ} &
-\multicolumn{1}{c|}{Divide by Zero}\\
+\multicolumn{1}{c|}{除数为零 \iffalse Divide by Zero \fi }\\
 \hline
 \multicolumn{1}{|c|}{OF} &
-\multicolumn{1}{c|}{Overflow}\\
+\multicolumn{1}{c|}{溢出 \iffalse Overflow \fi }\\
 \hline
 \multicolumn{1}{|c|}{UF} &
-\multicolumn{1}{c|}{Underflow}\\
+\multicolumn{1}{c|}{向下溢出 \iffalse Underflow \fi}\\
 \hline
 \multicolumn{1}{|c|}{NX} &
-\multicolumn{1}{c|}{Inexact}\\
+\multicolumn{1}{c|}{不精确的 \iffalse Inexact \fi }\\
 \hline
 \end{tabular}
 \end{center}
 \end{small}
-\caption{Accrued exception flag encoding.}
+\caption{累积异常标志编码。
+% Accrued exception flag encoding.
+}
 \label{bitdef}
 \end{table}
 
@@ -647,7 +649,7 @@ src3 & S & src2 & src1 & RM  & dest & F[N]MADD/F[N]MSUB  \\
 % invalid exception for the operation \mbox{$\infty\times 0\ +$ qNaN}.
 \end{commentary}
 
-\section{单精度浮点转换和移动指令\mbox{Instructions}}
+\section{单精度浮点转换和移动\mbox{指令}}
 % \section{Single-Precision Floating-Point Conversion and Move \mbox{Instructions}}
 
 浮点到整数转换指令和整数到浮点转换指令被编码在OP-FP主操作码空间中。
@@ -979,15 +981,21 @@ FCLASS & S & 0 & src & 001 & dest & OP-FP  \\
 Meaning \\
 \hline
 0 & {\em rs1} 是 $-\infty$. \\
-1 & {\em rs1} 是一个负的正常的数  is a negative normal number. \\
-2 & {\em rs1} 是一个负的亚正常的数 is a negative subnormal number. \\
+1 & {\em rs1} 是一个负的正常的数  %is a negative normal number.
+                                \\
+2 & {\em rs1} 是一个负的亚正常的数 % is a negative subnormal number. 
+                                  \\
 3 & {\em rs1} 是 $-0$. \\
 4 & {\em rs1} 是 $+0$. \\
-5 & {\em rs1} 是一个负的亚正常的数  is a positive subnormal number. \\
-6 & {\em rs1} 是一个负的正常的数  is a positive normal number. \\
+5 & {\em rs1} 是一个负的亚正常的数  % is a positive subnormal number. 
+                                  \\
+6 & {\em rs1} 是一个负的正常的数  % is a positive normal number. 
+                                      \\
 7 & {\em rs1} 是 $+\infty$. \\
-8 & {\em rs1} 是发信号的NaN  is a signaling NaN. \\
-9 & {\em rs1} 是沉默的NaN  is a quiet NaN. \\
+8 & {\em rs1} 是发信号的NaN  % is a signaling NaN. 
+                                \\
+9 & {\em rs1} 是沉默的NaN  %  is a quiet NaN. 
+                                    \\
 \hline
 \end{tabular}
 \end{center}

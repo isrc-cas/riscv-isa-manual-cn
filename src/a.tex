@@ -248,7 +248,7 @@ SC必定失败，如果：在LR和SC之间可以观察到有从其它硬件线�
 SC必定失败，如果：在LR和SC之间可以观察到有从其它设备到LR所访问的字节的写发生。
 （如果这个设备写了保留集但是没有写由LR所访问的字节，SC可能失败，也可能不失败。）
 SC必定失败，如果：以程序次序，在LR和SC之间有另一个SC（对任何地址）。
-在14.1节~\ref{sec:rvwmo}中，“原子性公理”定义了对成功的LR/SC序列的原子性需求的精确陈述。
+在~\ref{sec:rvwmo}节中，“原子性公理”定义了对成功的LR/SC序列的原子性需求的精确陈述。
 % The SC must fail if the address is not within the reservation set of the most
 % recent LR in program order.
 % The SC must fail if a store to the reservation set from another hart can be
@@ -285,7 +285,7 @@ SC必定失败，如果：以程序次序，在LR和SC之间有另一个SC（对
 \begin{commentary}
   如果一个LR或SC暗示，硬件线程当时只持有一个保留，并且以程序次序，SC只能与最接近的LR配对，
   且LR只能与接下来的下一个SC配对，那么当硬件线程执行该LR或SC时，硬件线程的预约被无效化。
-  这是对17.1节~\ref{sec:rvwmo}中原子性公理的一个限制，该公理确保软件正确地运行在以这种方式操作的期望的常见实现上。
+  这是对~\ref{sec:rvwmo}节中原子性公理的一个限制，该公理确保软件正确地运行在以这种方式操作的期望的常见实现上。
 % The invalidation of a hart's reservation when it executes an LR or SC
 % imply that a hart can only hold one reservation at a time, and that
 % an SC can only pair with the most recent LR, and LR with the next
@@ -506,7 +506,7 @@ LR/SC可以被用于构造无锁的数据结构。图~\ref{cas}显示了一个�
 
 
 \section{原子内存操作}
-\section{Atomic Memory Operations}
+% \section{Atomic Memory Operations}
 \label{sec:amo}
 
 \vspace{-0.2in}
@@ -560,7 +560,7 @@ AMOMIN[U].W/D & \multicolumn{2}{c}{ordering} & src & addr & width & dest & AMO  
 对于AMO，A扩展需要{\em rs1}中持有的地址被自然地对齐到操作数的尺寸（也就是说，对于64位字是8字节对齐，对于32位字是4字节对齐）。
 如果地址没有自然对齐，将生成一个地址未对齐异常或一个访问故障异常。如果未对齐的访问不宜被模拟，
 而除了未对齐之外的内存访问都能完成，那么可以为内存访问生成访问故障异常。
-第23章~\ref{sec:zam}里描述的“Zam”扩展放松了这个需求并指定了未对齐的AMO的语义。
+第~\ref{sec:zam}章里描述的“Zam”扩展放松了这个需求并指定了未对齐的AMO的语义。
 % For AMOs, the A extension requires that the address held in {\em rs1}
 % be naturally aligned to the size of the operand (i.e., eight-byte
 % aligned for 64-bit words and four-byte aligned for 32-bit words).  If

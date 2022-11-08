@@ -125,10 +125,10 @@ FENCE.I指令确保RISC-V硬件线程上后续的指令获取将能看到已经�
 
 FENCE.I指令中的未使用的域，imm[11:0]、rs1和rd，被保留用于未来扩展中的更细粒度的屏障功能。
 为了向前兼容，基础实现应当忽略这些域，而标准软件应当把这些域置为零。
-The unused fields in the FENCE.I instruction, {\em imm[11:0]}, {\em rs1}, and
-{\em rd}, are reserved for finer-grain fences in future extensions.  For
-forward compatibility, base implementations shall ignore these fields, and
-standard software shall zero these fields.
+% The unused fields in the FENCE.I instruction, {\em imm[11:0]}, {\em rs1}, and
+% {\em rd}, are reserved for finer-grain fences in future extensions.  For
+% forward compatibility, base implementations shall ignore these fields, and
+% standard software shall zero these fields.
 
 \begin{commentary}
 因为FENCE.I只使用硬件线程自己的指令获取来给存储排序，

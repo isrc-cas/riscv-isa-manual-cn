@@ -1073,12 +1073,12 @@ C.SLLI  & shamt[5] & dest$\neq$0 & shamt[4:0] & C2 \\
 SLLI是一个CI格式的指令，它对寄存器{\em rd}中的值执行逻辑左移，然后把结果写到{\em rd}。
 移位的数目被编码在{\em shamt}域之中。对于RV128C，移位数目零被用于编码64的移位。
 C.SLLI扩展到{\tt slli rd, rd, shamt}；但{\tt shamt=0}的RV128C除外，它扩展到{\tt slli rd, rd, 64}。
-C.SLLI is a CI-format instruction that performs a logical left shift
-of the value in register {\em rd} then writes the result to {\em rd}.
-The shift amount is encoded in the {\em shamt} field.
-For RV128C, a shift amount of zero is used to encode a shift of 64.
-C.SLLI expands into {\tt slli rd, rd, shamt}, except for
-RV128C with {\tt shamt=0}, which expands to {\tt slli rd, rd, 64}.
+% C.SLLI is a CI-format instruction that performs a logical left shift
+% of the value in register {\em rd} then writes the result to {\em rd}.
+% The shift amount is encoded in the {\em shamt} field.
+% For RV128C, a shift amount of zero is used to encode a shift of 64.
+% C.SLLI expands into {\tt slli rd, rd, shamt}, except for
+% RV128C with {\tt shamt=0}, which expands to {\tt slli rd, rd, 64}.
 
 对于RV32C，{\em shamt[5]}必须是零；{\em shamt[5]}=1的代码点被指定用于自定义扩展。
 对于RV32C和RV64C，移位的数目必须是非零的；{\em shamt}=0的代码点是HINT。
