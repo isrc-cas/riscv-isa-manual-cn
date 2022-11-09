@@ -1606,8 +1606,8 @@ interrupts, unless the interrupt results in a user-level context swap.
 在任何合理的用例中，用户和管理员级别之间的上下文切换次数应该远远超过其他权限级别的上下文切换次数。注意，协处理器不应该要求保存和恢复它们的上下文来服务异步中断，除非中断导致用户级上下文交换。
 \end{commentary}
 
-\subsection{Machine Trap-Vector Base-Address Register ({\tt mtvec})}
-
+% \subsection{Machine Trap-Vector Base-Address Register ({\tt mtvec})}
+\subsection{机器陷阱向量基地址寄存器 ({\tt mtvec})}
 \iffalse
 The {\tt mtvec} register is an MXLEN-bit \warl\ read/write register that holds
 trap vector configuration, consisting of a vector base address (BASE) and a
@@ -1729,7 +1729,8 @@ Reset and NMI vector locations are given in a platform specification.
 平台规范中给出了复位和NMI向量的位置。
 \end{commentary}
 
-\subsection{Machine Trap Delegation Registers ({\tt medeleg} and {\tt mideleg})}
+% \subsection{Machine Trap Delegation Registers ({\tt medeleg} and {\tt mideleg})}
+\subsection{机器陷阱委托寄存器 ({\tt medeleg} 和 {\tt mideleg})}
 
 \iffalse
 By default, all traps at any privilege level are handled in machine
@@ -1887,7 +1888,8 @@ For exceptions that cannot occur in less privileged modes, the corresponding
 
 对于在较低特权模式下不能发生的异常，相应的 {\tt medeleg} 位应为只读零。 特别是，{\tt medeleg}[11] 是只读零。
 
-\subsection{Machine Interrupt Registers ({\tt mip} and {\tt mie})}
+% \subsection{Machine Interrupt Registers ({\tt mip} and {\tt mie})}
+\subsection{机器中断寄存器 ({\tt mip} 和 {\tt mie})}
 
 \iffalse
 The {\tt mip} register is an MXLEN-bit read/write register containing
@@ -2169,11 +2171,7 @@ SEIP 在 {\tt mip} 中是可写的，并且可以由 M-mode 软件写入以向 S
 \fi
 
 \begin{commentary}
-  例如，如果我们将软件可写 SEIP 位 {\tt B} 和来自外部中断控制器的信号命名为 {\tt E}，那么如果执行 \mbox{\tt csrrs t0, mip, t1}，
-  {\ tt t0[9]} 用 \mbox{\tt B || 编写 E}，则 {\tt B} 写成 \mbox{\tt B || t1[9]}。 
-  如果 \mbox{\tt csrrw t0, mip, t1} 被执行，那么 {\tt t0[9]} 写成 \mbox{\tt B || E}，而 {\tt B} 简单地写成 {\tt t1[9]}。 
-  在这两种情况下，{\tt B} 都不依赖于 {\tt E}。 SEIP 字段行为旨在允许更高特权层干净地模仿外部中断，而不会丢失任何真正的外部中断。 
-  因此，CSR 指令的行为与常规 CSR 访问相比略有修改。
+  例如，如果我们将软件可写 SEIP 位 {\tt B} 和来自外部中断控制器的信号命名为 {\tt E}，那么如果执行 \mbox{\tt csrrs t0, mip, t1}，{\ tt t0[9]} 用 \mbox{\tt B || 编写 E}，则 {\tt B} 写成 \mbox{\tt B || t1[9]}。 如果 \mbox{\tt csrrw t0, mip, t1} 被执行，那么 {\tt t0[9]} 写成 \mbox{\tt B || E}，而 {\tt B} 简单地写成 {\tt t1[9]}。 在这两种情况下，{\tt B} 都不依赖于 {\tt E}。 SEIP 字段行为旨在允许更高特权层干净地模仿外部中断，而不会丢失任何真正的外部中断。 因此，CSR 指令的行为与常规 CSR 访问相比略有修改。
 \end{commentary}
 
 \iffalse
@@ -2256,7 +2254,8 @@ zero.
 
 {\tt mip} 和 {\tt mie} 寄存器的受限视图显示为主管级别的 {\tt sip} 和 {\tt sie} 寄存器。 如果通过在 {\tt mideleg} 寄存器中设置一个位将中断委托给 S 模式，则它在 {\tt sip} 寄存器中变得可见，并且可以使用 {\tt sie} 寄存器进行屏蔽。 否则，{\tt sip} 和 {\tt sie} 中的对应位为只读零。
 
-\subsection{Hardware Performance Monitor}
+% \subsection{Hardware Performance Monitor}
+\subsection{硬件性能监视器}
 
 \iffalse
 M-mode includes a basic hardware performance-monitoring facility.  The
@@ -2371,7 +2370,8 @@ counter, and writes change only bits 63--32.
 %circuitry.
 %\end{commentary}
 
-\subsection{Machine Counter-Enable Register ({\tt mcounteren})}
+% \subsection{Machine Counter-Enable Register ({\tt mcounteren})}
+\subsection{机器计数器使能寄存器 ({\tt mcounteren})}
 \label{sec:mcounteren}
 
 \iffalse
@@ -2487,7 +2487,8 @@ In systems without U-mode, the {\tt mcounteren} register should not exist.
 
 在具有 U 模式的系统中，必须实现 {\tt mcounteren}，但所有字段都是 \warl\ ，并且可能是只读零，表示读取相应计数器会导致在 less- 中执行时出现非法指令异常 特权模式。 在没有 U 模式的系统中，{\tt mcounteren} 寄存器不应该存在。
 
-\subsection{Machine Counter-Inhibit CSR ({\tt mcountinhibit})}
+% \subsection{Machine Counter-Inhibit CSR ({\tt mcountinhibit})}
+\subsection{机器计数器抑制寄存器 ({\tt mcountinhibit})}
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2571,7 +2572,8 @@ cannot be inhibited with the {\tt mcountinhibit} mechanism.
 \end{commentary}
 
 
-\subsection{Machine Scratch Register ({\tt mscratch})}
+% \subsection{Machine Scratch Register ({\tt mscratch})}
+\subsection{机器scratch寄存器 ({\tt mscratch})}
 
 \iffalse
 The {\tt mscratch} register is an MXLEN-bit read/write register
@@ -2624,7 +2626,8 @@ RISC-V 用户 ISA 旨在支持许多可能的特权系统环境，因此我们�
 \end{commentary}
 
 
-\subsection{Machine Exception Program Counter ({\tt mepc})}
+% \subsection{Machine Exception Program Counter ({\tt mepc})}
+\subsection{机器异常程序计数器 ({\tt mepc})}
 
 \iffalse
 {\tt mepc} is an MXLEN-bit read/write register formatted as shown in
@@ -2690,7 +2693,8 @@ MXLEN \\
 \label{mepcreg}
 \end{figure}
 
-\subsection{Machine Cause Register ({\tt mcause})}
+% \subsection{Machine Cause Register ({\tt mcause})}
+\subsection{机器成因寄存器 ({\tt mcause})}
 \label{sec:mcause}
 
 \iffalse
@@ -2920,7 +2924,8 @@ instruction address exceptions.
 \end{commentary}
 
 \FloatBarrier
-\subsection{Machine Trap Value Register ({\tt mtval})}
+% \subsection{Machine Trap Value Register ({\tt mtval})}
+\subsection{机器陷阱值寄存器 ({\tt mtval})}
 
 \iffalse
 The {\tt mtval} register is an MXLEN-bit read-write register formatted as shown
@@ -3062,7 +3067,8 @@ smaller of MXLEN and ILEN.
 在编写{\tt mtval}之前，实现可能会将无效地址转换为{\tt mtval}能够持有的其他一些无效地址。
 如果实现了返回错误指令位的特性，{\tt mtval}还必须能够保存所有小于$2^N$的值，其中$N$是MXLEN和ILEN中较小的一个。
 
-\subsection{Machine Configuration Pointer Register ({\tt mconfigptr})}
+% \subsection{Machine Configuration Pointer Register ({\tt mconfigptr})}
+\subsection{机器配置指针计数器 ({\tt mconfigptr})}
 
 \iffalse
 {\tt mconfigptr} is an MXLEN-bit read-only CSR, formatted as shown in
@@ -3128,9 +3134,13 @@ beginning of the boot process.
 虽然在某些实现中{\tt mconfigptr}将简单地硬连接，但其他实现可能提供一种方法来配置CSR读取时返回的值。例如，{\tt mconfigptr}可能表示由平台或m模式软件在引导过程开始时编写的内存映射寄存器的值。
 \end{commentary}
 
+% \subsection{%
+%  Machine Environment Configuration Registers
+%  ({\tt menvcfg} and {\tt menvcfgh})%
+% }
 \subsection{%
- Machine Environment Configuration Registers
- ({\tt menvcfg} and {\tt menvcfgh})%
+  机器环境配置寄存器
+ ({\tt menvcfg} 和 {\tt menvcfgh})%
 }
 
 \iffalse
@@ -3286,7 +3296,8 @@ CBCFE和CBIE字段的定义将由即将到来的Zicbom扩展提供。
 
 如果不支持u模式，则寄存器{\tt menvcfg}和{\tt menvcfgh}不存在。
 
-\subsection{Machine Security Configuration Register ({\tt mseccfg})}
+% \subsection{Machine Security Configuration Register ({\tt mseccfg})}
+\subsection{机器安全性配置寄存器 ({\tt mseccfg})}
 \label{sec:mseccfg}
 
 \iffalse
@@ -3345,9 +3356,11 @@ SSEED和USEED字段的定义将由即将到来的熵源扩展Zkr提供。它们�
 
 RLB、MMWP和MML字段的定义将由即将推出的pmp增强扩展Smepmp提供。它们在{\tt mseccfg}内的分配可能在批准该扩展之前发生变化。
 
-\section{Machine-Level Memory-Mapped Registers}
+% \section{Machine-Level Memory-Mapped Registers}
+\section{机器级内存映射寄存器}
 
-\subsection{Machine Timer Registers ({\tt mtime} and {\tt mtimecmp})}
+% \subsection{Machine Timer Registers ({\tt mtime} and {\tt mtimecmp})}
+\subsection{机器计时器寄存器 ({\tt mtime} and {\tt mtimecmp})}
 
 \iffalse
 Platforms provide a real-time counter, exposed as a memory-mapped
@@ -3492,9 +3505,11 @@ For RV64, naturally aligned 64-bit memory accesses to the {\tt mtime} and {\tt
 \fi
 对于RV64，还支持对{\tt mtime}和{\tt-mtimecmp}寄存器的自然对齐64位内存访问，并且是原子的。
 
-\section{Machine-Mode Privileged Instructions}
+% \section{Machine-Mode Privileged Instructions}
+\section{机器模式特权指令}
 
-\subsection{Environment Call and Breakpoint}
+% \subsection{Environment Call and Breakpoint}
+\subsection{环境调用和断点}
 
 \vspace{-0.2in}
 \begin{center}
@@ -3565,7 +3580,8 @@ retire, and should not increment the {\tt minstret} CSR.
 ECALL 和 EBREAK 导致接收特权模式的 {\tt epc} 寄存器被设置为 ECALL 或 EBREAK 指令本身的地址，{\em not} 是下一条指令的地址。
 由于 ECALL 和 EBREAK 导致同步异常，它们不被视为退休，并且不应增加 {\tt minstret} CSR。
 
-\subsection{Trap-Return Instructions}
+% \subsection{Trap-Return Instructions}
+\subsection{陷阱返回指令}
 \label{otherpriv}
 
 \iffalse
@@ -3630,7 +3646,9 @@ required (e.g., by using a dummy SC) before executing the {\em x}\/RET.
  如果 {\em x}\/RET 指令总是清除 LR 保留，则不可能使用调试器单步执行 LR/SC 序列。
 \end{commentary}
 
-\subsection{Wait for Interrupt}
+% \subsection{Wait for Interrupt}
+\subsection{等待中断}
+
 \label{wfi}
 
 \iffalse
@@ -3770,7 +3788,9 @@ arrival.
 相同的“等待事件”模板可能用于等待内存位置更改或消息到达的未来扩展。
 \end{commentary}
 
-\subsection{Custom SYSTEM Instructions}
+% \subsection{Custom SYSTEM Instructions}
+\subsection{自定义系统指令}
+
 \label{sec:customsys}
 
 \iffalse
@@ -3814,7 +3834,8 @@ Recommended Purpose \\
 \label{fig:customsys}
 \end{figure}
 
-\section{Reset}
+% \section{Reset}
+\section{重置}
 \label{sec:reset}
 
 \iffalse
@@ -3872,7 +3893,8 @@ exceptions.  There should be no ambiguity in this overlap, since on reset the
 {\tt mcause}重置值可能会在同步异常之后别名 {\tt mcause}值。此重叠中不应有歧义，因为重置时，{\tt pc}通常设置为与其他陷阱不同的值。
 \end{commentary}
 
-\section{Non-Maskable Interrupts}
+% \section{Non-Maskable Interrupts}
+\section{不可屏蔽中断}
 \label{sec:nmi}
 
 \iffalse
@@ -3901,7 +3923,8 @@ reporting, and possible containment of the hardware error.
 
 与重置不同，NMI不会重置处理器状态，从而实现诊断、报告和可能的硬件错误遏制。
 
-\section{Physical Memory Attributes}
+% \section{Physical Memory Attributes}
+\section{物理内存属性}
 \label{sec:pma}
 
 \iffalse
@@ -4003,7 +4026,8 @@ that are available only to machine-mode.
 \fi
 如果平台支持PMA的动态重新配置，将提供一个接口，通过将请求传递给能够正确重新配置平台的机器模式驱动程序来设置属性。例如，在某些内存区域上切换可缓存性属性可能涉及特定于平台的操作，例如仅对机器模式可用的缓存刷新。
 
-\subsection{Main Memory versus I/O versus Vacant Regions}
+% \subsection{Main Memory versus I/O versus Vacant Regions}
+\subsection{主存、I/O或空闲区}
 
 \iffalse
 The most important characterization of a given memory address range is
@@ -4017,7 +4041,8 @@ attributes specifying that no accesses are supported.
 \fi
 给定内存地址范围的最重要特征是它是否持有常规主内存、I/O设备或空闲。常规主内存需要具有以下指定的许多属性，而I/O设备可以具有更广泛的属性范围。不适合常规主存储器的存储器区域，例如，设备草稿RAM，被归类为I/O区域。空闲区域也被分类为I/O区域，但其属性指定不支持访问。
 
-\subsection{Supported Access Type PMAs}
+% \subsection{Supported Access Type PMAs}
+\subsection{支持访问类型PMAs}
 
 \iffalse
 Access types specify which access widths, from 8-bit byte to long
@@ -4091,7 +4116,8 @@ memory supports page-table walks.
 类Unix操作系统通常要求所有可缓存主内存都支持页表遍历。
 \end{commentary}
 
-\subsection{Atomicity PMAs}
+% \subsection{Atomicity PMAs}
+\subsection{原子性PMAs}
 
 \iffalse
 Atomicity PMAs describes which atomic instructions are supported in
@@ -4243,7 +4269,8 @@ required to execute atomically.
 对于某些未对齐的访问，实现可能会引发访问错误异常，而不是地址未对齐异常，这表明陷阱处理程序不应模拟该指令。如果对于给定的地址和访问宽度，所有未对齐的LR/SC和AMO都会生成访问故障异常，则使用相同地址和访问带宽的常规未对齐加载和存储不需要自动执行。
 
 
-\subsection{Memory-Ordering PMAs}
+% \subsection{Memory-Ordering PMAs}
+\subsection{内存序PMAs}
 
 \iffalse
 Regions of the address space are classified as either {\em main
@@ -4335,7 +4362,8 @@ the same interconnect path and the path does not reorder requests.
 通常，如果不同的强排序I/O区域共享相同的互连路径且路径不重新排序请求，则它们可以共享相同的排序通道，而无需额外的排序硬件。
 \end{commentary}
 
-\subsection{Coherence and Cacheability PMAs}
+% \subsection{Coherence and Cacheability PMAs}
+\subsection{一致性与可缓存性PMAs}
 
 \iffalse
 Coherence is a property defined for a single physical address, and
@@ -4463,7 +4491,8 @@ uncacheable accesses.
 此约束对于防止特权模式的推测性缓存重新填充影响特权模式的不可缓存访问行为是必要的。
 \end{commentary}
 
-\subsection{Idempotency PMAs}
+% \subsection{Idempotency PMAs}
+\subsection{冥等性PMAs}
 
 \iffalse
 Idempotency PMAs describe whether reads and writes to an address
@@ -4529,7 +4558,8 @@ not exceed the smallest supported page size.
 这些额外读取的结果可用于满足后续的早期或推测性隐式读取。
 这些自然对齐的power-of-2区域的大小由实现定义，但对于具有基于页面的虚拟内存的系统，其大小不得超过支持的最小页面大小。
 
-\section{Physical Memory Protection}
+% \section{Physical Memory Protection}
+\section{物理内存保护}
 \label{sec:pmp}
 
 \iffalse
@@ -4586,7 +4616,8 @@ PMP检查也适用于虚拟地址转换的页表访问，有效特权模式为S�
 
 PMP违规总是在处理器处被精确捕获。
 
-\subsection{Physical Memory Protection CSRs}
+% \subsection{Physical Memory Protection CSRs}
+\subsection{物理内存保护CSRs}
 
 \iffalse
 PMP entries are described by an 8-bit configuration register and one MXLEN-bit
@@ -5096,7 +5127,8 @@ address is naturally aligned.
 \fi
 在某些实现中，未对齐的加载、存储和指令获取也可能分解为多个访问，其中一些访问可能在发生访问错误异常之前成功。特别是，通过PMP检查的未对齐存储的一部分可能会变得可见，即使另一部分未通过PMP检测。对于宽于XLEN位的浮点存储（例如，RV32D中的FSD指令），即使存储地址是自然对齐的，也可能出现相同的行为。
 
-\subsection{Physical Memory Protection and Paging}
+% \subsection{Physical Memory Protection and Paging}
+\subsection{物理内存保护与分页}
 \label{pmp-vmem}
 
 \iffalse
