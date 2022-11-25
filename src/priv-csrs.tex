@@ -1,76 +1,79 @@
-\chapter{Control and Status Registers (CSRs)}
+\chapter{控制和状态寄存器（CSR）
+    % Control and Status Registers (CSRs)
+    }
 \label{chap:priv-csrs}
 
-The SYSTEM major opcode is used to encode all privileged instructions
-in the RISC-V ISA.
-These can be divided into two main classes: those that atomically
-read-modify-write control and status registers (CSRs), which are defined in
-the Zicsr extension, and all other privileged instructions.
-The privileged architecture requires the Zicsr extension; which other
-privileged instructions are required depends on the privileged-architecture
-feature set.
+% The SYSTEM major opcode is used to encode all privileged instructions
+% in the RISC-V ISA.
+% These can be divided into two main classes: those that atomically
+% read-modify-write control and status registers (CSRs), which are defined in
+% the Zicsr extension, and all other privileged instructions.
+% The privileged architecture requires the Zicsr extension; which other
+% privileged instructions are required depends on the privileged-architecture
+% feature set.
 
-在RISC-V指令集中，系统主操作码编码所有特权指令。这些特权指令可以分为两类，
+在RISC-V指令集中，系统主操作码（STSTEM）编码所有特权指令。这些特权指令可以分为两类，
 一类为Zicsr扩展中定义的可以自动读-修改-写的控制和状态寄存器；另一类为之外的
 其它特权指令。特权架构需要Zicsr扩展支持，其它特权指令依赖于特权架构特征集。
 
-In addition to the unprivileged
-state described in Volume I of this manual, an implementation may
-contain additional CSRs, accessible by some subset of the privilege
-levels using the CSR instructions described in Volume~I.
-In this chapter, we map out the CSR address space.  The following
-chapters describe the function of each of the CSRs according to
-privilege level, as well as the other privileged instructions which
-are generally closely associated with a particular privilege level.
-Note that although CSRs and instructions are associated with one
-privilege level, they are also accessible at all higher privilege
-levels.
+% In addition to the unprivileged
+% state described in Volume I of this manual, an implementation may
+% contain additional CSRs, accessible by some subset of the privilege
+% levels using the CSR instructions described in Volume~I.
+% In this chapter, we map out the CSR address space.  The following
+% chapters describe the function of each of the CSRs according to
+% privilege level, as well as the other privileged instructions which
+% are generally closely associated with a particular privilege level.
+% Note that although CSRs and instructions are associated with one
+% privilege level, they are also accessible at all higher privilege
+% levels.
 
-除了在本手册第一卷中描述的非特权指令集外，具体实现可能包含一些额外的控制
-状态寄存器，这些控制和状态寄存器可通过本手册第一卷所描述的控制状态寄存器指令所
+除了在本手册第一卷中描述的非特权指令集外，具体实现可能包含一些额外的CSR，
+这些控制和状态寄存器可通过本手册第一卷所描述的控制状态寄存器指令所
 规定的特权级别进行访问。本章主要描述控制寄存器的地址空间，后续章节根据特权级别
-描述每个状态控制寄存器的功能，以及与某个具体的特权级别相关的一些特权指令。(注：
-虽然控制寄存器与指令通过特权级别关联，但是它们可以被更高的特权级别访问)
+描述每个状态控制寄存器的功能，以及与某个具体的特权级别相关的一些特权指令。
+请注意，虽然CSR与指令与一个特权级别相关联，但是它们也可以被更高的特权级别访问
 
-Standard CSRs do not have side effects on reads but may have side effects
-on writes.
+% Standard CSRs do not have side effects on reads but may have side effects
+% on writes.
 
 标准的控制寄存器在读写操作时需要注意，读操作是没有副作用的，而写操作是有副作用的。
 
-\section{CSR Address Mapping Conventions}
+\section{CSR地址映射约定
+    % CSR Address Mapping Conventions
+    }
 
-The standard RISC-V ISA sets aside a 12-bit encoding space (csr[11:0])
-for up to 4,096 CSRs.  By convention, the upper 4 bits of the CSR
-address (csr[11:8]) are used to encode the read and write
-accessibility of the CSRs according to privilege level as shown in
-Table~\ref{csrrwpriv}.  The top two bits (csr[11:10]) indicate whether
-the register is read/write ({\tt 00}, {\tt 01}, or {\tt 10}) or
-read-only ({\tt 11}).  The next two bits (csr[9:8]) encode the lowest
-privilege level that can access the CSR.
+% The standard RISC-V ISA sets aside a 12-bit encoding space (csr[11:0])
+% for up to 4,096 CSRs.  By convention, the upper 4 bits of the CSR
+% address (csr[11:8]) are used to encode the read and write
+% accessibility of the CSRs according to privilege level as shown in
+% Table~\ref{csrrwpriv}.  The top two bits (csr[11:10]) indicate whether
+% the register is read/write ({\tt 00}, {\tt 01}, or {\tt 10}) or
+% read-only ({\tt 11}).  The next two bits (csr[9:8]) encode the lowest
+% privilege level that can access the CSR.
 
 标准RISC-V指令集预置了12比特的编码空间(csr[11:0])，可以编码4096个控制寄存器。
 通常，高4位(csr[11:8]) 用于对表格\ref{csrrwpriv}中所示的特权级别访问控制寄存器的
 读写操作进行编码。其中的高两位 (csr[11:10])指示寄存器是读/写({\tt 00}, {\tt 01}, or {\tt 10}
-或只读 ({\tt 11})。低2位(csr[9:8]) 对访问控制寄存器的最低特权级别进行编码。
+或只读 ({\tt 11}))。低2位(csr[9:8]) 对访问控制寄存器的最低特权级别进行编码。
 
 
 \begin{commentary}
-The CSR address convention uses the upper bits of the CSR address to
-encode default access privileges.  This simplifies error checking in
-the hardware and provides a larger CSR space, but does constrain the
-mapping of CSRs into the address space.
+% The CSR address convention uses the upper bits of the CSR address to
+% encode default access privileges.  This simplifies error checking in
+% the hardware and provides a larger CSR space, but does constrain the
+% mapping of CSRs into the address space.
 
 CSR地址约定使用CSR的高位比特编码默认的访问权限。这种方式简化了硬件
 的错误检测并提供了更大的CSR空间，但是限制了CSR地址空间的映射方式。
 
-Implementations might allow a more-privileged level to trap otherwise
-permitted CSR accesses by a less-privileged level to allow these
-accesses to be intercepted.  This change should be transparent to the
-less-privileged software.
+% Implementations might allow a more-privileged level to trap otherwise
+% permitted CSR accesses by a less-privileged level to allow these
+% accesses to be intercepted.  This change should be transparent to the
+% less-privileged software.
 
-在具体的实现中，可能允许一个更高特权级别捕获低级别对应的信号。这些改变
+在具体实现中，可能允许特权更高的级别捕获特权较低的级别本来允许的 CSR 访问，以允许拦截这些访问。这些改变
 对低特权级别的软件应该透明。
-
 
 \end{commentary}
 
@@ -78,101 +81,103 @@ less-privileged software.
 \begin{center}
 \begin{tabular}{|c|c|c|c|l|}
 \hline
-\multicolumn{3}{|c|}{CSR Address} & Hex & \multicolumn{1}{c|}{Use and Accessibility}\\ \cline{1-3}
+\multicolumn{3}{|c|}{CSR 地址} & 16进制 & \multicolumn{1}{c|}{用法和访问权限}\\ \cline{1-3}
 [11:10] & [9:8] & [7:4]                  &  & \\
 \hline
-\multicolumn{5}{|c|}{Unprivileged and User-Level CSRs}  \\
+\multicolumn{5}{|c|}{非特权和用户级别的CSR}  \\
 \hline
-\tt   00   &\tt   00  &\tt   XXXX   & \tt 0x000-0x0FF & Standard read/write \\
-\tt   01   &\tt   00  &\tt   XXXX   & \tt 0x400-0x4FF & Standard read/write \\
-\tt   10   &\tt   00  &\tt   XXXX   & \tt 0x800-0x8FF & Custom read/write \\
-\tt   11   &\tt   00  &\tt   0XXX   & \tt 0xC00-0xC7F & Standard read-only \\
-\tt   11   &\tt   00  &\tt   10XX   & \tt 0xC80-0xCBF & Standard read-only \\
-\tt   11   &\tt   00  &\tt   11XX   & \tt 0xCC0-0xCFF & Custom read-only \\
+\tt   00   &\tt   00  &\tt   XXXX   & \tt 0x000-0x0FF & 标准读/写 \\
+\tt   01   &\tt   00  &\tt   XXXX   & \tt 0x400-0x4FF & 标准读/写 \\
+\tt   10   &\tt   00  &\tt   XXXX   & \tt 0x800-0x8FF & 自定义读/写\\
+\tt   11   &\tt   00  &\tt   0XXX   & \tt 0xC00-0xC7F & 标准只读 \\
+\tt   11   &\tt   00  &\tt   10XX   & \tt 0xC80-0xCBF & 自定义只读 \\
+\tt   11   &\tt   00  &\tt   11XX   & \tt 0xCC0-0xCFF & 自定义只读 \\
 \hline
-\multicolumn{5}{|c|}{Supervisor-Level CSRs}  \\
+\multicolumn{5}{|c|}{特权级别的CSR}  \\
 \hline
-\tt   00   &\tt   01  &\tt   XXXX   & \tt 0x100-0x1FF & Standard read/write \\
-\tt   01   &\tt   01  &\tt   0XXX   & \tt 0x500-0x57F & Standard read/write \\
-\tt   01   &\tt   01  &\tt   10XX   & \tt 0x580-0x5BF & Standard read/write \\
-\tt   01   &\tt   01  &\tt   11XX   & \tt 0x5C0-0x5FF & Custom read/write \\
-\tt   10   &\tt   01  &\tt   0XXX   & \tt 0x900-0x97F & Standard read/write \\
-\tt   10   &\tt   01  &\tt   10XX   & \tt 0x980-0x9BF & Standard read/write \\
-\tt   10   &\tt   01  &\tt   11XX   & \tt 0x9C0-0x9FF & Custom read/write \\
-\tt   11   &\tt   01  &\tt   0XXX   & \tt 0xD00-0xD7F & Standard read-only \\
-\tt   11   &\tt   01  &\tt   10XX   & \tt 0xD80-0xDBF & Standard read-only \\
-\tt   11   &\tt   01  &\tt   11XX   & \tt 0xDC0-0xDFF & Custom read-only \\
+\tt   00   &\tt   01  &\tt   XXXX   & \tt 0x100-0x1FF & 标准读/写 \\
+\tt   01   &\tt   01  &\tt   0XXX   & \tt 0x500-0x57F & 标准读/写 \\
+\tt   01   &\tt   01  &\tt   10XX   & \tt 0x580-0x5BF & 标准读/写 \\
+\tt   01   &\tt   01  &\tt   11XX   & \tt 0x5C0-0x5FF & 自定义读/写 \\
+\tt   10   &\tt   01  &\tt   0XXX   & \tt 0x900-0x97F & 标准读/写 \\
+\tt   10   &\tt   01  &\tt   10XX   & \tt 0x980-0x9BF & 标准读/写 \\
+\tt   10   &\tt   01  &\tt   11XX   & \tt 0x9C0-0x9FF & 自定义读/写 \\
+\tt   11   &\tt   01  &\tt   0XXX   & \tt 0xD00-0xD7F & 自定义只读 \\
+\tt   11   &\tt   01  &\tt   10XX   & \tt 0xD80-0xDBF & 自定义只读 \\
+\tt   11   &\tt   01  &\tt   11XX   & \tt 0xDC0-0xDFF & 自定义只读 \\
 \hline
-\multicolumn{5}{|c|}{Hypervisor and VS CSRs} \\
+\multicolumn{5}{|c|}{超级监管模式和虚拟监管模式（VS）的CSR} \\
 \hline
-\tt   00   &\tt   10  &\tt   XXXX   & \tt 0x200-0x2FF & Standard read/write \\
-\tt   01   &\tt   10  &\tt   0XXX   & \tt 0x600-0x67F & Standard read/write \\
-\tt   01   &\tt   10  &\tt   10XX   & \tt 0x680-0x6BF & Standard read/write \\
-\tt   01   &\tt   10  &\tt   11XX   & \tt 0x6C0-0x6FF & Custom read/write \\
-\tt   10   &\tt   10  &\tt   0XXX   & \tt 0xA00-0xA7F & Standard read/write \\
-\tt   10   &\tt   10  &\tt   10XX   & \tt 0xA80-0xABF & Standard read/write \\
-\tt   10   &\tt   10  &\tt   11XX   & \tt 0xAC0-0xAFF & Custom read/write \\
-\tt   11   &\tt   10  &\tt   0XXX   & \tt 0xE00-0xE7F & Standard read-only \\
-\tt   11   &\tt   10  &\tt   10XX   & \tt 0xE80-0xEBF & Standard read-only \\
-\tt   11   &\tt   10  &\tt   11XX   & \tt 0xEC0-0xEFF & Custom read-only \\
+\tt   00   &\tt   10  &\tt   XXXX   & \tt 0x200-0x2FF & 标准读/写 \\
+\tt   01   &\tt   10  &\tt   0XXX   & \tt 0x600-0x67F & 标准读/写 \\
+\tt   01   &\tt   10  &\tt   10XX   & \tt 0x680-0x6BF & 标准读/写 \\
+\tt   01   &\tt   10  &\tt   11XX   & \tt 0x6C0-0x6FF & 自定义读/写 \\
+\tt   10   &\tt   10  &\tt   0XXX   & \tt 0xA00-0xA7F & 标准读/写 \\
+\tt   10   &\tt   10  &\tt   10XX   & \tt 0xA80-0xABF & 标准读/写 \\
+\tt   10   &\tt   10  &\tt   11XX   & \tt 0xAC0-0xAFF & 自定义读/写 \\
+\tt   11   &\tt   10  &\tt   0XXX   & \tt 0xE00-0xE7F & 自定义只读 \\
+\tt   11   &\tt   10  &\tt   10XX   & \tt 0xE80-0xEBF & 自定义只读 \\
+\tt   11   &\tt   10  &\tt   11XX   & \tt 0xEC0-0xEFF & 自定义只读 \\
 \hline
-\multicolumn{5}{|c|}{Machine-Level CSRs}  \\
+\multicolumn{5}{|c|}{机器级的CSR}  \\
 \hline
-\tt   00   &\tt   11  &\tt   XXXX   & \tt 0x300-0x3FF & Standard read/write \\
-\tt   01   &\tt   11  &\tt   0XXX   & \tt 0x700-0x77F & Standard read/write \\
-\tt   01   &\tt   11  &\tt   100X   & \tt 0x780-0x79F & Standard read/write \\
-\tt   01   &\tt   11  &\tt   1010   & \tt 0x7A0-0x7AF & Standard read/write debug CSRs  \\
-\tt   01   &\tt   11  &\tt   1011   & \tt 0x7B0-0x7BF & Debug-mode-only CSRs \\
-\tt   01   &\tt   11  &\tt   11XX   & \tt 0x7C0-0x7FF & Custom read/write \\
-\tt   10   &\tt   11  &\tt   0XXX   & \tt 0xB00-0xB7F & Standard read/write \\
-\tt   10   &\tt   11  &\tt   10XX   & \tt 0xB80-0xBBF & Standard read/write \\
-\tt   10   &\tt   11  &\tt   11XX   & \tt 0xBC0-0xBFF & Custom read/write \\
-\tt   11   &\tt   11  &\tt   0XXX   & \tt 0xF00-0xF7F & Standard read-only \\
-\tt   11   &\tt   11  &\tt   10XX   & \tt 0xF80-0xFBF & Standard read-only \\
-\tt   11   &\tt   11  &\tt   11XX   & \tt 0xFC0-0xFFF & Custom read-only \\
+\tt   00   &\tt   11  &\tt   XXXX   & \tt 0x300-0x3FF & 标准读/写 \\
+\tt   01   &\tt   11  &\tt   0XXX   & \tt 0x700-0x77F & 标准读/写 \\
+\tt   01   &\tt   11  &\tt   100X   & \tt 0x780-0x79F & 标准读/写 \\
+\tt   01   &\tt   11  &\tt   1010   & \tt 0x7A0-0x7AF & 标准读/写调试CSR  \\
+\tt   01   &\tt   11  &\tt   1011   & \tt 0x7B0-0x7BF & 调试模式专用CSR \\
+\tt   01   &\tt   11  &\tt   11XX   & \tt 0x7C0-0x7FF & 自定义读/写 \\
+\tt   10   &\tt   11  &\tt   0XXX   & \tt 0xB00-0xB7F & 标准读/写 \\
+\tt   10   &\tt   11  &\tt   10XX   & \tt 0xB80-0xBBF & 标准读/写 \\
+\tt   10   &\tt   11  &\tt   11XX   & \tt 0xBC0-0xBFF & 自定义读/写 \\
+\tt   11   &\tt   11  &\tt   0XXX   & \tt 0xF00-0xF7F & 标准只读  \\
+\tt   11   &\tt   11  &\tt   10XX   & \tt 0xF80-0xFBF & 标准只读  \\
+\tt   11   &\tt   11  &\tt   11XX   & \tt 0xFC0-0xFFF & 自定义只读 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Allocation of RISC-V CSR address ranges.}
+\caption{RISC-V中CSR地址范围的分配
+    % Allocation of RISC-V CSR address ranges.
+    }
 \label{csrrwpriv}
 \end{table*}
 
-Attempts to access a non-existent CSR raise an illegal instruction
-exception.  Attempts to access a CSR without appropriate privilege
-level or to write a read-only register also raise illegal instruction
-exceptions.  A read/write register might also contain some bits that
-are read-only, in which case writes to the read-only bits are ignored.
+% Attempts to access a non-existent CSR raise an illegal instruction
+% exception.  Attempts to access a CSR without appropriate privilege
+% level or to write a read-only register also raise illegal instruction
+% exceptions.  A read/write register might also contain some bits that
+% are read-only, in which case writes to the read-only bits are ignored.
 
-试图访问一个不存在CSR会引发一个不合法的指令异常。以不适应的特权
-级别访问CSR或写一个只读寄存器也会导致合法的指令异常。一个读/写寄存器
-中的某些位可能是只读的，在这种情况下，写操作针对只读的位忽略。
+试图访问一个不存在CSR会引发一个不合法的指令异常。以不恰当的特权
+级别访问CSR或写一个只读寄存器也会导致非法指令异常。一个读/写寄存器
+中的某些位可能是只读的，在这种情况下，针对只读位的写操作应该被忽略。
 
-Table~\ref{csrrwpriv} also indicates the convention to allocate CSR
-addresses between standard and custom uses.  The CSR addresses
-designated for custom uses will not be redefined by future
-standard extensions.
+% Table~\ref{csrrwpriv} also indicates the convention to allocate CSR
+% addresses between standard and custom uses.  The CSR addresses
+% designated for custom uses will not be redefined by future
+% standard extensions.
 
 表~\ref{csrrwpriv}约定了CSR地址空间的标准用法和自定义用法。分配给自定义
 使用的CSR空间在将来的标准中将不再重新定义。
 
-Machine-mode standard read-write CSRs {\tt 0x7A0}--{\tt 0x7BF} are reserved
-for use by the debug system.  Of these CSRs, {\tt 0x7A0}--{\tt 0x7AF} are
-accessible to machine mode, whereas {\tt 0x7B0}--{\tt 0x7BF} are only visible
-to debug mode.  Implementations should raise illegal instruction exceptions on
-machine-mode access to the latter set of registers.
+% Machine-mode standard read-write CSRs {\tt 0x7A0}--{\tt 0x7BF} are reserved
+% for use by the debug system.  Of these CSRs, {\tt 0x7A0}--{\tt 0x7AF} are
+% accessible to machine mode, whereas {\tt 0x7B0}--{\tt 0x7BF} are only visible
+% to debug mode.  Implementations should raise illegal instruction exceptions on
+% machine-mode access to the latter set of registers.
 
 机器模式标准读-写CSR {\tt 0x7A0}--{\tt 0x7BF}是为系统调试预留的。在这些CSR中，
  {\tt 0x7A0}--{\tt 0x7AF}在机器模式中访问， {\tt 0x7B0}--{\tt 0x7BF} 只在调试模式中
  可见。 具体的实现中，机器模式访问后者的寄存器时，应该报指令异常错误。
 
 \begin{commentary}
-Effective virtualization requires that as many instructions run natively as
-possible inside a virtualized environment, while any privileged accesses trap
-to the virtual machine monitor~\cite{goldbergvm}.  CSRs that are read-only at
-some lower privilege level are shadowed into separate CSR addresses if they
-are made read-write at a higher privilege level.  This avoids trapping
-permitted lower-privilege accesses while still causing traps on illegal
-accesses.  Currently, the counters are the only shadowed CSRs.
+% Effective virtualization requires that as many instructions run natively as
+% possible inside a virtualized environment, while any privileged accesses trap
+% to the virtual machine monitor~\cite{goldbergvm}.  CSRs that are read-only at
+% some lower privilege level are shadowed into separate CSR addresses if they
+% are made read-write at a higher privilege level.  This avoids trapping
+% permitted lower-privilege accesses while still causing traps on illegal
+% accesses.  Currently, the counters are the only shadowed CSRs.
 
 在一个虚拟机环境中，需要尽可能多的指令在本地运行，然而任何特权访问都会陷入
 到虚拟监视器中~\cite{goldbergvm}。如果在低特权级别只读的CSR在高特权级别是可
@@ -182,53 +187,56 @@ accesses.  Currently, the counters are the only shadowed CSRs.
 
 \end{commentary}
 
-\section{CSR Listing}
+\section{CSR列表
+    % CSR Listing
+    }
 
-Tables~\ref{ucsrnames}--\ref{mcsrnames1} list the CSRs that have
-currently been allocated CSR addresses.  The timers, counters, and
-floating-point CSRs are standard unprivileged CSRs.
-The other
-registers are used by privileged code, as described in the following
-chapters.  Note that not all registers are required on all
-implementations.
+% Tables~\ref{ucsrnames}--\ref{mcsrnames1} list the CSRs that have
+% currently been allocated CSR addresses.  The timers, counters, and
+% floating-point CSRs are standard unprivileged CSRs.
+% The other
+% registers are used by privileged code, as described in the following
+% chapters.  Note that not all registers are required on all
+% implementations.
 
 表~\ref{ucsrnames}--\ref{mcsrnames1}列出了当前已被分配的CSR地址。
 计时器，计数器和浮点CSR都是非特权CSR。其它寄存器都是特权编码，
-后续章节会详细描述。注：并非所有的寄存器在实现时都是必须的。
+后续章节会详细描述。请注意，并非所有的寄存器在实现时都是必须的。
 
 \begin{table}[htb!]
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Number    & Privilege & Name & Description \\
+编号    & 特权 & 名称 & 描述 \\
 \hline
-\multicolumn{4}{|c|}{Unprivileged Floating-Point CSRs} \\
+\multicolumn{4}{|c|}{非特权级别的浮点CSR} \\
 \hline
-\tt 0x001 & URW  &\tt fflags     & Floating-Point Accrued Exceptions. \\
-\tt 0x002 & URW  &\tt frm        & Floating-Point Dynamic Rounding Mode. \\
-\tt 0x003 & URW  &\tt fcsr       & Floating-Point Control and Status
-Register ({\tt frm} + {\tt fflags}). \\
+\tt 0x001 & URW  &\tt fflags     & 浮点应计异常。（Floating-Point Accrued Exceptions） \\
+\tt 0x002 & URW  &\tt frm        & 浮点动态舍入模式。 \\
+\tt 0x003 & URW  &\tt fcsr       & 浮点控制和状态寄存器（{\tt frm} + {\tt fflags}）。\\
 \hline
-\multicolumn{4}{|c|}{Unprivileged Counter/Timers} \\
+\multicolumn{4}{|c|}{非特权计数器/计时器} \\
 \hline
-\tt 0xC00 & URO  &\tt cycle         & Cycle counter for RDCYCLE instruction. \\
-\tt 0xC01 & URO  &\tt time          & Timer for RDTIME instruction. \\
-\tt 0xC02 & URO  &\tt instret       & Instructions-retired counter for RDINSTRET instruction. \\
-\tt 0xC03 & URO  &\tt hpmcounter3   & Performance-monitoring counter. \\
-\tt 0xC04 & URO  &\tt hpmcounter4   & Performance-monitoring counter. \\
+\tt 0xC00 & URO  &\tt cycle         & RDCYCLE指令的时钟周期计数器。 \\
+\tt 0xC01 & URO  &\tt time          & RDTIME指令的计时器。 \\
+\tt 0xC02 & URO  &\tt instret       & RDINSTRET指令的指令退休计数器。 \\
+\tt 0xC03 & URO  &\tt hpmcounter3   & 性能监视计数器。 \\
+\tt 0xC04 & URO  &\tt hpmcounter4   & 性能监视计数器。 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0xC1F & URO  &\tt hpmcounter31  & Performance-monitoring counter. \\
-\tt 0xC80 & URO  &\tt cycleh        & Upper 32 bits of {\tt cycle}, RV32 only. \\
-\tt 0xC81 & URO  &\tt timeh         & Upper 32 bits of {\tt time}, RV32 only. \\
-\tt 0xC82 & URO  &\tt instreth      & Upper 32 bits of {\tt instret}, RV32 only. \\
-\tt 0xC83 & URO  &\tt hpmcounter3h  & Upper 32 bits of {\tt hpmcounter3}, RV32 only. \\
-\tt 0xC84 & URO  &\tt hpmcounter4h  & Upper 32 bits of {\tt hpmcounter4}, RV32 only. \\
+\tt 0xC1F & URO  &\tt hpmcounter31  & 性能监视计数器。 \\
+\tt 0xC80 & URO  &\tt cycleh        & {\tt cycle}的高32位，仅用于RV32。 \\
+\tt 0xC81 & URO  &\tt timeh         & {\tt time}的高32位，仅用于RV32。 \\
+\tt 0xC82 & URO  &\tt instreth      & {\tt instret}的高32位，仅用于RV32。 \\
+\tt 0xC83 & URO  &\tt hpmcounter3h  & {\tt hpmcounter3}的高32位，仅用于RV32。 \\
+\tt 0xC84 & URO  &\tt hpmcounter4h  & {\tt hpmcounter4}的高32位，仅用于RV32。 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0xC9F & URO  &\tt hpmcounter31h & Upper 32 bits of {\tt hpmcounter31}, RV32 only. \\
+\tt 0xC9F & URO  &\tt hpmcounter31h & {\tt hpmcounter31}的高32位，仅用于RV32。 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Currently allocated RISC-V unprivileged CSR addresses.}
+\caption{当前已分配的RISC-V非特权CSR地址。
+    % Currently allocated RISC-V unprivileged CSR addresses.
+    }
 \label{ucsrnames}
 \end{table}
 
@@ -236,38 +244,40 @@ Register ({\tt frm} + {\tt fflags}). \\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Number    & Privilege & Name & Description \\
+编号    & 特权      & 名称          & 描述 \\
 \hline
-\multicolumn{4}{|c|}{Supervisor Trap Setup} \\
+\multicolumn{4}{|c|}{监管级陷阱设置} \\
 \hline
-\tt 0x100 & SRW  &\tt sstatus    & Supervisor status register. \\
-\tt 0x104 & SRW  &\tt sie        & Supervisor interrupt-enable register. \\
-\tt 0x105 & SRW  &\tt stvec      & Supervisor trap handler base address. \\
-\tt 0x106 & SRW  &\tt scounteren & Supervisor counter enable. \\
+\tt 0x100 & SRW  &\tt sstatus    & 监管级状态寄存器。 \\
+\tt 0x104 & SRW  &\tt sie        & 监管级中断使能寄存器。\\
+\tt 0x105 & SRW  &\tt stvec      & 监管级陷阱处理程序基址。 \\
+\tt 0x106 & SRW  &\tt scounteren & 监管级计数器使能。 \\
 \hline
-\multicolumn{4}{|c|}{Supervisor Configuration} \\
+\multicolumn{4}{|c|}{监管器配置} \\
 \hline
-\tt 0x10A & SRW  &\tt senvcfg    & Supervisor environment configuration register. \\
+\tt 0x10A & SRW  &\tt senvcfg    & 监管级环境配置寄存器。 \\
 \hline
-\multicolumn{4}{|c|}{Supervisor Trap Handling} \\
+\multicolumn{4}{|c|}{监管级陷阱处理} \\
 \hline
-\tt 0x140 & SRW  &\tt sscratch   & Scratch register for supervisor trap handlers. \\
-\tt 0x141 & SRW  &\tt sepc       & Supervisor exception program counter. \\
-\tt 0x142 & SRW  &\tt scause     & Supervisor trap cause. \\
-\tt 0x143 & SRW  &\tt stval      & Supervisor bad address or instruction. \\
-\tt 0x144 & SRW  &\tt sip        & Supervisor interrupt pending. \\
+\tt 0x140 & SRW  &\tt sscratch   & 监管级陷阱处理程序的暂存器。 \\
+\tt 0x141 & SRW  &\tt sepc       & 监管级异常程序计数器。 \\
+\tt 0x142 & SRW  &\tt scause     & 监管级陷阱原因。 \\
+\tt 0x143 & SRW  &\tt stval      & 监管级发生错误的地址或指令。 \\
+\tt 0x144 & SRW  &\tt sip        & 监管级中断挂起。 \\
 \hline
-\multicolumn{4}{|c|}{Supervisor Protection and Translation} \\
+\multicolumn{4}{|c|}{监管级保护和翻译} \\
 \hline
-\tt 0x180 & SRW  &\tt satp       & Supervisor address translation and protection. \\
+\tt 0x180 & SRW  &\tt satp       & 监管级地址转换和保护。 \\
 \hline
-\multicolumn{4}{|c|}{Debug/Trace Registers} \\
+\multicolumn{4}{|c|}{调试/跟踪寄存器} \\
 \hline
-\tt 0x5A8 & SRW &\tt scontext & Supervisor-mode context register. \\
+\tt 0x5A8 & SRW &\tt scontext & 监管模式上下文寄存器。 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Currently allocated RISC-V supervisor-level CSR addresses.}
+\caption{当前已分配的RISC-V监管级CSR地址。
+    % Currently allocated RISC-V supervisor-level CSR addresses.
+    }
 \label{scsrnames}
 \end{table}
 
@@ -275,59 +285,61 @@ Number    & Privilege & Name & Description \\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Number    & Privilege & Name & Description \\
+编号        & 特权      & 名称      & 描述 \\
 \hline
-\multicolumn{4}{|c|}{Hypervisor Trap Setup} \\
+\multicolumn{4}{|c|}{超级监管器陷阱设置} \\
 \hline
 \hline
-\tt 0x600 & HRW  &\tt hstatus    & Hypervisor status register. \\
-\tt 0x602 & HRW  &\tt hedeleg    & Hypervisor exception delegation register. \\
-\tt 0x603 & HRW  &\tt hideleg    & Hypervisor interrupt delegation register. \\
-\tt 0x604 & HRW  &\tt hie        & Hypervisor interrupt-enable register. \\
-\tt 0x606 & HRW  &\tt hcounteren & Hypervisor counter enable. \\
-\tt 0x607 & HRW  &\tt hgeie      & Hypervisor guest external interrupt-enable register. \\
+\tt 0x600 & HRW  &\tt hstatus    & 超级监管器状态寄存器。 \\
+\tt 0x602 & HRW  &\tt hedeleg    & 超级监管器异常代理寄存器。 \\
+\tt 0x603 & HRW  &\tt hideleg    & 超级监管器中断代理寄存器。 \\
+\tt 0x604 & HRW  &\tt hie        & 超级监管器中断使能寄存器。 \\
+\tt 0x606 & HRW  &\tt hcounteren & 超级监管器计数器使能。 \\
+\tt 0x607 & HRW  &\tt hgeie      & 超级监管器客户外部中断使能寄存器。 \\
 \hline
-\multicolumn{4}{|c|}{Hypervisor Trap Handling} \\
+\multicolumn{4}{|c|}{超级监管器陷阱处理程序} \\
 \hline
-\tt 0x643 & HRW  &\tt htval      & Hypervisor bad guest physical address. \\
-\tt 0x644 & HRW  &\tt hip        & Hypervisor interrupt pending. \\
-\tt 0x645 & HRW  &\tt hvip       & Hypervisor virtual interrupt pending. \\
-\tt 0x64A & HRW  &\tt htinst     & Hypervisor trap instruction (transformed). \\
-\tt 0xE12 & HRO  &\tt hgeip      & Hypervisor guest external interrupt pending. \\
+\tt 0x643 & HRW  &\tt htval      & 超级监管器错误物理地址。 \\
+\tt 0x644 & HRW  &\tt hip        & 超级监管器中断挂起。 \\
+\tt 0x645 & HRW  &\tt hvip       & 超级监管器虚拟中断挂起。 \\
+\tt 0x64A & HRW  &\tt htinst     & 超级监管器发生陷入指令（transformed）。 \\
+\tt 0xE12 & HRO  &\tt hgeip      & 超级监管器客户外部中断挂起。 \\
 \hline
-\multicolumn{4}{|c|}{Hypervisor Configuration} \\
+\multicolumn{4}{|c|}{超级监管器配置} \\
 \hline
-\tt 0x60A & HRW  &\tt henvcfg    & Hypervisor environment configuration register. \\
-\tt 0x61A & HRW  &\tt henvcfgh   & Additional hypervisor env. conf. register, RV32 only. \\
+\tt 0x60A & HRW  &\tt henvcfg    & 超级监管器环境配置寄存器。 \\
+\tt 0x61A & HRW  &\tt henvcfgh   & 额外的超级监管器环境、配置寄存器，只用于RV32。 \\
 \hline
-\multicolumn{4}{|c|}{Hypervisor Protection and Translation} \\
+\multicolumn{4}{|c|}{超级监管器保护和转换} \\
 \hline
-\tt 0x680 & HRW  &\tt hgatp      & Hypervisor guest address translation and protection. \\
+\tt 0x680 & HRW  &\tt hgatp      & 超级监管器客户地址转换和保护。 \\
 \hline
-\multicolumn{4}{|c|}{Debug/Trace Registers} \\
+\multicolumn{4}{|c|}{调试/跟踪寄存器} \\
 \hline
-\tt 0x6A8 & HRW &\tt hcontext & Hypervisor-mode context register. \\
+\tt 0x6A8 & HRW &\tt hcontext & 超级监管器模式上下文寄存器 \\
 \hline
-\multicolumn{4}{|c|}{Hypervisor Counter/Timer Virtualization Registers} \\
+\multicolumn{4}{|c|}{超级监管器计数器/时钟虚拟化寄存器} \\
 \hline
 \tt 0x605 & HRW  &\tt htimedelta   & Delta for VS/VU-mode timer. \\
-\tt 0x615 & HRW  &\tt htimedeltah  & Upper 32 bits of {\tt htimedelta}, HSXLEN=32 only. \\
+\tt 0x615 & HRW  &\tt htimedeltah  & {\tt htimedelta}的高32位，仅用于HSXLEN=32 \\
 \hline
-\multicolumn{4}{|c|}{Virtual Supervisor Registers} \\
+\multicolumn{4}{|c|}{虚拟监管器寄存器} \\
 \hline
-\tt 0x200 & HRW  &\tt vsstatus   & Virtual supervisor status register. \\
-\tt 0x204 & HRW  &\tt vsie       & Virtual supervisor interrupt-enable register. \\
-\tt 0x205 & HRW  &\tt vstvec     & Virtual supervisor trap handler base address. \\
-\tt 0x240 & HRW  &\tt vsscratch  & Virtual supervisor scratch register. \\
-\tt 0x241 & HRW  &\tt vsepc      & Virtual supervisor exception program counter. \\
-\tt 0x242 & HRW  &\tt vscause    & Virtual supervisor trap cause. \\
-\tt 0x243 & HRW  &\tt vstval     & Virtual supervisor bad address or instruction. \\
-\tt 0x244 & HRW  &\tt vsip       & Virtual supervisor interrupt pending. \\
-\tt 0x280 & HRW  &\tt vsatp      & Virtual supervisor address translation and protection. \\
+\tt 0x200 & HRW  &\tt vsstatus   & 虚拟监管器状态寄存器。 \\
+\tt 0x204 & HRW  &\tt vsie       & 虚拟监管器中断使能寄存器。 \\
+\tt 0x205 & HRW  &\tt vstvec     & 虚拟监管器陷阱处理程序基地址。 \\
+\tt 0x240 & HRW  &\tt vsscratch  & 虚拟监管器暂存寄存器。 \\
+\tt 0x241 & HRW  &\tt vsepc      & 虚拟监管器异常程序指针。 \\
+\tt 0x242 & HRW  &\tt vscause    & 虚拟监管器陷阱原因。 \\
+\tt 0x243 & HRW  &\tt vstval     & 虚拟监管器错误地址或指令。 \\
+\tt 0x244 & HRW  &\tt vsip       & 虚拟监管器中断挂起。 \\
+\tt 0x280 & HRW  &\tt vsatp      & 虚拟监管器地址转换和保护。 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Currently allocated RISC-V hypervisor and VS CSR addresses.}
+\caption{当前已分配的RISC-V超级监管器和VS CSR地址。
+    % Currently allocated RISC-V hypervisor and VS CSR addresses.
+    }
 \label{hcsrnames}
 \end{table}
 
@@ -336,45 +348,45 @@ Number    & Privilege & Name & Description \\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Number    & Privilege & Name & Description \\
+编号        & 特权  & 名称          & 描述 \\
 \hline
-\multicolumn{4}{|c|}{Machine Information Registers} \\
+\multicolumn{4}{|c|}{机器信息寄存器} \\
 \hline
-\tt 0xF11 & MRO &\tt mvendorid   & Vendor ID. \\
-\tt 0xF12 & MRO &\tt marchid     & Architecture ID. \\
-\tt 0xF13 & MRO &\tt mimpid      & Implementation ID. \\
-\tt 0xF14 & MRO &\tt mhartid     & Hardware thread ID. \\
-\tt 0xF15 & MRO &\tt mconfigptr  & Pointer to configuration data structure. \\
+\tt 0xF11 & MRO &\tt mvendorid   & 供应商ID。 \\
+\tt 0xF12 & MRO &\tt marchid     & 架构ID。 \\
+\tt 0xF13 & MRO &\tt mimpid      & 实现ID。 \\
+\tt 0xF14 & MRO &\tt mhartid     & 硬件线程ID。 \\
+\tt 0xF15 & MRO &\tt mconfigptr  & 配置数据结构指针。 \\
 \hline
-\multicolumn{4}{|c|}{Machine Trap Setup} \\
+\multicolumn{4}{|c|}{机器陷阱配置} \\
 \hline
-\tt 0x300 & MRW  &\tt mstatus    & Machine status register. \\
-\tt 0x301 & MRW  &\tt misa       & ISA and extensions \\
-\tt 0x302 & MRW  &\tt medeleg    & Machine exception delegation register. \\
-\tt 0x303 & MRW  &\tt mideleg    & Machine interrupt delegation register. \\
-\tt 0x304 & MRW  &\tt mie        & Machine interrupt-enable register. \\
-\tt 0x305 & MRW  &\tt mtvec      & Machine trap-handler base address. \\
-\tt 0x306 & MRW  &\tt mcounteren & Machine counter enable. \\
-\tt 0x310 & MRW  &\tt mstatush   & Additional machine status register, RV32 only. \\
+\tt 0x300 & MRW  &\tt mstatus    & 机器状态寄存器。 \\
+\tt 0x301 & MRW  &\tt misa       & ISA和拓展。 \\
+\tt 0x302 & MRW  &\tt medeleg    & 机器异常代理寄存器。 \\
+\tt 0x303 & MRW  &\tt mideleg    & 机器中断代理寄存器。 \\
+\tt 0x304 & MRW  &\tt mie        & 机器中断使能寄存器。 \\
+\tt 0x305 & MRW  &\tt mtvec      & 机器陷阱处理程序基地址。 \\
+\tt 0x306 & MRW  &\tt mcounteren & 机器计数器使能。 \\
+\tt 0x310 & MRW  &\tt mstatush   & 额外的机器状态寄存器，仅用于RV32。 \\
 \hline
-\multicolumn{4}{|c|}{Machine Trap Handling} \\
+\multicolumn{4}{|c|}{机器陷阱处理程序} \\
 \hline
-\tt 0x340 & MRW  &\tt mscratch   & Scratch register for machine trap handlers. \\
-\tt 0x341 & MRW  &\tt mepc       & Machine exception program counter. \\
-\tt 0x342 & MRW  &\tt mcause     & Machine trap cause. \\
-\tt 0x343 & MRW  &\tt mtval      & Machine bad address or instruction. \\
-\tt 0x344 & MRW  &\tt mip        & Machine interrupt pending. \\
-\tt 0x34A & MRW  &\tt mtinst     & Machine trap instruction (transformed). \\
-\tt 0x34B & MRW  &\tt mtval2     & Machine bad guest physical address. \\
+\tt 0x340 & MRW  &\tt mscratch   & 机器陷阱处理程序的暂存器。 \\
+\tt 0x341 & MRW  &\tt mepc       & 机器异常程序计数器。\\
+\tt 0x342 & MRW  &\tt mcause     & 机器陷阱原因。 \\
+\tt 0x343 & MRW  &\tt mtval      & 机器错误地址或指令。 \\
+\tt 0x344 & MRW  &\tt mip        & 机器中断挂起。 \\
+\tt 0x34A & MRW  &\tt mtinst     & 机器陷阱指令(transformed)。 \\
+\tt 0x34B & MRW  &\tt mtval2     & 机器错误客户物理地址。\\
 \hline
-\multicolumn{4}{|c|}{Machine Configuration} \\
+\multicolumn{4}{|c|}{机器配置} \\
 \hline
-\tt 0x30A & MRW  &\tt menvcfg    & Machine environment configuration register. \\
-\tt 0x31A & MRW  &\tt menvcfgh   & Additional machine env. conf. register, RV32 only. \\
-\tt 0x747 & MRW  &\tt mseccfg    & Machine security configuration register. \\
-\tt 0x757 & MRW  &\tt mseccfgh   & Additional machine security conf. register, RV32 only. \\
+\tt 0x30A & MRW  &\tt menvcfg    & 机器环境配置寄存器。 \\
+\tt 0x31A & MRW  &\tt menvcfgh   & 额外机器环境、配置寄存器，仅用于RV32。 \\
+\tt 0x747 & MRW  &\tt mseccfg    & 机器安全配置寄存器。 \\
+\tt 0x757 & MRW  &\tt mseccfgh   & 额外的机器安全配置寄存器，仅用于RV32。 \\
 \hline
-\multicolumn{4}{|c|}{Machine Memory Protection} \\
+\multicolumn{4}{|c|}{机器内存保护} \\
 \hline
 %\tt 0x380 & MRW  &\tt mbase      & Base register. \\
 %\tt 0x381 & MRW  &\tt mbound     & Bound register. \\
@@ -382,21 +394,23 @@ Number    & Privilege & Name & Description \\
 %\tt 0x383 & MRW  &\tt mibound    & Instruction bound register. \\
 %\tt 0x384 & MRW  &\tt mdbase     & Data base register. \\
 %\tt 0x385 & MRW  &\tt mdbound    & Data bound register. \\
-\tt 0x3A0 & MRW  &\tt pmpcfg0    & Physical memory protection configuration. \\
-\tt 0x3A1 & MRW  &\tt pmpcfg1    & Physical memory protection configuration, RV32 only. \\
-\tt 0x3A2 & MRW  &\tt pmpcfg2    & Physical memory protection configuration. \\
-\tt 0x3A3 & MRW  &\tt pmpcfg3    & Physical memory protection configuration, RV32 only. \\
+\tt 0x3A0 & MRW  &\tt pmpcfg0    & 物理内存保护配置。\\
+\tt 0x3A1 & MRW  &\tt pmpcfg1    & 物理内存保护配置，仅用于RV32。 \\
+\tt 0x3A2 & MRW  &\tt pmpcfg2    & 物理内存保护配置。 \\
+\tt 0x3A3 & MRW  &\tt pmpcfg3    & 物理内存保护配置，仅用于RV32。 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0x3AE & MRW  &\tt pmpcfg14   & Physical memory protection configuration. \\
-\tt 0x3AF & MRW  &\tt pmpcfg15   & Physical memory protection configuration, RV32 only. \\
-\tt 0x3B0 & MRW  &\tt pmpaddr0   & Physical memory protection address register. \\
-\tt 0x3B1 & MRW  &\tt pmpaddr1   & Physical memory protection address register. \\
+\tt 0x3AE & MRW  &\tt pmpcfg14   & 物理内存保护配置。 \\
+\tt 0x3AF & MRW  &\tt pmpcfg15   & 物理内存保护配种，仅用于RV32。 \\
+\tt 0x3B0 & MRW  &\tt pmpaddr0   & 物理内存保护地址寄存器。 \\
+\tt 0x3B1 & MRW  &\tt pmpaddr1   & 物理内存保护地址寄存器。 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0x3EF & MRW  &\tt pmpaddr63  & Physical memory protection address register. \\
+\tt 0x3EF & MRW  &\tt pmpaddr63  & 物理内存保护地址寄存器。 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Currently allocated RISC-V machine-level CSR addresses.}
+\caption{当前已分配的RISC-V机器级CSR地址。
+    % Currently allocated RISC-V machine-level CSR addresses.
+    }
 \label{mcsrnames0}
 \end{table}
 
@@ -404,103 +418,107 @@ Number    & Privilege & Name & Description \\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Number    & Privilege & Name & Description \\
+编号    & 特权      & 名称          & 描述 \\
 \hline
-\multicolumn{4}{|c|}{Machine Counter/Timers} \\
+\multicolumn{4}{|c|}{机器计数器/计时器} \\
 \hline
-\tt 0xB00 & MRW  &\tt mcycle         & Machine cycle counter. \\
-\tt 0xB02 & MRW  &\tt minstret       & Machine instructions-retired counter. \\
-\tt 0xB03 & MRW  &\tt mhpmcounter3   & Machine performance-monitoring counter. \\
-\tt 0xB04 & MRW  &\tt mhpmcounter4   & Machine performance-monitoring counter. \\
+\tt 0xB00 & MRW  &\tt mcycle         & 机器时钟周期计数器。 \\
+\tt 0xB02 & MRW  &\tt minstret       & 机器指令退休计数器。 \\
+\tt 0xB03 & MRW  &\tt mhpmcounter3   & 机器性能监视计数器。 \\
+\tt 0xB04 & MRW  &\tt mhpmcounter4   & 机器性能监视计数器 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0xB1F & MRW  &\tt mhpmcounter31  & Machine performance-monitoring counter. \\
-\tt 0xB80 & MRW  &\tt mcycleh        & Upper 32 bits of {\tt mcycle}, RV32 only. \\
-\tt 0xB82 & MRW  &\tt minstreth      & Upper 32 bits of {\tt minstret}, RV32 only. \\
-\tt 0xB83 & MRW  &\tt mhpmcounter3h  & Upper 32 bits of {\tt mhpmcounter3}, RV32 only. \\
-\tt 0xB84 & MRW  &\tt mhpmcounter4h  & Upper 32 bits of {\tt mhpmcounter4}, RV32 only. \\
+\tt 0xB1F & MRW  &\tt mhpmcounter31  & 机器性能监视计数器。 \\
+\tt 0xB80 & MRW  &\tt mcycleh        & {\tt mcycle}的高32位，仅用于RV32。\\
+\tt 0xB82 & MRW  &\tt minstreth      & {\tt minstret}的高32位，仅用于RV32。 \\
+\tt 0xB83 & MRW  &\tt mhpmcounter3h  & {\tt mhpmcounter3}的高32位，仅用于RV32。 \\
+\tt 0xB84 & MRW  &\tt mhpmcounter4h  & {\tt mhpmcounter4}的高32位，仅用于RV32。 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0xB9F & MRW  &\tt mhpmcounter31h & Upper 32 bits of {\tt mhpmcounter31}, RV32 only. \\
+\tt 0xB9F & MRW  &\tt mhpmcounter31h & {\tt mhpmcounter31}的高32位，仅用于RV32。 \\
 \hline
-\multicolumn{4}{|c|}{Machine Counter Setup} \\
+\multicolumn{4}{|c|}{机器计数器配置} \\
 \hline
-\tt 0x320 & MRW  &\tt mcountinhibit  & Machine counter-inhibit register. \\
-\tt 0x323 & MRW  &\tt mhpmevent3     & Machine performance-monitoring event selector. \\
-\tt 0x324 & MRW  &\tt mhpmevent4     & Machine performance-monitoring event selector. \\
+\tt 0x320 & MRW  &\tt mcountinhibit  & 机器屏蔽计数器寄存器。 \\
+\tt 0x323 & MRW  &\tt mhpmevent3     & 机器性能监视活动选择器。 \\
+\tt 0x324 & MRW  &\tt mhpmevent4     & 机器性能监视活动选择器。 \\
 & & \multicolumn{1}{c|}{\vdots} & \ \\
-\tt 0x33F & MRW  &\tt mhpmevent31    & Machine performance-monitoring event selector. \\
+\tt 0x33F & MRW  &\tt mhpmevent31    & 机器性能监视活动选择器。 \\
 \hline
-\multicolumn{4}{|c|}{Debug/Trace Registers (shared with Debug Mode)} \\
+\multicolumn{4}{|c|}{调试/跟踪寄存器（与调试模式共享）} \\
 \hline
-\tt 0x7A0 & MRW &\tt tselect & Debug/Trace trigger register select. \\
-\tt 0x7A1 & MRW &\tt tdata1 & First Debug/Trace trigger data register. \\
-\tt 0x7A2 & MRW &\tt tdata2 & Second Debug/Trace trigger data register. \\
-\tt 0x7A3 & MRW &\tt tdata3 & Third Debug/Trace trigger data register. \\
-\tt 0x7A8 & MRW &\tt mcontext & Machine-mode context register. \\
+\tt 0x7A0 & MRW &\tt tselect & 调试/跟踪触发寄存器选择。\\
+\tt 0x7A1 & MRW &\tt tdata1 & 第一个调试/跟踪触发数据寄存器。 \\
+\tt 0x7A2 & MRW &\tt tdata2 & 第二个调试/跟踪触发数据寄存器。 \\
+\tt 0x7A3 & MRW &\tt tdata3 & 第三个调试/跟踪触发数据寄存器。 \\
+\tt 0x7A8 & MRW &\tt mcontext & 机器模式上下文寄存器。 \\
 \hline
-\multicolumn{4}{|c|}{Debug Mode Registers } \\
+\multicolumn{4}{|c|}{调试模式寄存器 } \\
 \hline
-\tt 0x7B0 & DRW &\tt dcsr & Debug control and status register. \\
-\tt 0x7B1 & DRW &\tt dpc & Debug program counter. \\
-\tt 0x7B2 & DRW &\tt dscratch0 & Debug scratch register 0. \\
-\tt 0x7B3 & DRW &\tt dscratch1 & Debug scratch register 1. \\
+\tt 0x7B0 & DRW &\tt dcsr & 调试控制和状态寄存器。 \\
+\tt 0x7B1 & DRW &\tt dpc & 调试程序计数器。 \\
+\tt 0x7B2 & DRW &\tt dscratch0 & 调试暂存寄存器0。 \\
+\tt 0x7B3 & DRW &\tt dscratch1 & 调试暂存寄存器1。 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Currently allocated RISC-V machine-level CSR addresses.}
+\caption{当前已分配的RISC-V机器级CSR地址。
+    % Currently allocated RISC-V machine-level CSR addresses.
+    }
 \label{mcsrnames1}
 \end{table}
 
 \clearpage
 
-\section{CSR Field Specifications}
+\section{CSR字段规范
+    % CSR Field Specifications
+}
 
 
-The following definitions and abbreviations are used in specifying the
-behavior of fields within the CSRs.
+% The following definitions and abbreviations are used in specifying the
+% behavior of fields within the CSRs.
 
 下面的定义和简称说明CSR中各字段的行为。
 
-\subsection*{Reserved Writes Preserve Values, Reads Ignore Values (WPRI)}
+\subsection*{保留的写保护值，读忽略值（WPRI）}
 
-Some whole read/write fields are reserved for future use.  Software
-should ignore the values read from these fields, and should preserve
-the values held in these fields when writing values to other fields of
-the same register.
-For forward compatibility, implementations that do not furnish these fields
-must make them read-only zero.
-These fields are labeled \wpri\ in the register descriptions.
+% Some whole read/write fields are reserved for future use.  Software
+% should ignore the values read from these fields, and should preserve
+% the values held in these fields when writing values to other fields of
+% the same register.
+% For forward compatibility, implementations that do not furnish these fields
+% must make them read-only zero.
+% These fields are labeled \wpri\ in the register descriptions.
 
 某些读/写整个字段都保留为将来使用。软件应该忽略从这些字段中读出的值，同时，
-在写这些字段时，应该保留这些字段的值。为了前向兼容，具体的实现必须将这些字段
+在写寄存器的其他字段时，应该保留这些字段的值。为了前向兼容，不提供字段的具体实现必须将这些字段
 置为只读的零。在寄存器说明中，这些字段标记为 \wpri\ 。
 
 \begin{commentary}
-To simplify the software model, any backward-compatible future
-definition of previously reserved fields within a CSR must cope with
-the possibility that a non-atomic read/modify/write sequence is used
-to update other fields in the CSR. 
+% To simplify the software model, any backward-compatible future
+% definition of previously reserved fields within a CSR must cope with
+% the possibility that a non-atomic read/modify/write sequence is used
+% to update other fields in the CSR. 
+为了简化软件模型，CSR中的预留字段在将来后向兼容的定义中，
+更新CSR其它字段时必须处理非原子的读/修改/写顺序。
 
- Alternatively, the original CSR
-definition must specify that subfields can only be updated atomically,
-which may require a two-instruction clear bit/set bit sequence in
-general that can be problematic if intermediate values are not legal.
-
-为了简化软件模型，在后向兼容时，CSR中的预留字段在将来的定义中，
-在更新CSR其它字段时必须处理非原子的读/修改/写顺序。或者，原始的CSR定义
+%  Alternatively, the original CSR
+% definition must specify that subfields can only be updated atomically,
+% which may require a two-instruction clear bit/set bit sequence in
+% general that can be problematic if intermediate values are not legal.
+或者，原始的CSR定义
 必须说明哪些子字段只能以原子步的形式更新，这通常需要两指令清除位/设置位，
 从而导致中间值不合法。
 
 \end{commentary}
 
-\subsection*{Write/Read Only Legal Values (WLRL)}
+\subsection*{只写/读合法值（WLRL）}
 
-Some read/write CSR fields specify behavior for only a subset of
-possible bit encodings, with other bit encodings reserved.  Software
-should not write anything other than legal values to such a field, and
-should not assume a read will return a legal value unless the last
-write was of a legal value, or the register has not been written since
-another operation (e.g., reset) set the register to a legal value.
-These fields are labeled \wlrl\ in the register descriptions.
+% Some read/write CSR fields specify behavior for only a subset of
+% possible bit encodings, with other bit encodings reserved.  Software
+% should not write anything other than legal values to such a field, and
+% should not assume a read will return a legal value unless the last
+% write was of a legal value, or the register has not been written since
+% another operation (e.g., reset) set the register to a legal value.
+% These fields are labeled \wlrl\ in the register descriptions.
 
 某些读/写CSR字段描述部分位编码的行为，其它编码保留。针对这些字段，
 软件应该只写入合法的值，并且不能假设一个读操作会得到一个合法的值，
@@ -508,73 +526,78 @@ These fields are labeled \wlrl\ in the register descriptions.
 其它的写操作。这些字段在寄存器描述中标记为 \wlrl\
 
 \begin{commentary}
-Hardware implementations need only implement enough state bits to
-differentiate between the supported values, but must always return the
-complete specified bit-encoding of any supported value when read.
+% Hardware implementations need only implement enough state bits to
+% differentiate between the supported values, but must always return the
+% complete specified bit-encoding of any supported value when read.
 
-硬件实现只需实现足够的状态位区分支持的值，但是必须读操作返回时，必须
+硬件实现只需实现足够的状态位区分支持的值，但是读操作返回时，必须
 返回完整的任何支持值的指定位编码。
 \end{commentary}
 
-Implementations are permitted but not required to raise an illegal
-instruction exception if an instruction attempts to write a
-non-supported value to a \wlrl\ field.  Implementations can
-return arbitrary bit patterns on the read of a \wlrl\ field when the last
-write was of an illegal value, but the value returned should
-deterministically depend on the illegal written value and
-the value of the field prior to the write.
+% Implementations are permitted but not required to raise an illegal
+% instruction exception if an instruction attempts to write a
+% non-supported value to a \wlrl\ field.  Implementations can
+% return arbitrary bit patterns on the read of a \wlrl\ field when the last
+% write was of an illegal value, but the value returned should
+% deterministically depend on the illegal written value and
+% the value of the field prior to the write.
 
 如果指令试图向 \wlrl\ 字段写一个不支持的值，实现可以抛出一个非法
 指令异常。在读 \wlrl\ 字段时，如果最后的写操作是一个不合法的值，
 实现可以返回任意的位模式，但是返回值应该明确依赖于不合法的写入
 值和写入之前的值。
 
-\subsection*{Write Any Values, Reads Legal Values (WARL)}
+\subsection*{写任意值，读合法值（WARL）}
 
-Some read/write CSR fields are only defined for a subset of bit
-encodings, but allow any value to be written while guaranteeing to
-return a legal value whenever read.  Assuming that writing the CSR has
-no other side effects, the range of supported values can be determined
-by attempting to write a desired setting then reading to see if the
-value was retained.  These fields are labeled \warl\ in the register
-descriptions.
+% Some read/write CSR fields are only defined for a subset of bit
+% encodings, but allow any value to be written while guaranteeing to
+% return a legal value whenever read.  Assuming that writing the CSR has
+% no other side effects, the range of supported values can be determined
+% by attempting to write a desired setting then reading to see if the
+% value was retained.  These fields are labeled \warl\ in the register
+% descriptions.
 
-某些读/写操作CSR段只定义部分编码，在能够保证读操作返回合法值的前提下，
-允许写入任何值。假设写入CSR没有副作用，支持值的范围可以通过写入预期的值
-然后查看是否保留。这些字段在寄存器描述中标记为 \warl\
+某些读/写操作CSR字段只定义部分编码，在能够保证读操作返回合法值的前提下，
+允许写入任何值。假设写入CSR没有副作用，可以通过写入预期的值
+然后查看是否保留来确认支持值的范围。这些字段在寄存器描述中标记为 \warl\ 。
 
-Implementations will not raise an exception on writes of unsupported
-values to a \warl\ field.  Implementations can
-return any legal value on the read of a \warl\ field when the last
-write was of an illegal value, but the legal value returned should
-deterministically depend on the illegal written value and
-the architectural state of the hart.
+% Implementations will not raise an exception on writes of unsupported
+% values to a \warl\ field.  Implementations can
+% return any legal value on the read of a \warl\ field when the last
+% write was of an illegal value, but the legal value returned should
+% deterministically depend on the illegal written value and
+% the architectural state of the hart.
 
 针对\warl\ 字段，写入不支持的值时，系统不会抛出异常。在读一个 \warl\ 字段
 时，当最后的写入是一个非法的值时，系统可以返回一个合法的值，但是返回的
 值应该由非法写入的值和hart的架构状态确定。
 
-\section{CSR Field Modulation}
+\section{CSR字段的模块化设计
+% CSR Field Modulation
+}
 
-If a write to one CSR changes the set of legal values allowed for a
-field of a second CSR, then unless specified otherwise, the second
-CSR's field immediately gets an \unspecified\ value from among its new
-legal values.
-This is true even if the field's value before the write remains legal
-after the write;
-the value of the field may be changed in consequence of the write to
-the controlling CSR.
+% If a write to one CSR changes the set of legal values allowed for a
+% field of a second CSR, then unless specified otherwise, the second
+% CSR's field immediately gets an \unspecified\ value from among its new
+% legal values.
+% This is true even if the field's value before the write remains legal
+% after the write;
+% the value of the field may be changed in consequence of the write to
+% the controlling CSR.
 
+如果对一个 CSR 的写入更改了第二个 CSR 的字段允许的合法值的集合，则除非另有说明，
+第二个 CSR 的字段会立即从其新的合法值中获取一个 \unspecified\ 。 
+即使写入前字段的值在写入后仍然合法，也是如此； 由于写入控制 CSR，该字段的值可能会更改。
 
 
 \begin{commentary}
-As a special case of this rule, the value written to one CSR may
-control whether a field of a second CSR is writable (with multiple
-legal values) or is read-only.
-When a write to the controlling CSR causes the second CSR's field
-to change from previously read-only to now writable, that field
-immediately gets an \unspecified\ but legal value, unless specified
-otherwise.
+% As a special case of this rule, the value written to one CSR may
+% control whether a field of a second CSR is writable (with multiple
+% legal values) or is read-only.
+% When a write to the controlling CSR causes the second CSR's field
+% to change from previously read-only to now writable, that field
+% immediately gets an \unspecified\ but legal value, unless specified
+% otherwise.
 
 作为这种规则的特例，写入CSR的值可能控制另一个CSR的字段为可写或只读。
 控制CSR的一个写操作导致另一个CSR的字段从之前的只读状态变为当前的可写，
@@ -582,14 +605,14 @@ otherwise.
 \end{commentary}
 
 \begin{commentary}
-Some CSR fields are, when writable, defined as aliases of other CSR
-fields.
-Let $x$ be such a CSR field, and let $y$ be the CSR field it aliases
-when writable.
-If a write to a controlling CSR causes field $x$ to change from
-previously read-only to now writable, the new value of $x$ is not
-\unspecified\ but instead immediately reflects the existing value of its
-alias~$y$, as required.
+% Some CSR fields are, when writable, defined as aliases of other CSR
+% fields.
+% Let $x$ be such a CSR field, and let $y$ be the CSR field it aliases
+% when writable.
+% If a write to a controlling CSR causes field $x$ to change from
+% previously read-only to now writable, the new value of $x$ is not
+% \unspecified\ but instead immediately reflects the existing value of its
+% alias~$y$, as required.
 
 某些CSR可写字段被定义为其它CSR字段的别名。若$x$是一个这样的CSR字段，
  $y$是$x$的别名，如果控制CSR上的一个写操作导致$x$从之前的只读状态
@@ -597,27 +620,31 @@ alias~$y$, as required.
  已有别名$y$的值。
 \end{commentary}
 
-A change to the value of a CSR for this reason is not a write to the
-affected CSR and thus does not trigger any side effects specified for
-that CSR.
+% A change to the value of a CSR for this reason is not a write to the
+% affected CSR and thus does not trigger any side effects specified for
+% that CSR.
 
 出于这种原因对CSR值的改变，不是受此影响CSR上的一个写操作，因此不会
 针对这个CSR产生特定的副作用。
 
-\section{Implicit Reads of CSRs}
+\section{CSR的隐式读
+    % Implicit Reads of CSRs
+    }
 
-Implementations sometimes perform {\em implicit} reads of CSRs.
-(For example, all S-mode instruction fetches implicitly read the {\tt satp}
-CSR.)
-Unless otherwise specified, the value returned by an implicit read of a CSR
-is the same value that would have been returned by an explicit read of the
-CSR, using a CSR-access instruction in a sufficient privilege mode.
+% Implementations sometimes perform {\em implicit} reads of CSRs.
+% (For example, all S-mode instruction fetches implicitly read the {\tt satp}
+% CSR.)
+% Unless otherwise specified, the value returned by an implicit read of a CSR
+% is the same value that would have been returned by an explicit read of the
+% CSR, using a CSR-access instruction in a sufficient privilege mode.
 
 具体实现有时候采用 {\em 隐式}读CSR，例如，所有的S-mode指令隐式获取
 读{\tt satp}CSR的结果。如果没有特殊说明，特权模式下的CSR访问指令，
-在CSR上的隐式读操作返回的值与在其上显示读操作返回的值式一致的，
+在CSR上的隐式读操作返回的值与在其上显示读操作返回的值是一致的，
 
-\section{CSR Width Modulation}
+\section{CSR宽度模块化设计
+    % CSR Width Modulation
+    }
 \label{sec:csrwidthmodulation}
 
 If the width of a CSR is changed (for example, by changing MXLEN or UXLEN, as
@@ -625,39 +652,39 @@ described in Section~\ref{xlen-control}), the values of the {\em writable}
 fields and bits of the new-width CSR are, unless specified otherwise,
 determined from the previous-width CSR as though by this algorithm:
 
-如果CSR的宽度发生了改变（比如，通过修改在~\ref{xlen-control}描述的长度控制），
-在没有特殊说明的情况下CSR中{\em writable}字段的值和具有新宽度的CSR依然由之
-前的宽度确定。
+如果CSR的宽度发生了改变（比如，通过修改MXLEN或UXLEN，在第~\ref{xlen-control}节描述），
+在没有特殊说明的情况下，CSR中{\em writable}字段的值和具有新宽度的CSR依然由之
+前的宽度确定，就想下面这个算法描述的一样：
 \begin{enumerate}
 
-\item The value of the previous-width CSR is copied to a temporary register of
-the same width.
+% \item The value of the previous-width CSR is copied to a temporary register of
+% the same width.
 
-\item 前宽度的CSR值拷贝到具有同样宽度的临时寄存器中
+\item 宽度改变前的CSR值拷贝到具有同样宽度的临时寄存器中
 
-\item For the read-only bits of the previous-width CSR, the bits at the same
-positions in the temporary register are set to zeros.
+% \item For the read-only bits of the previous-width CSR, the bits at the same
+% positions in the temporary register are set to zeros.
 
-\item 对于前宽度CSR中的只读位，临时寄存器中的相应位置为0
+\item 对于宽度改变前的CSR中的只读位，临时寄存器中的相应位置为0
 
-\item The width of the temporary register is changed to the new width. If the
-new width $W$ is narrower than the previous width, the least-significant $W$
-bits of the temporary register are retained and the more-significant bits are
-discarded. If the new width is wider than the previous width, the temporary
-register is zero-extended to the wider width.
+% \item The width of the temporary register is changed to the new width. If the
+% new width $W$ is narrower than the previous width, the least-significant $W$
+% bits of the temporary register are retained and the more-significant bits are
+% discarded. If the new width is wider than the previous width, the temporary
+% register is zero-extended to the wider width.
 
-\item 临时寄存器的宽度根据新的宽度进行调整。如果新的宽度比之前的宽度要小，则
-临时寄存器中的低位比特被保留，而高位比特则被丢弃。如果新的宽度比之前的宽度大，
+\item 临时寄存器的宽度根据新的宽度进行调整。如果新的宽度$W$比之前的宽度要小，则
+临时寄存器中的低$W$位被保留，而高位则被丢弃。如果新的宽度比之前的宽度大，
 则临时寄存器需要按照补零方式扩展至指定宽度。
 
-\item Each writable field of the new-width CSR takes the value of the bits at
-the same positions in the temporary register.
+% \item Each writable field of the new-width CSR takes the value of the bits at
+% the same positions in the temporary register.
 
 \item 对于新宽度CSR中的每个可写字段，都采用临时寄存器中同样比特位作为其值。
 
 \end{enumerate}
 
-Changing the width of a CSR is not a read or write of the CSR and thus
-does not trigger any side effects.
+% Changing the width of a CSR is not a read or write of the CSR and thus
+% does not trigger any side effects.
 
 改变CSR的宽度不是CSR的读或写操作，不会产生副作用。
