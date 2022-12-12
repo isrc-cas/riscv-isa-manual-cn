@@ -13,19 +13,18 @@ privilege levels are supported and other details of the hardware
 implementation.
 \fi
 本章介绍了机器模式(M模式)下可用的机器级操作，这是RISC-V系统中权限最高的模式。
-M模式用于对硬件平台的底层（低级？）访问，是重启时进入的第一个模式。M模式还可以
+M模式用于对硬件平台的底层访问，是复位时进入的第一个模式。M模式还可以
 用于完成那些难以直接用硬件实现或成本昂贵的功能。RISC-V的机器级ISA包含一个共
-同核心，其根据所支持的其它特权等级和硬件实现中的其它细节来进行扩展。
+同核心，根据支持的其它特权等级和硬件实现中的其它细节来进行扩展。
 
 %\section{Machine-Level CSRs}
-\section{机器级 CSRs}
+\section{机器级 CSR}
 
 \iffalse
 In addition to the machine-level CSRs described in this section,
 M-mode code can access all CSRs at lower privilege levels.
 \fi
-除了本节所介绍的机器级CSRs，M模式的代码能够在低特权级别访问所有
-的CSRs。 
+除了本节所介绍的机器级CSR，M模式的代码还能够访问所有低特权级别的CSR。 
 
 %\subsection{Machine ISA Register {\tt misa}}
 \subsection{机器ISA 寄存器 {\tt misa}}
@@ -40,9 +39,9 @@ that CPU capabilities be determined through a separate non-standard
 mechanism.
 \fi
 {\tt misa} CSR是一个\warl\ 读写寄存器，
-用于报告hart所支持的ISA。该寄存器在任何实现当中都必须是可读的，
-但是可以返回一个0值来表示没有实现{\tt misa}寄存器，这时需要通过
-独立的非标准机制来确定CPU的能力。
+指示当前hart所支持的ISA。该寄存器在任何实现当中都必须是可读的，
+但是，如果没有实现{\tt misa}寄存器，则返回一个0值。这时，则需要通过
+非标准机制才能确定CPU支持哪些ISA。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -61,7 +60,9 @@ mechanism.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine ISA register ({\tt misa}).}
+\caption{机器ISA 寄存器 ({\tt misa}).}
+% \caption{Machine ISA register ({\tt misa}).}
+
 \label{misareg}
 \end{figure*}
 
@@ -73,9 +74,9 @@ XLEN in M-mode, {\em MXLEN}, is given by the setting of MXL, or has a
 fixed value if {\tt misa} is zero.  The MXL field is always set to the
 widest supported ISA variant at reset.
 \fi
-MXL字段表示（编码？）本机基础整数型ISA宽度，如图~\ref{misabase}所示。
-在支持多个基础ISA的实现中，MXL字段能够是可写的。M模式下的有效
-XLEN是MXLEN，由MXL的设置给出，如果{\tt misa}为零，则其为一个固定值。
+MXL(机器级XLEN)字段表示本机基础整型ISA的宽度，如图~\ref{misabase}所示。
+在支持多个基础ISA的实现中，MXL字段可以是可写的。M模式下的有效
+XLEN是{\em MXLEN}，由MXL的设置给出，如果{\tt misa}为0，则其为一个固定值。
 在复位时，总是将MXL字段设为所支持的最宽的ISA变体。
 
 \begin{table*}[h!]
@@ -101,9 +102,9 @@ nonzero, field MXL of that value always denotes the current MXLEN. If a write
 to {\tt misa} causes MXLEN to change, the position of MXL moves to the
 most-significant two bits of {\tt misa} at the new width.
 \fi
-{\tt misa} CSR 的位宽是 MXLEN bits。如果从{\tt misa}中读取到的是非零值，
+{\tt misa} CSR 的位宽是 MXLEN 位。如果从{\tt misa}中读取到的是非0值，
 那这个值中的MXL字段总是表示当前的MXLEN。如果对{\tt misa}的写入
-造成了MXLEN的改变，MXL的位置将变化到在新位宽下{\tt misa}的最高有效2bits。
+造成了MXLEN的改变，在{\tt misa}的新位宽下，MXL的位置将变化到最高2位。
 
 \iffalse
 \begin{commentary}
@@ -121,14 +122,14 @@ zero after two shifts, then the machine is RV64, else RV128.
 \fi
 
 \begin{commentary}
-基本宽度可以通过{\tt misa}返回值的符号的分支来快速确定，
-也可以通过符号左移一位和第二个分支来确定。可以在不知道机器的寄
+基本宽度可以通过读取{\tt misa}的值的符号来快速确定，
+也许需要通过将其左移一位之后的符号才能确定。可以在不知道机器的寄
 存器位宽（XLEN）的情况下用汇编语言来编写这些检查。基础宽度由
 $\mbox{XLEN}=2^{\mbox{MXL+4}}$给出。
 
-当{\tt misa}为零时，基础宽度可以通过将立即数4放入一个寄存器，
-然后将其左移32bits来得到。如果移位一次之后是零，则机器是RV32的；如
-果是两次移位后得到零，则机器是RV64的；否则就是RV128。
+当{\tt misa}为0时，基础宽度可以通过先将立即数4放入一个寄存器，
+然后将其左移31位来得到。如果移位一次之后是0，则机器是RV32的；如
+果是两次移位后得到0，则机器是RV64的；否则就是RV128。
 \end{commentary}
 
 \iffalse
@@ -143,19 +144,20 @@ reset, the Extensions field shall contain the maximal set of supported
 extensions, and I shall be selected over E if both are available.
 \fi
 
-Extensions字段编码了目前存有的标准扩展，其每一位都对应了
-字母表中的一个字母（bit 0对扩展``A''编码，bit 1对扩
-展``B''编码，以此类推，直至bit 25编码``Z''）。如果基础ISA是
-RV32I、RV64I或RV128I，则置位``I'' bit，如果基础ISA是RV32E，则置位``E''bit。
-Extensions字段是一个能包含可写位的WARL字段，需要（where?）实现
-允许修改所支持的ISA。复位时，Extensions字段应包含所支持的最大扩展
+Extensions字段表示了目前存有的标准扩展，其每一位都对应了
+字母表中的一个字母（第0位对应``A''扩展，第1位对应
+``B''扩展，以此类推，直至第25位对应``Z''扩展）。如果基础ISA是
+RV32I、RV64I或RV128I，则把``I''对应的位置位，如果基础ISA是RV32E，则把``E''对应的位置位。
+Extensions字段是一个能包含可写位的 \warl\ 字段。在具体实现中，允许修改Extensions字段来改变支持的ISA。
+复位时，Extensions字段应包含所支持的最大扩展
 集，如果E和I都可以，那么优先选择I。
 
 \iffalse
 When a standard extension is disabled by clearing its bit in {\tt misa}, the instructions and CSRs defined or modified by the extension revert to their defined or reserved behaviors as if the extension is not implemented.
 \fi
 
-当通过清除 {\tt misa}中相应位（bit）来禁止一个标准扩展时，经扩展定义或修改的指令和CSRs会恢复到它们定义或保留的行为，就像扩展没有实现一样。
+当通过清除 {\tt misa}中相应位来禁止一个标准扩展时，经扩展定义或修改的指
+令和CSR会恢复到它们原本定义或保留的行为，就像扩展没有实现一样。
 
 \iffalse
 The design of the RV128I base ISA is not yet complete, and while much of the remainder of this
@@ -163,7 +165,7 @@ specification is expected to apply to RV128, this version of the document
 focuses only on RV32 and RV64.
 \fi
 
-RV128 基础ISA的设计还没有完成，尽管本规格中剩余的大部分都期望适用于RV128，但本版本的文档仅关注RV32和RV64。
+RV128I 基础ISA的设计还没有完成，尽管本规格中剩余的大部分都期望适用于RV128I，但此版本的文档仅关注RV32和RV64。
 
 \iffalse
 The ``U'' and ``S'' bits will be set if there is support for user and
@@ -172,49 +174,89 @@ supervisor modes respectively.
 The ``X'' bit will be set if there are any non-standard extensions.
 \fi
 
-如果支持用户模式（user mode），则将“U”bit置位；如果支持特权模式（supervisor mode），则将“S ”bit置位。
+如果支持用户模式，则将``U''对应的位置位；如果支持监管器模式，则将``S''对应的位置位。
 
-如果存在任何非标准扩展（non-standard extensions），则将“X”bit置位。
+如果存在任何非标准扩展，则将``X''对应的位置位。
+
+% \begin{table*}
+% \begin{center}
+% \begin{tabular}{|r|r|l|}
+% \hline
+% Bit & Character  & Description \\
+% \hline
+%   0 & A & Atomic extension \\
+%   1 & B & {\em Tentatively reserved for Bit-Manipulation extension} \\
+%   2 & C & Compressed extension \\
+%   3 & D & Double-precision floating-point extension \\
+%   4 & E & RV32E base ISA \\
+%   5 & F & Single-precision floating-point extension \\
+%   6 & G & {\em Reserved} \\
+%   7 & H & Hypervisor extension \\
+%   8 & I & RV32I/64I/128I base ISA \\
+%   9 & J & {\em Tentatively reserved for Dynamically Translated Languages extension} \\
+%  10 & K & {\em Reserved} \\
+%  11 & L & {\em Reserved} \\
+%  12 & M & Integer Multiply/Divide extension \\
+%  13 & N & {\em Tentatively reserved for User-Level Interrupts extension} \\
+%  14 & O & {\em Reserved} \\
+%  15 & P & {\em Tentatively reserved for Packed-SIMD extension} \\
+%  16 & Q & Quad-precision floating-point extension \\
+%  17 & R & {\em Reserved} \\
+%  18 & S & Supervisor mode implemented \\
+%  19 & T & {\em Reserved} \\
+%  20 & U & User mode implemented \\
+%  21 & V & {\em Tentatively reserved for Vector extension} \\
+%  22 & W & {\em Reserved} \\
+%  23 & X & Non-standard extensions present \\
+%  24 & Y & {\em Reserved} \\
+%  25 & Z & {\em Reserved} \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Encoding of Extensions field in {\tt misa}.  All bits that are
+%   reserved for future use must return zero when read.}
+% \label{misaletters}
+% \end{table*}
 
 \begin{table*}
 \begin{center}
 \begin{tabular}{|r|r|l|}
 \hline
-Bit & Character  & Description \\
+位 & 字母  & 描述 \\
 \hline
-  0 & A & Atomic extension \\
-  1 & B & {\em Tentatively reserved for Bit-Manipulation extension} \\
-  2 & C & Compressed extension \\
-  3 & D & Double-precision floating-point extension \\
-  4 & E & RV32E base ISA \\
-  5 & F & Single-precision floating-point extension \\
-  6 & G & {\em Reserved} \\
-  7 & H & Hypervisor extension \\
-  8 & I & RV32I/64I/128I base ISA \\
-  9 & J & {\em Tentatively reserved for Dynamically Translated Languages extension} \\
- 10 & K & {\em Reserved} \\
- 11 & L & {\em Reserved} \\
- 12 & M & Integer Multiply/Divide extension \\
- 13 & N & {\em Tentatively reserved for User-Level Interrupts extension} \\
- 14 & O & {\em Reserved} \\
- 15 & P & {\em Tentatively reserved for Packed-SIMD extension} \\
- 16 & Q & Quad-precision floating-point extension \\
- 17 & R & {\em Reserved} \\
- 18 & S & Supervisor mode implemented \\
- 19 & T & {\em Reserved} \\
- 20 & U & User mode implemented \\
- 21 & V & {\em Tentatively reserved for Vector extension} \\
- 22 & W & {\em Reserved} \\
- 23 & X & Non-standard extensions present \\
- 24 & Y & {\em Reserved} \\
- 25 & Z & {\em Reserved} \\
+  0 & A & 原子拓展 \\
+  1 & B & {\em 暂时保留用于位操作扩展} \\
+  2 & C & 压缩拓展 \\
+  3 & D & 双精度浮点数拓展 \\
+  4 & E & RV32E 基础 ISA \\
+  5 & F & 单精度浮点数拓展 \\
+  6 & G & {\em 保留的} \\
+  7 & H & 超级监管器拓展 \\
+  8 & I & RV32I/64I/128I 基础 ISA \\
+  9 & J & {\em 暂时保留用于动态翻译语言扩展} \\
+  10 & K & {\em 保留的} \\
+  11 & L & {\em 保留的} \\
+  12 & M & 整数 乘法/除法拓展 \\
+  13 & N & {\em 暂时保留用于用户模式中断扩展} \\
+  14 & O & {\em 保留的} \\
+  15 & P & {\em 暂时保留用于Packed-SIMD扩展} \\
+  16 & Q & 四精度浮点数拓展 \\
+  17 & R & {\em 保留的} \\
+  18 & S & 实现监管器模式 \\
+  19 & T & {\em 保留的} \\
+  20 & U & 实现用户模式 \\
+  21 & V & {\em 暂时保留用于向量扩展} \\
+  22 & W & {\em 保留的} \\
+  23 & X & 非标准拓展 \\
+  24 & Y & {\em 保留的} \\
+  25 & Z & {\em 保留的} \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Encoding of Extensions field in {\tt misa}.  All bits that are
-  reserved for future use must return zero when read.}
+\caption{{\tt misa}中的Extension字段编码。当读取为将来保留的位时，都返回0值。}
 \label{misaletters}
 \end{table*}
+
 
 \iffalse
 \begin{commentary}
@@ -231,9 +273,12 @@ interface without burdening hardware designs.
 \end{commentary}
 \fi
 
-{\tt misa} CSR向机器模式的代码展示了CPU的基本功能目录。在机器模式下，可以通过探测其它机器寄存器，并且作为启动程序（boot process）的一部分，检查系统中其他的ROM存储器，来获得更广泛的信息。
+{\tt misa} CSR向机器模式的代码展示了CPU特性的基本目录。在机
+器模式下，可以通过探测其它机器寄存器，并且在启动程序中，检查系统中其他的ROM存储器，来获得更广泛的信息。
 
-我们要求较低特权级使用环境调用来确定每个特权级别的可用功能，而不是直接读取CPU寄存器。这使得虚拟层能够改变在任何级别上可观察到的ISA，并支持更加丰富的命令接口，且不会带来额外的硬件设计的负担。
+我们需要低特权级执行环境调用，而不是直接读取CPU寄存器，来确定每个特权级别的可用功能。
+这使得虚拟层能够改变在任何级别上可观察到的ISA，
+并支持更加丰富的命令接口，且不会带来额外的硬件设计的负担。
 
 \iffalse
 The ``E'' bit is read-only.  Unless {\tt misa} is all read-only zero, the ``E''
@@ -241,7 +286,7 @@ bit always reads as the complement of the ``I'' bit.  An implementation that
 supports both RV32E and RV32I can select RV32E by clearing the ``I'' bit.
 \fi
 
-bit E是只读的。除非{\tt misa}是只读全零，否则``E'' bit总是``I'' bit的补码。对于同时支持RV32E和RV32I的实现，可通过清除“I”bit来选择RV32E。
+``E''位是只读的。除非{\tt misa}全部是只读0，否则``E'' 位总是``I'' 位的补充。对于同时支持RV32E和RV32I的实现，可通过清除``I''位来选择RV32E。
 
 \iffalse
 If an ISA feature {\em x} depends on an ISA feature {\em y}, then attempting
@@ -249,7 +294,8 @@ to enable feature {\em x} but disable feature {\em y} results in both features
 being disabled.  For example, setting ``F''=0 and ``D''=1 results in both
 ``F'' and ``D'' being cleared.
 \fi
-如果ISA功能{\em x} 依赖于ISA功能{\em y}，那么尝试在启用功能{\em x}的同时禁用功能{\em y}，会导致两个功能都被禁用。例如，设置``F''=0和``D''=1会导致``F''和``D''都被清除。
+如果ISA功能{\em x} 依赖于ISA功能{\em y}，那么尝试在启用功能{\em x}的同时禁用功能{\em y}，会导致两个功能都被禁用
+。例如，设置``F''=0和``D''=1会导致``F''和``D''都被清除。
 
 \iffalse
 An implementation may impose additional constraints on the collective setting
@@ -258,7 +304,8 @@ a single \warl\ field.  An attempt to write an unsupported combination causes
 those bits to be set to some supported combination.
 \fi
 
-一个实现可能会对两个或多个{\tt misa}字段的集合设置施加额外的限制，在这种情况下，它们共同作为一个单独的\warl\ 字段发挥作用。尝试写入不受支持的组合会导致这些位被设置成一些受支持的组合。
+一个实现可能会对两个或多个{\tt misa}字段的集合设置施加额外的约束，
+在这种情况下，它们共同作为一个单独的\warl\ 字段发挥作用。在字段集合中，尝试写入不受支持的组合，会导致这些位被设置成一些受支持的组合。
 
 \iffalse
 Writing {\tt misa} may increase IALIGN, e.g., by disabling the ``C''
@@ -268,7 +315,8 @@ the subsequent instruction's address is not IALIGN-bit aligned, the
 write to {\tt misa} is suppressed, leaving {\tt misa} unchanged.
 \fi
 
-写入{\tt misa}可能会增加IALIGN，例如，通过禁用'' C "扩展。如果要写入{\tt misa}的指令增加IALIGN，而后续指令的地址不是IALIGN-bit对齐的，则抑制对{\tt misa}的写入，保持{\tt misa}不变。
+写入{\tt misa}可能会增加IALIGN，例如，禁用``C''扩展。
+如果要写入{\tt misa}的指令增加IALIGN，而后续指令的地址不是IALIGN位对齐的，则抑制对{\tt misa}的写入，保持{\tt misa}不变。
 
 \iffalse
 When software enables an extension that was previously disabled, then all
@@ -276,7 +324,7 @@ state uniquely associated with that extension is \unspecified, unless
 otherwise specified by that extension.
 \fi
 
-当软件启用以前禁用的扩展时，所有与该扩展唯一关联的状态都是\unspecified，除非该扩展另有指定。
+当软件启用关闭的扩展时，所有与该扩展唯一关联的状态都是\unspecified，除非该扩展另有指定。
 
 %\subsection{Machine Vendor ID Register {\tt mvendorid}}
 \subsection{机器厂商ID寄存器 {\tt mvendorid}}
@@ -288,7 +336,8 @@ must be readable in any implementation, but a value of 0 can be
 returned to indicate the field is not implemented or that this is a
 non-commercial implementation.
 \fi
-{\tt mvendorid} CSR是一个32位只读寄存器，提供核心提供者的JEDEC制造商ID。该寄存器在任何实现中都必须是可读的，但是可以返回0值，表示该字段没有实现，或者这是一个非商业实现。
+{\tt mvendorid} CSR是一个32位只读寄存器，提供核心提供者的JEDEC制造商ID。
+该寄存器在任何实现中都必须是可读的，但是可以返回0值，表示该字段没有实现，或者这是一个非商业实现。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -305,7 +354,8 @@ non-commercial implementation.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Vendor ID register ({\tt mvendorid}).}
+\caption{机器厂商ID寄存器 ({\tt mvendorid}).}
+% \caption{Vendor ID register ({\tt mvendorid}).}
 \label{mvendorreg}
 \end{figure*}
 
@@ -321,7 +371,10 @@ discarding the parity bit.  For example, the JEDEC manufacturer ID
 {\tt mvendorid} CSR as {\tt 0x60a}.
 \fi
 
-JEDEC制造商ID通常被编码为一个单字节延续码序列{\tt 0x7f}，由一个不等于{\tt 0x7f}的单字节ID终止，每个字节的最高有效位有一个奇偶校验位。{\tt mvendorid}编码Bank字段中单字节延续码的数量，并编码Offset字段中的最后一个字节，丢弃校验位。例如，JEDEC制造商ID {\tt 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x8a}(十二个延续码，后面跟着{\tt 0x8a})将被编码为{\tt 0x60a}。
+JEDEC制造商ID通常被编码为一个单字节延续码序列{\tt 0x7f}，由一个不等于{\tt 0x7f}的单字节ID终止，
+每个字节的最高有效位有一个奇偶校验位。{\tt mvendorid}表示Bank字段中单字节延续
+码的数量，并编码Offset字段中的最后一个字节，丢弃校验位。
+例如，JEDEC制造商ID {\tt 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x7f 0x8a}(十二个延续码，后面跟着{\tt 0x8a})将被编码为{\tt 0x60a}。
 
 \iffalse
 \begin{commentary}
@@ -332,7 +385,7 @@ that is one less than the JEDEC bank number.
 \fi
 
 \begin{commentary}
-按照JEDEC的说法，银行号比延续代码的数量大1;因此，{\tt mvendorid} Bank字段编码一个比JEDEC银行号小1的值。
+按照JEDEC的说法，bank码比延续码的数量大1；因此，{\tt mvendorid} Bank字段表示一个比JEDEC bank码小1的值。
 \end{commentary}
 
 \iffalse
@@ -345,7 +398,7 @@ manufacturer ID with JEDEC has a one-time cost of \$500.
 \fi
 
 \begin{commentary}
-以前，供应商ID是由RISC-V International分配的号码，但这重复了JEDEC维持制造商ID标准的工作。在撰写本文时，向JEDEC注册一个制造商ID的一次性成本为\$500。
+以前，供应商ID是由RISC-V国际分配的号码，但这重复了JEDEC维持制造商ID标准的工作。在撰写本文时，向JEDEC注册一个制造商ID的一次性成本为\$500。
 \end{commentary}
 
 \subsection{机器架构ID寄存器{\tt marchid}}
@@ -359,7 +412,8 @@ field is not implemented.  The combination of {\tt mvendorid} and {\tt
 that is implemented.
 \fi
 
-CSR是一个mxlen位只读寄存器，编码hart的基本微架构。该寄存器在任何实现中都必须是可读的，但是可以返回0值表示未实现该字段。{\tt mvendorid}和{\tt marchid}的组合应该唯一地标识所实现的hart微架构的类型。
+{\tt marchid}CSR是一个MXLEN位只读寄存器，表示hart的基本微架构。该寄存器在任何实现中都必须是可读的，
+但是可以返回0值表示未实现该字段。{\tt mvendorid}和{\tt marchid}的组合应该唯一地标识所实现的hart微架构的类型。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -374,7 +428,8 @@ MXLEN \\
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Architecture ID register ({\tt marchid}).}
+% \caption{Machine Architecture ID register ({\tt marchid}).}
+\caption{机器架构ID寄存器 ({\tt marchid}).}
 \label{marchreg}
 \end{figure*}
 
@@ -386,7 +441,8 @@ by each commercial vendor independently, but must have the MSB set and
 cannot contain zero in the remaining MXLEN-1 bits.
 \fi
 
-开源项目架构id由RISC-V International全局分配，并且具有非零架构id，其中最有效位(MSB)为零。商业体系结构id由每个商业供应商独立分配，但必须设置MSB，并且不能在剩余的MXLEN-1位中包含零。
+开源项目架构ID由RISC-V国际全局分配，并且具有非0架构ID，其中最高有效位(MSB)为0。
+商业体系结构ID由每个商业供应商独立分配，但必须设置MSB，并且不能在剩余的MXLEN-1位中包含0。
 
 \iffalse
 \begin{commentary}
@@ -412,9 +468,13 @@ distinguish different variants of a design.
 \fi
 
 \begin{commentary}
-架构ID用于代表与开发repo相关的微架构，而非特定组织。开源设计的商业制造商应（并且可能被lisense要求）保留原始架构ID。有助于减少碎片化和工具支持成本，并提供归属。开源架构ID由RISC-V International管理，只分配给已发布且正在运行的开源项目。商业架构ID可由任何注册过的厂商独自管理，但诺厂商希望同时使用闭源和开源的微架构，则要拥有与开源架构不相干的ID（MSB set），以防冲突。
+架构ID用于表示与项目开发相关的repo的微架构，而非特定组织。
+开源设计的商业制造商应（并且可能被lisense要求）保留原始架构ID。
+有助于减少碎片化和工具支持成本，并提供归属。开源架构ID由RISC-V国际管理，
+只分配给已发布且正在运行的开源项目。商业架构ID可由任何注册过的厂商独自管理，但若厂商
+希望同时使用闭源和开源的微架构，则要拥有与开源架构不相干的ID（MSB set），以防冲突。
 
-接下来的实现字段中所采用的协定可用于区分同一架构设计的分支，包括按组织结构划分。{\tt misa}寄存器还有助于区分不同设计变体。
+接下来的实现字段中所采用的约定，可用于区分同一架构设计的分支，包括按组织结构划分。{\tt misa}寄存器还有助于区分不同设计变体。
 \end{commentary}
 
 \subsection{机器实现ID寄存器 {\tt mimpid}}
@@ -427,7 +487,8 @@ field is not implemented.  The Implementation value should reflect the
 design of the RISC-V processor itself and not any surrounding system.
 \fi
 
-{\tt mimid} CSR提供处理器实现版本的唯一编码。该寄存器在任何实现中都必须是可读的，但是可以返回0值以指示未实现该字段。实现值应该反映RISC-V处理器本身的设计，而不是任何周边系统。
+{\tt mimpid} CSR提供处理器实现版本的唯一编码。该寄存器在任何实现中都必须是可读的，但是可以返回0值以指示未实现该字段。
+在实现中，寄存器的值应该反映RISC-V处理器本身的设计，而不是任何周边系统。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -442,7 +503,8 @@ MXLEN \\
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Implementation ID register ({\tt mimpid}).}
+% \caption{Machine Implementation ID register ({\tt mimpid}).}
+\caption{机器实现ID寄存器({\tt mimpid}).}
 \label{mimpidreg}
 \end{figure*}
 \iffalse
