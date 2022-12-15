@@ -2019,7 +2019,15 @@ In systems without S-mode, the {\tt medeleg} and {\tt mideleg} registers
 should not exist.
 \fi
 
-默认情况下，任何特权级别的所有陷阱都在机器模式下处理，尽管机器模式处理程序可以使用MRET指令将陷阱重定向回适当级别(第~\ref{otherpriv}节)。为了提高性能，实现可以在{\tt medeleg}和{\tt-mideleg}中提供单独的读/写位，以指示某些异常和中断应该由较低的特权级别直接处理。机器异常委托寄存器({\tt medeleg})和机器中断委托寄存器({\tt mideleg})是MXLEN位读/写寄存器。
+默认情况下，任何特权级别的所有陷入都在机器模式下处理，
+尽管机器模式处理程序可以使用MRET指令(第~\ref{otherpriv}节)将陷入重定向回适当级别。
+为了提高性能，实现可以在{\tt medeleg}和{\tt-mideleg}中提供单独的读/写位，
+以表示某些异常和中断应该由较低的特权级别直接处理。
+机器异常委托寄存器({\tt medeleg})和机器中断委托寄存器({\tt mideleg})是MXLEN位读/写寄存器。
+
+在具有S模式的系统中，{\tt medeleg}和{\tt mideleg}寄存器必须存在，
+并且在S模式或U模式下，在{\tt medeleg}或{\tt mideleg}中将其中一位置一，将把对应的陷入委托给S模式陷入处理程序。
+在没有S模式的系统中，{\tt medeleg}和{\tt midleg}寄存器不应存在。
 
 \iffalse
 \begin{commentary}
@@ -2031,7 +2039,8 @@ should not exist.
 \fi
 
 \begin{commentary}
- 在版本1.9.1及更早的版本中，这些寄存器存在，但仅在M模式或没有N个系统的M/U系统中硬连接到0。在这些情况下，没有理由要求它们返回零，因为{\tt misa}寄存器指示它们是否存在。
+ 在版本1.9.1及更早的版本中，这些寄存器仅在M模式或没有N系统的M/U系统中存在，且硬连线到0。
+ 在这些情况下，没有理由要求它们返回零，因为{\tt misa}寄存器表示它们是否存在。
 \end{commentary}
 
 \iffalse
@@ -2048,8 +2057,7 @@ the SIE field of {\tt mstatus} is cleared.
 The {\tt mcause}, {\tt mepc}, and {\tt mtval} registers and the MPP and
 MPIE fields of {\tt mstatus} are not written.
 
-An
-implementation can choose to subset the delegatable traps, with the
+An implementation can choose to subset the delegatable traps, with the
 supported delegatable bits found by writing one to every bit location,
 then reading back the value in {\tt medeleg} or {\tt mideleg} to see
 which bit positions hold a one.
@@ -2059,13 +2067,25 @@ any synchronous trap that can be delegated must support not being delegated.
 Similarly, an implementation shall not fix as read-only one any bits of
 {\tt mideleg} corresponding to machine-level interrupts (but may do so
 for lower-level interrupts).
+
+
 \fi
 
-当陷阱被委派到S模式时，将使用陷阱原因写入{\tt scause}寄存器；使用获取陷阱的指令的虚拟地址写入{\tt Sepc}寄存器；使用特定于异常的数据写入{\tt stval}寄存器；使用陷阱发生时的活动特权模式写入{\tt mstatus}的SPP字段；使用陷阱发生时的SIE字段的值写入{\tt matus}的SPIE字段；清除{\tt mStatus}的SIE字段。未写入{\tt mason}、{\tt mepc}和{\tt mtval}寄存器以及{\tt mstatus}的MPP和MPIE字段。
+当陷阱被委托给S模式时，
+将陷入原因号写入{\tt scause}寄存器；
+将造成陷入的指令的虚拟地址写入{\tt sepc}寄存器；
+将特定于异常的数据写入{\tt stval}寄存器；
+将陷入发生时的有效的特权模式写入{\tt mstatus}的SPP字段；
+将陷入发生时的SIE字段的值写入{\tt mstatus}的SPIE字段；
+清除{\tt mStatus}的SIE字段。
+{\tt mcause}、{\tt mepc}和{\tt mtval}寄存器以及{\tt mstatus}的MPP和MPIE字段不会被写入。
 
-实现可以选择将可委托陷阱设置为子集，通过向每个位位置写入一个来找到受支持的可委派位，然后读回{\tt medelig}或{\tt mideleg}中的值，以查看哪些位位置保存1。
+具体实现中，可以选择将可委托陷入设置为子集，向每个位写入1，
+然后读回{\tt medelig}或{\tt mideleg}中的值，查看哪些位保持了1，用这种方式
+来找出支持的可委派位。
 
-一个实现不应该有任何位的{\tt medelegg}是只读的，即任何可以委托的同步陷阱必须支持不委托。类似地，实现不应将对应于机器级中断的任何位的{\tt mideleg}固定为只读(但可以对较低级别的中断这样做)。
+具体实现中，不应该将{\tt medeleg}的任何位设置只读1，即任何可以被委托的同步陷入必须支持不被委托。
+类似地，不应将{\tt mideleg}中与机器级中断对应的任何位，固定为只读1(但可以对较低级别的中断这样做)。
 
 \iffalse
 \begin{commentary}
@@ -2076,7 +2096,7 @@ Platform standards may always add such restrictions.
 \fi
 
 \begin{commentary}
-版本1.11及更早版本禁止任何位的{\tt mideleg}为只读。平台标准可能总是会添加这样的限制。
+版本1.11及更早版本禁止将{\tt mideleg}的任何位设置为只读1。平台标准可能总是会添加这样的限制。
 \end{commentary}
 
 \iffalse
@@ -2096,7 +2116,31 @@ be taken in any mode and regardless of current mode will transfer control to
 M-mode.
 \fi
 
-陷阱永远不会从特权较高的模式转换到特权较低的模式。 例如，如果M模式已将非法指令异常委托给S模式，而 M模式软件稍后执行了一条非法指令，则陷阱将在M模式中进行，而不是委托给S模式。相比之下，陷阱可以水平采取。使用相同的示例，如果M模式 已将非法指令异常委托给S模式，并且S模式软件稍后执行了非法指令，则在S模式中进行陷阱。
+陷阱永远不会从特权较高的模式陷入到特权较低的模式。例如，如果M模式已将非法指令异常委托给S模式，
+而M模式软件稍后执行了一条非法指令，则陷入将在M模式中发生，而不是被委托给S模式。
+相比之下，陷入可以水平发生。使用相同的示例，如果M模式已将非法指令异常委托给S模式，
+并且S模式软件稍后执行了非法指令，则陷入在S模式中发生。
+
+被委托的中断导致它在委托者特权级别被屏蔽。
+例如，如果通过设置{\tt mideleg}[5]将监管器时钟中断（STI）委托给S模式，则在M模式下执行时将不会发生STI。
+相比之下，如果{\tt mideleg}[5]被清0，则可以在任何模式下发生STI，无论当前模式如何，都将控制转移到M模式。
+
+% \begin{figure}[h!]
+% {\footnotesize
+% \begin{center}
+% \begin{tabular}{@{}U}
+% \instbitrange{MXLEN-1}{0} \\
+% \hline
+% \multicolumn{1}{|c|}{Synchronous Exceptions (\warl)} \\
+% \hline
+% MXLEN \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Machine Exception Delegation Register {\tt medeleg}.}
+% \label{medelegreg}
+% \end{figure}
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2104,14 +2148,14 @@ M-mode.
 \begin{tabular}{@{}U}
 \instbitrange{MXLEN-1}{0} \\
 \hline
-\multicolumn{1}{|c|}{Synchronous Exceptions (\warl)} \\
+\multicolumn{1}{|c|}{同步异常 (\warl)} \\
 \hline
 MXLEN \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Exception Delegation Register {\tt medeleg}.}
+\caption{机器异常委托寄存器 {\tt medeleg}。}
 \label{medelegreg}
 \end{figure}
 
@@ -2123,7 +2167,25 @@ user-mode environment calls to be delegated to a lower-privilege trap
 handler).
 \fi
 
-{\tt medeleg} 为页面~\pageref{mcause} 上的 Table~\ref{mcause} 中所示的每个同步异常分配了一个位位置，位位置的索引等于 {\tt mcause 中返回的值 } 寄存器（即，设置位 8 允许将用户模式环境调用委托给较低权限的陷阱处理程序）。
+{\tt medeleg} 为第~\pageref{mcauses}页上的 表~\ref{mcauses} 中所示的每个同步异常分配了一个位，
+位的索引等于 {\tt mcause} 寄存器中返回的值 （即，设置位8允许将用户模式环境调用被委托给较低权限的陷阱处理程序）。
+
+% \begin{figure}[h!]
+% {\footnotesize
+% \begin{center}
+% \begin{tabular}{@{}U}
+% \instbitrange{MXLEN-1}{0} \\
+% \hline
+% \multicolumn{1}{|c|}{Interrupts (\warl)} \\
+% \hline
+% MXLEN \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Machine Interrupt Delegation Register {\tt mideleg}.}
+% \label{midelegreg}
+% \end{figure}
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2131,14 +2193,14 @@ handler).
 \begin{tabular}{@{}U}
 \instbitrange{MXLEN-1}{0} \\
 \hline
-\multicolumn{1}{|c|}{Interrupts (\warl)} \\
+\multicolumn{1}{|c|}{中断 (\warl)} \\
 \hline
 MXLEN \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Interrupt Delegation Register {\tt mideleg}.}
+\caption{机器中断委托寄存器 {\tt mideleg}。}
 \label{midelegreg}
 \end{figure}
 
@@ -2152,9 +2214,9 @@ For exceptions that cannot occur in less privileged modes, the corresponding
 {\tt medeleg}[11] is read-only zero.
 \fi
 
-{\tt mideleg} 保存各个中断的陷阱委托位，位布局与 {\tt mip} 寄存器中的位布局相匹配(即，STIP 中断委托控制位于第 5 位)。
+{\tt mideleg} 保存各个中断的陷入委托位，位的布局与 {\tt mip} 寄存器中的位布局相匹配(即，STIP 中断委托控制位于第 5 位)。
 
-对于在较低特权模式下不能发生的异常，相应的 {\tt medeleg} 位应为只读零。 特别是，{\tt medeleg}[11] 是只读零。
+对于在较低特权模式下不能发生的异常，相应的 {\tt medeleg} 位应为只读0。 特别是，{\tt medeleg}[11]是只读0。
 
 % \subsection{Machine Interrupt Registers ({\tt mip} and {\tt mie})}
 \subsection{机器中断寄存器 ({\tt mip} 和 {\tt mie})}
@@ -2171,7 +2233,26 @@ Bits 15:0 are allocated to standard interrupt causes only, while bits 16
 and above are designated for platform or custom use.
 \fi
 
-{\tt mip} 寄存器是一个 MXLEN 位读/写寄存器，包含有关挂起中断的信息，而 {\tt mie} 是相应的 MXLEN 位读/写寄存器，包含中断使能位。 中断原因编号 \textit{i}（如 CSR {\tt mcause}，Section~\ref{sec:mcause} 中所述）与 {\tt mip} 和 {\tt mie 中的 bit~\textit{i} 对应 }。 位 15:0 仅分配给标准中断原因，而位 16 及更高位指定用于平台或自定义使用。
+{\tt mip}寄存器是一个MXLEN位读/写寄存器，包含有关挂起中断的信息，而 {\tt mie} 是相应的MXLEN位读/写寄存器，
+其中包含中断使能位。中断原因编号\textit{i}（如 CSR {\tt mcause}，第~\ref{sec:mcause}节中所述）
+与 {\tt mip} 和{\tt mie}中的第\textit{i}位对应。位15:0仅分配给标准中断原因，而位16及更高位由平台指定或自定义使用。
+
+% \begin{figure}[h!]
+% {\footnotesize
+% \begin{center}
+% \begin{tabular}{@{}U}
+% \instbitrange{MXLEN-1}{0} \\
+% \hline
+% \multicolumn{1}{|c|}{Interrupts (\warl)} \\
+% \hline
+% MXLEN \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Machine Interrupt-Pending Register ({\tt mip}).}
+% \label{mipreg}
+% \end{figure}
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2179,31 +2260,48 @@ and above are designated for platform or custom use.
 \begin{tabular}{@{}U}
 \instbitrange{MXLEN-1}{0} \\
 \hline
-\multicolumn{1}{|c|}{Interrupts (\warl)} \\
+\multicolumn{1}{|c|}{中断(\warl)} \\
 \hline
 MXLEN \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Interrupt-Pending Register ({\tt mip}).}
+\caption{机器中断挂起寄存器({\tt mip})。}
 \label{mipreg}
 \end{figure}
 
+% \begin{figure}[h!]
+% {\footnotesize
+% \begin{center}
+% \begin{tabular}{@{}U}
+% \instbitrange{MXLEN-1}{0} \\
+% \hline
+% \multicolumn{1}{|c|}{Interrupts (\warl)} \\
+% \hline
+% MXLEN \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Machine Interrupt-Enable Register ({\tt mie}).}
+% \label{miereg}
+% \end{figure}
+
 \begin{figure}[h!]
 {\footnotesize
 \begin{center}
 \begin{tabular}{@{}U}
 \instbitrange{MXLEN-1}{0} \\
 \hline
-\multicolumn{1}{|c|}{Interrupts (\warl)} \\
+\multicolumn{1}{|c|}{中断 (\warl)} \\
 \hline
 MXLEN \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Interrupt-Enable Register ({\tt mie}).}
+\caption{机器中断使能寄存器({\tt mie})。}
 \label{miereg}
 \end{figure}
 
@@ -2243,12 +2341,114 @@ Bits of {\tt mie} that are not writable must be read-only zero.
 The standard portions (bits 15:0) of registers {\tt mip} and {\tt mie}
 are formatted as shown in Figures \ref{mipreg-standard} and
 \ref{miereg-standard} respectively.
+
 \fi
 
-如果满足以下所有条件，则中断~\textit{i} 将陷入 M 模式（导致特权模式更改为 M 模式）： (a)~当前特权模式为 M 且 MIE 位在 {\tt mstatus} 寄存器被设置，或者当前特权模式的特权低于 M-mode； (b)~bit~\textit{i} 在 {\tt mip} 和 {\tt mie} 中都设置； (c)~如果寄存器 {\tt mideleg} 存在，位~\textit{i} 在 {\tt mideleg} 中没有设置。
+如果满足以下所有条件，则中断~\textit{i} 将陷入M模式（导致特权模式更改为M模式）： 
+(a)~当前特权模式为M且MIE位在{\tt mstatus}寄存器被设置，或者当前特权模式的特权低于M模式。 
+(b)~位~\textit{i} 在 {\tt mip} 和 {\tt mie} 中都设置； 
+(c)~如果寄存器 {\tt mideleg} 存在，位~\textit{i} 在 {\tt mideleg} 中没有设置。
 
-中断陷阱发生的这些条件必须在中断在 {\tt mip} 中挂起或停止挂起时的有限时间内进行评估，并且还必须在执行 {\em x}\/RET 指令或对这些中断陷阱条件明确依赖的 CSR 的显式写入（包括 {\tt mip}、{\tt mie}、{\tt mstatus} 和 {\tt mideleg}）。
+中断陷入发生的这些条件必须在{\tt mip}中挂起中断或停止挂起时的有限时间内进行评估，
+并且还必须在执行 {\em x}\/RET 指令或对这些中断陷入条件明确依赖的CSR
+（包括{\tt mip}、{\tt mie}、{\tt mstatus}和{\tt mideleg}）的显式写入之后立即进行评估。
 
+陷入M模式的中断优先于任何陷入较低权限模式的中断。
+
+寄存器{\tt mip}中的每个位都可以是可写的，也可以是只读的。
+当{\tt mip}中的位~\textit{i}可写时，可以通过向该位写入0来清除挂起的中断\textit{i}。
+如果中断\textit{i}可以被挂起，但{\tt mip}中的位~\textit{i}是只读的，
+那么具体实现必须提供一些机制来清除挂起的中断。
+
+如果相应的中断可能挂起，则{\tt mie}中的一位必须是可写的。
+{\tt mie}中不可写的位必须为只读零。
+
+寄存器 {\tt mip}和{\tt mie}的标准部分（位15:0）的格式分别如图\ref{mipreg-standard}和\ref{miereg-standard}所示。
+
+
+% \begin{figure*}[h!]
+% {\footnotesize
+% \begin{center}
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabular}{Rcccccccccccc}
+% \instbitrange{15}{12} &
+% \instbit{11} &
+% \instbit{10} &
+% \instbit{9} &
+% \instbit{8} &
+% \instbit{7} &
+% \instbit{6} &
+% \instbit{5} &
+% \instbit{4} &
+% \instbit{3} &
+% \instbit{2} &
+% \instbit{1} &
+% \instbit{0} \\
+% \hline
+% \multicolumn{1}{|c|}{0} &
+% \multicolumn{1}{c|}{MEIP} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{SEIP} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{MTIP} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{STIP} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{MSIP} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{SSIP} &
+% \multicolumn{1}{c|}{0} \\
+% \hline
+% 4 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Standard portion (bits 15:0) of {\tt mip}.}
+% \label{mipreg-standard}
+% \end{figure*}
+
+% \begin{figure*}[h!]
+% {\footnotesize
+% \begin{center}
+% \setlength{\tabcolsep}{4pt}
+% \begin{tabular}{Rcccccccccccc}
+% \instbitrange{15}{12} &
+% \instbit{11} &
+% \instbit{10} &
+% \instbit{9} &
+% \instbit{8} &
+% \instbit{7} &
+% \instbit{6} &
+% \instbit{5} &
+% \instbit{4} &
+% \instbit{3} &
+% \instbit{2} &
+% \instbit{1} &
+% \instbit{0} \\
+% \hline
+% \multicolumn{1}{|c|}{0} &
+% \multicolumn{1}{c|}{MEIE} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{SEIE} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{MTIE} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{STIE} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{MSIE} &
+% \multicolumn{1}{c|}{0} &
+% \multicolumn{1}{c|}{SSIE} &
+% \multicolumn{1}{c|}{0} \\
+% \hline
+% 4 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Standard portion (bits 15:0) of {\tt mie}.}
+% \label{miereg-standard}
+% \end{figure*}
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2288,7 +2488,7 @@ are formatted as shown in Figures \ref{mipreg-standard} and
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Standard portion (bits 15:0) of {\tt mip}.}
+\caption{{\tt mip}的标准部分（位15:0）}
 \label{mipreg-standard}
 \end{figure*}
 
@@ -2330,7 +2530,7 @@ are formatted as shown in Figures \ref{mipreg-standard} and
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Standard portion (bits 15:0) of {\tt mie}.}
+\caption{{\tt mie}的标准部分(位15:0)。}
 \label{miereg-standard}
 \end{figure*}
 
