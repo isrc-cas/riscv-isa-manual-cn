@@ -2545,7 +2545,8 @@ are formatted as shown in Figures \ref{mipreg-standard} and
 \fi
 
 \begin{commentary}
-机器级中断寄存器处理一些根中断源，为简单起见，这些中断源被分配了固定的服务优先级，而单独的外部中断控制器可以在更大的一组中断上实现更复杂的优先级方案，然后将这些中断多路复用到机器级中断源。
+  机器级中断寄存器处理一些根中断源，为简单起见，这些根中断源被分配了固定的服务优先级，
+  而每一个外部中断控制器可以在更大的一组中断上实现更复杂的优先级方案，这些中断随后被多路复用到机器级中断源中。
 \end{commentary}
 
 \iffalse
@@ -2557,7 +2558,7 @@ trap handler.
 \fi
 
 \begin{commentary}
-不可屏蔽中断通过 {\tt mip} 寄存器不可见，因为在执行 NMI 陷阱处理程序时隐式知道它的存在。
+不可屏蔽中断不需要通过 {\tt mip} 寄存器来实现可见，因为在执行NMI陷阱处理程序时会隐式知道它的存在。
 \end{commentary}
 
 \iffalse
@@ -2605,21 +2606,25 @@ Only the software-writable SEIP bit participates in the
 read-modify-write sequence of a CSRRS or CSRRC instruction.
 \fi
 
-位 {\tt mip}.MEIP 和 {\tt mie}.MEIE 是机器级外部中断的中断挂起和中断使能位。 MEIP 在 {\tt mip} 中是只读的，由特定于平台的中断控制器设置和清除。
+位 {\tt mip}.MEIP 和 {\tt mie}.MEIE 是机器级外部中断的中断挂起和中断使能位。 
+MEIP 在 {\tt mip} 中是只读的，由特定于平台的中断控制器设置和清除。
 
-位 {\tt mip}.MTIP 和 {\tt mie}.MTIE 是机器定时器中断的中断挂起和中断启用位。
+位 {\tt mip}.MTIP 和 {\tt mie}.MTIE 是机器时钟中断的中断挂起和中断使能位。
 MTIP 在 {\tt mip} 中是只读的，并通过写入内存映射机器模式定时器比较寄存器来清除。
 
-位 {\tt mip}.MSIP 和 {\tt mie}.MSIE 是机器级软件中断的中断挂起和中断启用位。 MSIP 在 {\tt mip} 中是只读的，并且通过访问内存映射控制寄存器来写入，远程 hart 使用这些控制寄存器来提供机器级处理器间中断。
-hart 可以使用相同的内存映射控制寄存器写入自己的 MSIP 位。 如果系统只有一个 hart，或者如果平台标准支持通过外部中断 (MEI) 传递机器级处理器间中断，则 {\tt mip}.MSIP 和 {\tt mie}.MSIE 都可以被只读零。
+位 {\tt mip}.MSIP 和 {\tt mie}.MSIE 是机器级软件中断的中断挂起和中断使能位。 
+MSIP 在 {\tt mip} 中是只读的，并且通过访问内存映射控制寄存器来写入，远程 hart 使用这些内存映射控制寄存器来提供机器级处理器间中断。
+Hart 可以使用相同的内存映射控制寄存器写入自己的 MSIP 位。 
+如果系统只有一个 hart，或者如果平台标准支持通过外部中断 (MEI) 传递机器级处理器间中断，则 {\tt mip}.MSIP 和 {\tt mie}.MSIE 都可以被只读零。
 
-如果未实现主管模式，则 {\tt mip} 的位 SEIP、STIP 和 SSIP 以及 {\tt mie} 的 SEIE、STIE 和 SSIE 为只读零。
+如果未实现监管器模式，则{\tt mip}的SEIP、STIP和SSIP位，以及{\tt mie}的SEIE、STIE和SSIE为只读零。
 
-如果实现了监督模式，位 {\tt mip}.SEIP 和 {\tt mie}.SEIE 是监督级外部中断的中断挂起和中断使能位。
-SEIP 在 {\tt mip} 中是可写的，并且可以由 M-mode 软件写入以向 S-mode 指示外部中断正在挂起。此外，平台级中断控制器可以产生监督级外部中断。
-基于软件可写 SEIP 位的逻辑或和来自外部中断控制器的信号，使管理级外部中断处于待处理状态。
-当使用 CSR 指令读取 {\tt mip} 时，在 {\tt rd} 目标寄存器中返回的 SEIP 位的值是软件可写位与来自中断控制器的中断信号的逻辑或，但来自中断控制器的信号不用于计算写入 SEIP 的值。
-只有软件可写 SEIP 位参与 CSRRS 或 CSRRC 指令的读-修改-写序列。
+如果实现了监管器模式，则{\tt mip}.SEIP 和 {\tt mie}.SEIE位是监管级外部中断的中断挂起和中断使能位。
+SEIP 在 {\tt mip} 中是可写的，并且可以由M模式软件写入，以向S模式指示外部中断正在挂起。此外，平台级中断控制器可以产生监管级外部中断。
+根据软件可写SEIP位和来自外部中断控制器的信号的逻辑或，使监管级外部中断处于挂起状态。
+当使用CSR 指令读取{\tt mip}时，在{\tt rd}目标寄存器中返回的SEIP位的值是软件可写位与来自中断控制器的中断信号的逻辑或，
+但来自中断控制器的信号不用于计算写入SEIP的值。
+只有软件可写SEIP位参与CSRRS或CSRRC指令的读-修改-写序列。
 
 \iffalse
 \begin{commentary}
@@ -2639,7 +2644,14 @@ SEIP 在 {\tt mip} 中是可写的，并且可以由 M-mode 软件写入以向 S
 \fi
 
 \begin{commentary}
-  例如，如果我们将软件可写 SEIP 位 {\tt B} 和来自外部中断控制器的信号命名为 {\tt E}，那么如果执行 \mbox{\tt csrrs t0, mip, t1}，{\ tt t0[9]} 用 \mbox{\tt B || 编写 E}，则 {\tt B} 写成 \mbox{\tt B || t1[9]}。 如果 \mbox{\tt csrrw t0, mip, t1} 被执行，那么 {\tt t0[9]} 写成 \mbox{\tt B || E}，而 {\tt B} 简单地写成 {\tt t1[9]}。 在这两种情况下，{\tt B} 都不依赖于 {\tt E}。 SEIP 字段行为旨在允许更高特权层干净地模仿外部中断，而不会丢失任何真正的外部中断。 因此，CSR 指令的行为与常规 CSR 访问相比略有修改。
+  例如，如果我们将软件可写SEIP位命名为{\tt B}，并且把来自外部中断控制器的信号命名为{\tt E}，
+  那么如果执行 \mbox{\tt csrrs t0, mip, t1}，\mbox{\tt B || E}写入{\tt t0[9]}，
+  然后\mbox{\tt B || t1[9]}写入{\tt B}。如果 \mbox{\tt csrrw t0, mip, t1} 被执行，
+  那么\mbox{\tt B || E}写入{\tt t0[9]}，而{\tt t1[9]}简单写入{\tt B}。 
+  在这两种情况下，{\tt B}都不依赖于{\tt E}。 
+  
+  SEIP字段行为旨在允许更高特权层干净地模仿外部中断，
+  而不会丢失任何真实的外部中断。因此，CSR指令的行为与常规CSR访问相比略有修改。
 \end{commentary}
 
 \iffalse
@@ -2660,12 +2672,13 @@ interrupts destined for M-mode are handled in the following
 decreasing priority order: MEI, MSI, MTI, SEI, SSI, STI.
 \fi
 
-如果实施监督模式，位 {\tt mip}.STIP 和 {\tt mie}.STIE 是监督级定时器中断的中断挂起和中断使能位。
-STIP 在 {\tt mip} 中是可写的，并且可以由 M 模式软件编写以将定时器中断传递到 S 模式。
+如果实现了监管器模式，{\tt mip}.STIP和{\tt mie}.STIE位是监管级时钟中断的中断挂起和中断使能位。
+STIP在{\tt mip}中是可写的，并且可以由M模式软件写入以将时钟中断传递到S模式。
 
-如果实现了监督模式，位 {\tt mip}.SSIP 和 {\tt mie}.SSIE 是监督级软件中断的中断挂起和中断使能位。 SSIP 在 {\tt mip} 中是可写的，也可以由特定于平台的中断控制器设置为 1。
+如果实现了监管器模式，{\tt mip}.SSIP和{\tt mie}.SSIE位是监管级软件中断的中断挂起和中断使能位。 
+SSIP在{\tt mip}中是可写的，也可以由特定于平台的中断控制器设置为1。
 
-以 M 模式为目标的多个同时中断按以下优先级降序处理：MEI、MSI、MTI、SEI、SSI、STI。
+以M模式为目标的多个同时发生的中断按以下优先级降序处理：MEI、MSI、MTI、SEI、SSI、STI。
 
 \iffalse
 \begin{commentary}
@@ -2698,15 +2711,17 @@ STIP 在 {\tt mip} 中是可写的，并且可以由 M 模式软件编写以将�
 
 \begin{commentary}
 
-机器级中断固定优先级排序规则是根据以下原理开发的。
+  机器级中断固定优先级排序规则是根据以下原理开发的。
 
-较高特权模式的中断必须在较低特权模式的中断之前服务以支持抢占。
+  较高特权模式的中断必须在较低特权模式的中断之前服务以支持抢占。
 
-位 16 及以上的平台特定机器级中断源具有特定于平台的优先级，但通常选择具有最高服务优先级以支持非常快速的本地向量中断。
+  位16及以上其他位的平台特定机器级中断源具有特定于平台的优先级，但通常选择具有最高服务优先级以支持非常快速的本地向量中断。
 
-外部中断在内部（定时器/软件）中断之前处理，因为外部中断通常由可能需要低中断服务时间的设备生成。
+  外部中断在内部（时钟/软件）中断之前处理，因为外部中断通常由可能需要很少的中断服务时间的设备生成。
 
-软件中断在内部定时器中断之前处理，因为内部定时器中断通常用于时间片，其中时间精度不太重要，而软件中断用于处理器间消息传递。 当需要高精度定时时可以避免软件中断，或者可以通过不同的中断路径路由高精度定时器中断。 软件中断位于 {\tt mip} 的最低四位，因为它们通常由软件编写，并且该位置允许使用具有五位立即数的单个 CSR 指令。
+  软件中断在内部时钟中断之前处理，因为内部时钟中断通常用于时间片，其中时间精度不太重要，
+  而软件中断用于处理器间消息传递。当需要高精度定时时，可以不响应软件中断，或者可以通过不同的中断路径路由高精度时钟中断。
+  软件中断位于 {\tt mip} 的最低四位，因为它们通常由软件写入，并且该位置允许使用具有五位立即数的单个CSR指令。
 \end{commentary}
 
 \iffalse
@@ -2720,7 +2735,9 @@ bits in {\tt sip} and {\tt sie} are read-only
 zero.
 \fi
 
-{\tt mip} 和 {\tt mie} 寄存器的受限视图显示为主管级别的 {\tt sip} 和 {\tt sie} 寄存器。 如果通过在 {\tt mideleg} 寄存器中设置一个位将中断委托给 S 模式，则它在 {\tt sip} 寄存器中变得可见，并且可以使用 {\tt sie} 寄存器进行屏蔽。 否则，{\tt sip} 和 {\tt sie} 中的对应位为只读零。
+{\tt mip}和{\tt mie}寄存器的受限视图显示为监管级的{\tt sip}和{\tt sie}寄存器。 
+如果通过在{\tt mideleg}寄存器中设置一个位将中断委托给S模式，则它在{\tt sip}寄存器中变得可见，
+并且可以使用{\tt sie}寄存器进行屏蔽。否则，{\tt sip}和{\tt sie}中的对应位为只读0。
 
 % \subsection{Hardware Performance Monitor}
 \subsection{硬件性能监视器}
@@ -2750,11 +2767,17 @@ All counters should be implemented, but a legal implementation is to make
 both the counter and its corresponding event selector be read-only~0.
 \fi
 
-M 模式包括一个基本的硬件性能监控工具。 {\tt mcycle} CSR 计算运行 hart 的处理器内核执行的时钟周期数。 {\tt minstret} CSR 计算 hart 已退出的指令数。 {\tt mcycle} 和 {\tt minstret} 寄存器在所有 RV32 和 RV64 系统上都具有 64 位精度。
+M模式包括一个基本的硬件性能监控工具。{\tt mcycle} CSR计算运行hart的处理器内核执行的时钟周期数。 
+{\tt minstret} CSR 计算 hart 已退休（retired）的指令数。 
+{\tt mcycle}和{\tt minstret}寄存器在所有RV32和RV64系统上都具有 64 位精度。
 
-计数器寄存器在 hart 复位后具有任意值，并且可以写入给定值。 任何 CSR 写操作在写指令完成后才生效。 {\tt mcycle} CSR 可以在同一内核上的 harts 之间共享，在这种情况下，对 {\tt mcycle} 的写入将对这些 harts 可见。 平台应提供一种机制来指示哪些 harts 共享一个 {\tt mcycle} CSR。
+计数器寄存器在hart复位后具有任意值，并且可以写入给定值。任何 CSR 写操作在写指令完成后才生效。 
+{\tt mcycle} CSR 可以在同一内核上的多个hart之间共享，在这种情况下，对{\tt mcycle}的写入将对这些hart可见。 
+平台应提供一种机制来指示哪些hart共享一个{\tt mcycle} CSR。
 
-硬件性能监视器包括 29 个额外的 64 位事件计数器，{\tt mhpmcounter3}--{\tt mhpmcounter31}。 事件选择器 CSR，{\tt mhpmevent3}--{\tt mhpmevent31}，是 MXLEN 位 \warl\ 寄存器，用于控制哪个事件导致相应计数器递增。 这些事件的含义由平台定义，但事件 0 被定义为“无事件”。所有计数器都应该实现，但合法的实现是使计数器及其对应的事件选择器都是只读的~0。
+硬件性能监视器包括29个额外的64位事件计数器，{\tt mhpmcounter3}--{\tt mhpmcounter31}。 
+事件选择器CSR，{\tt mhpmevent3}--{\tt mhpmevent31}，是MXLEN位 \warl\ 寄存器，用于控制哪个事件导致相应的计数器递增。
+这些事件的含义由平台定义，但事件0被定义为“无事件”。所有计数器都应该实现，但合法的实现是使计数器及其对应的事件选择器都是只读的0。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2774,7 +2797,8 @@ M 模式包括一个基本的硬件性能监控工具。 {\tt mcycle} CSR 计算
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Hardware performance monitor counters.}
+\caption{硬件性能监视计数器。}
+% \caption{Hardware performance monitor counters.}
 \end{figure}
 
 \iffalse
@@ -2782,7 +2806,7 @@ The {\tt mhpmcounter}s are \warl\ registers that support up to 64 bits of
 precision on RV32 and RV64.
 \fi
 
-{\tt mhpmcounter} 是 \warl\ 寄存器，在 RV32 和 RV64 上支持高达 64 位精度。
+{\tt mhpmcounter} 是 \warl\ 寄存器，在RV32和RV64上支持高达64位精度。
 
 \iffalse
 \begin{commentary}
@@ -2792,7 +2816,7 @@ interrupt when a hardware performance monitor counter overflows.
 \fi
 
 \begin{commentary}
-本规范的未来修订版将定义一种机制，以在硬件性能监视器计数器溢出时生成中断。
+本规范的未来修订版将定义一种机制，以在硬件性能监视计数器溢出时生成中断。
 \end{commentary}
 
 \iffalse
@@ -2803,7 +2827,9 @@ and {\tt mhpmcounter{\em n}h} CSRs return bits 63--32 of the corresponding
 counter, and writes change only bits 63--32.
 \fi
 
-当 MXLEN=32 时，{\tt mcycle}、{\tt minstret} 和 {\tt mhpmcounter{\em n}} CSR 的读取返回相应计数器的位 31--0，而写入仅更改位 31- -0; {\tt mcycleh}、{\tt minstreth} 和 {\tt mhpmcounter{\em n}h} CSR 的读取返回相应计数器的位 63--32，而写入仅更改位 63--32。
+当MXLEN=32时，读取{\tt mcycle}、{\tt minstret}和{\tt mhpmcounter{\em n}} CSR会返回相应计数器的31--0位，
+而写入仅更改31--0位；读取{\tt mcycleh}、{\tt minstreth}和{\tt mhpmcounter{\em n}h} CSR返回相应计数器的63--32位，
+而写入仅更改63--32位。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -2822,7 +2848,8 @@ counter, and writes change only bits 63--32.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Upper 32 bits of hardware performance monitor counters, RV32 only.}
+\caption{仅在RV32中，硬件性能监视计数器的高32位。}
+% \caption{Upper 32 bits of hardware performance monitor counters, RV32 only.}
 \end{figure}
 
 %On RV128 systems, the 64-bit values in {\tt mcycle}, {\tt minstret}, and
@@ -2848,7 +2875,7 @@ controls the availability of the hardware performance-monitoring counters to
 the next-lowest privileged mode.
 \fi
 
-计数器启用寄存器 {\tt mcounteren} 是一个 32 位寄存器，用于控制硬件性能监视计数器在下一个最低特权模式下的可用性。
+计数器使能寄存器{\tt mcounteren} 是一个32位寄存器，用于控制硬件性能监视计数器在下一个最低特权模式下的可用性。
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2882,7 +2909,8 @@ the next-lowest privileged mode.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Counter-enable register ({\tt mcounteren}).}
+\caption{计数器使能寄存器 ({\tt mcounteren})。}
+% \caption{Counter-enable register ({\tt mcounteren}).}
 \label{mcounteren}
 \end{figure*}
 
@@ -2900,9 +2928,11 @@ permitted in the next implemented privilege mode (S-mode if
 implemented, otherwise U-mode).
 \fi
 
-此寄存器中的设置仅控制可访问性。 读取或写入此寄存器的行为不会影响底层计数器，即使在不可访问时也会继续递增。
+此寄存器中的设置仅控制可访问性。读取或写入此寄存器的行为不会影响底层计数器，即使在不可访问时也会继续递增。
 
-当 {\tt mcounteren} 寄存器中的 CY、TM、IR 或 HPM{\em n} 位清零时，尝试读取 {\tt cycle}、{\tt time}、{\tt instret} 或 {\tt hpmcounter{\em n}} 寄存器在 S-mode 或 U-mode 执行时会导致非法指令异常。 当这些位中的一个被设置时，允许在下一个实现的特权模式下访问相应的寄存器（如果实现了 S-mode，否则为 U-mode）。
+当{\tt mcounteren}寄存器中的 CY、TM、IR或HPM{\em n}位清零时，
+在S模式或U模式执行时，尝试读取{\tt cycle}、{\tt time}、{\tt instret}或{\tt hpmcounter{\em n}}寄存器会导致非法指令异常。 
+当这些位中的一个被设置时，允许在下一个实现的特权模式下访问相应的寄存器（如果实现了S模式，则为S模式；其他情况下为U模式）。
 
 \iffalse
 \begin{commentary}
@@ -2916,7 +2946,8 @@ counters, the counters can be directly exposed to lower privilege modes.
 \fi
 
 \begin{commentary}
-计数器启用位以最少的硬件支持两种常见用例。 对于不需要高性能计时器和计数器的系统，机器模式软件可以捕获访问并在软件中实现所有功能。 对于需要高性能计时器和计数器但不关心混淆底层硬件计数器的系统，计数器可以直接暴露于较低特权模式。
+计数器使能位以最少的硬件支持两种常见用例。对于不需要高性能计时器和计数器的系统，机器模式软件可以捕获访问并在软件中实现所有功能。 
+对于需要高性能计时器和计数器但不关心混淆底层硬件计数器的系统，计数器可以直接暴露于较低特权模式。
 \end{commentary}
 
 \iffalse
@@ -2931,7 +2962,11 @@ the memory-mapped {\tt mtime} register, while {\tt time} shadows only the
 lower 32 bits of {\tt mtime}.
 \fi
 
-{\tt cycle}、{\tt instret}和{\tt hpmcounter{\em n}} CSR 是 {\tt mcycle}、{\tt minstret}和{\tt mhpmcounter{\ em n}}，分别。{\tt time} CSR 是内存映射 {\tt mtime} 寄存器的只读影子。 类似地，在 RV32I 上，{\tt cycleh}、{\tt instreth} 和 {\tt hpmcounter{\em n}h} CSR 是 {\tt mcycleh}、{\tt minstreth} 和 {\tt mhpmcounter{\em n}h}，分别。 在 RV32I 上，{\tt timeh} CSR 是内存映射 {\tt mtime} 寄存器的高 32 位的只读遮蔽，而 {\tt time} 仅隐藏 {\tt mtime} 的低 32 位 .
+{\tt cycle}、{\tt instret}和{\tt hpmcounter{\em n}} CSR分别是{\tt mcycle}、{\tt minstret}和{\tt mhpmcounter{\em n}}的只读影子(shadow)。
+{\tt time} CSR是内存映射{\tt mtime} 寄存器的只读影子。 
+类似地，在RV32I上，{\tt cycleh}、{\tt instreth}和{\tt hpmcounter{\em n}h}CSR分别是{\tt mcycleh}、{\tt minstreth}和
+{\tt mhpmcounter{\em n}h}的只读影子。在RV32I中，{\tt timeh} CSR是内存映射{\tt mtime}寄存器的高32位的只读影子，
+而{\tt time}仅影射{\tt mtime}的低32位。
 
 \iffalse
 \begin{commentary}
@@ -2942,7 +2977,7 @@ functionality in M-mode software.
 \fi
 
 \begin{commentary}
-实现可以将 {\tt time} 和 {\tt timeh} CSR 的读取转换为对内存映射 {\tt mtime} 寄存器的加载，或在 M 模式软件中模拟此功能。
+具体实现中，可以将{\tt time}和{\tt timeh} CSR的读取转换为对内存映射{\tt mtime}寄存器的加载，或在M模式软件中模拟此功能。
 \end{commentary}
 
 \iffalse
@@ -2953,10 +2988,11 @@ cause an illegal instruction exception when executing in a less-privileged mode.
 In systems without U-mode, the {\tt mcounteren} register should not exist.
 \fi
 
-在具有 U 模式的系统中，必须实现 {\tt mcounteren}，但所有字段都是 \warl\ ，并且可能是只读零，表示读取相应计数器会导致在 less- 中执行时出现非法指令异常 特权模式。 在没有 U 模式的系统中，{\tt mcounteren} 寄存器不应该存在。
+在具有U模式的系统中，必须实现{\tt mcounteren}，但所有字段都是 \warl\ ，并且可能是只读0，
+表示在较低特权模式中，读取相应计数器会导致出现非法指令异常。在没有U模式的系统中，{\tt mcounteren}寄存器不应该存在。
 
 % \subsection{Machine Counter-Inhibit CSR ({\tt mcountinhibit})}
-\subsection{机器计数器抑制寄存器 ({\tt mcountinhibit})}
+\subsection{机器计数器屏蔽寄存器 ({\tt mcountinhibit})}
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -2990,7 +3026,8 @@ In systems without U-mode, the {\tt mcounteren} register should not exist.
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Counter-inhibit register {\tt mcountinhibit}.}
+\caption{计数器屏蔽寄存器({\tt mcountinhibit})。}
+% \caption{Counter-inhibit register {\tt mcountinhibit}.}
 \label{mcountinhibit}
 \end{figure*}
 
