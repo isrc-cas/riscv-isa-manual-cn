@@ -3050,11 +3050,16 @@ If the {\tt mcountinhibit} register is not implemented, the implementation
 behaves as though the register were set to zero.
 \fi
 
-计数器禁止寄存器 {\tt mcountinhibit} 是一个 32 位 \warl\ 寄存器，用于控制哪些硬件性能监控计数器递增。 该寄存器中的设置仅控制计数器是否递增； 它们的可访问性不受此寄存器设置的影响。
+计数器屏蔽寄存器 {\tt mcountinhibit} 是一个 32 位 \warl\ 寄存器，用于控制哪些硬件性能监控计数器递增。 
+该寄存器中的设置仅控制计数器是否递增； 它们的可访问性不受此寄存器设置的影响。
 
-当 {\tt mcountinhibit} 寄存器中的 CY、IR 或 HPM{\em n} 位清零时，{\tt cycle}、{\tt instret} 或 {\tt hpmcounter{\em n}} 寄存器 像往常一样递增。 当 CY、IR 或 HPM{\em n} 位置位时，相应的计数器不会增加。
+当 {\tt mcountinhibit} 寄存器中的 CY、IR 或 HPM{\em n} 位清零时，
+{\tt cycle}、{\tt instret} 或 {\tt hpmcounter{\em n}} 寄存器 像往常一样递增。 
+当 CY、IR 或 HPM{\em n} 位置位时，相应的计数器不会增加。
 
-{\tt mcycle} CSR 可以在同一内核上的 harts 之间共享，在这种情况下 {\tt mcountinhibit}.CY 字段也在这些 harts 之间共享，因此对 {\tt mcountinhibit}.CY 的写入将是可见的 对那些小鹿。
+{\tt mcycle} CSR 可以在同一内核上的hart之间共享，
+在这种情况下{\tt mcountinhibit}.CY字段也在这些hart之间共享，
+因此对 {\tt mcountinhibit}.CY的写入将对那些hart是可见的。
 
 如果未实现 {\tt mcountinhibit} 寄存器，则实现的行为就像寄存器设置为零一样。
 
@@ -3071,14 +3076,15 @@ cannot be inhibited with the {\tt mcountinhibit} mechanism.
 \fi
 
 \begin{commentary}
-当不需要 {\tt cycle} 和 {\tt instret} 计数器时，最好有条件地禁止它们以减少能量消耗。 提供单个 CSR 来禁止所有计数器还允许对计数器进行原子采样。
+当不需要{\tt cycle}和{\tt instret}计数器时，最好有条件地禁用它们以减少能量消耗。 
+提供单个CSR来禁用所有计数器，还允许对计数器进行原子采样。
 
-因为 {\tt time} 计数器可以在多个内核之间共享，所以不能用 {\tt mcountinhibit} 机制来禁止它。
+因为 {\tt time} 计数器可以在多个内核之间共享，所以不能用 {\tt mcountinhibit} 机制来禁用它。
 \end{commentary}
 
 
 % \subsection{Machine Scratch Register ({\tt mscratch})}
-\subsection{机器scratch寄存器 ({\tt mscratch})}
+\subsection{机器模式临时存储寄存器 ({\tt mscratch})}
 
 \iffalse
 The {\tt mscratch} register is an MXLEN-bit read/write register
@@ -3086,7 +3092,8 @@ dedicated for use by machine mode.  Typically, it is used to hold a
 pointer to a machine-mode hart-local context space and swapped with a
 user register upon entry to an M-mode trap handler.
 \fi
-{\tt mscratch} 寄存器是一个 MXLEN 位读/写寄存器，专用于机器模式。 通常，它用于保存指向机器模式 hart-local 上下文空间的指针，并在进入 M 模式陷阱处理程序时与用户寄存器交换。
+{\tt mscratch} 寄存器是一个 MXLEN 位读/写寄存器，专用于机器模式。 
+通常，它用于保存指向机器模式hart本地上下文空间的指针，并在进入M模式陷入处理程序时与用户寄存器交换。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -3101,7 +3108,8 @@ MXLEN \\
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine-mode scratch register.}
+\caption{机器模式临时存储寄存器。}
+% \caption{Machine-mode scratch register.}
 \label{mscratchreg}
 \end{figure}
 
@@ -3125,9 +3133,13 @@ Unlike the MIPS design, the OS can rely on holding a value in the {\tt
 \fi
 
 \begin{commentary}
-MIPS ISA 分配了两个用户寄存器 ({\tt k0}/{\tt k1}) 供操作系统使用。 尽管 MIPS 方案提供了快速和简单的实现，但它也减少了可用的用户寄存器，并且无法扩展到更高的特权级别或嵌套陷阱。 它还可以要求在返回用户级别之前清除两个寄存器，以避免潜在的安全漏洞并提供确定性的调试行为。
+MIPS ISA 分配了两个用户寄存器 ({\tt k0}/{\tt k1}) 供操作系统使用。 
+尽管 MIPS 方案提供了快速和简单的实现，但它也减少了可用的用户寄存器，并且无法扩展到更高的特权级别或嵌套陷阱。 
+它还可以要求在返回用户级别之前清除两个寄存器，以避免潜在的安全漏洞并提供确定性的调试行为。
 
-RISC-V 用户 ISA 旨在支持许多可能的特权系统环境，因此我们不想用任何依赖于操作系统的功能感染用户级 ISA。 RISC-V CSR 交换指令可以快速将值保存/恢复到 {\tt mscratch} 寄存器。 与 MIPS 设计不同，操作系统可以依赖于在用户上下文运行时在 {\tt mscratch} 寄存器中保存一个值。
+RISC-V 用户 ISA 旨在支持许多可能的特权系统环境，因此我们不想用任何依赖于操作系统的特性影响用户级ISA。 
+RISC-V CSR 交换指令可以快速将值保存/恢复到 {\tt mscratch} 寄存器。 
+与 MIPS 设计不同，操作系统可以依赖于在用户上下文运行时在 {\tt mscratch} 寄存器中保存一个值。
 \end{commentary}
 
 
@@ -3153,11 +3165,16 @@ Prior to writing {\tt mepc}, implementations may convert an invalid address
 into some other invalid address that {\tt mepc} is capable of holding.
 \fi
 
-{\tt mepc}是一个MXLEN位读/写寄存器，格式如图~\ref{mepcreg}。 {\tt mepc} ({\tt mepc[0]}) 的低位始终为零。在仅支持 IALIGN=32 的实现上，两个低位 ({\tt mepc[1:0]}) 始终为零。
+{\tt mepc}是一个MXLEN位读/写寄存器，格式如图~\ref{mepcreg}。 {\tt mepc} ({\tt mepc[0]}) 的低位始终为零。
+在仅支持 IALIGN=32 的具体实现上，两个低位 ({\tt mepc[1:0]}) 始终为零。
 
-如果实现允许 IALIGN 为 16 或 32（例如，通过更改 CSR {\tt misa}），则每当 IALIGN=32 时，位 {\tt mepc[1]} 在读取时被屏蔽，因此它看起来 为 0。此屏蔽也发生在 MRET 指令的隐式读取中。 尽管被屏蔽，但当 IALIGN=32 时，{\tt mepc[1]} 仍然是可写的。
+如果具体实现允许IALIGN为16或32（例如，通过更改 CSR {\tt misa}），
+则每当 IALIGN=32时，位{\tt mepc[1]}在读取时被屏蔽，因此它看起来为0。
+此屏蔽也发生在MRET指令的隐式读取中。尽管被屏蔽，但当IALIGN=32时，{\tt mepc[1]}仍然是可写的。
 
-{\tt mepc} 是一个 \warl\ 寄存器，它必须能够保存所有有效的虚拟地址。 它不需要能够保存所有可能的无效地址。 在写入 {\tt mepc} 之前，实现可能会将无效地址转换为 {\tt mepc} 能够保存的其他一些无效地址。
+{\tt mepc} 是一个 \warl\ 寄存器，它必须能够保存所有有效的虚拟地址。 
+它不需要能够保存所有可能的无效地址。 
+在写入 {\tt mepc} 之前，具体实现可能会将无效地址转换为 {\tt mepc} 能够保存的其他一些无效地址。
 
 \iffalse
 \begin{commentary}
@@ -3169,7 +3186,8 @@ address.
 \end{commentary}
 \fi
 \begin{commentary}
-当地址转换无效时，虚拟地址和物理地址是相等的。 因此，地址集合 {\tt mepc} 必须能够表示包括可以用作有效 {\tt pc} 或有效地址的物理地址集合。
+当地址转换无效时，虚拟地址和物理地址是相等的。 
+因此，地址集合 {\tt mepc} 必须能够表示包括可以用作有效 {\tt pc} 或有效地址的物理地址集合。
 \end{commentary}
 
 \iffalse
@@ -3179,7 +3197,8 @@ encountered the exception.  Otherwise, {\tt mepc} is never written by
 the implementation, though it may be explicitly written by software.
 \fi
 
-当陷阱进入 M 模式时，{\tt mepc} 被写入被中断或遇到异常的指令的虚拟地址。 否则，{\tt mepc} 永远不会由实现编写，尽管它可能由软件显式编写。
+当陷入M模式时，将被中断或遇到异常的指令的虚拟地址写入{\tt mepc}。 
+否则，{\tt mepc}永远不会由具体实现写入，但是它可能由软件显式写入。
 
 \begin{figure}[h!]
 {\footnotesize
@@ -3194,12 +3213,13 @@ MXLEN \\
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine exception program counter register.}
+\caption{机器异常程序计数器寄存器。}
+% \caption{Machine exception program counter register.}
 \label{mepcreg}
 \end{figure}
 
 % \subsection{Machine Cause Register ({\tt mcause})}
-\subsection{机器成因寄存器 ({\tt mcause})}
+\subsection{机器原因寄存器 ({\tt mcause})}
 \label{sec:mcause}
 
 \iffalse
@@ -3217,9 +3237,82 @@ is a \wlrl\ field, so is only guaranteed to hold supported exception
 codes.
 \fi
 
-{\tt mcause} 寄存器是一个MXLEN 位读写寄存器，其格式如图~\ref{mcausereg} 所示。 当陷阱进入 M 模式时，会写入 {\tt mcause} 代码，指示导致陷阱的事件。 否则，{\tt mcause} 永远不会由实现编写，尽管它可能由软件显式编写。
+{\tt mcause} 寄存器是一个MXLEN位读写寄存器，其格式如图~\ref{mcausereg} 所示。 
+当陷入到M模式时，会写入 {\tt mcause} 代码，指示导致陷入的事件。 
+否则，{\tt mcause}永远不会由具体实现写入，但是它可以由软件显式写入。
 
-如果陷阱是由中断引起的，则设置 {\tt mcause} 寄存器中的中断位。 异常代码字段包含标识最后异常或中断的代码。 表~\ref{mcauses} 列出了可能的机器级异常代码。 异常代码是一个 \wlrl\ 字段，因此只能保证包含支持的异常代码。
+如果陷阱是由中断引起的，则设置 {\tt mcause} 寄存器中的中断位。 
+异常代码字段包含标识最后异常或中断的代码。 
+表~\ref{mcauses} 列出了可能的机器级异常代码。 异常代码是一个 \wlrl\ 字段，因此只能保证包含支持的异常代码。
+
+% \begin{figure*}[h!]
+% {\footnotesize
+% \begin{center}
+% \begin{tabular}{c@{}U}
+% \instbit{MXLEN-1} &
+% \instbitrange{MXLEN-2}{0} \\
+% \hline
+% \multicolumn{1}{|c|}{Interrupt} &
+% \multicolumn{1}{c|}{Exception Code (\wlrl)} \\
+% \hline
+% 1 & MXLEN-1 \\
+% \end{tabular}
+% \end{center}
+% }
+% \vspace{-0.1in}
+% \caption{Machine Cause register {\tt mcause}.}
+% \label{mcausereg}
+% \end{figure*}
+
+% \begin{table*}[htbp]
+% \begin{center}
+% \begin{tabular}{|r|r|l|l|}
+
+%   \hline
+%   Interrupt & Exception Code  & Description \\
+%   \hline
+%   1         & 0               & {\em Reserved} \\
+%   1         & 1               & Supervisor software interrupt \\
+%   1         & 2               & {\em Reserved} \\
+%   1         & 3               & Machine software interrupt \\ \hline
+%   1         & 4               & {\em Reserved} \\
+%   1         & 5               & Supervisor timer interrupt \\
+%   1         & 6               & {\em Reserved} \\
+%   1         & 7               & Machine timer interrupt \\ \hline
+%   1         & 8               & {\em Reserved} \\
+%   1         & 9               & Supervisor external interrupt \\
+%   1         & 10              & {\em Reserved} \\
+%   1         & 11              & Machine external interrupt \\ \hline
+%   1         & 12--15          & {\em Reserved} \\
+%   1         & $\ge$16         & {\em Designated for platform use} \\ \hline
+%   0         & 0               & Instruction address misaligned \\
+%   0         & 1               & Instruction access fault \\
+%   0         & 2               & Illegal instruction \\
+%   0         & 3               & Breakpoint \\
+%   0         & 4               & Load address misaligned \\
+%   0         & 5               & Load access fault \\
+%   0         & 6               & Store/AMO address misaligned \\
+%   0         & 7               & Store/AMO access fault \\
+%   0         & 8               & Environment call from U-mode\\
+%   0         & 9               & Environment call from S-mode \\
+%   0         & 10              & {\em Reserved} \\
+%   0         & 11              & Environment call from M-mode \\
+%   0         & 12              & Instruction page fault \\
+%   0         & 13              & Load page fault \\
+%   0         & 14              & {\em Reserved} \\
+%   0         & 15              & Store/AMO page fault \\
+%   0         & 16--23          & {\em Reserved} \\
+%   0         & 24--31          & {\em Designated for custom use} \\
+%   0         & 32--47          & {\em Reserved} \\
+%   0         & 48--63          & {\em Designated for custom use} \\
+%   0         & $\ge$64         & {\em Reserved} \\
+%   \hline
+
+% \end{tabular}
+% \end{center}
+% \caption{Machine cause register ({\tt mcause}) values after trap.}
+% \label{mcauses}
+% \end{table*}
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -3228,15 +3321,15 @@ codes.
 \instbit{MXLEN-1} &
 \instbitrange{MXLEN-2}{0} \\
 \hline
-\multicolumn{1}{|c|}{Interrupt} &
-\multicolumn{1}{c|}{Exception Code (\wlrl)} \\
+\multicolumn{1}{|c|}{中断} &
+\multicolumn{1}{c|}{异常代码 (\wlrl)} \\
 \hline
 1 & MXLEN-1 \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
-\caption{Machine Cause register {\tt mcause}.}
+\caption{机器原因寄存器 {\tt mcause}.}
 \label{mcausereg}
 \end{figure*}
 
@@ -3245,48 +3338,48 @@ codes.
 \begin{tabular}{|r|r|l|l|}
 
   \hline
-  Interrupt & Exception Code  & Description \\
+  中断 & 异常代码  & 描述 \\
   \hline
-  1         & 0               & {\em Reserved} \\
-  1         & 1               & Supervisor software interrupt \\
-  1         & 2               & {\em Reserved} \\
-  1         & 3               & Machine software interrupt \\ \hline
-  1         & 4               & {\em Reserved} \\
-  1         & 5               & Supervisor timer interrupt \\
-  1         & 6               & {\em Reserved} \\
-  1         & 7               & Machine timer interrupt \\ \hline
-  1         & 8               & {\em Reserved} \\
-  1         & 9               & Supervisor external interrupt \\
-  1         & 10              & {\em Reserved} \\
-  1         & 11              & Machine external interrupt \\ \hline
-  1         & 12--15          & {\em Reserved} \\
-  1         & $\ge$16         & {\em Designated for platform use} \\ \hline
-  0         & 0               & Instruction address misaligned \\
-  0         & 1               & Instruction access fault \\
-  0         & 2               & Illegal instruction \\
-  0         & 3               & Breakpoint \\
-  0         & 4               & Load address misaligned \\
-  0         & 5               & Load access fault \\
-  0         & 6               & Store/AMO address misaligned \\
-  0         & 7               & Store/AMO access fault \\
-  0         & 8               & Environment call from U-mode\\
-  0         & 9               & Environment call from S-mode \\
-  0         & 10              & {\em Reserved} \\
-  0         & 11              & Environment call from M-mode \\
-  0         & 12              & Instruction page fault \\
-  0         & 13              & Load page fault \\
-  0         & 14              & {\em Reserved} \\
-  0         & 15              & Store/AMO page fault \\
-  0         & 16--23          & {\em Reserved} \\
-  0         & 24--31          & {\em Designated for custom use} \\
-  0         & 32--47          & {\em Reserved} \\
-  0         & 48--63          & {\em Designated for custom use} \\
-  0         & $\ge$64         & {\em Reserved} \\
+  1         & 0               & {\em 保留的} \\
+  1         & 1               & 监管器软件中断 \\
+  1         & 2               & {\em 保留的} \\
+  1         & 3               & 机器软件中断 \\ \hline
+  1         & 4               & {\em 保留的} \\
+  1         & 5               & 监管器时钟中断 \\
+  1         & 6               & {\em 保留的} \\
+  1         & 7               & 机器时钟中断 \\ \hline
+  1         & 8               & {\em 保留的} \\
+  1         & 9               & 监管器外部中断 \\
+  1         & 10              & {\em 保留的} \\
+  1         & 11              & 机器外部中断 \\ \hline
+  1         & 12--15          & {\em 保留的} \\
+  1         & $\ge$16         & {\em 设计为平台使用} \\ \hline
+  0         & 0               & 指令地址未对齐 \\
+  0         & 1               & 指令访问错误 \\
+  0         & 2               & 非法指令 \\
+  0         & 3               & 断点 \\
+  0         & 4               & 加载地址未对齐 \\
+  0         & 5               & 加载地址错误 \\
+  0         & 6               & 存储/AMO地址未对其 \\
+  0         & 7               & 存储/AMO访问错误 \\
+  0         & 8               & 来自U模式的环境调用 \\
+  0         & 9               & 来自S模式的环境调用 \\
+  0         & 10              & {\em 保留的} \\
+  0         & 11              & 来自M模式的环境调用 \\
+  0         & 12              & 指令页错误 \\
+  0         & 13              & 加载页错误 \\
+  0         & 14              & {\em 保留的} \\
+  0         & 15              & 存储/AMO页错误 \\
+  0         & 16--23          & {\em 保留的} \\
+  0         & 24--31          & {\em 设计为自定义使用} \\
+  0         & 32--47          & {\em 保留的} \\
+  0         & 48--63          & {\em 设计为自定义使用} \\
+  0         & $\ge$64         & {\em 保留的} \\
   \hline
 
 \end{tabular}
 \end{center}
-\caption{Machine cause register ({\tt mcause}) values after trap.}
+\caption{陷入之后机器原因寄存器({\tt mcause})的值。}
 \label{mcauses}
 \end{table*}
 
@@ -3295,7 +3388,7 @@ Note that load and load-reserved instructions generate load exceptions,
 whereas store, store-conditional, and AMO instructions generate store/AMO
 exceptions.
 \fi
-请注意，加载和保留加载指令会生成加载异常，而存储、条件存储和 AMO 指令会生成存储/AMO 异常。
+请注意，加载和保留加载指令会生成加载异常，而存储、条件存储和AMO指令会生成存储/AMO异常。
 
 \iffalse
 \begin{commentary}
@@ -3307,7 +3400,8 @@ vector table.
 \fi
 
 \begin{commentary}
-可以通过 {\tt mcause} 寄存器值的符号上的单个分支将中断与其他陷阱分开。 左移可以移除中断位并缩放异常代码以索引到陷阱向量表中。
+可以通过 {\tt mcause} 寄存器值的符号位将中断与其他陷入分开。 
+左移可以移除中断位，并缩放异常代码以用于在陷阱向量表中进行索引。
 \end{commentary}
 
 \iffalse
@@ -3322,7 +3416,8 @@ a given opcode should be treated as illegal or privileged.
 \fi
 
 \begin{commentary}
-我们不区分特权指令异常和非法操作码异常。 这简化了架构并隐藏了实现支持哪些更高权限指令的细节。 为陷阱服务的特权级别可以实施关于是否需要区分这些的策略，如果需要，给定的操作码是否应该被视为非法或特权。
+我们不区分特权指令异常和非法操作码异常。 这简化了架构并隐藏了具体实现支持哪些更高权限指令的细节。 
+为陷入服务的特权级别可以实现区分这些异常的策略，如果实现的话，还需要确定给定的操作码应该被视为非法还是特权。
 \end{commentary}
 
 \iffalse
@@ -3331,49 +3426,94 @@ decreasing priority order of Table~\ref{exception-priority}
 indicates which exception is taken and reported in {\tt mcause}.
 The priority of any custom synchronous exceptions is implementation-defined.
 \fi
-如果一条指令可能引发多个同步异常，则 Table~\ref{exception-priority} 的优先级递减顺序指示在 {\tt mcause} 中采取和报告哪个异常。 任何自定义同步异常的优先级是实现定义的。
+
+如果一条指令可能引发多个同步异常，
+{\tt mcause}按照表~\ref{exception-priority}的递减优先级顺序决定采取和报告哪个异常。 
+任何自定义同步异常的优先级是具体实现定义的。
+
+% \begin{table*}[htbp]
+% \begin{center}
+% \begin{tabular}{|l|r|l|}
+
+%   \hline
+%   Priority      & Exc.\@ Code & Description \\
+%   \hline
+%   {\em Highest} &          3 & Instruction address breakpoint \\
+%   \hline
+%                 &            & During instruction address translation: \\
+%                 &      12, 1 & \quad First encountered page fault or
+%                                  access fault \\
+%   \hline
+%                 &            & With physical address for instruction: \\
+%                 &          1 & \quad Instruction access fault \\
+%   \hline
+%                 &          2 & Illegal instruction \\
+%                 &          0 & Instruction address misaligned \\
+%                 &   8, 9, 11 & Environment call \\
+%                 &          3 & Environment break \\
+%                 &          3 & Load/store/AMO address breakpoint \\
+%   \hline
+%                 &            & Optionally: \\
+%                 &       4, 6 & \quad Load/store/AMO address misaligned \\
+%   \hline
+%                 &            & During address translation for an explicit
+%                                  memory access: \\
+%               & 13, 15, 5, 7 & \quad First encountered page fault or
+%                                  access fault \\
+%   \hline
+%                 &            & With physical address for an explicit
+%                                  memory access: \\
+%                 &       5, 7 & \quad Load/store/AMO access fault \\
+%   \hline
+%                 &            & If not higher priority: \\
+%   {\em Lowest}  &       4, 6 & \quad Load/store/AMO address misaligned \\
+%   \hline
+
+% \end{tabular}
+% \end{center}
+% \caption{Synchronous exception priority in decreasing priority order.}
+% \label{exception-priority}
+% \end{table*}
 
 \begin{table*}[htbp]
 \begin{center}
 \begin{tabular}{|l|r|l|}
 
   \hline
-  Priority      & Exc.\@ Code & Description \\
+  优先级      & Exc.\@ Code & 描述 \\
   \hline
-  {\em Highest} &          3 & Instruction address breakpoint \\
+  {\em 最高优先级} &          3 & 指令地址断点 \\
   \hline
-                &            & During instruction address translation: \\
-                &      12, 1 & \quad First encountered page fault or
-                                 access fault \\
+                &            & 在指令地址转换期间： \\
+                &      12, 1 & \quad 第一次遇到页错误或者
+                                  访问错误 \\
   \hline
-                &            & With physical address for instruction: \\
-                &          1 & \quad Instruction access fault \\
+                &            & 带有物理地址的指令： \\
+                &          1 & \quad 指令访问错误 \\
   \hline
-                &          2 & Illegal instruction \\
-                &          0 & Instruction address misaligned \\
-                &   8, 9, 11 & Environment call \\
-                &          3 & Environment break \\
-                &          3 & Load/store/AMO address breakpoint \\
+                &          2 & 非法指令 \\
+                &          0 & 指令地址未对齐 \\
+                &   8, 9, 11 & 环境调用 \\
+                &          3 & 环境中断 \\
+                &          3 & 加载/存储/AMO地址断点 \\
   \hline
-                &            & Optionally: \\
-                &       4, 6 & \quad Load/store/AMO address misaligned \\
+                &            & 可选的： \\
+                &       4, 6 & \quad 加载/存储/AMO指令未对其 \\
   \hline
-                &            & During address translation for an explicit
-                                 memory access: \\
-              & 13, 15, 5, 7 & \quad First encountered page fault or
-                                 access fault \\
+                &            & 在显式内存访问的地址转换期间： \\
+              & 13, 15, 5, 7 & \quad 第一次遭遇页错误或者
+                                  访问错误 \\
   \hline
-                &            & With physical address for an explicit
-                                 memory access: \\
-                &       5, 7 & \quad Load/store/AMO access fault \\
+                &            &  对于带有物理地址的显式内存访问： \\
+                &       5, 7 & \quad 加载/存储/AMO访问错误 \\
   \hline
-                &            & If not higher priority: \\
-  {\em Lowest}  &       4, 6 & \quad Load/store/AMO address misaligned \\
+                &            & 如果不是更高的优先级： \\
+  {\em Lowest}  &       4, 6 & \quad 加载/存储/AMO指令未对齐 \\
   \hline
 
 \end{tabular}
 \end{center}
-\caption{Synchronous exception priority in decreasing priority order.}
+\caption{同步异常的递减优先级顺序。}
 \label{exception-priority}
 \end{table*}
 
