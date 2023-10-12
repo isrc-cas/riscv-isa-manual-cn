@@ -1,4 +1,4 @@
-# RISC-V 指令集手册中文版 RISC-V ISA Manual CN 
+# RISC-V 指令集手册中文版 RISC-V ISA Manual CN
 
 #### 介绍
 本项目是对RISC-V International （RVI）已批准指令集手册的中文翻译。由中科院软件所负责长期维护。
@@ -6,6 +6,9 @@
 #### 版本说明
 官方英文版本可以在https://riscv.org/technical/specifications/ 获取，英文最新版本可在https://github.com/riscv/riscv-isa-manual/releases/latest 获取。
 
+中文版可以从此处获取：
+- （非特权指令）：[The RISC-V Instruction Set Manual Volume I: Unprivileged Architecture](build/riscv-spec.pdf)
+- （特权指令）：[The RISC-V Instruction Set Manual: Volume II: Privileged Architecture](build/riscv-privileged.pdf)
 
 #### 许可说明
 
@@ -28,7 +31,7 @@
 
 #### 已有贡献者名单（如有遗漏，发消息给 @武延军 ）
 
-0.  Andrew Waterman，Krste Asanovic 等RISC-V创始人员 
+0.  Andrew Waterman，Krste Asanovic 等RISC-V创始人员
 1.  刘畅，中国科学院大学 2017 级博士生，完成了手册第I卷用户级非特权指令集的第一次初始翻译
 2.  武延军，中科院软件所研究员，对初始翻译进行校对，负并责跟踪官方英文版本，持续更新本项目
 3.  高世豪、曹行行、刘洋，中国科学院大学 2023 级学生，负责本项目的持续维护，并完成第II卷特权架构初稿翻译
